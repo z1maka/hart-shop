@@ -5,8 +5,8 @@ export const COMPANY = {
   tradingName: 'Гарт',
   addressLines: ['Ukraine'],
   taxId: '3251211798',
-  phone: '+380 63 063 06 77',
-  phoneHref: 'tel:+380630630677',
+  phone: '+380 96 520 33 25',
+  phoneHref: 'tel:+380965203325',
   email: 'office@hart-shop.com',
   site: 'hart-shop.com',
 } as const

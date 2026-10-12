@@ -20,17 +20,17 @@ export type ContactTopic = {
 // The handles are the workshop's existing support channels, shared with its
 // domestic shop — one team answers both.
 export const HEADER_CHANNELS: readonly HeaderChannel[] = [
-  { key: 'phone', href: 'tel:+380630630677' },
-  { key: 'telegram', href: 'https://t.me/+380630630677' },
-  { key: 'whatsapp', href: 'https://wa.me/380630630677' },
+  { key: 'phone', href: 'tel:+380965203325' },
+  { key: 'telegram', href: 'https://t.me/+380965203325' },
+  { key: 'whatsapp', href: 'https://wa.me/380965203325' },
 ]
 
 // A channel without a real handle is hidden rather than shown as a promise
 // nobody can use.
 export const CONTACT_CHANNELS: readonly ContactChannel[] = [
-  { key: 'phone', handle: '+380 63 063 06 77', href: 'tel:+380630630677' },
-  { key: 'telegram', handle: '+380 63 063 06 77', href: 'https://t.me/+380630630677' },
-  { key: 'whatsapp', handle: '+380 63 063 06 77', href: 'https://wa.me/380630630677' },
+  { key: 'phone', handle: '+380 96 520 33 25', href: 'tel:+380965203325' },
+  { key: 'telegram', handle: '+380 96 520 33 25', href: 'https://t.me/+380965203325' },
+  { key: 'whatsapp', handle: '+380 96 520 33 25', href: 'https://wa.me/380965203325' },
   { key: 'email', handle: 'office@hart-shop.com', href: 'mailto:office@hart-shop.com' },
 ]
 
