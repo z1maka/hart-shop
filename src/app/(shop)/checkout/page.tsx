@@ -84,7 +84,9 @@ async function OrderSummary({ cart }: { cart: CartView }) {
             <span className="flex-1">
               <span className="block text-[13.5px] font-semibold text-ink">{line.title}</span>
               <span className="mt-0.5 block text-[12px] text-faint">
-                {line.variantLabel} · {t('summary.pcs', { count: line.quantity })}
+                {[line.variantLabel, t('summary.pcs', { count: line.quantity })]
+                  .filter(Boolean)
+                  .join(' · ')}
               </span>
             </span>
             <span className="text-[13.5px] font-semibold text-ink">
