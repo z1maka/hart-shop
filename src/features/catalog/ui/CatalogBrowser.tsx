@@ -47,6 +47,7 @@ export async function CatalogBrowser({
 }: CatalogBrowserProps) {
   const t = await getTranslations('filters')
   const navT = await getTranslations('nav')
+  const colorsT = await getTranslations('colors')
   const resolved = await searchParams
   const colors = parseColors(resolved.color)
   const weightBand = parseWeightBand(resolved.weight)
@@ -115,14 +116,7 @@ export async function CatalogBrowser({
           })),
         }}
       />
-      <div className="flex flex-wrap items-center justify-end gap-2.5">
-        <span className="text-[13px] font-medium text-faint">
-          {t('productCount', { count: catalog.total })}
-        </span>
-        <SortSelect value={sort} />
-      </div>
-
-      <div className="flex flex-wrap items-start gap-6">
+      <div className="flex flex-wrap items-start gap-7">
         <MobileFilterToggle
           showLabel={t('showFilters')}
           hideLabel={t('hideFilters')}
@@ -137,7 +131,26 @@ export async function CatalogBrowser({
           />
         </MobileFilterToggle>
 
-        <div className="min-w-[min(100%,320px)] flex-[999_1_520px]">
+        <div className="min-w-[min(100%,300px)] flex-[999_1_520px]">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-subtle pb-3.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[13px] text-muted">
+                {t('showingOf', { shown: catalog.items.length, total: catalog.total })}
+              </span>
+              {colorOptions
+                .filter((option) => option.isActive)
+                .map((option) => (
+                  <ActiveFilterChip
+                    key={option.href}
+                    href={option.href}
+                    label={colorsT.has(option.label) ? colorsT(option.label) : option.label}
+                    removeLabel={t('removeFilter')}
+                  />
+                ))}
+            </div>
+            <SortSelect value={sort} />
+          </div>
+
           {catalog.items.length > 0 ? (
             <ProductGrid products={catalog.items} priorityCount={3} highlightColors={colors} />
           ) : (
@@ -147,7 +160,7 @@ export async function CatalogBrowser({
                   looked for a thing the catalogue does not have. */}
               <Link
                 href={CUSTOM_ORDER_HREF}
-                className="mt-3 inline-block text-[13.5px] font-semibold text-accent-hover hover:underline"
+                className="mt-3 inline-block text-[13.5px] font-bold text-accent hover:text-ink"
               >
                 {t('emptyCustom')}
               </Link>
@@ -160,9 +173,13 @@ export async function CatalogBrowser({
             hrefForPage={(nextPage) => buildHref(basePath, { colors, weightBand, sort }, nextPage)}
           />
 
-          <p className="px-0.5 py-4 text-[12.5px] text-faint">
-            {t('showingOf', { shown: catalog.items.length, total: catalog.total })}
-          </p>
+          {catalog.items.length > 0 ? (
+            <p className="pt-6 text-[13.5px]">
+              <Link href={CUSTOM_ORDER_HREF} className="font-bold text-accent hover:text-ink">
+                {t('notFoundCustom')}
+              </Link>
+            </p>
+          ) : null}
 
           <CompareBar />
         </div>
@@ -221,4 +238,25 @@ function parseSort(value: string | string[] | undefined): CatalogSort {
 function parsePage(value: string | string[] | undefined): number {
   const parsed = Number(firstValue(value))
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 1
+}
+
+function ActiveFilterChip({
+  href,
+  label,
+  removeLabel,
+}: {
+  readonly href: string
+  readonly label: string
+  readonly removeLabel: string
+}) {
+  return (
+    <Link
+      href={href}
+      aria-label={`${removeLabel}: ${label}`}
+      className="inline-flex min-h-[30px] items-center gap-1.5 rounded-chip bg-ink px-2.5 text-[12px] font-bold text-on-dark transition-colors hover:bg-ink-hover"
+    >
+      {label}
+      <span aria-hidden>×</span>
+    </Link>
+  )
 }

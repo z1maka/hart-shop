@@ -26,6 +26,8 @@ type CatalogSidebarProps = {
 }
 
 
+const HEADING_CLASS = 'mb-2.5 font-display text-[13px] font-semibold tracking-[0.12em] text-ink'
+
 export async function CatalogSidebar({
   categories,
   colors,
@@ -36,62 +38,52 @@ export async function CatalogSidebar({
   const t = await getTranslations('filters')
   const colorsT = await getTranslations('colors')
   return (
-    <aside className="w-full max-w-full rounded-card border border-subtle bg-surface p-5">
-      <div className="flex items-baseline justify-between border-b border-subtle pb-3.5">
-        <span className="text-[14px] font-semibold text-ink">
-          {t('title')} · {activeFilterCount}
-        </span>
-        {activeFilterCount > 0 ? (
-          <Link
-            href={clearHref}
-            className="text-[12.5px] font-semibold text-accent-hover hover:underline"
-          >
-            {t('clear')}
-          </Link>
-        ) : null}
-      </div>
-
-      <section className="border-b border-subtle py-4">
-        <h2 className="mb-2.5 text-[12px] font-semibold tracking-[0.05em] text-faint uppercase">
-          {t('category')}
-        </h2>
+    <aside className="flex w-full max-w-full flex-col gap-5.5">
+      <section>
+        <h2 className={HEADING_CLASS}>{t('category')}</h2>
         <div className="grid gap-0.5">
           {categories.map((category) => (
             <Link
               key={category.href}
               href={category.href}
               aria-current={category.isActive ? 'page' : undefined}
-              className="flex min-h-9 items-center gap-2.5 rounded-chip px-1.5 py-1.5 text-[13px] leading-snug font-medium text-ink hover:bg-hover"
+              className={cn(
+                'flex min-h-[38px] items-center justify-between gap-3 border-l-[3px] px-3 py-1.5 text-[13.5px] leading-snug text-ink transition-colors',
+                category.isActive
+                  ? 'border-accent bg-accent-soft font-bold'
+                  : 'border-transparent font-medium hover:bg-hover',
+              )}
             >
+              <span className="min-w-0">{category.label}</span>
               <span
                 className={cn(
-                  'size-3.5 shrink-0 rounded-[4px] border-[1.5px] border-faint',
-                  category.isActive ? 'bg-accent' : 'bg-raised',
+                  'shrink-0 text-[12px] tabular-nums',
+                  category.isActive ? 'font-semibold text-muted' : 'text-faint',
                 )}
-                aria-hidden
-              />
-              <span className="min-w-0 flex-1">{category.label}</span>
-              <span className="shrink-0 text-[12px] text-faint tabular-nums">{category.count}</span>
+              >
+                {category.count}
+              </span>
             </Link>
           ))}
         </div>
       </section>
 
-      <section className="border-b border-subtle py-4">
-        <h2 className="mb-3 text-[12px] font-semibold tracking-[0.05em] text-faint uppercase">
-          {t('pattern')}
-        </h2>
-        <div className="flex flex-wrap gap-1.5">
+      <section>
+        <h2 className={HEADING_CLASS}>{t('pattern')}</h2>
+        <div className="flex flex-wrap gap-2">
           {colors.map((color) => (
             <Link
               key={color.href}
               href={color.href}
+              aria-current={color.isActive ? 'true' : undefined}
               className={cn(
-                'inline-flex min-h-8 items-center gap-1.5 rounded-pill border px-3 text-[12px] font-medium text-ink transition-colors hover:border-accent',
-                color.isActive ? 'border-accent bg-accent-soft' : 'border-subtle bg-raised',
+                'inline-flex min-h-9 items-center gap-2 rounded-chip px-3 text-[12.5px] text-ink transition-colors',
+                color.isActive
+                  ? 'border-[1.5px] border-accent bg-accent-soft font-bold'
+                  : 'border border-strong bg-raised font-semibold hover:border-ink',
               )}
             >
-              <ColorSwatch name={color.name} className="size-3" />
+              <ColorSwatch name={color.name} className="size-3 rounded-[2px]" />
               {colorsT.has(color.label) ? colorsT(color.label) : color.label}
             </Link>
           ))}
@@ -99,18 +91,16 @@ export async function CatalogSidebar({
       </section>
 
       {weightBands.length > 0 ? (
-        <section className="border-b border-subtle py-4">
-          <h2 className="mb-3 text-[12px] font-semibold tracking-[0.05em] text-faint uppercase">
-            {t('weight')}
-          </h2>
-          <div className="flex gap-0.5 rounded-control bg-hover p-0.5">
+        <section>
+          <h2 className={HEADING_CLASS}>{t('weight')}</h2>
+          <div className="flex gap-1 rounded-control bg-sunken p-[3px]">
             {weightBands.map((band) => (
               <Link
                 key={band.href}
                 href={band.href}
                 className={cn(
-                  'flex min-h-9.5 flex-1 items-center justify-center rounded-chip px-1.5 text-center text-[12.5px] font-semibold text-ink',
-                  band.isActive && 'bg-surface shadow-tab',
+                  'flex min-h-[34px] flex-1 items-center justify-center rounded-chip px-1.5 text-center text-[12.5px]',
+                  band.isActive ? 'bg-raised font-bold text-ink' : 'font-semibold text-muted',
                 )}
               >
                 {band.label}
@@ -118,6 +108,12 @@ export async function CatalogSidebar({
             ))}
           </div>
         </section>
+      ) : null}
+
+      {activeFilterCount > 0 ? (
+        <Link href={clearHref} className="self-start text-[13px] font-bold text-accent underline">
+          {t('clear')}
+        </Link>
       ) : null}
     </aside>
   )

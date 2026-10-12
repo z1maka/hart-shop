@@ -15,6 +15,8 @@ type SelectProps = {
   readonly onValueChange: (value: string) => void
   readonly options: readonly SelectOption[]
   readonly label: string
+  // Shown before the value inside the trigger («Сортування: Рекомендовані»).
+  readonly prefix?: string
   readonly size?: SelectSize
   readonly className?: string
   readonly isDisabled?: boolean
@@ -30,6 +32,7 @@ export function Select({
   onValueChange,
   options,
   label,
+  prefix,
   size = 'md',
   className,
   isDisabled = false,
@@ -41,14 +44,17 @@ export function Select({
       <SelectPrimitive.Trigger
         aria-label={label}
         className={cn(
-          'inline-flex items-center justify-between gap-3 rounded-control border border-strong bg-raised font-medium text-ink transition-colors',
-          'hover:border-faint focus-visible:border-accent data-[state=open]:border-accent',
+          'inline-flex items-center justify-between gap-3 rounded-control border border-strong bg-raised font-semibold text-ink transition-colors',
+          'hover:border-ink focus-visible:border-accent data-[state=open]:border-accent',
           TRIGGER_SIZE_CLASSES[size],
           isDisabled && 'cursor-not-allowed opacity-60',
           className,
         )}
       >
-        <SelectPrimitive.Value>{selected?.label ?? ''}</SelectPrimitive.Value>
+        <span>
+          {prefix ? <span className="mr-1.5 font-medium text-faint">{prefix}:</span> : null}
+          <SelectPrimitive.Value>{selected?.label ?? ''}</SelectPrimitive.Value>
+        </span>
         <SelectPrimitive.Icon className="text-faint">
           <ChevronDown />
         </SelectPrimitive.Icon>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { getTranslations } from 'next-intl/server'
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { JsonLd } from '@/components/JsonLd'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { decodeSlugParam } from '@/lib/slug'
@@ -51,7 +52,7 @@ export default async function CategoryPage({
   if (!activeCategory) notFound()
 
   return (
-    <div className="px-7 py-10">
+    <div className="px-7 pt-9 pb-14">
       <CategoryHeader category={activeCategory} />
 
       <Suspense fallback={<Skeleton className="h-[560px] w-full rounded-card" />}>
@@ -71,9 +72,18 @@ export default async function CategoryPage({
 
 async function CategoryHeader({ category: activeCategory }: { category: CategoryView }) {
   const t = await getTranslations('pdp')
+  const navT = await getTranslations('nav')
 
   return (
-    <header className="mb-6">
+    <header className="mb-7">
+      <Breadcrumbs
+        className="mb-3.5"
+        items={[
+          { label: navT('home'), href: '/' },
+          { label: navT('allProducts'), href: '/shop' },
+          { label: activeCategory.name },
+        ]}
+      />
       <JsonLd
         data={breadcrumbJsonLd([
           { name: t('breadcrumbShop'), path: '/shop/' },

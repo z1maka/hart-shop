@@ -33,6 +33,13 @@ export function SortSelect({ value }: SortSelectProps) {
   }
 
   return (
-    <Select value={value} onValueChange={handleChange} options={options} label={t('sortLabel')} />
+    <Select
+      value={value}
+      onValueChange={handleChange}
+      options={options}
+      label={t('sortLabel')}
+      prefix={t('sortLabel')}
+      size="sm"
+    />
   )
 }

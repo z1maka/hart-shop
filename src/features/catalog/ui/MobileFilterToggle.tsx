@@ -21,12 +21,12 @@ export function MobileFilterToggle({
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <div className="w-full min-w-0 lg:w-auto lg:min-w-[240px] lg:flex-[1_1_240px]">
+    <div className="w-full min-w-0 lg:w-[250px] lg:flex-none">
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
-        className="mb-3 flex min-h-11 w-full items-center justify-between rounded-control border border-strong bg-surface px-4 text-[13.5px] font-semibold text-ink lg:hidden"
+        className="mb-3 flex min-h-11 w-full items-center justify-between rounded-control border-[1.5px] border-strong bg-raised px-4 text-[13.5px] font-bold text-ink lg:hidden"
       >
         <span>
           {isOpen ? hideLabel : showLabel}

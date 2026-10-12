@@ -45,8 +45,8 @@ export function CatalogPagination({ page, pageCount, hrefForPage }: CatalogPagin
             className={cn(
               'flex min-h-10 min-w-9 items-center justify-center rounded-control border px-1 text-[13px] font-semibold transition-colors sm:min-w-10',
               entry === page
-                ? 'border-accent bg-accent text-accent-fg'
-                : 'border-subtle bg-surface text-ink hover:border-accent',
+                ? 'border-accent bg-accent font-bold text-accent-fg'
+                : 'border-strong bg-raised text-ink hover:border-ink',
             )}
           >
             {entry}
@@ -107,7 +107,7 @@ function ArrowLink({
 
   if (isDisabled) {
     return (
-      <span aria-hidden className={cn(baseClass, 'border-subtle bg-surface text-faint')}>
+      <span aria-hidden className={cn(baseClass, 'border-subtle bg-raised text-faint')}>
         {content}
       </span>
     )
@@ -117,7 +117,7 @@ function ArrowLink({
     <Link
       href={href}
       aria-label={label}
-      className={cn(baseClass, 'border-subtle bg-surface text-ink hover:border-accent')}
+      className={cn(baseClass, 'border-strong bg-raised text-ink hover:border-ink')}
     >
       {content}
     </Link>

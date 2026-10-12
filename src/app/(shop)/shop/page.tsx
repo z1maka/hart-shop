@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getCategories } from '@/features/catalog'
 import { CatalogBrowser, type ShopSearchParams } from '@/features/catalog/ui/CatalogBrowser'
@@ -20,10 +21,15 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ShopIndexPage({ searchParams }: PageProps<'/shop'>) {
   const pageT = await getTranslations('shopPage')
+  const navT = await getTranslations('nav')
 
   return (
-    <div className="px-7 py-10">
-      <header className="mb-6">
+    <div className="px-7 pt-9 pb-14">
+      <Breadcrumbs
+        className="mb-3.5"
+        items={[{ label: navT('home'), href: '/' }, { label: navT('allProducts') }]}
+      />
+      <header className="mb-7">
         <h1 className="mb-2.5 font-display text-h1 font-bold text-ink">{pageT('title')}</h1>
         <p className="max-w-[64ch] text-[14.5px] leading-relaxed text-muted">{pageT('lead')}</p>
       </header>
