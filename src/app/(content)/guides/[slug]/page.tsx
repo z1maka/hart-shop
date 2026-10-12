@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { JsonLd } from '@/components/JsonLd'
+import { siteConfig } from '@/config/site'
 import { findGuide, GUIDES, type GuideSection } from '@/content/guides'
 import { articleJsonLd, breadcrumbJsonLd } from '@/lib/seo'
 
@@ -13,7 +14,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<'/guides/[slug]'>): Promise<Metadata> {
   const { slug } = await params
   const guide = findGuide(slug)
-  if (!guide) return { title: 'FOX Armor' }
+  if (!guide) return { title: siteConfig.name }
 
   return {
     title: guide.seoTitle,

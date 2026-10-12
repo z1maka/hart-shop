@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import { bodyFont, displayFont } from '@/app/fonts'
+import { siteConfig } from '@/config/site'
 import { env } from '@/lib/env'
 import { cn } from '@/lib/utils'
 import '../globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
-  title: { default: 'Админка', template: '%s · FOX Admin' },
+  title: { default: 'Админка', template: `%s · ${siteConfig.name} Admin` },
   robots: { index: false, follow: false },
 }
 

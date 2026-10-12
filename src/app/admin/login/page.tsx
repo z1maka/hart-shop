@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { siteConfig } from '@/config/site'
 import { SignInForm } from '@/features/admin'
 
 export const metadata: Metadata = {
@@ -10,7 +11,7 @@ export default function AdminLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
       <div className="w-full max-w-sm rounded-card border border-subtle bg-surface p-7">
-        <h1 className="mb-1.5 font-display text-h3 font-bold text-ink">FOX Admin</h1>
+        <h1 className="mb-1.5 font-display text-h3 font-bold text-ink">{siteConfig.name} Admin</h1>
         <p className="mb-6 text-[13px] text-muted">Доступ только для персонала.</p>
         <SignInForm />
       </div>
