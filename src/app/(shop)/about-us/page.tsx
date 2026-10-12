@@ -21,6 +21,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const FACT_KEYS = ['founded', 'production', 'model', 'range'] as const
+const SHORT_FACT_KEYS: ReadonlySet<string> = new Set(['founded', 'production'])
 
 const BLOCK_KEYS = ['started', 'inHouse', 'designed', 'euRange'] as const
 
@@ -31,21 +32,29 @@ export default async function AboutPage() {
     <div>
       <section className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-center gap-9 px-7 py-12">
         <div>
-          <p className="mb-5 inline-block rounded-pill bg-accent-soft px-3.5 py-2 text-[12px] font-semibold tracking-[0.04em] text-accent-hover">
+          <p className="mb-5 inline-block border-l-[3px] border-khaki-mark bg-sunken px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-accent">
             {t('badge')}
           </p>
-          <h1 className="mb-4 max-w-[19ch] font-display text-h1 font-bold text-balance text-ink">
+          <h1 className="mb-4 max-w-[19ch] font-display text-[clamp(2rem,4.2vw,3rem)] leading-[1.04] font-bold text-balance text-ink">
             {t('title')}
           </h1>
           <p className="max-w-[56ch] text-[15px] leading-relaxed text-pretty text-muted">
             {t('lead')}
           </p>
 
-          <dl className="mt-7 grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-4">
+          {/* Dark tiles on a 1px seam, as the design draws the facts; the
+              short ones read as Oswald figures, the long ones as text. */}
+          <dl className="mt-7 grid grid-cols-1 gap-px overflow-hidden rounded-card bg-dark-line min-[420px]:grid-cols-2">
             {FACT_KEYS.map((key) => (
-              <div key={key} className="rounded-card border border-subtle bg-surface p-4">
-                <dt className="text-[12px] text-faint">{t(`facts.${key}.label`)}</dt>
-                <dd className="mt-1 text-[14px] font-semibold text-ink">
+              <div key={key} className="bg-header p-4">
+                <dt className="text-[12px] text-on-dark-muted">{t(`facts.${key}.label`)}</dt>
+                <dd
+                  className={
+                    SHORT_FACT_KEYS.has(key)
+                      ? 'mt-1 font-display text-[22px] font-semibold text-khaki'
+                      : 'mt-1 text-[14px] font-bold text-on-dark'
+                  }
+                >
                   {t(`facts.${key}.value`)}
                 </dd>
               </div>
@@ -61,7 +70,7 @@ export default async function AboutPage() {
       <section className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5 px-7 pb-12">
         {BLOCK_KEYS.map((key) => (
           <article key={key} className="rounded-card border border-subtle bg-surface p-6">
-            <h2 className="mb-2.5 font-display text-[18px] font-bold tracking-[-0.01em] text-ink">
+            <h2 className="mb-2.5 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
               {t(`blocks.${key}.heading`)}
             </h2>
             <p className="text-[13.5px] leading-relaxed text-muted">{t(`blocks.${key}.body`)}</p>
@@ -80,7 +89,7 @@ export default async function AboutPage() {
 
       <section id="seller" className="scroll-mt-28 px-7 pb-14">
         <div className="rounded-card border border-subtle bg-surface p-6">
-          <h2 className="mb-3.5 font-display text-[18px] font-bold tracking-[-0.01em] text-ink">
+          <h2 className="mb-3.5 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
             {t('sellerTitle')}
           </h2>
           <dl className="grid gap-2 text-[13.5px] sm:grid-cols-[max-content_1fr] sm:gap-x-6">

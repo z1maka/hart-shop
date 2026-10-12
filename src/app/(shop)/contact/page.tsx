@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { cn } from '@/lib/utils'
 import { getTranslations } from 'next-intl/server'
 import {
   CONTACT_TOPIC_IDS,
@@ -28,6 +29,9 @@ const BEFORE_YOU_WRITE = [
   { href: '/refund-policy', key: 'returns' },
 ] as const
 
+// The design sets the fastest channel apart on a dark card.
+const HIGHLIGHTED_CHANNEL = 'telegram'
+
 export default async function ContactPage({ searchParams }: PageProps<'/contact'>) {
   const t = await getTranslations('contact')
 
@@ -38,11 +42,11 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
   }))
 
   return (
-    <div className="px-7 py-10">
-      <h1 className="mb-2.5 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <p className="mb-7 max-w-[66ch] text-[14.5px] leading-relaxed text-muted">{t('lead')}</p>
+    <div className="px-7 pt-11 pb-16">
+      <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
+      <p className="mb-8 max-w-[64ch] text-[15px] leading-relaxed text-muted">{t('lead')}</p>
 
-      <div className="mb-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mb-9 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3.5">
         {liveContactChannels().map((channel) => (
           <a
             key={channel.key}
@@ -50,18 +54,43 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
             {...(channel.href.startsWith('http')
               ? { target: '_blank', rel: 'noopener noreferrer' }
               : {})}
-            className="flex flex-col gap-2 rounded-card border border-subtle bg-surface p-5 transition-colors hover:border-accent"
+            className={cn(
+              'flex flex-col gap-2 rounded-card p-5 transition-colors',
+              channel.key === HIGHLIGHTED_CHANNEL
+                ? 'bg-header hover:bg-ink-hover'
+                : 'border border-subtle bg-raised hover:border-strong',
+            )}
           >
-            <p className="text-[12px] font-semibold text-faint">
+            <h2
+              className={cn(
+                'font-display text-[18px] font-semibold tracking-[0.06em]',
+                channel.key === HIGHLIGHTED_CHANNEL ? 'text-khaki' : 'text-ink',
+              )}
+            >
               {t(`channels.${channel.key}.name`)}
-            </p>
-            <p className="font-display text-[17px] leading-tight font-bold text-alert">
+            </h2>
+            <p
+              className={cn(
+                'text-[15px] font-bold break-words',
+                channel.key === HIGHLIGHTED_CHANNEL ? 'text-on-dark' : 'text-ink',
+              )}
+            >
               {channel.handle}
             </p>
-            <p className="text-[12.5px] leading-relaxed text-muted">
+            <p
+              className={cn(
+                'flex-1 text-[13px] leading-relaxed',
+                channel.key === HIGHLIGHTED_CHANNEL ? 'text-on-dark-muted' : 'text-muted',
+              )}
+            >
               {t(`channels.${channel.key}.detail`)}
             </p>
-            <p className="mt-auto pt-2 text-[12.5px] font-semibold text-accent-hover">
+            <p
+              className={cn(
+                'pt-1 text-[13px] font-bold',
+                channel.key === HIGHLIGHTED_CHANNEL ? 'text-on-dark' : 'text-accent',
+              )}
+            >
               {t(`channels.${channel.key}.cta`)} →
             </p>
           </a>
@@ -72,15 +101,15 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
         <div className="min-w-[min(100%,320px)] flex-[999_1_460px]">
           {/* Before the form, not after it: most questions are answered on
               these pages faster than by a reply. */}
-          <section className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-card border border-subtle bg-surface px-5 py-3.5">
+          <section className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-l-[3px] border-khaki-mark bg-accent-tint px-5 py-3.5">
             <p className="text-[13px] leading-relaxed text-muted">
-              <span className="font-semibold text-ink">{t('beforeTitle')}.</span> {t('beforeLead')}
+              <span className="font-bold text-ink">{t('beforeTitle')}.</span> {t('beforeLead')}
             </p>
             {BEFORE_YOU_WRITE.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-[13px] font-semibold text-accent-hover hover:underline"
+                className="text-[13px] font-bold text-accent hover:text-ink"
               >
                 {t(`beforeLinks.${link.key}`)} →
               </Link>
@@ -95,11 +124,13 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
 
         <aside className="grid min-w-[min(100%,280px)] flex-[1_1_300px] gap-4">
           <section className="rounded-card border border-subtle bg-surface p-5">
-            <h2 className="mb-3 text-[14px] font-semibold text-ink">{t('customTitle')}</h2>
+            <h2 className="mb-3 font-display text-[16px] font-semibold tracking-[0.08em] text-ink">
+              {t('customTitle')}
+            </h2>
             <ul className="grid gap-2.5">
               {CUSTOM_ORDER_EXAMPLE_KEYS.map((key) => (
                 <li key={key} className="flex gap-2.5 text-[13px] leading-relaxed text-muted">
-                  <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent" aria-hidden />
+                  <span className="mt-1.5 size-1.5 shrink-0 bg-khaki-mark" aria-hidden />
                   {t(`customExamples.${key}`)}
                 </li>
               ))}

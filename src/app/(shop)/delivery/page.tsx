@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
+import { NovaPoshtaMark } from '@/components/ui/NovaPoshtaMark'
 import { SHIPPING_RATE_TIERS } from '@/config/delivery'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
 
@@ -34,31 +35,32 @@ export default async function DeliveryPage() {
   const t = await getTranslations('deliveryPage')
 
   return (
-    <div className="mx-auto max-w-4xl px-7 py-10">
+    <div className="mx-auto max-w-[960px] px-7 pt-11 pb-16">
       <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <p className="mb-8 max-w-[68ch] text-[14.5px] leading-relaxed text-muted">{t('lead')}</p>
+      <p className="mb-9 max-w-[68ch] text-[15px] leading-relaxed text-muted">{t('lead')}</p>
 
       <Section title={t('shippingTitle')}>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-3.5 sm:grid-cols-3">
           {SHIPPING_KEYS.map((key) => (
-            <article key={key} className="rounded-card border border-subtle bg-surface p-5">
-              <h3 className="mb-1.5 text-[14.5px] leading-snug font-semibold text-ink">
+            <article key={key} className="rounded-card border border-subtle bg-raised p-5">
+              <NovaPoshtaMark size={28} className="mb-3" />
+              <h3 className="mb-1.5 text-[14.5px] leading-snug font-extrabold text-ink">
                 {t(`shipping.${key}.heading`)}
               </h3>
-              <p className="text-[13.5px] leading-relaxed text-muted">{t(`shipping.${key}.body`)}</p>
+              <p className="text-[13px] leading-relaxed text-muted">{t(`shipping.${key}.body`)}</p>
             </article>
           ))}
         </div>
-        <p className="mt-4 text-[13px] leading-relaxed text-faint">
+        <p className="mt-3.5 text-[13px] leading-relaxed text-faint">
           {t('shippingNote')} {t('shippingEstimate', SHIPPING_ESTIMATE)}
         </p>
       </Section>
 
       <Section title={t('paymentTitle')}>
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {PAYMENT_KEYS.map((key) => (
-            <article key={key} className="rounded-card border border-subtle bg-surface p-5">
-              <h3 className="mb-1.5 text-[14.5px] leading-snug font-semibold text-ink">
+            <article key={key} className="rounded-card border border-subtle bg-raised p-5">
+              <h3 className="mb-1.5 text-[14.5px] leading-snug font-extrabold text-ink">
                 {t(`payment.${key}.heading`)}
               </h3>
               <p className="max-w-[76ch] text-[13.5px] leading-relaxed text-muted">
@@ -70,10 +72,10 @@ export default async function DeliveryPage() {
       </Section>
 
       <Section title={t('warrantyTitle')}>
-        <div className="grid gap-5 rounded-card border border-subtle bg-surface p-7">
+        <div className="grid gap-5 rounded-card border border-subtle bg-raised p-6">
           {WARRANTY_KEYS.map((key) => (
             <section key={key}>
-              <h3 className="mb-1.5 text-[14.5px] leading-snug font-semibold text-ink">
+              <h3 className="mb-1.5 text-[14.5px] leading-snug font-extrabold text-ink">
                 {t(`warranty.${key}.heading`)}
               </h3>
               <p className="max-w-[76ch] text-[13.5px] leading-relaxed text-pretty text-muted">
@@ -89,8 +91,9 @@ export default async function DeliveryPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mb-9">
-      <h2 className="mb-4 font-display text-[21px] font-bold tracking-[-0.01em] text-ink">
+    <section className="mb-10">
+      <h2 className="mb-4 flex items-center gap-3 font-display text-[24px] font-bold tracking-[0.04em] text-ink">
+        <span className="h-6 w-1.5 shrink-0 bg-khaki-mark" aria-hidden />
         {title}
       </h2>
       {children}

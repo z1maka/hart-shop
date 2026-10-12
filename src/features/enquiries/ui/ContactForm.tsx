@@ -49,7 +49,7 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
   if (isSent) {
     return (
       <div className="rounded-card border border-subtle bg-surface p-8">
-        <p className="mb-2 text-[12.5px] font-semibold tracking-[0.05em] text-accent-hover uppercase">
+        <p className="mb-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-khaki-ink">
           {t('sentKicker')}
         </p>
         <h2 className="mb-3 font-display text-h3 font-bold text-ink">{t('sentTitle')}</h2>
@@ -69,7 +69,7 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
   return (
     <form
       action={handleSubmit}
-      className="relative rounded-card border border-subtle bg-surface p-6"
+      className="relative rounded-card border border-subtle bg-raised p-6"
     >
       <div
         aria-hidden="true"
@@ -82,7 +82,9 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
       </div>
 
       <fieldset className="mb-5">
-        <legend className="mb-3 text-[12.5px] font-semibold text-muted">{t('whatAbout')}</legend>
+        <legend className="mb-3 font-display text-[16px] font-semibold tracking-[0.08em] text-ink">
+          {t('whatAbout')}
+        </legend>
         {/* Compact choices; the explanation shows for the chosen topic only,
             so five topics no longer read as five paragraphs. */}
         <div className="flex flex-wrap gap-2">
@@ -90,10 +92,10 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
             <label
               key={entry.id}
               className={cn(
-                'inline-flex min-h-9.5 cursor-pointer items-center gap-2 rounded-pill border-[1.5px] px-3.5 text-[13px] font-semibold text-ink transition-colors',
+                'inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-control border-[1.5px] px-3.5 text-[13px] text-ink transition-colors',
                 entry.id === topic
-                  ? 'border-accent bg-accent-tint'
-                  : 'border-subtle bg-raised hover:border-accent',
+                  ? 'border-accent bg-accent-tint font-extrabold'
+                  : 'border-subtle bg-raised font-semibold hover:border-strong',
               )}
             >
               <input
