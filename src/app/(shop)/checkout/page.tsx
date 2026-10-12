@@ -43,7 +43,7 @@ async function CheckoutContents() {
 
   return (
     <div className="flex flex-wrap items-start gap-6">
-      <div className="min-w-[min(100%,320px)] flex-[999_1_520px] rounded-card border border-subtle bg-surface p-6">
+      <div className="min-w-[min(100%,320px)] flex-[999_1_560px] rounded-card border border-subtle bg-raised p-6">
         <CheckoutFlow
           totalLabel={formatMoney(cart.subtotal)}
           totalCents={cart.subtotal.amountCents}
@@ -71,18 +71,20 @@ async function OrderSummary({ cart }: { cart: CartView }) {
 
   return (
     <aside className="min-w-[min(100%,300px)] flex-[1_1_320px] rounded-card border border-subtle bg-surface p-5.5">
-      <h2 className="mb-4 text-[14px] font-semibold text-ink">{t('summary.yourOrder')}</h2>
+      <h2 className="mb-4 font-display text-[16px] font-semibold tracking-[0.08em] text-ink">
+        {t('summary.yourOrder')}
+      </h2>
 
       <div className="grid gap-3.5 border-b border-subtle pb-4">
         {cart.lines.map((line) => (
           <div key={line.id} className="flex items-center gap-3">
-            <span className="relative size-12 shrink-0 overflow-hidden rounded-chip bg-raised">
+            <span className="relative size-12 shrink-0 overflow-hidden rounded-control bg-sunken">
               {line.imageUrl ? (
                 <Image src={line.imageUrl} alt="" fill sizes="48px" className="object-cover" />
               ) : null}
             </span>
             <span className="flex-1">
-              <span className="block text-[13.5px] font-semibold text-ink">{line.title}</span>
+              <span className="block text-[13.5px] font-bold text-ink">{line.title}</span>
               <span className="mt-0.5 block text-[12px] text-faint">
                 {[line.variantLabel, t('summary.pcs', { count: line.quantity })]
                   .filter(Boolean)
@@ -99,7 +101,7 @@ async function OrderSummary({ cart }: { cart: CartView }) {
       <dl className="grid gap-2 py-4 text-[13.5px]">
         <div className="flex justify-between">
           <dt className="text-muted">{t('summary.subtotal')}</dt>
-          <dd className="font-semibold text-ink">{formatMoney(cart.subtotal)}</dd>
+          <dd className="font-bold text-ink">{formatMoney(cart.subtotal)}</dd>
         </div>
         <div className="flex justify-between">
           <dt className="text-muted">{t('summary.shipping')}</dt>

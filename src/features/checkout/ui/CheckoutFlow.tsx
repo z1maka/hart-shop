@@ -45,7 +45,11 @@ const CARRIER = Carrier.NovaPost
 // cannot disagree.
 const EMAIL_SHAPE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-const inputClass = cn(inputClassName, 'font-normal')
+const inputClass = cn(inputClassName, 'min-h-12 font-normal')
+
+// «← Назад» is set in Manrope beside the Oswald call to action, as the design
+// does, at the same height.
+const BACK_BUTTON_CLASS = 'min-h-[52px] px-5.5 text-[14px]'
 
 function readHandedPhone(): string {
   if (typeof window === 'undefined') return ''
@@ -265,20 +269,29 @@ export function CheckoutFlow({
 
   return (
     <div className="flex flex-col gap-6">
-      <ol className="flex gap-0.5 rounded-control bg-hover p-0.5">
+      <ol className="grid grid-cols-3 gap-1">
         {STEPS.map((entry) => (
-          <li key={entry.id} className="flex-1">
+          <li key={entry.id}>
             <button
               type="button"
               disabled={entry.id > step}
               onClick={() => setStep(entry.id)}
+              aria-current={step === entry.id ? 'step' : undefined}
               className={cn(
-                'flex min-h-10 w-full items-center justify-center gap-2 rounded-chip text-[13px] font-semibold text-ink',
-                step === entry.id && 'bg-surface shadow-tab',
-                entry.id > step && 'text-faint',
+                'flex min-h-11 w-full items-center justify-center gap-2 border-b-[3px] font-display text-[13px] font-semibold tracking-[0.08em] sm:text-[14px]',
+                step === entry.id && 'border-accent text-ink',
+                entry.id < step && 'border-accent-edge text-muted',
+                entry.id > step && 'cursor-not-allowed border-subtle text-muted',
               )}
             >
-              <span className="text-faint">{entry.id}</span>
+              <span
+                className={cn(
+                  'flex size-5.5 shrink-0 items-center justify-center rounded-chip text-[12px]',
+                  entry.id <= step ? 'bg-accent text-accent-fg' : 'bg-sunken text-muted',
+                )}
+              >
+                {entry.id}
+              </span>
               {t(`steps.${entry.key}`)}
             </button>
           </li>
@@ -293,7 +306,7 @@ export function CheckoutFlow({
             goToDelivery()
           }}
         >
-          <h2 className="font-display text-h3 font-bold text-ink">{t('whoReceives')}</h2>
+          <h2 className="font-display text-[22px] font-bold tracking-[0.04em] text-ink">{t('whoReceives')}</h2>
 
           {/* The phone first: it is how every order here is settled, and the
               address is the optional extra. */}
@@ -306,7 +319,7 @@ export function CheckoutFlow({
           />
 
           <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
-            <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
+            <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
               {t('firstName')}
               <input
                 type="text"
@@ -320,7 +333,7 @@ export function CheckoutFlow({
               />
             </label>
 
-            <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
+            <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
               {t('lastName')}
               <input
                 type="text"
@@ -335,7 +348,7 @@ export function CheckoutFlow({
             </label>
           </div>
 
-          <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
+          <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
             {t('emailLabel')}
             <input
               type="email"
@@ -356,9 +369,9 @@ export function CheckoutFlow({
 
       {step === 2 ? (
         <section className="flex flex-col gap-5">
-          <h2 className="font-display text-h3 font-bold text-ink">{t('whereItGoes')}</h2>
+          <h2 className="font-display text-[22px] font-bold tracking-[0.04em] text-ink">{t('whereItGoes')}</h2>
 
-          <div className="rounded-control bg-hover p-4">
+          <div className="border-l-[3px] border-khaki-mark bg-accent-tint px-4 py-3.5">
             <p className="flex items-start gap-3 text-[13px] leading-relaxed text-muted">
               <NovaPoshtaMark size={28} />
               {t('carrierNote')}
@@ -366,7 +379,7 @@ export function CheckoutFlow({
           </div>
 
           <div>
-            <p className="mb-2.5 text-[12.5px] font-semibold text-muted">{t('howToReceive')}</p>
+            <p className="mb-2.5 text-[12.5px] font-bold text-muted">{t('howToReceive')}</p>
             <div className="flex flex-wrap gap-2">
               {kinds.map((kind) => (
                 <button
@@ -377,10 +390,10 @@ export function CheckoutFlow({
                     setPickupPoint(null)
                   }}
                   className={cn(
-                    'min-h-10 rounded-pill border px-4 text-[13px] font-semibold',
+                    'min-h-10 rounded-chip px-4 text-[13px] text-ink',
                     kind === deliveryKind
-                      ? 'border-accent bg-accent-tint text-accent-hover'
-                      : 'border-subtle bg-raised text-ink hover:border-accent',
+                      ? 'border-[1.5px] border-accent bg-accent-soft font-bold'
+                      : 'border border-strong bg-raised font-semibold hover:border-ink',
                   )}
                 >
                   {t(`kinds.${kind}`)}
@@ -402,7 +415,7 @@ export function CheckoutFlow({
                   className={cn(inputClass, invalidFields.includes('line1') && 'border-alert')}
                 />
               </label>
-              <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
+              <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
                 {t('addressFields.city')}
                 <input
                   type="text"
@@ -428,7 +441,7 @@ export function CheckoutFlow({
             />,
             <label
               key="manual"
-              className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted"
+              className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted"
             >
               {t('manualPointLabel')}
               <input
@@ -443,7 +456,7 @@ export function CheckoutFlow({
           )}
 
           <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" size="lg" onClick={() => setStep(1)}>
+            <Button variant="secondary" onClick={() => setStep(1)} className={BACK_BUTTON_CLASS}>
               {t('back')}
             </Button>
             <Button size="lg" onClick={goToPayment} className="flex-1">
@@ -455,7 +468,7 @@ export function CheckoutFlow({
 
       {step === 3 ? (
         <section className="flex flex-col gap-5">
-          <h2 className="font-display text-h3 font-bold text-ink">{t('payment')}</h2>
+          <h2 className="font-display text-[22px] font-bold tracking-[0.04em] text-ink">{t('payment')}</h2>
 
           <div className="grid gap-2.5">
             {paymentChoices.map((entry) => {
@@ -468,18 +481,32 @@ export function CheckoutFlow({
                   key={entry.key}
                   type="button"
                   onClick={() => setChoiceKey(entry.key)}
+                  aria-pressed={entry.key === choiceKey}
                   className={cn(
-                    'flex min-h-14 flex-col justify-center gap-0.5 rounded-card border-[1.5px] p-3.5 text-left',
+                    'flex min-h-14 items-start gap-3 rounded-card border-[1.5px] p-3.5 text-left transition-colors',
                     entry.key === choiceKey
                       ? 'border-accent bg-accent-tint'
-                      : 'border-subtle bg-raised hover:border-accent',
+                      : 'border-subtle bg-raised hover:border-strong',
                   )}
                 >
-                  <span className="text-[14px] font-semibold text-ink">
-                    {t(`${copyKey}.title`)}
+                  <span
+                    aria-hidden
+                    className={cn(
+                      'mt-px flex size-5 shrink-0 items-center justify-center rounded-pill border-[1.5px] bg-raised',
+                      entry.key === choiceKey ? 'border-accent' : 'border-strong',
+                    )}
+                  >
+                    {entry.key === choiceKey ? (
+                      <span className="size-2.5 rounded-pill bg-accent" />
+                    ) : null}
                   </span>
-                  <span className="text-[12.5px] leading-relaxed text-muted">
-                    {t(`${copyKey}.body`)}
+                  <span className="flex flex-col gap-0.5">
+                    <span className="text-[14px] font-extrabold text-ink">
+                      {t(`${copyKey}.title`)}
+                    </span>
+                    <span className="text-[12.5px] leading-relaxed text-muted">
+                      {t(`${copyKey}.body`)}
+                    </span>
                   </span>
                 </button>
               )
@@ -488,7 +515,7 @@ export function CheckoutFlow({
 
 
           <div className="flex flex-wrap gap-3">
-            <Button variant="secondary" size="lg" onClick={() => setStep(2)}>
+            <Button variant="secondary" onClick={() => setStep(2)} className={BACK_BUTTON_CLASS}>
               {t('back')}
             </Button>
             <Button size="lg" onClick={placeOrder} disabled={isPending} className="flex-1">

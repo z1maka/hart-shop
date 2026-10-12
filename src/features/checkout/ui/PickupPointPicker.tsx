@@ -294,7 +294,7 @@ export function PickupPointPicker({
         ) : null}
 
         {visiblePoints.length > 0 ? (
-          <ul className="max-h-64 overflow-y-auto rounded-control border border-subtle bg-surface">
+          <ul className="max-h-64 overflow-y-auto rounded-control border border-subtle bg-raised">
             {visiblePoints.map((point) => (
               <li key={point.ref}>
                 <button
@@ -303,7 +303,7 @@ export function PickupPointPicker({
                   className="flex w-full items-start justify-between gap-3 border-b border-subtle px-4 py-3 text-left last:border-b-0 hover:bg-hover"
                 >
                   <span className="flex flex-col gap-0.5">
-                    <span className="text-[14px] font-medium text-ink">{point.name}</span>
+                    <span className="text-[14px] font-bold text-ink">{point.name}</span>
                     <span className="text-[12.5px] text-muted">{point.address}</span>
                   </span>
                 </button>
@@ -377,10 +377,10 @@ function Step({ number, state, title, isLast, children }: StepProps) {
       <div className="flex flex-col items-center">
         <span
           className={cn(
-            'flex size-7 items-center justify-center rounded-full border-[1.5px] text-[12.5px] font-bold',
+            'flex size-6.5 items-center justify-center rounded-chip border-[1.5px] text-[12px] font-extrabold',
             state === 'done' && 'border-accent bg-accent text-accent-fg',
-            state === 'active' && 'border-ink bg-surface text-ink',
-            state === 'upcoming' && 'border-subtle bg-surface text-faint',
+            state === 'active' && 'border-ink bg-raised text-ink',
+            state === 'upcoming' && 'border-subtle bg-raised text-faint',
           )}
         >
           {state === 'done' ? <CheckIcon /> : number}
@@ -391,7 +391,7 @@ function Step({ number, state, title, isLast, children }: StepProps) {
       <div className="pb-2.5">
         <p
           className={cn(
-            'mb-1.5 pt-1 text-[12.5px] font-semibold',
+            'mb-1.5 pt-1 text-[12.5px] font-bold',
             state === 'upcoming' ? 'text-faint' : 'text-muted',
           )}
         >
@@ -414,12 +414,12 @@ function ChosenChip({
 }) {
   return (
     <span className="flex flex-wrap items-center gap-2.5">
-      <span className="text-[14px] font-semibold text-ink">{label}</span>
+      <span className="text-[14px] font-extrabold text-ink">{label}</span>
       {changeLabel && onChange ? (
         <button
           type="button"
           onClick={onChange}
-          className="text-[12.5px] font-semibold text-accent-hover underline underline-offset-2 hover:text-accent"
+          className="text-[12.5px] font-bold text-accent underline underline-offset-2 hover:text-ink"
         >
           {changeLabel}
         </button>
