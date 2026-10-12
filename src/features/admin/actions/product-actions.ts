@@ -1,6 +1,15 @@
 'use server'
 
 import { updateTag } from 'next/cache'
+import {
+  FAQ_ANSWER_MAX_LENGTH,
+  FAQ_MAX_ENTRIES,
+  FAQ_MIN_LENGTH,
+  FAQ_QUESTION_MAX_LENGTH,
+  finishedFaq,
+  unfinishedFaqIndex,
+  type FaqEntry,
+} from '@/features/catalog/model/category-content'
 import { isKnownGoogleCategory } from '@/features/catalog/model/google-category'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
@@ -67,6 +76,21 @@ function googleCategoryChoice(value: string | undefined): number | null | undefi
   return Number(value)
 }
 
+const BRAND_MAX_LENGTH = 80
+const COLOR_GROUP_MAX_LENGTH = 60
+// The FAQ editor puts this field in the form, so a form without it is one
+// rendered before the editor existed and must not wipe the stored answers.
+const FAQ_EDITOR_FIELD = 'faqEditor'
+
+const FaqEntriesSchema = z
+  .array(
+    z.object({
+      question: z.string().trim().min(FAQ_MIN_LENGTH).max(FAQ_QUESTION_MAX_LENGTH),
+      answer: z.string().trim().min(FAQ_MIN_LENGTH).max(FAQ_ANSWER_MAX_LENGTH),
+    }),
+  )
+  .max(FAQ_MAX_ENTRIES)
+
 const SaveProductSchema = z
   .object({
     sku: z.string().trim().min(2).max(60),
@@ -100,6 +124,9 @@ const SaveProductSchema = z
     // 1 = not a fabric product; above that, one described layer each.
     layers: z.coerce.number().int().min(1).max(FABRIC_LAYERS.length),
     summary: z.string().trim().max(SUMMARY_MAX_LENGTH),
+    // Absent from a form rendered before the fields existed: leave them alone.
+    brand: z.string().trim().max(BRAND_MAX_LENGTH).optional(),
+    colorGroup: z.string().trim().toLowerCase().max(COLOR_GROUP_MAX_LENGTH).optional(),
     // Absent from a form rendered before the field existed: leave it alone.
     googleProductCategory: z
       .string()
@@ -129,6 +156,28 @@ const SaveProductSchema = z
       ),
     { path: ['wholesalePrice'], message: 'ниже обычной цены и цены со скидкой, количество от 2' },
   )
+
+// Undefined (the form had no such field) stays undefined; blank clears it.
+function blankToNull(value: string | undefined): string | null | undefined {
+  if (value === undefined) return undefined
+  return value === '' ? null : value
+}
+
+// The product's questions in the editor's order: fully blank rows are not
+// saved, a half-filled or overlong one refuses the save. Undefined when the
+// form carries no FAQ editor at all.
+function parseFaq(formData: FormData): FaqEntry[] | null | undefined {
+  if (!formData.has(FAQ_EDITOR_FIELD)) return undefined
+
+  const answers = formData.getAll('faqAnswer').map(String)
+  const entries = formData
+    .getAll('faqQuestion')
+    .map((question, index) => ({ question: String(question), answer: answers[index] ?? '' }))
+  if (unfinishedFaqIndex(entries) !== -1) return null
+
+  const parsed = FaqEntriesSchema.safeParse(finishedFaq(entries))
+  return parsed.success ? parsed.data : null
+}
 
 function nullableKopiykas(hryvnias: number | null): number | null {
   return hryvnias === null ? null : hryvniasToKopiykas(hryvnias)
@@ -210,6 +259,11 @@ async function saveProduct(formData: FormData): Promise<SaveProductResult> {
     return actionError('VALIDATION_FAILED', 'variantCover', 'обновите страницу и выберите фото заново')
   }
 
+  const faq = parseFaq(formData)
+  if (faq === null) {
+    return actionError('VALIDATION_FAILED', 'faq', `у каждого вопроса нужен ответ, не больше ${FAQ_MAX_ENTRIES} пар`)
+  }
+
   let savedSlug = currentSlug
   try {
     savedSlug = await productAdminService.save(currentSlug, {
@@ -229,6 +283,9 @@ async function saveProduct(formData: FormData): Promise<SaveProductResult> {
       weightGrams: Math.round(parsed.data.weight * GRAMS_PER_KILO),
       layers: parsed.data.layers,
       summary: parsed.data.summary,
+      brand: blankToNull(parsed.data.brand),
+      colorGroup: blankToNull(parsed.data.colorGroup),
+      faq,
       specs: parseSpecs(
         formData.getAll('specLabel').map(String),
         formData.getAll('specValue').map(String),

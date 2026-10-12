@@ -5,6 +5,7 @@ import { useActionState, useEffect, useRef, useState } from 'react'
 import { saveProductAction, type SaveProductResult } from '@/features/admin/actions/product-actions'
 import { ProductPublishToggle } from '@/features/admin/ui/ProductPublishToggle'
 import { ProductPhotos } from '@/features/admin/ui/ProductPhotos'
+import { ProductFaqEditor } from '@/features/admin/ui/ProductFaqEditor'
 import { ProductSpecsEditor } from '@/features/admin/ui/ProductSpecsEditor'
 import { VariantCoverPicker } from '@/features/admin/ui/VariantCoverPicker'
 import {
@@ -171,6 +172,24 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   emptyLabel={`Как у категории: ${categoryGoogleLabel(category)}`}
                 />
               </Field>
+              <Field error={fieldError('brand')} label="Бренд производителя">
+                <input
+                  name="brand"
+                  defaultValue={typed.brand ?? product.brand}
+                  maxLength={80}
+                  placeholder="Пусто — наш пошив"
+                  className={inputClassName}
+                />
+              </Field>
+              <Field error={fieldError('colorGroup')} label="Группа цветов">
+                <input
+                  name="colorGroup"
+                  defaultValue={typed.colorGroup ?? product.colorGroup}
+                  maxLength={60}
+                  placeholder="Пусто — товар сам по себе"
+                  className={inputClassName}
+                />
+              </Field>
               <Field error={fieldError('title')} label="Название на витрине" className="col-span-full">
                 <input
                   name="title"
@@ -227,8 +246,16 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
 
             <EditorNote>
               Витрина одноязычная: название и описание вводятся на украинском и попадают на страницу
-              как есть. Артикул служит идентификатором в счетах и накладных, поэтому менять его
-              после первой продажи не стоит.
+              как есть. В описании строка, начинающаяся с «## », становится подзаголовком, строки с
+              «- » — списком, пустая строка разделяет абзацы. Артикул служит идентификатором в
+              счетах и накладных, поэтому менять его после первой продажи не стоит.
+            </EditorNote>
+
+            <EditorNote>
+              Бренд заполняется только у чужих товаров (Walker&apos;s, Mil-Tec…): он уходит в Google
+              и в рекламу. Группа цветов — одинаковое слово у товаров, которые являются одной
+              моделью в разных расцветках, например «poncho-3-layers»: у каждой карточки свой цвет и
+              текст, а плитки цветов ведут на соседние карточки.
             </EditorNote>
           </EditorCard>
 
@@ -344,6 +371,19 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
               значением не сохраняется. «Слои ткани» — отдельный выбор: по нему на странице товара
               появляется блок «Шари тканини», подпись «3 шари» и строка в сравнении. Для шлемов,
               наушников, рюкзаков — «Нет».
+            </EditorNote>
+          </EditorCard>
+
+          <EditorCard title="Вопросы и ответы">
+            <ProductFaqEditor
+              entries={product.faq}
+              error={fieldError('faq')}
+              onChange={() => setIsDirty(true)}
+            />
+
+            <EditorNote>
+              Пары выводятся на странице товара под описанием и уходят в Google. Пишите вопрос так,
+              как его задаёт покупатель, а ответ — про этот товар.
             </EditorNote>
           </EditorCard>
 

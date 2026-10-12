@@ -1,4 +1,5 @@
 import { ProductStatus } from '@/db/enums'
+import type { FaqEntry } from '@/features/catalog/model/category-content'
 import {
   adminProductRepository,
   type ProductImageRow,
@@ -25,6 +26,9 @@ export type ProductDraft = {
   readonly weightGrams: number
   readonly layers: number
   readonly summary: string
+  readonly brand: string | null
+  readonly colorGroup: string | null
+  readonly faq: readonly FaqEntry[]
   readonly isPublished: boolean
   readonly specs: readonly ProductSpecRow[]
   readonly included: readonly string[]
@@ -64,6 +68,10 @@ export type ProductSaveInput = {
   readonly layers: number
   readonly summary: string
   readonly specs: readonly ProductSpecRow[]
+  // Undefined: the form did not carry the field, keep what is stored.
+  readonly brand?: string | null
+  readonly colorGroup?: string | null
+  readonly faq?: readonly FaqEntry[]
   readonly stockByVariantId: Readonly<Record<string, number>>
   readonly coverByVariantId: Readonly<Record<string, string | null>>
 }
@@ -105,6 +113,9 @@ export const productAdminService = {
       weightGrams: found.product.weightGrams,
       layers: found.product.layers,
       summary: found.product.summary ?? '',
+      brand: found.product.brand,
+      colorGroup: found.product.colorGroup,
+      faq: found.product.faq,
       included: found.product.included,
       careNotes: found.product.careNotes,
       updatedAt: found.product.updatedAt,

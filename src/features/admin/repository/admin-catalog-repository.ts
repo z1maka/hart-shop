@@ -1,3 +1,4 @@
+import type { FaqEntry } from '@/features/catalog/model/category-content'
 import {
   and,
   asc,
@@ -45,6 +46,9 @@ export type ProductDraftRow = {
   readonly layers: number
   readonly summary: string | null
   readonly seoDescription: string | null
+  readonly brand: string | null
+  readonly colorGroup: string | null
+  readonly faq: readonly FaqEntry[]
   readonly status: string
   readonly specs: readonly ProductSpec[]
   readonly included: readonly string[]
@@ -109,6 +113,10 @@ export type ProductUpdateInput = {
   readonly layers: number
   readonly summary: string | null
   readonly specs: readonly ProductSpec[]
+  // Undefined leaves each stored value alone, as with the Google category.
+  readonly brand?: string | null
+  readonly colorGroup?: string | null
+  readonly faq?: readonly FaqEntry[]
   readonly stockByVariantId: Readonly<Record<string, number>>
   // The gallery photo (by storage key) chosen for each variant; null clears it.
   readonly coverByVariantId: Readonly<Record<string, string | null>>
@@ -328,6 +336,9 @@ export const adminProductRepository = {
         summary: products.summary,
         seoTitle: products.seoTitle,
         seoDescription: products.seoDescription,
+        brand: products.brand,
+        colorGroup: products.colorGroup,
+        faq: products.faq,
         status: products.status,
         specs: products.specs,
         included: products.included,
@@ -563,6 +574,9 @@ export const adminProductRepository = {
           layers: input.layers,
           summary: input.summary,
           specs: input.specs,
+          ...(input.brand === undefined ? {} : { brand: input.brand }),
+          ...(input.colorGroup === undefined ? {} : { colorGroup: input.colorGroup }),
+          ...(input.faq === undefined ? {} : { faq: [...input.faq] }),
           updatedAt: new Date(),
         })
         .where(eq(products.id, productId))

@@ -49,6 +49,11 @@ export type ProductEditorView = {
   readonly weightInput: string
   readonly layers: number
   readonly summary: string
+  // Empty for the shop's own sewing.
+  readonly brand: string
+  // Empty when the product is not one colour of a model sold per colour.
+  readonly colorGroup: string
+  readonly faq: readonly { question: string; answer: string }[]
   readonly isPublished: boolean
   readonly specs: readonly { label: string; value: string }[]
   readonly variants: readonly ProductEditorVariant[]
@@ -89,6 +94,9 @@ export async function getProductEditorView(slug: string): Promise<ProductEditorV
     weightInput: (draft.weightGrams / GRAMS_PER_KILO).toFixed(2),
     layers: draft.layers,
     summary: draft.summary,
+    brand: draft.brand ?? '',
+    colorGroup: draft.colorGroup ?? '',
+    faq: draft.faq.map((entry) => ({ question: entry.question, answer: entry.answer })),
     isPublished: draft.isPublished,
     specs: draft.specs.map((spec) => ({ label: spec.label, value: spec.value })),
     variants: draft.variants.map((variant) => ({
