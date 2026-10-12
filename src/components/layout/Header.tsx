@@ -98,7 +98,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
     <header className="sticky top-0 z-40 border-b border-subtle bg-canvas">
       <div className="flex flex-nowrap items-center gap-x-3 px-4 py-3 sm:px-7 sm:py-3.5">
         <Link href="/" aria-label={`${siteConfig.name} home`} className="shrink-0">
-          <Wordmark height={30} isPriority />
+          <Wordmark height={30} />
         </Link>
 
         <nav className="ml-4 hidden items-center gap-x-1 lg:flex">
