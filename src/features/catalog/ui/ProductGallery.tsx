@@ -515,7 +515,7 @@ function GalleryArrow({
       onClick={onClick}
       className={cn(
         'absolute top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full',
-        'border border-subtle bg-surface/90 text-[15px] text-ink shadow-card hover:border-accent hover:text-accent-hover',
+        'border border-subtle bg-surface/90 text-[15px] text-ink shadow-card hover:border-accent hover:text-ink',
         side === 'left' ? 'left-3' : 'right-3',
       )}
     >

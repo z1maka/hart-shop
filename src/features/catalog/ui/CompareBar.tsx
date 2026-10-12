@@ -142,7 +142,7 @@ function ComparisonTable({
             <th
               className={cn(
                 'p-2.5 text-left text-[12.5px] font-semibold',
-                row.isKeyFigure ? 'text-accent-hover' : 'text-faint',
+                row.isKeyFigure ? 'text-accent' : 'text-faint',
               )}
             >
               {['price', 'weight', 'layers', 'options'].includes(row.label)

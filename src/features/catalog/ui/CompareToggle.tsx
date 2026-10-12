@@ -25,7 +25,7 @@ export function CompareToggle({ slug }: CompareToggleProps) {
       disabled={isDisabled}
       className={cn(
         'w-full py-1.5 text-[12px] font-semibold transition-colors',
-        isSelected ? 'text-accent-hover' : 'text-muted hover:text-accent-hover',
+        isSelected ? 'text-accent' : 'text-muted hover:text-ink',
         isDisabled && 'cursor-not-allowed text-faint hover:text-faint',
       )}
     >

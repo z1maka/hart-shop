@@ -44,7 +44,7 @@ export default async function CustomOrderPage({
     <div className="pb-14">
       <section className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-center gap-9 px-7 py-12">
         <div>
-          <p className="mb-5 inline-block rounded-pill bg-accent-soft px-3.5 py-2 text-[12px] font-semibold tracking-[0.04em] text-accent-hover">
+          <p className="mb-5 inline-block border-l-[3px] border-khaki-mark bg-sunken px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-accent">
             {t('kicker')}
           </p>
           <h1 className="mb-4 max-w-[18ch] font-display text-display font-bold text-balance text-ink">
@@ -58,7 +58,7 @@ export default async function CustomOrderPage({
             {FACT_KEYS.map((key) => (
               <li
                 key={key}
-                className="rounded-pill border border-accent-edge bg-surface px-3.5 py-1.5 text-[12.5px] font-medium text-ink"
+                className="rounded-chip border border-strong bg-raised px-3 py-1.5 text-[12.5px] font-semibold text-ink"
               >
                 {t(`facts.${key}`)}
               </li>
@@ -94,7 +94,7 @@ export default async function CustomOrderPage({
         <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5">
           {CUSTOM_ORDER_STEP_KEYS.map((key, index) => (
             <li key={key} className="rounded-card border border-subtle bg-surface p-5">
-              <span className="mb-3 inline-flex size-8 items-center justify-center rounded-pill bg-ink font-display text-[14px] font-bold text-on-dark">
+              <span className="mb-3 inline-flex size-8 items-center justify-center rounded-chip bg-ink font-display text-[14px] font-bold text-on-dark">
                 {index + 1}
               </span>
               <h3 className="mb-1.5 text-[13.5px] font-semibold text-ink">
@@ -125,7 +125,7 @@ export default async function CustomOrderPage({
               <div className="grid gap-2">
                 <a
                   href={COMPANY.phoneHref}
-                  className="text-[13.5px] font-semibold text-accent-hover hover:underline"
+                  className="text-[13.5px] font-semibold text-accent hover:underline"
                 >
                   {COMPANY.phone}
                 </a>
@@ -135,7 +135,7 @@ export default async function CustomOrderPage({
                     href={channel.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[13.5px] font-semibold text-accent-hover hover:underline"
+                    className="text-[13.5px] font-semibold text-accent hover:underline"
                   >
                     Telegram
                   </a>
@@ -217,7 +217,7 @@ async function ItemCards() {
             <div className="p-5">
               <h3 className="mb-1.5 text-[14px] font-semibold text-ink">{t(`${id}.title`)}</h3>
               <p className="text-[12.5px] leading-relaxed text-muted">{t(`${id}.body`)}</p>
-              <p className="mt-3 text-[12.5px] font-semibold text-accent-hover">{t('cta')} →</p>
+              <p className="mt-3 text-[12.5px] font-semibold text-accent">{t('cta')} →</p>
             </div>
           </Link>
         )

@@ -102,13 +102,13 @@ export default async function AboutPage() {
             </Suspense>
             <dt className="text-muted">{t('sellerPhone')}</dt>
             <dd>
-              <a href={COMPANY.phoneHref} className="text-accent-hover hover:underline">
+              <a href={COMPANY.phoneHref} className="text-accent hover:underline">
                 {COMPANY.phone}
               </a>
             </dd>
             <dt className="text-muted">{t('sellerEmail')}</dt>
             <dd>
-              <a href={`mailto:${COMPANY.email}`} className="text-accent-hover hover:underline">
+              <a href={`mailto:${COMPANY.email}`} className="text-accent hover:underline">
                 {COMPANY.email}
               </a>
             </dd>

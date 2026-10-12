@@ -15,7 +15,7 @@ export function WatchVideoButton({ video }: { readonly video: ProductVideo }) {
     <button
       type="button"
       onClick={() => openVideo(video.youtubeId)}
-      className="inline-flex items-center gap-2 rounded-pill border border-subtle bg-surface py-1 pr-3.5 pl-1 text-[12.5px] font-semibold text-ink transition-colors hover:border-accent hover:text-accent-hover"
+      className="inline-flex items-center gap-2 rounded-control border border-strong bg-raised py-1 pr-3.5 pl-1 text-[12.5px] font-semibold text-ink transition-colors hover:border-accent hover:text-ink"
     >
       <span className="flex size-6 items-center justify-center rounded-full bg-accent text-accent-fg">
         <PlayIcon size={12} />

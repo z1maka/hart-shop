@@ -51,7 +51,7 @@ export async function NotFoundPanel({ links = [] }: NotFoundPanelProps) {
             <Link
               key={link.href}
               href={link.href}
-              className="inline-flex min-h-11 items-center rounded-pill border border-subtle bg-surface px-4 text-[13.5px] font-medium text-ink transition-colors hover:border-accent hover:text-accent-hover"
+              className="inline-flex min-h-11 items-center rounded-chip border border-strong bg-raised px-4 text-[13.5px] font-medium text-ink transition-colors hover:border-accent hover:text-ink"
             >
               {link.label}
             </Link>

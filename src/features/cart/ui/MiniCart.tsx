@@ -123,12 +123,12 @@ export function MiniCart() {
                   </span>
                   <span className="mt-0.5 block text-[12px] text-faint">{line.variantLabel}</span>
                   {line.isWholesalePrice ? (
-                    <span className="mt-1 inline-block rounded-pill bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-hover">
+                    <span className="mt-1 inline-block rounded-chip bg-accent-soft px-2 py-0.5 text-[11px] font-bold text-accent">
                       {t('wholesaleTag')}
                     </span>
                   ) : null}
                   {line.wholesaleHint ? (
-                    <span className="mt-1 block text-[11.5px] leading-relaxed text-accent-hover">
+                    <span className="mt-1 block text-[11.5px] leading-relaxed text-accent">
                       {t('wholesaleHint', {
                         min: line.wholesaleHint.minQuantity,
                         price: line.wholesaleHint.unitPriceLabel,

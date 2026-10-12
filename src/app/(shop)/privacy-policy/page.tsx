@@ -40,7 +40,7 @@ export default async function PrivacyPolicyPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-7 py-10">
-      <p className="mb-3 text-[12.5px] font-semibold text-accent-hover">{t('kicker')}</p>
+      <p className="mb-3 text-[12.5px] font-semibold text-accent">{t('kicker')}</p>
       <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
       <p className="mb-2 max-w-[68ch] text-[14.5px] leading-relaxed text-muted">{t('lead')}</p>
       <p className="mb-10 text-[12.5px] text-faint">{t('updated')}</p>
@@ -172,7 +172,7 @@ function ExternalLink({ href, children }: { readonly href: string; readonly chil
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="font-semibold text-accent-hover underline underline-offset-4"
+      className="font-semibold text-accent underline underline-offset-4"
     >
       {children}
     </a>

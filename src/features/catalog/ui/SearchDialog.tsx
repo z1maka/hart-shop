@@ -80,7 +80,7 @@ export function SearchDialog({ suggestions, initialResults }: SearchDialogProps)
                 key={suggestion}
                 type="button"
                 onClick={() => setQuery(suggestion)}
-                className="min-h-8.5 rounded-pill border border-subtle bg-raised px-3 text-[12px] font-medium text-muted hover:border-accent hover:text-ink"
+                className="min-h-8.5 rounded-chip border border-strong bg-raised px-3 text-[12px] font-medium text-muted hover:border-accent hover:text-ink"
               >
                 {suggestion}
               </button>

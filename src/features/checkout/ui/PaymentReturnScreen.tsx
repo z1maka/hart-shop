@@ -59,8 +59,8 @@ const GLOW: Record<ReturnScreen, string> = {
 
 const STATUS_PILL: Record<ReturnScreen, string> = {
   [ReturnScreen.Paid]: 'bg-accent text-white',
-  [ReturnScreen.Processing]: 'bg-accent-soft text-accent-hover',
-  [ReturnScreen.Slow]: 'bg-accent-soft text-accent-hover',
+  [ReturnScreen.Processing]: 'bg-accent-soft text-accent',
+  [ReturnScreen.Slow]: 'bg-accent-soft text-accent',
   [ReturnScreen.Unpaid]: 'bg-alert-soft text-alert',
   [ReturnScreen.Expired]: 'bg-sunken text-muted',
   [ReturnScreen.Unknown]: 'bg-sunken text-muted',
@@ -88,7 +88,7 @@ export async function PaymentReturnScreen({
       <div className="mx-auto flex max-w-[640px] flex-col items-center text-center">
         <PaymentStateIcon screen={screen} />
         {order ? (
-          <p className="mt-7 rounded-pill border border-subtle bg-surface/80 px-3.5 py-1.5 text-[12.5px] font-semibold text-muted backdrop-blur-sm">
+          <p className="mt-7 rounded-chip border border-subtle bg-surface/80 px-3.5 py-1.5 text-[12.5px] font-semibold text-muted backdrop-blur-sm">
             {t('orderKicker', { number: order.number })}
           </p>
         ) : null}
@@ -229,7 +229,7 @@ function Summary({
       <SummaryCell label={t('summary.status')}>
         <span
           className={cn(
-            'inline-flex rounded-pill px-3 py-1 text-[12.5px] font-semibold',
+            'inline-flex rounded-chip px-3 py-1 text-[12.5px] font-bold',
             STATUS_PILL[screen],
           )}
         >
@@ -308,7 +308,7 @@ function IconBubble({
   readonly number?: number
 }) {
   return (
-    <span className="relative grid size-11 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-hover">
+    <span className="relative grid size-11 shrink-0 place-items-center rounded-full bg-accent-soft text-accent">
       <Glyph className="size-5.5" />
       {number ? (
         <span className="absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-ink text-[10.5px] font-bold text-on-dark">

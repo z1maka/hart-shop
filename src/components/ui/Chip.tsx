@@ -20,7 +20,7 @@ export function Chip({
   return (
     <Component
       className={cn(
-        'inline-flex min-h-10 items-center gap-2 rounded-pill border px-4 text-[13px] font-semibold transition-colors',
+        'inline-flex min-h-10 items-center gap-2 rounded-chip border px-4 text-[13px] font-semibold transition-colors',
         isActive
           ? 'border-accent bg-accent text-white'
           : 'border-subtle bg-raised text-ink hover:border-faint',

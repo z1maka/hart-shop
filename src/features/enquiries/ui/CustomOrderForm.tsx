@@ -61,7 +61,7 @@ export function CustomOrderForm({ items, initialItem, fromProduct }: CustomOrder
   if (isSent) {
     return (
       <div className="rounded-card border border-accent-mid bg-accent-tint p-8">
-        <p className="mb-2 text-[12.5px] font-semibold tracking-[0.05em] text-accent-hover uppercase">
+        <p className="mb-2 text-[12.5px] font-semibold tracking-[0.05em] text-accent uppercase">
           {t('sentKicker')}
         </p>
         <h2 className="mb-3 font-display text-h3 font-bold text-ink">{t('sentTitle')}</h2>
@@ -92,7 +92,7 @@ export function CustomOrderForm({ items, initialItem, fromProduct }: CustomOrder
             <label
               key={entry.id}
               className={cn(
-                'inline-flex min-h-9.5 cursor-pointer items-center gap-2 rounded-pill border-[1.5px] px-3.5 text-[13px] font-semibold text-ink transition-colors',
+                'inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-control border-[1.5px] px-3.5 text-[13px] font-semibold text-ink transition-colors',
                 entry.id === item
                   ? 'border-accent bg-accent-tint'
                   : 'border-subtle bg-raised hover:border-accent',

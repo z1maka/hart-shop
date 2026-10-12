@@ -22,12 +22,12 @@ const LOOKS: Record<ReturnScreen, StateLook> = {
     ring: 'bg-accent-mid',
   },
   [ReturnScreen.Processing]: {
-    badge: 'bg-accent-tint text-accent-hover ring-1 ring-accent-soft',
+    badge: 'bg-accent-tint text-accent ring-1 ring-accent-soft',
     glyph: CardGlyph,
     isSpinning: true,
   },
   [ReturnScreen.Slow]: {
-    badge: 'bg-accent-tint text-accent-hover ring-1 ring-accent-soft',
+    badge: 'bg-accent-tint text-accent ring-1 ring-accent-soft',
     glyph: HourglassGlyph,
   },
   [ReturnScreen.Unpaid]: {

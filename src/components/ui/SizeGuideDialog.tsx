@@ -10,7 +10,7 @@ export function SizeGuideDialog({ rows }: { readonly rows: readonly SizeGuideRow
 
   return (
     <DialogPrimitive.Root>
-      <DialogPrimitive.Trigger className="text-[12.5px] font-semibold text-accent-hover underline underline-offset-2 hover:text-accent">
+      <DialogPrimitive.Trigger className="text-[12.5px] font-semibold text-accent underline underline-offset-2 hover:text-accent">
         {t('title')}
       </DialogPrimitive.Trigger>
 

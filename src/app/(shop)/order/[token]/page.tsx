@@ -32,7 +32,7 @@ async function OrderDetail({ params }: { params: PageProps<'/order/[token]'>['pa
 
   return (
     <article className="max-w-5xl">
-      <p className="mb-2 text-[12.5px] font-semibold text-accent-hover">
+      <p className="mb-2 text-[12.5px] font-semibold text-accent">
         {t('kicker', { number: order.orderNumber })}
       </p>
       <h1 className="mb-2.5 font-display text-h1 font-bold text-ink">{t('title')}</h1>

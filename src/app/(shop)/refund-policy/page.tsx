@@ -46,7 +46,7 @@ export default async function RefundPolicyPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-7 py-10">
-      <p className="mb-3 text-[12.5px] font-semibold text-accent-hover">{t('kicker')}</p>
+      <p className="mb-3 text-[12.5px] font-semibold text-accent">{t('kicker')}</p>
       <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
       <p className="mb-8 max-w-[68ch] text-[14.5px] leading-relaxed text-muted">{t('lead')}</p>
 
@@ -71,7 +71,7 @@ export default async function RefundPolicyPage() {
         <div className="grid gap-5 md:grid-cols-2">
           <CaseCard
             badge={t('fit.badge')}
-            badgeClass="bg-accent-soft text-accent-hover"
+            badgeClass="bg-accent-soft text-accent"
             title={t('fit.title')}
             lead={t('fit.lead')}
           >
@@ -172,7 +172,7 @@ export default async function RefundPolicyPage() {
               {key === 'custom' ? (
                 <Link
                   href={CUSTOM_ORDER_HREF}
-                  className="mt-1.5 inline-block text-[13px] font-semibold text-accent-hover hover:underline"
+                  className="mt-1.5 inline-block text-[13px] font-semibold text-accent hover:underline"
                 >
                   {t('exclusions.custom.link')} →
                 </Link>
@@ -228,7 +228,7 @@ function CaseCard({ badge, badgeClass, title, lead, children }: CaseCardProps) {
     <article className="flex flex-col rounded-card border border-subtle bg-surface p-6">
       <span
         className={cn(
-          'mb-3 inline-block w-fit rounded-pill px-2.5 py-1.5 text-[11px] font-semibold',
+          'mb-3 inline-block w-fit rounded-chip px-2.5 py-1.5 text-[11px] font-bold',
           badgeClass,
         )}
       >
@@ -250,7 +250,7 @@ function Steps({ title, steps }: { readonly title: string; readonly steps: reado
       <ol className="grid gap-3">
         {steps.map((step, index) => (
           <li key={step} className="flex gap-3 text-[13px] leading-relaxed text-ink">
-            <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-pill bg-ink font-display text-[12px] font-bold text-on-dark">
+            <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-chip bg-ink font-display text-[12px] font-bold text-on-dark">
               {index + 1}
             </span>
             <span className="pt-0.5">{step}</span>
@@ -269,7 +269,7 @@ function CheckMark() {
       viewBox="0 0 16 16"
       fill="none"
       aria-hidden
-      className="mt-0.5 shrink-0 text-accent-hover"
+      className="mt-0.5 shrink-0 text-accent"
     >
       <path
         d="m3.5 8.5 3 3 6-7"

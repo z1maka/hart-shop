@@ -30,7 +30,7 @@ export function MobileNav({ links }: MobileNavProps) {
             <DialogClose key={link.href} asChild>
               <Link
                 href={link.href}
-                className="min-h-[50px] border-b border-subtle py-4 text-[15px] font-medium text-ink hover:text-accent-hover"
+                className="min-h-[50px] border-b border-subtle py-4 text-[15px] font-medium text-ink hover:text-ink"
               >
                 {link.label}
               </Link>

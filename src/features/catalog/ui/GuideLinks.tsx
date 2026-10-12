@@ -18,7 +18,7 @@ export async function GuideLinks({ categorySlug }: { readonly categorySlug: stri
           <li key={guide.slug}>
             <Link
               href={`/guides/${guide.slug}/`}
-              className="text-[15px] font-semibold text-accent-hover underline-offset-4 hover:underline"
+              className="text-[15px] font-semibold text-accent underline-offset-4 hover:underline"
             >
               {guide.title}
             </Link>

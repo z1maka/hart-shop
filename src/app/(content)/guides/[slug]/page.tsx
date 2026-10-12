@@ -49,7 +49,7 @@ export default async function GuidePage({ params }: PageProps<'/guides/[slug]'>)
           ]),
         ]}
       />
-      <p className="mb-4 text-[12.5px] font-semibold text-accent-hover">
+      <p className="mb-4 text-[12.5px] font-semibold text-accent">
         <Link href="/guides/" className="hover:underline">
           {t('title')}
         </Link>
@@ -68,7 +68,7 @@ export default async function GuidePage({ params }: PageProps<'/guides/[slug]'>)
             <li key={product.slug}>
               <Link
                 href={`/product/${product.slug}/`}
-                className="font-semibold text-accent-hover underline-offset-4 hover:underline"
+                className="font-semibold text-accent underline-offset-4 hover:underline"
               >
                 {product.label}
               </Link>

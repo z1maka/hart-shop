@@ -368,7 +368,7 @@ async function BuyPanel({
         <p className="mb-5 text-[12.5px] leading-relaxed text-muted">
           <Link
             href={`${CUSTOM_ORDER_HREF}?item=${customItem}&from=${encodeURIComponent(product.title)}`}
-            className="font-semibold text-accent-hover underline-offset-4 hover:underline"
+            className="font-semibold text-accent underline-offset-4 hover:underline"
           >
             {t('customLine')}
           </Link>
@@ -392,7 +392,7 @@ async function WholesaleLine({ wholesale }: { readonly wholesale: WholesaleView 
       <span className="font-semibold text-ink tabular-nums">{formatMoney(wholesale.price)}</span>
       <span>{t('perUnit')}</span>
       {wholesale.discountPercent > 0 ? (
-        <span className="rounded-pill bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-hover">
+        <span className="rounded-chip bg-accent-soft px-2 py-0.5 text-[11px] font-bold text-accent">
           −{wholesale.discountPercent}%
         </span>
       ) : null}
