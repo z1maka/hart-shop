@@ -15,7 +15,7 @@ type PriceProps = {
 const SIZE_CLASSES: Record<PriceSize, string> = {
   sm: 'text-[15px]',
   md: 'text-[19px]',
-  lg: 'text-[26px]',
+  lg: 'text-[36px] font-bold leading-none',
 }
 
 export function Price({ money, compareAt = null, size = 'md', note, className }: PriceProps) {

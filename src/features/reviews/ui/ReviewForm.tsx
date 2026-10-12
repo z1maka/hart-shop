@@ -57,16 +57,20 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
 
   if (isSent) {
     return (
-      <div className="rounded-card border border-subtle bg-surface p-6">
-        <h3 className="mb-2 font-display text-[19px] font-bold text-ink">{t('sentTitle')}</h3>
+      <div className="rounded-card border border-subtle bg-surface p-5.5">
+        <h3 className="mb-2 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
+          {t('sentTitle')}
+        </h3>
         <p className="text-[13.5px] leading-relaxed text-muted">{t('sentBody')}</p>
       </div>
     )
   }
 
   return (
-    <form action={handleSubmit} className="rounded-card border border-subtle bg-surface p-6">
-      <h3 className="mb-1.5 font-display text-[19px] font-bold text-ink">{t('title')}</h3>
+    <form action={handleSubmit} className="rounded-card border border-subtle bg-surface p-5.5">
+      <h3 className="mb-1.5 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
+        {t('title')}
+      </h3>
       <p className="mb-5 text-[13px] leading-relaxed text-muted">{t('lead')}</p>
 
       <div className="mb-4">
@@ -85,8 +89,10 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
               onMouseEnter={() => setHovered(position)}
               onMouseLeave={() => setHovered(0)}
               className={cn(
-                'size-10 rounded-chip text-[24px] leading-none transition-colors hover:bg-hover',
-                position <= (hovered || rating) ? 'text-ink' : 'text-faint',
+                'size-10 rounded-control border text-[20px] leading-none transition-colors',
+                position <= (hovered || rating)
+                  ? 'border-khaki-mark bg-khaki/15 text-khaki-ink'
+                  : 'border-subtle bg-raised text-strong hover:border-khaki-mark',
               )}
             >
               ★
@@ -143,7 +149,7 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
 
       {error ? <p className="mb-3 text-[13px] font-semibold text-alert">{error}</p> : null}
 
-      <Button type="submit" disabled={isPending} className="w-full">
+      <Button type="submit" size="lg" disabled={isPending} className="w-full">
         {isPending ? t('submitting') : t('submit')}
       </Button>
       <p className="mt-3 text-[11.5px] leading-relaxed text-faint">{t('footnote')}</p>

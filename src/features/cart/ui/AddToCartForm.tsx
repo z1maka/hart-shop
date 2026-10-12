@@ -143,26 +143,26 @@ export function AddToCartForm({
     <div className="flex flex-col gap-5">
       {hasPatternChoice ? (
         <div>
-          <p className="mb-2.5 text-[12.5px] font-semibold text-muted">
+          <p className="mb-2.5 text-[13px] font-bold text-ink">
             {t('pattern', { color: colorsT.has(color) ? colorsT(color) : color })}
           </p>
-          <div className="flex flex-wrap gap-2.5">
+          {/* Colour tiles, as the Гарт design draws them; the name is read
+              out and shown on hover, and the line above names the choice. */}
+          <div className="flex flex-wrap gap-2">
             {colors.map((entry) => (
               <button
                 key={entry}
                 type="button"
                 onClick={() => handleColorChange(entry)}
                 aria-pressed={entry === color}
-                title={entry}
+                aria-label={colorsT.has(entry) ? colorsT(entry) : entry}
+                title={colorsT.has(entry) ? colorsT(entry) : entry}
                 className={cn(
-                  'inline-flex min-h-11 items-center gap-2.5 rounded-pill border px-3.5 text-[13px] font-medium transition-colors',
-                  entry === color
-                    ? 'border-accent bg-accent-soft text-ink'
-                    : 'border-subtle bg-raised text-muted hover:border-faint',
+                  'flex size-11 items-center justify-center rounded-control p-[3px] transition-colors',
+                  entry === color ? 'border-2 border-ink' : 'border border-strong hover:border-ink',
                 )}
               >
-                <ColorSwatch name={entry} />
-                {colorsT.has(entry) ? colorsT(entry) : entry}
+                <ColorSwatch name={entry} className="size-full rounded-[2px] border-0" />
               </button>
             ))}
           </div>
@@ -172,7 +172,7 @@ export function AddToCartForm({
       {sizes.length > 0 ? (
         <div>
           <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[12.5px] font-semibold text-muted">{t('size')}</p>
+            <p className="text-[13px] font-bold text-ink">{t('size')}</p>
             {sizeGuideRows.length > 0 ? <SizeGuideDialog rows={sizeGuideRows} /> : null}
           </div>
           <div className="flex flex-wrap gap-2">
@@ -190,10 +190,10 @@ export function AddToCartForm({
                   onClick={() => setSize(entry)}
                   aria-pressed={entry === activeSize}
                   className={cn(
-                    'min-h-11.5 rounded-control border-[1.5px] px-4.5 text-[13.5px] font-semibold transition-colors',
+                    'min-h-11.5 rounded-control border-[1.5px] px-4.5 text-[13.5px] font-bold transition-colors',
                     entry === activeSize
-                      ? 'border-ink bg-ink text-white'
-                      : 'border-subtle bg-raised text-ink hover:border-accent',
+                      ? 'border-ink bg-ink text-on-dark'
+                      : 'border-strong bg-raised text-ink hover:border-ink',
                     isDisabled &&
                       'cursor-not-allowed border-subtle bg-surface text-strong line-through',
                   )}
@@ -207,17 +207,17 @@ export function AddToCartForm({
       ) : null}
 
       <div className="flex flex-wrap gap-3">
-        <div className="flex overflow-hidden rounded-control border-[1.5px] border-strong">
+        <div className="flex overflow-hidden rounded-control border-[1.5px] border-strong bg-raised">
           <button
             type="button"
             onClick={() => setQuantity(Math.max(1, orderedQuantity - 1))}
             disabled={orderedQuantity <= 1}
             aria-label={t('decrease')}
-            className="min-h-12 min-w-11.5 bg-surface px-4 text-[16px] font-semibold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:text-faint"
+            className="min-h-[52px] min-w-12 px-4 text-[17px] font-bold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:text-faint"
           >
             −
           </button>
-          <span className="min-w-12 bg-raised px-3 py-4 text-center text-[14px] font-semibold text-ink">
+          <span className="flex min-w-11 items-center justify-center px-2 text-center text-[15px] font-bold text-ink">
             {orderedQuantity}
           </span>
           <button
@@ -225,7 +225,7 @@ export function AddToCartForm({
             onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
             disabled={orderedQuantity >= maxQuantity}
             aria-label={t('increase')}
-            className="min-h-12 min-w-11.5 bg-surface px-4 text-[16px] font-semibold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:text-faint"
+            className="min-h-[52px] min-w-12 px-4 text-[17px] font-bold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:text-faint"
           >
             +
           </button>
@@ -233,7 +233,7 @@ export function AddToCartForm({
 
         <Button
           size="lg"
-          className="min-w-55 flex-[1_1_220px]"
+          className="min-h-[54px] min-w-55 flex-[1_1_220px] text-[16px]"
           onClick={handleAdd}
           disabled={!isAddable}
         >
@@ -247,7 +247,7 @@ export function AddToCartForm({
         <p
           className={cn(
             'text-[13px] leading-relaxed font-medium',
-            isWholesaleReached ? 'text-accent-hover' : 'text-muted',
+            isWholesaleReached ? 'font-semibold text-khaki-ink' : 'text-muted',
           )}
         >
           {isWholesaleReached

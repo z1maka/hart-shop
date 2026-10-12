@@ -24,10 +24,10 @@ export async function ReviewsSection({ productSlug }: ReviewsSectionProps) {
   return (
     <section id="reviews" className="scroll-mt-24">
       <div className="mb-4.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-        <h2 className="font-display text-h3 font-bold text-ink">
+        <h2 className="font-display text-h2 font-bold text-ink">
           {t('title')}
           {summary.count > 0 ? (
-            <span className="ml-2.5 text-[16px] font-semibold text-faint">{summary.count}</span>
+            <span className="ml-2.5 font-medium text-faint">{summary.count}</span>
           ) : null}
         </h2>
         <p className="text-[12.5px] text-faint">{t('moderationNote')}</p>
@@ -36,25 +36,27 @@ export async function ReviewsSection({ productSlug }: ReviewsSectionProps) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start">
         <div className="grid gap-4">
           {summary.count > 0 ? (
-            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 rounded-card border border-subtle bg-surface p-5">
+            <div className="flex flex-wrap items-center gap-x-8 gap-y-4 rounded-card bg-header px-5.5 py-5">
               <div>
-                <p className="font-display text-[40px] leading-none font-bold text-ink">
+                <p className="font-display text-[44px] leading-none font-bold text-on-dark">
                   {formatAverage(summary.average)}
                 </p>
                 <RatingStars
                   rating={Math.round(summary.average)}
                   label={t('ratingAria', { rating: formatAverage(summary.average) })}
-                  className="mt-2"
+                  className="mt-2 [&_span]:text-khaki"
                 />
-                <p className="mt-1.5 text-[12.5px] text-muted">{t('count', { count: summary.count })}</p>
+                <p className="mt-1.5 text-[12.5px] text-on-dark-muted">
+                  {t('count', { count: summary.count })}
+                </p>
               </div>
               <ul className="grid min-w-[220px] flex-1 gap-1.5">
                 {summary.histogram.map((bucket) => (
-                  <li key={bucket.rating} className="grid grid-cols-[2ch_1fr_2.5ch] items-center gap-2.5 text-[12px] text-muted">
-                    <span>{bucket.rating}★</span>
-                    <span className="h-1.5 overflow-hidden rounded-pill bg-sunken">
+                  <li key={bucket.rating} className="grid grid-cols-[3ch_1fr_2.5ch] items-center gap-2.5 text-[12px] text-on-dark-muted">
+                    <span>{bucket.rating} ★</span>
+                    <span className="h-1.5 overflow-hidden bg-dark-line">
                       <span
-                        className="block h-full rounded-pill bg-accent"
+                        className="block h-full bg-khaki"
                         style={{ width: `${(bucket.count / summary.count) * PERCENT}%` }}
                       />
                     </span>

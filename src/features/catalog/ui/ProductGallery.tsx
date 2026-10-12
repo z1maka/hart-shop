@@ -150,7 +150,7 @@ export function ProductGallery({
       <div
         {...swipeHandlers}
         ref={squareRef}
-        className="group relative aspect-square w-full touch-pan-y touch-pinch-zoom scroll-mt-24 overflow-hidden rounded-card bg-raised"
+        className="group relative aspect-square w-full touch-pan-y touch-pinch-zoom scroll-mt-24 overflow-hidden rounded-card bg-sunken"
       >
         {activeVideo ? (
           <GalleryVideo
@@ -198,7 +198,7 @@ export function ProductGallery({
             </GalleryArrow>
             {/* Over a playing video the corner belongs to the player's own controls. */}
             {isVideoPlaying ? null : (
-              <span className="absolute bottom-3.5 left-3.5 rounded-pill bg-ink/55 px-2.5 py-1 text-[11.5px] font-semibold text-on-dark">
+              <span className="absolute right-3 bottom-3 rounded-chip bg-ink/85 px-2.5 py-1 text-[12px] font-semibold text-on-dark">
                 {t('counter', { current: activeIndex + 1, total: slideCount })}
               </span>
             )}

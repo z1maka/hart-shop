@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound, permanentRedirect } from 'next/navigation'
 import { Suspense } from 'react'
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { JsonLd } from '@/components/JsonLd'
 import { TrustRow } from '@/components/layout/TrustRow'
 import { Badge } from '@/components/ui/Badge'
@@ -155,15 +156,13 @@ async function ProductDetail({
         ]}
       />
 
-      <nav className="px-7 pt-6 text-[12.5px] text-faint">
-        <Link href="/shop" className="hover:text-ink">
-          {t('breadcrumbShop')}
-        </Link>
-        <span className="px-1.5">/</span>
-        <Link href={`/product-category/${product.categorySlug}`} className="hover:text-ink">
-          {product.categoryName}
-        </Link>
-      </nav>
+      <Breadcrumbs
+        className="px-7 pt-7"
+        items={[
+          { label: t('breadcrumbShop'), href: '/shop' },
+          { label: product.categoryName, href: `/product-category/${product.categorySlug}` },
+        ]}
+      />
 
       {/* Two independent columns on a wide screen — photos with the specs
           under them, the buy panel with the description under it. A grid row
@@ -191,7 +190,7 @@ async function ProductDetail({
 
               {product.specs.length > 0 ? (
                 <section className="order-4 min-w-0 rounded-card border border-subtle bg-surface p-6 lg:order-none lg:mt-9">
-                  <h2 className="mb-3 font-display text-h3 font-bold text-ink">
+                  <h2 className="mb-3 font-display text-[22px] font-bold tracking-[0.04em] text-ink">
                     {t('specification')}
                   </h2>
                   <SpecTable rows={product.specs} />
@@ -209,7 +208,9 @@ async function ProductDetail({
               {product.description ? (
                 <section id="description" className="order-3 min-w-0 lg:order-none lg:mt-9">
                   <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <h2 className="font-display text-h3 font-bold text-ink">{t('description')}</h2>
+                    <h2 className="font-display text-[22px] font-bold tracking-[0.04em] text-ink">
+                      {t('description')}
+                    </h2>
                     {featuredVideo ? <WatchVideoButton video={featuredVideo} /> : null}
                   </div>
                   <p className="max-w-[62ch] text-[14.5px] leading-relaxed text-pretty break-words whitespace-pre-line text-muted">
@@ -225,14 +226,17 @@ async function ProductDetail({
       <div className="flex flex-wrap gap-6 px-7 pb-11">
         {product.layers > 1 ? (
           <section className="min-w-[min(100%,320px)] flex-[1_1_380px] rounded-card border border-subtle bg-surface p-6">
-            <h2 className="mb-4 font-display text-h3 font-bold text-ink">{t('fabricLayers')}</h2>
+            <h2 className="mb-4 font-display text-[22px] font-bold tracking-[0.04em] text-ink">
+              {t('fabricLayers')}
+            </h2>
             <div className="grid gap-3">
               {FABRIC_LAYERS.slice(0, product.layers).map((layer) => (
                 <div key={layer.number} className="grid grid-cols-[56px_1fr] items-center gap-3.5">
                   <div className={cn('h-8.5 rounded-chip', layer.swatchClass)} aria-hidden />
                   <div>
-                    <p className="text-[13.5px] font-semibold text-ink">
-                      {layer.number} · {layersT(`${layer.number}.title`)}
+                    <p className="text-[13.5px] font-bold text-ink">
+                      <span className="font-display text-khaki-ink">{layer.number}</span>{' '}
+                      {layersT(`${layer.number}.title`)}
                     </p>
                     <p className="text-[12px] leading-relaxed text-muted">
                       {layersT(`${layer.number}.body`)}
@@ -249,11 +253,13 @@ async function ProductDetail({
         <div className="flex flex-wrap gap-6 px-7 pb-11">
           {product.included.length > 0 ? (
             <section className="min-w-[min(100%,320px)] flex-[1_1_380px] rounded-card border border-subtle bg-surface p-6">
-              <h2 className="mb-3 font-display text-h3 font-bold text-ink">{t('inTheBox')}</h2>
+              <h2 className="mb-3 font-display text-[22px] font-bold tracking-[0.04em] text-ink">
+                {t('inTheBox')}
+              </h2>
               <ul className="grid gap-2 text-[13.5px] text-muted">
                 {product.included.map((item) => (
                   <li key={item} className="flex items-start gap-2.5">
-                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-accent" aria-hidden />
+                    <span className="mt-1.5 size-2 shrink-0 bg-khaki-mark" aria-hidden />
                     {item}
                   </li>
                 ))}
@@ -263,11 +269,13 @@ async function ProductDetail({
 
           {product.careNotes.length > 0 ? (
             <section className="min-w-[min(100%,320px)] flex-[1_1_380px] rounded-card border border-subtle bg-surface p-6">
-              <h2 className="mb-3 font-display text-h3 font-bold text-ink">{t('careAndLimits')}</h2>
+              <h2 className="mb-3 font-display text-[22px] font-bold tracking-[0.04em] text-ink">
+                {t('careAndLimits')}
+              </h2>
               <ul className="grid gap-2 text-[13.5px] text-muted">
                 {product.careNotes.map((note) => (
                   <li key={note} className="flex items-start gap-2.5">
-                    <span className="mt-2 size-1.5 shrink-0 rounded-full bg-strong" aria-hidden />
+                    <span className="mt-1.5 size-2 shrink-0 bg-strong" aria-hidden />
                     {note}
                   </li>
                 ))}
@@ -288,7 +296,7 @@ async function ProductDetail({
       </div>
 
       <section className="px-7">
-        <h2 className="mb-4.5 font-display text-h3 font-bold text-ink">{t('companions')}</h2>
+        <h2 className="mb-4.5 font-display text-h2 font-bold text-ink">{t('companions')}</h2>
         <Suspense fallback={<Skeleton className="h-80 w-full rounded-card" />}>
           <RelatedProducts categorySlug={product.categorySlug} slug={product.slug} />
         </Suspense>
@@ -312,8 +320,10 @@ async function BuyPanel({
 
   return (
     <div>
-      <p className="mb-2.5 text-[12.5px] font-semibold text-accent-hover">{product.kicker}</p>
-      <h1 className="mb-3 font-display text-[clamp(1.5rem,3.2vw,2.125rem)] leading-[1.12] font-bold tracking-[-0.02em] text-ink">
+      <p className="mb-2.5 font-display text-[12.5px] font-semibold tracking-[0.14em] text-khaki-ink">
+        {product.kicker}
+      </p>
+      <h1 className="mb-2.5 font-display text-[clamp(1.75rem,3.2vw,2.375rem)] leading-[1.08] font-bold tracking-[0.01em] text-balance text-ink">
         {product.title}
       </h1>
       <Suspense fallback={null}>

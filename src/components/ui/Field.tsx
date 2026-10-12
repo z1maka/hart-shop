@@ -23,7 +23,7 @@ export function Field({ label, children, className, error }: FieldProps) {
       )}
       data-invalid={error ? 'true' : undefined}
     >
-      <span className="text-[12.5px] font-semibold text-muted">{label}</span>
+      <span className="text-[12.5px] font-bold text-muted">{label}</span>
       {children}
       {error ? <span className="text-[12px] font-medium text-alert">{error}</span> : null}
     </label>
@@ -31,7 +31,7 @@ export function Field({ label, children, className, error }: FieldProps) {
 }
 
 export const inputClassName =
-  'min-h-11.5 rounded-control border-[1.5px] border-strong bg-raised px-3.5 text-[14px] text-ink placeholder:text-faint focus-visible:border-accent'
+  'min-h-[46px] rounded-control border-[1.5px] border-strong bg-raised px-3.5 text-[14px] text-ink placeholder:text-faint focus-visible:border-accent'
 
 export const textareaClassName =
   'min-h-28 rounded-control border-[1.5px] border-strong bg-raised px-3.5 py-3 text-[14px] text-ink placeholder:text-faint focus-visible:border-accent'

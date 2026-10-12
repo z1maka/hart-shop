@@ -6,11 +6,11 @@ export function ReviewCard({ review }: { readonly review: ReviewView }) {
   const t = useTranslations('reviews')
 
   return (
-    <article className="rounded-card border border-subtle bg-surface p-5">
-      <header className="mb-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <span className="text-[14px] font-semibold text-ink">{review.authorName}</span>
+    <article className="rounded-card border border-subtle bg-raised px-5 py-4.5">
+      <header className="mb-2 flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+        <span className="text-[14px] font-extrabold text-ink">{review.authorName}</span>
         {review.isVerifiedPurchase ? (
-          <span className="rounded-pill bg-accent-soft px-2.5 py-1 text-[11px] font-semibold text-accent-hover">
+          <span className="rounded-chip bg-accent-soft px-2 py-[3px] text-[11px] font-bold text-accent">
             ✓ {t('verified')}
           </span>
         ) : null}
@@ -30,7 +30,7 @@ export function ReviewCard({ review }: { readonly review: ReviewView }) {
           {review.tags.map((tag) => (
             <li
               key={tag}
-              className="rounded-pill border border-subtle bg-raised px-2.5 py-1 text-[12px] text-muted"
+              className="rounded-chip border border-subtle bg-surface px-2.5 py-1 text-[12px] text-muted"
             >
               {tag}
             </li>
@@ -39,12 +39,12 @@ export function ReviewCard({ review }: { readonly review: ReviewView }) {
       ) : null}
 
       {review.reply ? (
-        <div className="mt-4 rounded-control bg-sunken px-4 py-3">
-          <p className="mb-1 flex flex-wrap items-baseline gap-x-2 text-[12px] font-semibold text-ink">
+        <div className="mt-3 border-l-[3px] border-khaki-mark bg-accent-tint px-3.5 py-2.5">
+          <p className="mb-0.5 flex flex-wrap items-baseline gap-x-2 text-[12px] font-extrabold text-accent">
             {t('shopReply')}
             <span className="font-normal text-faint">{review.reply.dateLabel}</span>
           </p>
-          <p className="text-[13px] leading-relaxed whitespace-pre-line text-muted">{review.reply.body}</p>
+          <p className="text-[13px] leading-relaxed whitespace-pre-line text-ink">{review.reply.body}</p>
         </div>
       ) : null}
     </article>
