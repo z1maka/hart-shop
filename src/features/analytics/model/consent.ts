@@ -8,7 +8,7 @@ export const ConsentState = {
 
 export type ConsentState = (typeof ConsentState)[keyof typeof ConsentState]
 
-export const CONSENT_COOKIE = 'fox_consent'
+export const CONSENT_COOKIE = 'hart_consent'
 export const CONSENT_MAX_AGE_SECONDS = 60 * 60 * 24 * 180
 
 export function parseConsent(value: string | undefined): ConsentState {

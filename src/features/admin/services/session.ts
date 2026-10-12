@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from 'jose'
 import type { AdminRole } from '@/db/enums'
 import { env } from '@/lib/env'
 
-export const ADMIN_COOKIE = 'fox_admin'
+export const ADMIN_COOKIE = 'hart_admin'
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8
 
 export type AdminIdentity = {
@@ -16,7 +16,7 @@ export type AdminSession = AdminIdentity & {
 }
 
 const secret = new TextEncoder().encode(env.ADMIN_SESSION_SECRET)
-const ISSUER = 'fox-armor-eu'
+const ISSUER = 'hart-shop'
 
 export async function createSessionToken(session: AdminIdentity): Promise<string> {
   return new SignJWT({ email: session.email, role: session.role })

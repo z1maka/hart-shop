@@ -13,7 +13,7 @@ export type Visit = {
   readonly referrer: string
 }
 
-export const TRAFFIC_COOKIE = 'fox_source'
+export const TRAFFIC_COOKIE = 'hart_source'
 // How long a visit keeps the credit for an order placed later.
 export const TRAFFIC_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
 

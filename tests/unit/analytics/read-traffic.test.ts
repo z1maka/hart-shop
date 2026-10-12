@@ -19,14 +19,14 @@ beforeEach(() => {
 
 describe('readTrafficTouch at checkout', () => {
   it('names the channel the shopper came from', async () => {
-    jar.set('fox_source', serializeTouch(TOUCH))
+    jar.set('hart_source', serializeTouch(TOUCH))
 
     await expect(readTrafficTouch()).resolves.toEqual(TOUCH)
   })
 
   it('drops it once the shopper has refused tracking', async () => {
-    jar.set('fox_source', serializeTouch(TOUCH))
-    jar.set('fox_consent', 'denied')
+    jar.set('hart_source', serializeTouch(TOUCH))
+    jar.set('hart_consent', 'denied')
 
     await expect(readTrafficTouch()).resolves.toBeNull()
   })

@@ -39,7 +39,7 @@ async function OrderDetail({ params }: { params: PageProps<'/order/[token]'>['pa
       <ContactNote email={order.email} phone={order.address.phone ?? null} />
 
       <TrackEventOnce
-        dedupeKey={`fox_purchase_${order.orderNumber}`}
+        dedupeKey={`hart_purchase_${order.orderNumber}`}
         event={{
           name: 'purchase',
           orderNumber: order.orderNumber,

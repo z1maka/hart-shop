@@ -11,7 +11,7 @@ type CompareState = {
   readonly clear: () => void
 }
 
-const STORAGE_KEY = 'fox_compare'
+const STORAGE_KEY = 'hart_compare'
 const EMPTY: readonly string[] = []
 
 // A module-level store rather than state in an effect: the selection has to

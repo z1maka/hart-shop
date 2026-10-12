@@ -82,10 +82,10 @@ describe('offerIdOf', () => {
 
   it('gives a variant added after the move an id the plugin never used', () => {
     expect(offerIdOf('FOX-UA-35964-WINTER', 35964, 'FOX-UA-35964-MULTICAM')).toBe(
-      'fox_FOX-UA-35964-WINTER',
+      'hart_FOX-UA-35964-WINTER',
     )
-    expect(offerIdOf('FOX-UA-35635-RED', 35635, null)).toBe('fox_FOX-UA-35635-RED')
-    expect(offerIdOf('NEW-1-STD', null, 'NEW-1-STD')).toBe('fox_NEW-1-STD')
+    expect(offerIdOf('FOX-UA-35635-RED', 35635, null)).toBe('hart_FOX-UA-35635-RED')
+    expect(offerIdOf('NEW-1-STD', null, 'NEW-1-STD')).toBe('hart_NEW-1-STD')
   })
 })
 

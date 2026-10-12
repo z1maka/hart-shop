@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 
-const CART_COOKIE = 'fox_cart'
+const CART_COOKIE = 'hart_cart'
 const CART_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
 
 export async function readCartId(): Promise<string | null> {

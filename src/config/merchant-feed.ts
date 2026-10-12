@@ -9,7 +9,7 @@ export const LEGACY_OFFER_ID_PREFIX = 'gla_'
 
 // Variants the new admin added after the move have no WordPress id; they get
 // ids of their own, distinct from any the plugin could have used.
-export const NEW_OFFER_ID_PREFIX = 'fox_'
+export const NEW_OFFER_ID_PREFIX = 'hart_'
 
 export const FEED_PATH = '/feeds/merchant-center.xml'
 
