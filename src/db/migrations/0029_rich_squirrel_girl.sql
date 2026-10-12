@@ -1,0 +1,2 @@
+ALTER TABLE "orders" ADD COLUMN "recipient_phone" text GENERATED ALWAYS AS (regexp_replace(shipping_address->>'phone', '\D', '', 'g')) STORED;--> statement-breakpoint
+CREATE INDEX "orders_recipient_phone_created_at_idx" ON "orders" USING btree ("recipient_phone","created_at");

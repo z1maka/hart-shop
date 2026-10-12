@@ -1,0 +1,248 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-canvas: #f2f0ea;
+  --color-surface: #fbfaf7;
+  --color-raised: #ffffff;
+  --color-sunken: #f4f2ec;
+  --color-hover: #e9e7de;
+
+  --color-ink: #23241d;
+  --color-ink-hover: #3a3b30;
+  --color-muted: #63634f;
+  --color-faint: #6e6e59;
+  --color-on-dark: #f2f0ea;
+
+  --color-subtle: #ddd9cb;
+  --color-strong: #c9c5b4;
+
+  --color-accent: #5a6147;
+  --color-accent-fg: #ffffff;
+  --color-accent-hover: #4a5039;
+  --color-accent-soft: #e3e5d5;
+  --color-accent-tint: #f3f4ea;
+  --color-accent-edge: #8f987a;
+  --color-accent-mid: #c3c9ab;
+
+  --color-footer: #2e3026;
+  --color-footer-label: #b8bfa3;
+
+  --color-alert: #b0592f;
+  --color-alert-edge: #c98a6a;
+  --color-alert-soft: #f7ece6;
+
+  --color-camo-multicam: #7d6b4a;
+  --color-camo-olive: #4a5a3a;
+  --color-camo-pixel: #5d6e58;
+  --color-camo-winter: #e7e5e0;
+  --color-camo-white: #f4f3ef;
+  --color-camo-coyote: #8a7454;
+  --color-camo-kryptek: #4a4f3f;
+  --color-camo-leopard: #7a6a4e;
+  --color-camo-carbon: #2b2b2b;
+  --color-camo-black-multicam: #3b3a35;
+  --color-camo-black: #1c1c1a;
+  --color-camo-green: #3f5233;
+  --color-camo-khaki: #7d7a5a;
+  --color-camo-camo: #6b6f4e;
+  --color-camo-default: #a9a695;
+
+  --font-sans: var(--font-instrument-sans), system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+
+  --text-display: clamp(2.25rem, 4.6vw, 3.625rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.03em;
+  --text-h1: clamp(1.625rem, 3.6vw, 2.5rem);
+  --text-h1--line-height: 1.08;
+  --text-h1--letter-spacing: -0.025em;
+  --text-h2: clamp(1.375rem, 2.8vw, 1.875rem);
+  --text-h2--line-height: 1.1;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h3: 1.1875rem;
+  --text-h3--line-height: 1.2;
+  --text-h3--letter-spacing: -0.01em;
+
+  --radius-chip: 6px;
+  --radius-control: 8px;
+  --radius-card: 14px;
+  --radius-pill: 100px;
+
+  --shadow-hero: 0 18px 44px rgb(35 36 29 / 0.16);
+  --shadow-card: 0 10px 26px rgb(35 36 29 / 0.1);
+  --shadow-float: 0 6px 18px rgb(35 36 29 / 0.14);
+  --shadow-tab: 0 1px 3px rgb(35 36 29 / 0.15);
+
+  --container-shell: 1440px;
+
+  /* The payment return page: a check that draws itself, a badge that lands,
+     a ring that spreads once, a shake for a refusal and a bar that waits.
+     Every one ends in its resting state, so reduced motion loses nothing. */
+  --animate-draw-in: draw-in 0.55s cubic-bezier(0.65, 0, 0.35, 1) 0.25s both;
+  --animate-pop-in: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-ring-out: ring-out 1.8s ease-out 0.35s 2 both;
+  --animate-nudge: nudge 0.55s ease-in-out 0.35s both;
+  --animate-indeterminate: indeterminate 1.5s ease-in-out infinite;
+  --animate-rise-in: rise-in 0.5s ease-out both;
+
+  @keyframes draw-in {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes pop-in {
+    from {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+    to {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ring-out {
+    from {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    to {
+      transform: scale(1.75);
+      opacity: 0;
+    }
+  }
+
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20%,
+    60% {
+      transform: translateX(-5px);
+    }
+    40%,
+    80% {
+      transform: translateX(5px);
+    }
+  }
+
+  @keyframes indeterminate {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(260%);
+    }
+  }
+
+  @keyframes rise-in {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Our own product photos: no dragging out of the page, and no long-press
+     "Save image" sheet on a phone. See ImageGuard for the rest — and for
+     what none of it can do. */
+  img {
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-soft);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* Form controls draw their own focus by turning the border accent, so the
+     outline ring on top of it read as a second frame around the field. */
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer components {
+  /* The mark is black and amber; on the dark footer it reads as one light tone,
+     which is how the brand guide shows the reversed lockup. */
+  .layer-swatch-shell {
+    background: repeating-linear-gradient(
+      115deg,
+      #8a7f63 0 14px,
+      #6b6350 14px 26px,
+      #9a927b 26px 40px
+    );
+  }
+
+  .layer-swatch-barrier {
+    background: linear-gradient(180deg, #c9c5ba, #a8a49a);
+  }
+
+  .layer-swatch-spacer {
+    background: repeating-linear-gradient(0deg, #efece3 0 6px, #ddd9cb 6px 12px);
+  }
+
+  .layer-swatch-inner {
+    background: #6b6a5c;
+  }
+
+  .thermal-sketch-uncovered {
+    background: radial-gradient(
+      circle at 50% 58%,
+      #fff 0%,
+      #ffd28a 18%,
+      #ff7a2f 34%,
+      #a12a12 55%,
+      #2b1c3f 78%,
+      #0e1030 100%
+    );
+  }
+
+  .thermal-sketch-covered {
+    background: radial-gradient(
+      circle at 50% 58%,
+      #4a4a66 0%,
+      #3a3a55 30%,
+      #2b2b45 60%,
+      #191a33 100%
+    );
+  }
+}

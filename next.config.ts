@@ -1,0 +1,177 @@
+import createNextIntlPlugin from 'next-intl/plugin'
+import type { NextConfig } from 'next'
+
+const PRIVATE_HOST_PATTERN = /^(localhost|127\.\d+\.\d+\.\d+|0\.0\.0\.0|\[::1\]|10\.|192\.168\.)/
+
+const mediaUrl = process.env.NEXT_PUBLIC_MEDIA_URL
+const mediaOrigin = mediaUrl ? new URL(mediaUrl) : null
+
+// Next blocks image upstreams that resolve to a private IP. The storage host is
+// MinIO on the loopback locally and R2 in production, so the exemption follows
+// the env value instead of an environment flag.
+const isPrivateMediaHost = mediaOrigin ? PRIVATE_HOST_PATTERN.test(mediaOrigin.hostname) : false
+
+const isProduction = process.env.NODE_ENV === 'production'
+
+// GA4 beacons leave through www.google-analytics.com, the regional
+// collectors under it, analytics.google.com and the doubleclick stats host;
+// a transport the policy does not list is a lost pageview, not a console
+// warning only.
+const GOOGLE_HOSTS =
+  'https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://stats.g.doubleclick.net'
+// The Ads conversion side of gtag: conversion beacons go to googleadservices
+// and doubleclick, consent-mode pings to google.com and its country domain.
+// Without these the conversion still leaves through the surviving transport,
+// but every fallback lands in the console as a CSP violation.
+const GOOGLE_ADS_HOSTS =
+  'https://www.googleadservices.com https://googleads.g.doubleclick.net https://ad.doubleclick.net https://www.google.com https://google.com https://www.google.com.ua https://pagead2.googlesyndication.com'
+const META_HOSTS = 'https://connect.facebook.net https://www.facebook.com'
+// Clarity loads its tag from www.clarity.ms and reports to regional *.clarity.ms
+// collectors, so the wildcard is the documented allowance, not a shortcut.
+const CLARITY_HOSTS = 'https://www.clarity.ms https://*.clarity.ms'
+// Clarity's documented cookie-sync pixel; images only.
+const CLARITY_SYNC_HOSTS = 'https://c.bing.com'
+// TikTok serves the pixel SDK and receives its events from the same host; its
+// IPv6 enrichment call goes to a second one, and without it every page load
+// logs a CSP violation.
+const TIKTOK_HOSTS = 'https://analytics.tiktok.com https://analytics-ipv6.tiktokw.us'
+
+// Analytics load only after consent, but the policy has to allow them upfront —
+// a blocked script after the banner is accepted looks like a broken banner.
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  // React's development build needs eval() for its debugging features; the
+  // production build never calls it.
+  `script-src 'self' 'unsafe-inline' ${isProduction ? '' : "'unsafe-eval'"} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${TIKTOK_HOSTS}`,
+  "style-src 'self' 'unsafe-inline'",
+  `img-src 'self' data: blob: ${mediaOrigin?.origin ?? ''} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${CLARITY_SYNC_HOSTS} ${TIKTOK_HOSTS}`,
+  "font-src 'self' data:",
+  `connect-src 'self' ${mediaOrigin?.origin ?? ''} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${TIKTOK_HOSTS}`,
+  // Product videos play in YouTube's privacy-enhanced player.
+  "frame-src 'self' https://www.facebook.com https://www.youtube-nocookie.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  // The Meta pixel posts larger events (a purchase with items) through a
+  // hidden form; with 'self' alone the browser blocks that post and the
+  // event never reaches Meta.
+  "form-action 'self' https://www.facebook.com",
+  "frame-ancestors 'none'",
+  // Locally the storage host is plain http on the loopback; upgrading those
+  // requests would break every image in development.
+  ...(isProduction ? ['upgrade-insecure-requests'] : []),
+].join('; ')
+
+const SECURITY_HEADERS = [
+  { key: 'Content-Security-Policy', value: contentSecurityPolicy },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=(), payment=(), interest-cohort=()',
+  },
+  { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+]
+
+// Product slugs WordPress renamed before the migration. WordPress kept
+// answering the old ones with a redirect, Search Console still crawls them
+// (seen 03–04.10.2026), and the new site would answer 404. Old → current.
+const RENAMED_WORDPRESS_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
+  'оригінал-usa-активні-навушники-walkers-razor-tacti-grip-electronic-muff':
+    'oryhinal-usa-aktyvni-navushnyky-walkers-razor-tacti-grip-electronic-muff',
+  'sholom-kaska-kevlarova-3a-sestan-busch-bk-ach-hc-oryhinal-nato-chokhol':
+    'sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-chokhol',
+  'sholom-kaska-kevlarova-3a-sestan-busch-bk-ach-hc-oryhinal-nato-chokhol-1':
+    'sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-chokhol-1',
+  'sholom-kaska-kevlarova-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-nato-z-chokhlom':
+    'sholom-kevlar-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-z-chokhlom',
+  'sholom-kaska-kevlarova-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-nato-z-chokhlom-1':
+    'sholom-kevlar-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-z-chokhlom-1',
+  'komplekt-sholom-kaska-kevlarova-3a-sestan-busch-bk-ach-hc-oryhinal-nato-navushnyky-walkers-razor':
+    'komplekt-sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-navushnyky-walkers-razor',
+  'komplekt-sholom-kaska-kevlarova-3a-sestan-busch-bk-ach-hc-oryhinal-nato-aktyvni-navushnyky-walkers-razor':
+    'komplekt-sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-aktyvni-navushnyky-walkers-razor',
+  'komplekt-sholom-kaska-kevlarova-3a-fast-nij0106-01-iiia-3a-oryhinal-aktyvni-navushnyky-walkers-razor':
+    'komplekt-sholom-kevlar-3a-fast-nij0106-01-iiia-3a-oryhinal-aktyvni-navushnyky-walkers-razor',
+}
+
+const nextConfig: NextConfig = {
+  // Baked into both bundles at build time: an admin form carries it, and a
+  // save from a tab opened before a deploy is refused with «перезагрузите
+  // страницу» instead of a field error about something the tab never had.
+  env: { APP_BUILD_ID: process.env.VERCEL_GIT_COMMIT_SHA ?? 'dev' },
+  // Every indexed WordPress URL ends with a slash; the canonical structure
+  // survives the migration only if the new site keeps that shape (AGENTS.md §1).
+  trailingSlash: true,
+  async headers() {
+    return [{ source: '/:path*', headers: SECURITY_HEADERS }]
+  },
+  async redirects() {
+    // WordPress service pages that are deliberately not reproduced. Targets are
+    // fixed by docs/MIGRATION.md; permanent so search engines carry the equity.
+    return [
+      { source: '/my-account', destination: '/', permanent: true },
+      { source: '/wishlist-page', destination: '/shop/', permanent: true },
+      // Both WP tag archives are empty blog leftovers with no product links.
+      { source: '/tag/:slug*', destination: '/shop/', permanent: true },
+      // Technical pages of the WP theme builder, indexed by accident.
+      { source: '/layouts/:slug*', destination: '/', permanent: true },
+      // The WP "uncategorized" bucket: its products live in the anti-drone
+      // category here, so the indexed URL follows them. The source is
+      // percent-encoded because redirects match the raw request path.
+      {
+        source:
+          '/product-category/%D0%B1%D0%B5%D0%B7-%D0%BA%D0%B0%D1%82%D0%B5%D0%B3%D0%BE%D1%80%D1%96%D1%97',
+        destination: '/product-category/anti-dronovi-nakidki/',
+        permanent: true,
+      },
+      // WP paginates as /page/N/; the catalog paginates with a query param.
+      { source: '/shop/page/:page(\\d+)', destination: '/shop/?page=:page', permanent: true },
+      {
+        source: '/product-category/:slug/page/:page(\\d+)',
+        destination: '/product-category/:slug/?page=:page',
+        permanent: true,
+      },
+      // Encoded for the same reason as the category above: a Cyrillic slug
+      // arrives percent-encoded.
+      ...Object.entries(RENAMED_WORDPRESS_PRODUCT_SLUGS).map(([oldSlug, currentSlug]) => ({
+        source: `/product/${encodeURIComponent(oldSlug)}`,
+        destination: `/product/${currentSlug}/`,
+        permanent: true,
+      })),
+    ]
+  },
+  async rewrites() {
+    // Search Console knows the WP sitemap address; both must answer (MIGRATION §5).
+    return [{ source: '/sitemap_index.xml', destination: '/sitemap.xml' }]
+  },
+  cacheComponents: true,
+  // Product photos are uploaded through a Server Action, and the default cap is
+  // 1MB. Vercel itself refuses a body over 4.5MB, so this is the ceiling: the
+  // browser downscales anything larger before it is sent.
+  experimental: { serverActions: { bodySizeLimit: '4.5mb' } },
+  partialPrefetching: true,
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    dangerouslyAllowLocalIP: isPrivateMediaHost,
+    remotePatterns: [
+      ...(mediaOrigin
+        ? [
+            {
+              protocol: mediaOrigin.protocol.replace(':', '') as 'http' | 'https',
+              hostname: mediaOrigin.hostname,
+              port: mediaOrigin.port,
+            },
+          ]
+        : []),
+      // Product video thumbnails, served through the image optimizer so the
+      // page's own origin is the only image host the browser talks to.
+      { protocol: 'https', hostname: 'i.ytimg.com', pathname: '/vi/**' },
+    ],
+  },
+}
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
+
+export default withNextIntl(nextConfig)

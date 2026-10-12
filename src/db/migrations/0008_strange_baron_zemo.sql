@@ -1,0 +1,1 @@
+ALTER TABLE "categories" ADD COLUMN "is_visible" boolean DEFAULT true NOT NULL;

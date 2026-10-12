@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "price_is_manual" boolean DEFAULT false NOT NULL;

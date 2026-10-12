@@ -1,0 +1,1 @@
+ALTER TABLE "product_images" ADD COLUMN "square_storage_key" text;

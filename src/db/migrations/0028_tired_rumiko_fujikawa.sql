@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "carrier_document_ref" text;

@@ -1,0 +1,1 @@
+ALTER TABLE "products" ADD COLUMN "duty_rate_pct" numeric(5, 4) DEFAULT 0 NOT NULL;

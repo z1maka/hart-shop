@@ -1,0 +1,6 @@
+.next
+node_modules
+pnpm-lock.yaml
+src/db/migrations
+tests/**/__screenshots__
+design-source

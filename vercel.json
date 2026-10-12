@@ -1,0 +1,26 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["fra1"],
+  "crons": [
+    {
+      "path": "/api/cron/pickup-points/",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/auto-pack/",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/parcel-tracking/",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/quick-order-reminders/",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/review-requests/",
+      "schedule": "0 8 * * *"
+    }
+  ]
+}
