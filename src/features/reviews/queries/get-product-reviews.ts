@@ -1,5 +1,6 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import { hasReviewText } from '@/features/reviews/model/review-checks'
+import { OWN_REVIEWS_SINCE } from '@/config/reviews'
+import { hasReviewText, isCollectedHere } from '@/features/reviews/model/review-checks'
 import { summarizeRatings, type ReviewSummary } from '@/features/reviews/model/review-summary'
 import {
   reviewRepository,
@@ -24,10 +25,15 @@ export type ReviewView = {
   readonly reply: { readonly body: string; readonly dateLabel: string } | null
 }
 
-export type ProductReviewsView = {
+type ReviewSet = {
   readonly summary: ReviewSummary
   // Only the reviews with words; the rest live in the summary.
   readonly reviews: readonly ReviewView[]
+}
+
+export type ProductReviewsView = ReviewSet & {
+  // What the structured data may carry: the reviews collected on this site.
+  readonly collectedHere: ReviewSet
 }
 
 export async function getProductReviews(slug: string): Promise<ProductReviewsView> {
@@ -39,12 +45,20 @@ export async function getProductReviews(slug: string): Promise<ProductReviewsVie
   const rows = await reviewRepository.findPublishedBySlug(slug)
 
   return {
+    ...reviewSetOf(rows),
+    collectedHere: reviewSetOf(rows.filter((row) => isCollectedHere(row, OWN_REVIEWS_SINCE))),
+  }
+}
+
+function reviewSetOf(rows: readonly ReviewRow[]): ReviewSet {
+  return {
     summary: summarizeRatings(rows.map((row) => row.rating)),
     reviews: rows.filter((row) => hasReviewText(row.body)).map(toReviewView),
   }
 }
 
-const EMPTY_REVIEWS: ProductReviewsView = { summary: summarizeRatings([]), reviews: [] }
+const EMPTY_SET: ReviewSet = { summary: summarizeRatings([]), reviews: [] }
+const EMPTY_REVIEWS: ProductReviewsView = { ...EMPTY_SET, collectedHere: EMPTY_SET }
 
 // What the product page calls. Reviews decorate the page; a failure of their
 // query is logged and leaves the page standing without them, rather than

@@ -108,7 +108,7 @@ async function ProductDetail({
   product: ProductDetailView
   searchParams: PageProps<'/product/[slug]'>['searchParams']
 }) {
-  const [t, navT, layersT, { summary: ratingSummary, reviews }] = await Promise.all([
+  const [t, navT, layersT, { collectedHere }] = await Promise.all([
     getTranslations('pdp'),
     getTranslations('nav'),
     getTranslations('fabricLayers'),
@@ -131,10 +131,10 @@ async function ProductDetail({
             inStock: product.stockTotal > 0,
             colors: product.variants.map((variant) => variant.color),
             rating:
-              ratingSummary.count > 0
-                ? { average: ratingSummary.average, count: ratingSummary.count }
+              collectedHere.summary.count > 0
+                ? { average: collectedHere.summary.average, count: collectedHere.summary.count }
                 : null,
-            reviews: reviews.slice(0, STRUCTURED_REVIEW_COUNT).map((review) => ({
+            reviews: collectedHere.reviews.slice(0, STRUCTURED_REVIEW_COUNT).map((review) => ({
               author: review.authorName,
               rating: review.rating,
               body: review.body,

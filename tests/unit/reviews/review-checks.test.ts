@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { hasReviewText, looksLikeLocation } from '@/features/reviews/model/review-checks'
+import { ReviewSource } from '@/db/enums'
+import {
+  hasReviewText,
+  isCollectedHere,
+  looksLikeLocation,
+} from '@/features/reviews/model/review-checks'
 import {
   maskPhoneDigits,
   orderPhoneVariantsOf,
@@ -63,5 +68,31 @@ describe('orderPhoneVariantsOf', () => {
       '80637128319',
       '0637128319',
     ])
+  })
+})
+
+describe('isCollectedHere', () => {
+  const SINCE = new Date('2026-10-12T00:00:00+03:00')
+
+  it('counts a review left through this site after collecting began', () => {
+    const review = { source: ReviewSource.Site, publishedAt: new Date('2026-11-02T10:00:00+02:00') }
+
+    expect(isCollectedHere(review, SINCE)).toBe(true)
+  })
+
+  it('leaves out a site review published before collecting began', () => {
+    const review = { source: ReviewSource.Site, publishedAt: new Date('2026-10-06T12:00:00+03:00') }
+
+    expect(isCollectedHere(review, SINCE)).toBe(false)
+  })
+
+  it('leaves out reviews carried over from Prom.ua, whatever their date', () => {
+    const review = { source: ReviewSource.Prom, publishedAt: new Date('2026-11-02T10:00:00+02:00') }
+
+    expect(isCollectedHere(review, SINCE)).toBe(false)
+  })
+
+  it('leaves out a review that was never published', () => {
+    expect(isCollectedHere({ source: ReviewSource.Site, publishedAt: null }, SINCE)).toBe(false)
   })
 })

@@ -1,3 +1,5 @@
+import { ReviewSource } from '@/db/enums'
+
 // Hints for the moderator, never a verdict. A review that pins where a unit
 // stands must not go out, and this is how that usually looks in a sentence: a
 // settlement or street abbreviation before a name, a coordinate pair, an MGRS
@@ -21,4 +23,18 @@ export function looksLikeLocation(text: string): boolean {
 // its bars but get no card of their own (owner's decision, 26.09.2026).
 export function hasReviewText(body: string): boolean {
   return body.trim().length > 0
+}
+
+// Review snippets may carry only reviews the site collected itself, never ones
+// aggregated from other websites (Google's structured-data rules): those that
+// came through this site's own form once it started collecting.
+export function isCollectedHere(
+  review: { readonly source: ReviewSource; readonly publishedAt: Date | null },
+  collectingSince: Date,
+): boolean {
+  return (
+    review.source === ReviewSource.Site &&
+    review.publishedAt !== null &&
+    review.publishedAt >= collectingSince
+  )
 }
