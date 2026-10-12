@@ -153,6 +153,13 @@ export const products = pgTable(
     // seo_description stays as a fallback until every product has one.
     summary: text('summary'),
     seoDescription: text('seo_description'),
+    // Who made it, for Google's markup and the Merchant feed; empty for the
+    // shop's own sewing, which carries the shop's name.
+    brand: text('brand'),
+    // Products that are one model in different colours share this key: each
+    // colour has its own page and text, and the colour tiles link between them.
+    colorGroup: text('color_group'),
+    faq: jsonb('faq').$type<FaqEntry[]>().notNull().default([]),
     createdAt,
     updatedAt,
   },
@@ -173,6 +180,9 @@ export const products = pgTable(
     index('products_featured_order_idx')
       .on(table.featuredOrder)
       .where(sql`${table.featuredOrder} is not null`),
+    index('products_color_group_idx')
+      .on(table.colorGroup)
+      .where(sql`${table.colorGroup} is not null`),
   ],
 )
 
