@@ -20,36 +20,34 @@ export type HeaderProps = {
   readonly search: ReactNode
 }
 
-// The pages that are not product categories. Each sits in the bar from the
-// width where it fits beside the menus and lives in «Більше» below that, so
-// it is reachable at every width and never shown twice. Measured with the
-// Гарт lockup (128px wide) and a count on the cart badge: the first two fit
-// from 1404px, the third from 1482px, the last two from 1551px; each
-// threshold below keeps ~20px spare for a two-digit count.
+// The pages that are not product categories, as the Гарт design lists them.
+// Each sits in the bar from the width where it fits beside the menus and lives
+// in «Більше» below that, so it is reachable at every width and never shown
+// twice. Measured with the 171px lockup and a count on the cart: delivery
+// fits from ~1150px, about from ~1235px, and contacts takes the place of
+// «Більше» right after; each threshold keeps ~20px spare for a longer count.
 const PAGE_LINKS = [
   { key: 'delivery', href: '/delivery', inlineFrom: 'wide' },
-  { key: 'refunds', href: '/refund-policy', inlineFrom: 'wide' },
   { key: 'aboutUs', href: '/about-us', inlineFrom: 'extraWide' },
   { key: 'contactUs', href: '/contact', inlineFrom: 'widest' },
-  { key: 'guides', href: '/guides', inlineFrom: 'widest' },
 ] as const
 
 // Spelled out in full because Tailwind only emits classes it can read.
 const INLINE_FROM = {
-  wide: { bar: 'hidden min-[1420px]:block', menu: 'min-[1420px]:hidden' },
-  extraWide: { bar: 'hidden min-[1500px]:block', menu: 'min-[1500px]:hidden' },
-  widest: { bar: 'hidden min-[1580px]:block', menu: 'min-[1580px]:hidden' },
+  wide: { bar: 'hidden min-[1160px]:inline-flex', menu: 'min-[1160px]:hidden' },
+  extraWide: { bar: 'hidden min-[1240px]:inline-flex', menu: 'min-[1240px]:hidden' },
+  widest: { bar: 'hidden min-[1260px]:inline-flex', menu: 'min-[1260px]:hidden' },
 } as const
 
-// The custom-order pill follows the same rule: in the bar once the whole bar
-// fits (1090px with a cart count, measured), first in «Більше» below that.
-const CUSTOM_ORDER_INLINE = {
-  bar: 'hidden min-[1110px]:inline-flex',
-  menu: 'min-[1110px]:hidden',
-} as const
+// Not in the bar at any width, but a phone has nothing else: the drawer lists
+// them after the bar's own pages.
+const DRAWER_ONLY_LINKS = [
+  { key: 'refunds', href: '/refund-policy' },
+  { key: 'guides', href: '/guides' },
+] as const
 
 const BAR_LINK_CLASS =
-  'rounded-chip px-3 py-2.5 text-[13.5px] font-semibold whitespace-nowrap text-muted hover:bg-hover hover:text-ink'
+  'inline-flex min-h-10 items-center rounded-control px-3 font-display text-[14px] font-medium tracking-[0.06em] whitespace-nowrap text-on-dark transition-colors hover:bg-dark-hover hover:text-khaki'
 
 const NAV_GROUP_KEYS: Record<string, string> = {
   Concealment: 'concealment',
@@ -80,7 +78,6 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
     .map((category) => ({ label: category.name, href: `/product-category/${category.slug}` }))
 
   const moreMenu: readonly NavMenuItem[] = [
-    { label: t('customOrderShort'), href: CUSTOM_ORDER_HREF, className: CUSTOM_ORDER_INLINE.menu },
     ...ungrouped,
     ...pageLinks.map((link) => ({
       label: link.label,
@@ -100,16 +97,17 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
     ...groups.flatMap((group) => group.items),
     ...ungrouped,
     ...pageLinks.map((link) => ({ label: link.label, href: link.href })),
+    ...DRAWER_ONLY_LINKS.map((link) => ({ label: t(link.key), href: link.href })),
   ]
 
   return (
-    <header className="sticky top-0 z-40 border-b border-subtle bg-canvas">
+    <header className="sticky top-0 z-40 border-b-[3px] border-header-line bg-header">
       <div className="flex flex-nowrap items-center gap-x-3 px-4 py-3 sm:px-7 sm:py-3.5">
         <Link href="/" aria-label={`${siteConfig.name} home`} className="shrink-0">
-          <Wordmark height={30} isEager />
+          <Wordmark tone="light" height={40} isEager />
         </Link>
 
-        <nav className="ml-4 hidden items-center gap-x-1 lg:flex">
+        <nav className="ml-3 hidden items-center gap-x-0.5 lg:flex">
           <Link href="/shop" className={BAR_LINK_CLASS}>
             {t('allProducts')}
           </Link>
@@ -128,33 +126,20 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
           <NavMenu label={t('more')} items={moreMenu} className={moreTriggerClass} />
         </nav>
 
-        {/* Grouped by what things do, not by where they fit: the menus stay
-            together on the left, and this stands with the search and the cart
-            because it is an action too. Outlined rather than filled — the one
-            filled thing in the bar is the cart. */}
         {/* ml-auto, not a fixed left margin: the actions belong on the right
-            edge, opposite the logo, however much room the menus leave. */}
-        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2.5 lg:pl-6">
-          <Link
-            href={CUSTOM_ORDER_HREF}
-            className={cn(
-              'mr-1 min-h-[42px] items-center gap-2 rounded-pill border-[1.5px] border-accent-edge bg-accent-tint px-4 text-[13px] font-semibold whitespace-nowrap text-accent-hover transition-colors hover:border-accent hover:bg-accent-soft hover:text-ink',
-              CUSTOM_ORDER_INLINE.bar,
-            )}
-          >
-            <ScissorsIcon />
-            {t('customOrderShort')}
-          </Link>
+            edge, opposite the logo, however much room the menus leave. The
+            cart is the one filled thing in the bar, in khaki. */}
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2.5 lg:pl-4">
           {search}
           <Link
             href="/cart"
             aria-label={t('cart')}
-            className="inline-flex min-h-[42px] items-center gap-2 rounded-chip bg-ink px-3 text-[13px] font-semibold whitespace-nowrap text-on-dark hover:bg-ink-hover sm:px-4"
+            className="inline-flex min-h-[42px] items-center gap-2 rounded-control bg-khaki px-3 text-[13px] font-extrabold whitespace-nowrap text-ink transition-colors hover:bg-khaki-hover sm:px-4"
           >
             <CartIcon />
             <span className="hidden sm:inline">{t('cart')}</span>
             {cartCount > 0 ? (
-              <span className="inline-block min-w-5 rounded-pill bg-accent px-1.5 py-0.5 text-center text-[11.5px] leading-[1.45] font-bold text-accent-fg">
+              <span className="inline-block min-w-5 rounded-pill bg-ink px-1.5 py-0.5 text-center text-[11px] leading-[1.45] font-extrabold text-khaki">
                 {cartCount}
               </span>
             ) : null}
@@ -166,31 +151,15 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
   )
 }
 
-// Sewing, in one glyph: the pill reads as an offer before the words do.
-function ScissorsIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <circle cx="4" cy="12" r="2" stroke="currentColor" strokeWidth="1.4" />
-      <circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="1.4" />
-      <path
-        d="M5.4 10.6 12.5 2.5M10.6 10.6 3.5 2.5"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
 function CartIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <path
         d="M3.5 5.5h9l-.7 7a1.3 1.3 0 0 1-1.3 1.2H5.5a1.3 1.3 0 0 1-1.3-1.2l-.7-7Z"
         stroke="currentColor"
-        strokeWidth="1.4"
+        strokeWidth="1.5"
       />
-      <path d="M5.7 5.3a2.3 2.3 0 0 1 4.6 0" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M5.7 5.3a2.3 2.3 0 0 1 4.6 0" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   )
 }

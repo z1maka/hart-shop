@@ -21,7 +21,7 @@ export function MobileNav({ links }: MobileNavProps) {
 
   return (
     <div className="lg:hidden">
-      <Button variant="quiet" onClick={() => setIsOpen(true)} aria-label={t('open')}>
+      <Button variant="outlineOnDark" onClick={() => setIsOpen(true)} aria-label={t('open')}>
         ☰<span className="hidden sm:inline"> {t('title')}</span>
       </Button>
       <Dialog isOpen={isOpen} onOpenChange={setIsOpen} title={t('title')} placement="right">

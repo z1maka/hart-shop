@@ -23,8 +23,8 @@ export function NavMenu({ label, items, className }: NavMenuProps) {
     <DropdownMenu.Root>
       <DropdownMenu.Trigger
         className={cn(
-          'group inline-flex min-h-10 items-center gap-1.5 rounded-chip px-3 text-[13.5px] font-semibold text-muted',
-          'hover:bg-hover hover:text-ink data-[state=open]:bg-hover data-[state=open]:text-ink',
+          'group inline-flex min-h-10 items-center gap-1.5 rounded-control px-3 font-display text-[14px] font-medium tracking-[0.06em] whitespace-nowrap text-on-dark transition-colors',
+          'hover:bg-dark-hover hover:text-khaki data-[state=open]:bg-dark-hover data-[state=open]:text-khaki',
           className,
         )}
       >

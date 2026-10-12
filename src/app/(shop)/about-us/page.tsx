@@ -78,7 +78,7 @@ export default async function AboutPage() {
         </div>
       </section>
 
-      <section className="px-7 pb-14">
+      <section id="seller" className="scroll-mt-28 px-7 pb-14">
         <div className="rounded-card border border-subtle bg-surface p-6">
           <h2 className="mb-3.5 font-display text-[18px] font-bold tracking-[-0.01em] text-ink">
             {t('sellerTitle')}

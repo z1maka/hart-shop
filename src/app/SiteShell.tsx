@@ -1,9 +1,8 @@
 import { Suspense } from 'react'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
-import { AnnouncementBar } from '@/components/layout/AnnouncementBar'
 import { ImageGuard } from '@/components/layout/ImageGuard'
-import { SupportBar } from '@/components/layout/SupportBar'
+import { TopBar } from '@/components/layout/TopBar'
 import { getCartItemCount } from '@/features/cart'
 import { AnalyticsScripts, ConsentBanner, TrafficSourceTracker } from '@/features/analytics'
 import { MiniCart } from '@/features/cart/ui/MiniCart'
@@ -18,9 +17,8 @@ import { getTranslations } from 'next-intl/server'
 export function SiteShell({ children }: { readonly children: React.ReactNode }) {
   return (
     <div className="flex min-h-full flex-col bg-canvas">
-      <AnnouncementBar />
-      <SupportBar />
-      <Suspense fallback={<div className="h-[69px] border-b border-subtle bg-canvas" />}>
+      <TopBar />
+      <Suspense fallback={<div className="h-[71px] border-b-[3px] border-header-line bg-header" />}>
         <ShopHeader />
       </Suspense>
       <main className="flex-1">{children}</main>

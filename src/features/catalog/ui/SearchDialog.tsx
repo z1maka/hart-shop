@@ -43,7 +43,7 @@ export function SearchDialog({ suggestions, initialResults }: SearchDialogProps)
     <DialogPrimitive.Root open={isOpen} onOpenChange={setIsOpen}>
       <DialogPrimitive.Trigger
         aria-label={t('button')}
-        className="inline-flex min-h-[42px] items-center gap-2 rounded-chip border border-subtle px-3.5 text-[13px] font-medium text-muted hover:border-faint hover:text-ink"
+        className="inline-flex min-h-[42px] items-center gap-2 rounded-control border border-dark-edge px-3.5 text-[13px] font-semibold text-on-dark-muted transition-colors hover:border-khaki hover:text-khaki"
       >
         <SearchIcon />
         <span className="hidden sm:inline">{t('button')}</span>
