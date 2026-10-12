@@ -8,17 +8,25 @@
 
 ## 1. Домен
 
-Ще не обрано. Від нього залежать: адреса сайту, `media.<домен>` для R2, пошта Resend,
-зона Cloudflare і Vercel-проєкт. `www` віддаватиме 301 на апекс, як у FOX.
+**hart-shop.com** — куплено 12.10.2026 у Cloudflare Registrar (акаунт FOX, автопродовження),
+зона в тому ж Cloudflare. Головний — апекс; `www` віддає 308 на апекс (налаштовано у Vercel).
+
+| Запис | Тип | Значення | Призначення |
+|---|---|---|---|
+| `hart-shop.com` | CNAME (flattening) | `0b737adc72075444.vercel-dns-016.com`, без проксі | сайт на Vercel |
+| `www` | CNAME | те саме, без проксі | 308 на апекс |
+| `media` | R2 custom domain | бакет `hart-media` | фото товарів |
+| `resend._domainkey`, `send` (MX, TXT), `rsend` | Resend | пошта `orders@hart-shop.com` |
+| `_dmarc` | TXT | `v=DMARC1; p=none; rua=mailto:office@fox-armor.org` | як у FOX |
 
 ## 2. Сервіси
 
 | Сервіс | Замінює локальне | hart-shop | Стан на 12.10.2026 |
 |---|---|---|---|
-| Neon | Docker Postgres | проєкт `hart-shop` (`hidden-dawn-46075367`), eu-central-1, Postgres 18 | створено, схема накатана (56 міграцій), даних немає |
-| Cloudflare R2 | MinIO | бакет `hart-media`, тимчасово публічний `*.r2.dev` | створено, порожній |
-| Resend | Mailpit | той самий акаунт, що й FOX | домен додається після вибору домену |
-| Vercel | `pnpm dev` | проєкт із цього репозиторію | ще не створено |
+| Neon | Docker Postgres | проєкт `hart-shop` (`hidden-dawn-46075367`), eu-central-1, Postgres 18 | схема + каталог FOX (без відгуків, реквізитів і адмінів) |
+| Cloudflare R2 | MinIO | бакет `hart-media` на `media.hart-shop.com` | 912 фото скопійовано з FOX |
+| Resend | Mailpit | той самий акаунт, що й FOX, домен `hart-shop.com` (eu-west-1) | DNS додано, верифікація |
+| Vercel | `pnpm dev` | проєкт `hart-shop` у команді fox-armor, гілка `main` | створено, домени підключено |
 
 Значення лежать у `.env.production` (не комітиться). Порожні змінні в ньому — те, що
 чекає домену або власних акаунтів магазину: оплата, Нова Пошта, Telegram, SMS, пікселі.
@@ -64,11 +72,10 @@ Resend вимагає DNS-записи на домені: SPF, DKIM і DMARC. Б
 
 ## 6. Порядок першого деплою
 
-1. Обрати домен; додати зону в Cloudflare і домен у Resend.
-2. Перенести каталог і медіа в Neon `hart-shop` і R2 `hart-media` (локальний Docker уже
-   має копію каталогу FOX).
-3. Створити Vercel-проєкт з цього репозиторію, внести env, підключити домен.
-4. Перевірити `/`, `/shop/`, `/product/<slug>/`, кошик і чекаут.
+1. ~~Домен, зона Cloudflare, Resend~~ — зроблено 12.10.2026.
+2. ~~Каталог і медіа в Neon `hart-shop` і R2 `hart-media`~~ — зроблено 12.10.2026.
+3. ~~Vercel-проєкт і домени~~ — зроблено; env вносить власник з `.env.vercel`.
+4. Перший деплой, створити адміна, перевірити `/`, `/shop/`, `/product/<slug>/`, кошик і чекаут.
 
 ## 7. Що має бути закрите ДО зняття noindex
 
