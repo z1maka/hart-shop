@@ -172,7 +172,9 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailView 
     careNotes: row.careNotes,
     stockTotal: variants.reduce((total, variant) => total + variant.stockQty, 0),
     seoTitle: row.seoTitle ?? row.title,
-    seoDescription: metaDescription(row.summary, row.seoDescription, row.description),
+    // The admin's «Описание в Google» is written for the search result and
+    // wins; the lead under the price, then the description, stand in for it.
+    seoDescription: metaDescription(row.seoDescription, row.summary, row.description),
     brand: row.brand,
     colorGroup: row.colorGroup,
     faq: row.faq,
