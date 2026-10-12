@@ -23,7 +23,6 @@ export const HEADER_CHANNELS: readonly HeaderChannel[] = [
   { key: 'phone', href: 'tel:+380630630677' },
   { key: 'telegram', href: 'https://t.me/+380630630677' },
   { key: 'whatsapp', href: 'https://wa.me/380630630677' },
-  { key: 'youtube', href: 'https://www.youtube.com/@armedfox1833' },
 ]
 
 // A channel without a real handle is hidden rather than shown as a promise
@@ -32,7 +31,7 @@ export const CONTACT_CHANNELS: readonly ContactChannel[] = [
   { key: 'phone', handle: '+380 63 063 06 77', href: 'tel:+380630630677' },
   { key: 'telegram', handle: '+380 63 063 06 77', href: 'https://t.me/+380630630677' },
   { key: 'whatsapp', handle: '+380 63 063 06 77', href: 'https://wa.me/380630630677' },
-  { key: 'email', handle: 'office@fox-armor.org', href: 'mailto:office@fox-armor.org' },
+  { key: 'email', handle: 'office@hart-shop.com', href: 'mailto:office@hart-shop.com' },
 ]
 
 export const CONTACT_TOPIC_IDS: readonly ContactTopicId[] = [

@@ -1,14 +1,9 @@
 export const siteConfig = {
-  name: 'FOX Armor',
+  name: 'Гарт',
   tagline: 'Тактичне спорядження від українського виробника',
   description:
     'Антитепловізійне й антидронове маскувальне спорядження українського виробництва: пончо, накидки, чохли для Starlink, шоломи, навушники, рюкзаки. Доставка Новою Поштою по Україні.',
   locale: 'uk',
-  social: {
-    instagram: '',
-    facebook: '',
-    youtube: 'https://www.youtube.com/@armedfox1833',
-  },
 } as const
 
 // The shop front shows what we make ourselves; resold equipment lives in the

@@ -43,7 +43,7 @@ export function NewProductForm({ categories }: NewProductFormProps) {
               name="sku"
               defaultValue={typed.sku ?? ''}
               required
-              placeholder="FOX-FX3"
+              placeholder="HART-FX3"
               className={inputClassName}
             />
           </Field>

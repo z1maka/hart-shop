@@ -2,13 +2,13 @@
 // in the imprint and in customs paperwork, and the three must not drift apart.
 export const COMPANY = {
   legalName: 'ФОП Косенко Микола Степанович',
-  tradingName: 'FOX Armor',
+  tradingName: 'Гарт',
   addressLines: ['Ukraine'],
   taxId: '3251211798',
   phone: '+380 63 063 06 77',
   phoneHref: 'tel:+380630630677',
-  email: 'office@fox-armor.org',
-  site: 'fox-armor.com.ua',
+  email: 'office@hart-shop.com',
+  site: 'hart-shop.com',
 } as const
 
 // Parcels leave from this branch, and returns come back to it: the same
