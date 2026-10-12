@@ -48,6 +48,9 @@ export function organizationJsonLd(): JsonLdNode {
   }
 }
 
+// No SearchAction: the shop searches in a dialog, and /shop/ has no query
+// parameter, so a declared search URL would land a visitor on the whole
+// catalogue. Google dropped the sitelinks search box in 2024 anyway.
 export function websiteJsonLd(): JsonLdNode {
   return {
     '@context': SCHEMA_CONTEXT,
@@ -55,14 +58,6 @@ export function websiteJsonLd(): JsonLdNode {
     name: siteConfig.name,
     url: absoluteUrl('/'),
     inLanguage: siteConfig.locale,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: absoluteUrl('/shop/?q={search_term_string}'),
-      },
-      'query-input': 'required name=search_term_string',
-    },
   }
 }
 
