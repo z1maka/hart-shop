@@ -152,6 +152,27 @@ export function galleryIndexFor({ pick, color, coverIndex, count }: GalleryState
 
 // Google shows about this much of a description; longer text is cut mid-word
 // in the result, so the page hands over a whole sentence instead.
+type SpecRow = { readonly label: string; readonly value: string }
+
+const specKey = (label: string): string => label.trim().toLocaleLowerCase('uk')
+
+// The page derives weight, layers and colours from the product itself. An
+// imported or hand-typed row under one of those names would state the fact a
+// second time, possibly differently, and the derived row wins: it is read from
+// the live variants. Imported WordPress attributes may also carry blank values;
+// an empty row in the spec table reads as a rendering bug.
+export function mergeSpecs<Row extends SpecRow>(
+  leading: readonly Row[],
+  entered: readonly Row[],
+  trailing: readonly Row[],
+): Row[] {
+  const derivedKeys = new Set([...leading, ...trailing].map((row) => specKey(row.label)))
+  const kept = entered.filter(
+    (row) => row.value.trim() !== '' && !derivedKeys.has(specKey(row.label)),
+  )
+  return [...leading, ...kept, ...trailing]
+}
+
 const META_MAX_LENGTH = 300
 
 // One line, whatever the source: the imported WordPress texts carry emoji

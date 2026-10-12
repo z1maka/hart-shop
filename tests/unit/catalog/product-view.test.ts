@@ -4,6 +4,7 @@ import {
   coverIndexByColor,
   coverIndexFor,
   galleryIndexFor,
+  mergeSpecs,
   metaDescription,
 } from '@/features/catalog/model/product-view'
 
@@ -109,5 +110,32 @@ describe('metaDescription', () => {
     expect(meta.length).toBeLessThanOrEqual(301)
     expect(meta.endsWith('…')).toBe(true)
     expect(meta).not.toContain('сло…')
+  })
+})
+
+describe('mergeSpecs', () => {
+  const WEIGHT = { label: 'Вага', value: '1.4 кг' }
+  const COLOURS = { label: 'Кольори', value: 'Мультикам · Зимовий мультикам' }
+
+  it('keeps the derived rows around the entered ones, in order', () => {
+    const fabric = { label: 'Тканина', value: 'Оксфорд' }
+    expect(mergeSpecs([WEIGHT], [fabric], [COLOURS])).toEqual([WEIGHT, fabric, COLOURS])
+  })
+
+  it('drops an entered row that repeats a derived one, whatever its case or spacing', () => {
+    const entered = [
+      { label: ' кольори ', value: 'Мультикам, зимовий мультикам' },
+      { label: 'ВАГА', value: '1,4 кг' },
+    ]
+    expect(mergeSpecs([WEIGHT], entered, [COLOURS])).toEqual([WEIGHT, COLOURS])
+  })
+
+  it('keeps an entered colours row when the page derives none', () => {
+    const colours = { label: 'Кольори', value: 'Олива' }
+    expect(mergeSpecs([], [colours], [])).toEqual([colours])
+  })
+
+  it('drops entered rows with blank values', () => {
+    expect(mergeSpecs([], [{ label: 'Сезон', value: '  ' }], [])).toEqual([])
   })
 })

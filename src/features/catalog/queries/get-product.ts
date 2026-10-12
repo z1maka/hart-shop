@@ -6,6 +6,7 @@ import {
   formatWeight,
   isVariantAvailable,
   effectivePrice,
+  mergeSpecs,
   metaDescription,
   struckPrice,
   type ProductImageView,
@@ -130,25 +131,20 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailView 
       imageIndex: galleryIndexOf(images, variant.coverImageId),
     })),
     videos: row.videos,
-    specs: [
-      ...(row.weightGrams > 0
-        ? [
-            {
-              label: productT('specWeight'),
-              value: formatWeight(row.weightGrams, productT('kgUnit')),
-            },
-          ]
-        : []),
-      ...(row.layers > 1 ? [{ label: productT('specLayers'), value: String(row.layers) }] : []),
-      // Imported WordPress attributes may carry blank values; an empty row in
-      // the spec table reads as a rendering bug, so it never gets that far.
-      ...row.specs
-        .filter((spec) => spec.value.trim() !== '')
-        .map((spec) => ({
-          label: spec.label,
-          value: spec.value,
-        })),
-      ...(colors.length > 0 && (colors.length > 1 || colors[0] !== 'Standard')
+    specs: mergeSpecs(
+      [
+        ...(row.weightGrams > 0
+          ? [
+              {
+                label: productT('specWeight'),
+                value: formatWeight(row.weightGrams, productT('kgUnit')),
+              },
+            ]
+          : []),
+        ...(row.layers > 1 ? [{ label: productT('specLayers'), value: String(row.layers) }] : []),
+      ],
+      row.specs.map((spec) => ({ label: spec.label, value: spec.value })),
+      colors.length > 0 && (colors.length > 1 || colors[0] !== 'Standard')
         ? [
             {
               label: productT('specColours'),
@@ -157,8 +153,8 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailView 
                 .join(' · '),
             },
           ]
-        : []),
-    ],
+        : [],
+    ),
     summary: (row.summary ?? '').trim(),
     included: row.included,
     careNotes: row.careNotes,
