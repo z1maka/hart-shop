@@ -1,5 +1,6 @@
 import createNextIntlPlugin from 'next-intl/plugin'
 import type { NextConfig } from 'next'
+import { z } from 'zod'
 
 const PRIVATE_HOST_PATTERN = /^(localhost|127\.\d+\.\d+\.\d+|0\.0\.0\.0|\[::1\]|10\.|192\.168\.)/
 
@@ -74,6 +75,12 @@ const SECURITY_HEADERS = [
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
 ]
 
+// Until the shop opens, every response says noindex as well: robots.txt only
+// stops crawling, and a blocked URL linked from elsewhere can still be listed.
+// Parsed the way src/lib/env.ts reads the same variable.
+const isIndexable = z.stringbool().default(false).parse(process.env.SITE_INDEXABLE)
+const CLOSED_SITE_HEADERS = isIndexable ? [] : [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
+
 // Product slugs WordPress renamed before the migration. WordPress kept
 // answering the old ones with a redirect, Search Console still crawls them
 // (seen 03–04.10.2026), and the new site would answer 404. Old → current.
@@ -105,7 +112,7 @@ const nextConfig: NextConfig = {
   // survives the migration only if the new site keeps that shape (AGENTS.md §1).
   trailingSlash: true,
   async headers() {
-    return [{ source: '/:path*', headers: SECURITY_HEADERS }]
+    return [{ source: '/:path*', headers: [...SECURITY_HEADERS, ...CLOSED_SITE_HEADERS] }]
   },
   async redirects() {
     // WordPress service pages that are deliberately not reproduced. Targets are
