@@ -1,35 +1,51 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-canvas: #f2f0ea;
-  --color-surface: #fbfaf7;
+  /* Гарт · Ranger Green (design/pages/Гарт 00 Огляд). Light grey-green
+     content under a dark header and footer; khaki is the accent on dark. */
+  --color-canvas: #eceee6;
+  --color-surface: #f6f7f1;
   --color-raised: #ffffff;
-  --color-sunken: #f4f2ec;
-  --color-hover: #e9e7de;
+  --color-sunken: #e3e7dc;
+  --color-hover: #dfe5d6;
 
-  --color-ink: #23241d;
-  --color-ink-hover: #3a3b30;
-  --color-muted: #63634f;
-  --color-faint: #6e6e59;
-  --color-on-dark: #f2f0ea;
+  --color-ink: #1f2a1f;
+  --color-ink-hover: #2a372a;
+  --color-muted: #4f5a4c;
+  --color-faint: #646e60;
+  --color-on-dark: #e9ecdf;
+  --color-on-dark-muted: #aeb8a6;
+  --color-on-dark-link: #d5dbcb;
 
-  --color-subtle: #ddd9cb;
-  --color-strong: #c9c5b4;
+  --color-subtle: #d3d8cb;
+  --color-strong: #bcc3b2;
 
-  --color-accent: #5a6147;
-  --color-accent-fg: #ffffff;
-  --color-accent-hover: #4a5039;
-  --color-accent-soft: #e3e5d5;
-  --color-accent-tint: #f3f4ea;
-  --color-accent-edge: #8f987a;
-  --color-accent-mid: #c3c9ab;
+  --color-accent: #3b4a3a;
+  --color-accent-fg: #f1f3ea;
+  --color-accent-hover: #2f3d2f;
+  --color-accent-soft: #dfe5d6;
+  --color-accent-tint: #eef1e8;
+  --color-accent-edge: #8f9a8a;
+  --color-accent-mid: #c5cdbb;
 
-  --color-footer: #2e3026;
-  --color-footer-label: #b8bfa3;
+  /* Khaki: the light one sits on the dark header and blocks, the deep one
+     is the same hue dark enough to read as text on the light background. */
+  --color-khaki: #c8b07a;
+  --color-khaki-hover: #b89f68;
+  --color-khaki-mark: #8a7444;
+  --color-khaki-ink: #76623a;
 
-  --color-alert: #b0592f;
+  --color-header: #1f2a1f;
+  --color-header-line: #3b4a3a;
+  --color-footer: #172017;
+  --color-footer-label: #c8b07a;
+  --color-dark-line: #2c392c;
+  --color-dark-edge: #4d5d4b;
+  --color-dark-hover: #2a372a;
+
+  --color-alert: #a4442f;
   --color-alert-edge: #c98a6a;
-  --color-alert-soft: #f7ece6;
+  --color-alert-soft: #f5e9e3;
 
   --color-camo-multicam: #7d6b4a;
   --color-camo-olive: #4a5a3a;
@@ -47,31 +63,31 @@
   --color-camo-camo: #6b6f4e;
   --color-camo-default: #a9a695;
 
-  --font-sans: var(--font-instrument-sans), system-ui, sans-serif;
-  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+  --font-display: var(--font-oswald), system-ui, sans-serif;
 
-  --text-display: clamp(2.25rem, 4.6vw, 3.625rem);
-  --text-display--line-height: 1.04;
-  --text-display--letter-spacing: -0.03em;
-  --text-h1: clamp(1.625rem, 3.6vw, 2.5rem);
-  --text-h1--line-height: 1.08;
-  --text-h1--letter-spacing: -0.025em;
-  --text-h2: clamp(1.375rem, 2.8vw, 1.875rem);
+  --text-display: clamp(2.25rem, 4.8vw, 3.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: 0.005em;
+  --text-h1: clamp(1.875rem, 3.8vw, 2.75rem);
+  --text-h1--line-height: 1.06;
+  --text-h1--letter-spacing: 0.01em;
+  --text-h2: clamp(1.5rem, 2.8vw, 2rem);
   --text-h2--line-height: 1.1;
-  --text-h2--letter-spacing: -0.02em;
-  --text-h3: 1.1875rem;
+  --text-h2--letter-spacing: 0.02em;
+  --text-h3: 1.25rem;
   --text-h3--line-height: 1.2;
-  --text-h3--letter-spacing: -0.01em;
+  --text-h3--letter-spacing: 0.04em;
 
-  --radius-chip: 6px;
-  --radius-control: 8px;
-  --radius-card: 14px;
+  --radius-chip: 3px;
+  --radius-control: 4px;
+  --radius-card: 6px;
   --radius-pill: 100px;
 
-  --shadow-hero: 0 18px 44px rgb(35 36 29 / 0.16);
-  --shadow-card: 0 10px 26px rgb(35 36 29 / 0.1);
-  --shadow-float: 0 6px 18px rgb(35 36 29 / 0.14);
-  --shadow-tab: 0 1px 3px rgb(35 36 29 / 0.15);
+  --shadow-hero: 0 24px 50px rgb(31 42 31 / 0.22);
+  --shadow-card: 0 10px 26px rgb(31 42 31 / 0.12);
+  --shadow-float: 0 8px 20px rgb(0 0 0 / 0.25);
+  --shadow-tab: 0 1px 3px rgb(31 42 31 / 0.15);
 
   --container-shell: 1440px;
 
@@ -162,6 +178,15 @@
     color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* Oswald is set in capitals everywhere the brand uses it — headings,
+     buttons, the menu, prices. Opened up a touch for capitals; the heading
+     sizes carry their own tracking, and normal-case undoes this where
+     a lower-case line is wanted. */
+  .font-display {
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
   }
 
   /* Our own product photos: no dragging out of the page, and no long-press

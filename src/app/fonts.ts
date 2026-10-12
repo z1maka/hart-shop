@@ -1,19 +1,18 @@
-import localFont from 'next/font/local'
+import { Manrope, Oswald } from 'next/font/google'
 
-export const displayFont = localFont({
-  src: './fonts/space-grotesk-latin-wght-normal.woff2',
-  weight: '300 700',
+// The Гарт pair: Oswald for headings, buttons and the menu, Manrope for text.
+// Both carry Cyrillic, which every line of the storefront needs; next/font
+// downloads them at build time and serves them from the site itself.
+export const displayFont = Oswald({
+  subsets: ['latin', 'cyrillic'],
   display: 'swap',
-  variable: '--font-space-grotesk',
+  variable: '--font-oswald',
   fallback: ['system-ui', 'sans-serif'],
 })
 
-export const bodyFont = localFont({
-  src: [
-    { path: './fonts/instrument-sans-latin-wght-normal.woff2', weight: '400 700', style: 'normal' },
-    { path: './fonts/instrument-sans-latin-wght-italic.woff2', weight: '400 700', style: 'italic' },
-  ],
+export const bodyFont = Manrope({
+  subsets: ['latin', 'cyrillic'],
   display: 'swap',
-  variable: '--font-instrument-sans',
+  variable: '--font-manrope',
   fallback: ['system-ui', 'sans-serif'],
 })
