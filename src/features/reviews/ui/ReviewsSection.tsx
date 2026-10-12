@@ -44,7 +44,8 @@ export async function ReviewsSection({ productSlug }: ReviewsSectionProps) {
                 <RatingStars
                   rating={Math.round(summary.average)}
                   label={t('ratingAria', { rating: formatAverage(summary.average) })}
-                  className="mt-2 [&_span]:text-khaki"
+                  tone="dark"
+                  className="mt-2"
                 />
                 <p className="mt-1.5 text-[12.5px] text-on-dark-muted">
                   {t('count', { count: summary.count })}
