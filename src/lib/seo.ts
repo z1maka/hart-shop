@@ -248,7 +248,7 @@ export type ArticleJsonLdInput = {
 // Google's Article result wants an image and a publisher logo as an
 // ImageObject; the site's Open Graph card stands in for guides without a
 // picture of their own.
-const ARTICLE_IMAGE_PATH = '/opengraph-image'
+const ARTICLE_IMAGE_PATH = '/opengraph-image.png'
 
 export function articleJsonLd(input: ArticleJsonLdInput): JsonLdNode {
   return {
