@@ -27,13 +27,15 @@ import {
 } from '@/features/catalog'
 import { getProductQuantityInCart } from '@/features/cart'
 import { AddToCartForm } from '@/features/cart/ui/AddToCartForm'
+import { FaqList } from '@/features/catalog/ui/FaqList'
+import { ReadingBlocks } from '@/features/catalog/ui/ReadingBlocks'
 import { OWN_PRODUCTION_CATEGORY_SLUGS } from '@/config/catalog'
 import { CUSTOM_ORDER_HREF, type CustomOrderItemId } from '@/config/custom-order'
 import { CustomOrderNote } from '@/features/enquiries/ui/CustomOrderCta'
 import { TrackEventOnce, type AnalyticsItem } from '@/features/analytics'
 import { formatMoney } from '@/lib/money'
 import { getProductReviewsOrNone, ProductRatingLine, ReviewsSection } from '@/features/reviews'
-import { breadcrumbJsonLd, productJsonLd, videoJsonLd } from '@/lib/seo'
+import { breadcrumbJsonLd, faqJsonLd, productJsonLd, videoJsonLd } from '@/lib/seo'
 import { siteConfig } from '@/config/site'
 import {
   featuredVideoOf,
@@ -147,6 +149,7 @@ async function ProductDetail({
             { name: product.categoryName, path: `/product-category/${product.categorySlug}/` },
             { name: product.title, path: `/product/${product.slug}/` },
           ]),
+          ...(product.faq.length > 0 ? [faqJsonLd(product.faq)] : []),
           ...product.videos.map((video) =>
             videoJsonLd({
               name: video.caption,
@@ -218,9 +221,9 @@ async function ProductDetail({
                     </h2>
                     {featuredVideo ? <WatchVideoButton video={featuredVideo} /> : null}
                   </div>
-                  <p className="max-w-[62ch] text-[14.5px] leading-relaxed text-pretty break-words whitespace-pre-line text-muted">
-                    {product.description}
-                  </p>
+                  <div className="max-w-[62ch]">
+                    <ReadingBlocks blocks={product.descriptionBlocks} headingLevel="h3" />
+                  </div>
                 </section>
               ) : null}
             </div>
@@ -288,6 +291,15 @@ async function ProductDetail({
             </section>
           ) : null}
         </div>
+      ) : null}
+
+      {product.faq.length > 0 ? (
+        <section className="px-7 pb-11">
+          <h2 className="mb-4 font-display text-h2 font-bold text-ink">{t('faqTitle')}</h2>
+          <div className="max-w-[880px]">
+            <FaqList entries={product.faq} />
+          </div>
+        </section>
       ) : null}
 
       <div className="px-7 pb-11">

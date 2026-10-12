@@ -1,4 +1,5 @@
 import type { ProductVideo } from '@/features/catalog/model/product-video'
+import type { FaqEntry } from '@/features/catalog/model/category-content'
 import {
   and,
   asc,
@@ -384,6 +385,9 @@ export type ProductDetailRow = CatalogProductRow & {
   readonly careNotes: readonly string[]
   readonly seoTitle: string | null
   readonly seoDescription: string | null
+  readonly brand: string | null
+  readonly colorGroup: string | null
+  readonly faq: readonly FaqEntry[]
 }
 
 export type ProductVariantRow = {
@@ -481,6 +485,9 @@ export const catalogReadRepository = {
         summary: products.summary,
         seoTitle: products.seoTitle,
         seoDescription: products.seoDescription,
+        brand: products.brand,
+        colorGroup: products.colorGroup,
+        faq: products.faq,
       })
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))

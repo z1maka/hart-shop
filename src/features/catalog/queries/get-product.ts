@@ -1,4 +1,9 @@
 import { cacheLife, cacheTag } from 'next/cache'
+import {
+  parseStory,
+  type FaqEntry,
+  type StoryBlock,
+} from '@/features/catalog/model/category-content'
 import type { ProductVideo } from '@/features/catalog/model/product-video'
 import {
   colorOf,
@@ -40,6 +45,8 @@ export type ProductDetailView = {
   readonly badge: string | null
   readonly kicker: string
   readonly description: string
+  // The description as the page prints it: «## » headings and «- » lists.
+  readonly descriptionBlocks: readonly StoryBlock[]
   // The short lead under the price; empty until someone writes one.
   readonly summary: string
   readonly price: Money
@@ -59,6 +66,10 @@ export type ProductDetailView = {
   readonly stockTotal: number
   readonly seoTitle: string
   readonly seoDescription: string
+  // Null for the shop's own sewing.
+  readonly brand: string | null
+  readonly colorGroup: string | null
+  readonly faq: readonly FaqEntry[]
 }
 
 export async function getProductBySlug(slug: string): Promise<ProductDetailView | null> {
@@ -100,6 +111,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailView 
         ? `${categoryName} · ${productT('skuMeta', { sku: row.sku })} · ${productT('layersMeta', { count: row.layers })}`
         : `${categoryName} · ${productT('skuMeta', { sku: row.sku })}`,
     description: row.description,
+    descriptionBlocks: parseStory(row.description),
     price: effectivePrice(row.priceCents, row.salePriceCents),
     regularPrice: struckPrice(row.priceCents, row.salePriceCents),
     wholesale: wholesaleViewOf({
@@ -161,6 +173,9 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailView 
     stockTotal: variants.reduce((total, variant) => total + variant.stockQty, 0),
     seoTitle: row.seoTitle ?? row.title,
     seoDescription: metaDescription(row.summary, row.seoDescription, row.description),
+    brand: row.brand,
+    colorGroup: row.colorGroup,
+    faq: row.faq,
   }
 }
 
