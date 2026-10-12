@@ -46,8 +46,12 @@ export type ProductCardView = {
   readonly wholesale: { readonly minQuantity: number; readonly price: Money } | null
 }
 
+// The Ukrainian decimal comma, at the precision the catalogue is weighed in:
+// 1350 g reads «1,35 кг», as the descriptions say, not a rounded «1.4».
+const WEIGHT_FORMAT = new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 2 })
+
 export function formatWeight(weightGrams: number, unit = 'kg'): string {
-  return `${(weightGrams / GRAMS_PER_KILO).toFixed(1)} ${unit}`
+  return `${WEIGHT_FORMAT.format(weightGrams / GRAMS_PER_KILO)} ${unit}`
 }
 
 // Layer count is a concealment-fabric fact; it means nothing on a stretcher or

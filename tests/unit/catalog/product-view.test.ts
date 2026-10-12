@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildMetaLine,
   cardImageFor,
   coverIndexByColor,
   coverIndexFor,
+  formatWeight,
   galleryIndexFor,
   mergeSpecs,
   metaDescription,
@@ -137,5 +139,22 @@ describe('mergeSpecs', () => {
 
   it('drops entered rows with blank values', () => {
     expect(mergeSpecs([], [{ label: 'Сезон', value: '  ' }], [])).toEqual([])
+  })
+})
+
+describe('formatWeight', () => {
+  it('writes the weight with a decimal comma at the catalogue precision', () => {
+    expect(formatWeight(1350, 'кг')).toBe('1,35 кг')
+    expect(formatWeight(1150, 'кг')).toBe('1,15 кг')
+    expect(formatWeight(1400, 'кг')).toBe('1,4 кг')
+    expect(formatWeight(300, 'кг')).toBe('0,3 кг')
+    expect(formatWeight(2000, 'кг')).toBe('2 кг')
+  })
+})
+
+describe('buildMetaLine', () => {
+  it('joins the weight and the layers, leaving out what is not stated', () => {
+    expect(buildMetaLine(1250, '3 шари', 'кг')).toBe('1,25 кг · 3 шари')
+    expect(buildMetaLine(0, null, 'кг')).toBe('')
   })
 })
