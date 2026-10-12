@@ -57,16 +57,16 @@ export function CartLineControls({ itemId, quantity }: CartLineControlsProps) {
 
   return (
     <div className="flex items-center gap-3">
-      <div className="flex overflow-hidden rounded-control border border-strong">
+      <div className="flex overflow-hidden rounded-control border-[1.5px] border-strong bg-raised">
         <button
           type="button"
           onClick={() => step(-1)}
           aria-label={t('decrease')}
-          className="min-h-10 min-w-10 bg-surface text-[15px] font-semibold text-ink hover:bg-hover"
+          className="min-h-10 min-w-10 text-[15px] font-bold text-ink hover:bg-hover"
         >
           −
         </button>
-        <span className="min-w-10 bg-raised px-2 py-2.5 text-center text-[13.5px] font-semibold text-ink">
+        <span className="flex min-w-9 items-center justify-center px-1 text-center text-[13.5px] font-bold text-ink">
           {shown}
         </span>
         <button
@@ -74,7 +74,7 @@ export function CartLineControls({ itemId, quantity }: CartLineControlsProps) {
           onClick={() => step(1)}
           disabled={shown >= MAX_QUANTITY}
           aria-label={t('increase')}
-          className="min-h-10 min-w-10 bg-surface text-[15px] font-semibold text-ink hover:bg-hover disabled:opacity-40"
+          className="min-h-10 min-w-10 text-[15px] font-bold text-ink hover:bg-hover disabled:opacity-40"
         >
           +
         </button>
@@ -83,7 +83,7 @@ export function CartLineControls({ itemId, quantity }: CartLineControlsProps) {
       <button
         type="button"
         onClick={() => apply(0)}
-        className="text-[12.5px] font-semibold text-muted hover:text-alert"
+        className="text-[12.5px] font-bold text-muted hover:text-alert"
       >
         {removeT('remove')}
       </button>

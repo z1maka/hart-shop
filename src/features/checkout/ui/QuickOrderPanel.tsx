@@ -58,15 +58,15 @@ export function QuickOrderPanel({
   }
 
   return (
-    <div className="rounded-card border-[1.5px] border-accent bg-accent-tint p-4.5">
-      <p className="font-display text-[17px] font-bold tracking-tight text-ink">
+    <div className="rounded-card bg-header p-5">
+      <p className="font-display text-[20px] font-bold tracking-[0.04em] text-on-dark">
         {t('quickOrder.title')}
       </p>
-      <p className="mt-0.5 mb-3.5 text-[12.5px] leading-relaxed text-muted">
+      <p className="mt-1 mb-3.5 text-[12.5px] leading-relaxed text-on-dark-muted">
         {t('quickOrder.lead')}
       </p>
 
-      <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
+      <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-khaki">
         {t('quickOrder.phoneLabel')}
         <UaPhoneInput
           name="quick-order-phone"
@@ -81,16 +81,22 @@ export function QuickOrderPanel({
         />
       </label>
 
-      <Button size="lg" onClick={placeQuickOrder} disabled={isPending} className="mt-3 w-full">
+      <Button
+        size="lg"
+        variant="khaki"
+        onClick={placeQuickOrder}
+        disabled={isPending}
+        className="mt-3 w-full text-[16px]"
+      >
         {isPending ? t('quickOrder.submitting') : t('quickOrder.submit', { total: totalLabel })}
       </Button>
 
-      {error ? <p className="mt-2.5 text-[12.5px] font-semibold text-alert">{error}</p> : null}
+      {error ? <p className="mt-2.5 text-[12.5px] font-semibold text-alert-on-dark">{error}</p> : null}
 
       {/* Second action, deliberately secondary: most buyers need one step,
           but the ones who came for a card or a courier must not have to hunt
           for the way there. */}
-      <Button variant="secondary" size="lg" asChild className="mt-3 w-full">
+      <Button variant="outlineOnDark" asChild className="mt-2.5 min-h-12 w-full">
         <Link
           href="/checkout"
           onClick={() => {
@@ -104,7 +110,7 @@ export function QuickOrderPanel({
         >
           <span className="flex flex-col items-center gap-0.5 py-2 text-center leading-tight">
             <span>{t('quickOrder.fullCheckout')}</span>
-            <span className="text-[12px] font-medium text-muted">
+            <span className="text-[11.5px] font-medium text-on-dark-muted">
               {isCardPaymentAvailable
                 ? t('quickOrder.fullCheckoutCardHint')
                 : t('quickOrder.fullCheckoutHint')}

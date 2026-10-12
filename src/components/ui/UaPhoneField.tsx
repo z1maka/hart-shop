@@ -116,7 +116,7 @@ export function UaPhoneInput({
 
 function borderToneOf(hasError: boolean, isEmphasised: boolean): string {
   if (hasError) return 'border-alert'
-  if (isEmphasised) return 'border-accent'
+  if (isEmphasised) return 'border-khaki'
   return 'border-strong'
 }
 

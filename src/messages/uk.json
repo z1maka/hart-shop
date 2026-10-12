@@ -262,6 +262,10 @@
     "eachPlain": "{price} за шт.",
     "totalItems": "Разом · {count, plural, one {# товар} few {# товари} many {# товарів} other {# товару}}",
     "deliveryNote": "Доставка — за тарифами Нової Пошти, оплата при отриманні.",
+    "continueShopping": "← Продовжити покупки",
+    "deliveryRow": "Доставка",
+    "deliveryByCarrier": "за тарифами перевізника",
+    "toPay": "До сплати",
     "wholesaleTag": "Оптова ціна",
     "wholesaleHint": "Від {min} шт — {price}/шт. Ще {missing} шт до оптової ціни."
   },
