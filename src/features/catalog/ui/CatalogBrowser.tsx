@@ -45,10 +45,12 @@ export async function CatalogBrowser({
   categories,
   searchParams,
 }: CatalogBrowserProps) {
-  const t = await getTranslations('filters')
-  const navT = await getTranslations('nav')
-  const colorsT = await getTranslations('colors')
-  const resolved = await searchParams
+  const [t, navT, colorsT, resolved] = await Promise.all([
+    getTranslations('filters'),
+    getTranslations('nav'),
+    getTranslations('colors'),
+    searchParams,
+  ])
   const colors = parseColors(resolved.color)
   const weightBand = parseWeightBand(resolved.weight)
   const sort = parseSort(resolved.sort)

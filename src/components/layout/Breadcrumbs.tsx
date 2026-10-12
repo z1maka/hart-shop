@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { Fragment } from 'react'
 
 export type BreadcrumbItem = {
@@ -14,8 +15,10 @@ export function Breadcrumbs({
   readonly items: readonly BreadcrumbItem[]
   readonly className?: string
 }) {
+  const t = useTranslations('nav')
+
   return (
-    <nav aria-label="Breadcrumbs" className={className}>
+    <nav aria-label={t('breadcrumbs')} className={className}>
       <ol className="flex flex-wrap items-center gap-x-1.5 text-[12.5px] text-faint">
         {items.map((item, index) => (
           <Fragment key={`${item.label}-${index}`}>

@@ -71,7 +71,6 @@ export default async function CategoryPage({
 }
 
 async function CategoryHeader({ category: activeCategory }: { category: CategoryView }) {
-  const t = await getTranslations('pdp')
   const navT = await getTranslations('nav')
 
   return (
@@ -86,7 +85,8 @@ async function CategoryHeader({ category: activeCategory }: { category: Category
       />
       <JsonLd
         data={breadcrumbJsonLd([
-          { name: t('breadcrumbShop'), path: '/shop/' },
+          { name: navT('home'), path: '/' },
+          { name: navT('allProducts'), path: '/shop/' },
           { name: activeCategory.name, path: `/product-category/${activeCategory.slug}/` },
         ])}
       />

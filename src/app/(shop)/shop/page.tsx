@@ -20,8 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ShopIndexPage({ searchParams }: PageProps<'/shop'>) {
-  const pageT = await getTranslations('shopPage')
-  const navT = await getTranslations('nav')
+  const [pageT, navT] = await Promise.all([
+    getTranslations('shopPage'),
+    getTranslations('nav'),
+  ])
 
   return (
     <div className="px-7 pt-9 pb-14">

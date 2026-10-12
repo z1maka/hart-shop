@@ -108,9 +108,12 @@ async function ProductDetail({
   product: ProductDetailView
   searchParams: PageProps<'/product/[slug]'>['searchParams']
 }) {
-  const t = await getTranslations('pdp')
-  const layersT = await getTranslations('fabricLayers')
-  const { summary: ratingSummary, reviews } = await getProductReviewsOrNone(product.slug)
+  const [t, navT, layersT, { summary: ratingSummary, reviews }] = await Promise.all([
+    getTranslations('pdp'),
+    getTranslations('nav'),
+    getTranslations('fabricLayers'),
+    getProductReviewsOrNone(product.slug),
+  ])
   const featuredVideo = featuredVideoOf(product.videos)
 
   return (
@@ -139,7 +142,8 @@ async function ProductDetail({
             })),
           }),
           breadcrumbJsonLd([
-            { name: t('breadcrumbShop'), path: '/shop/' },
+            { name: navT('home'), path: '/' },
+            { name: navT('allProducts'), path: '/shop/' },
             { name: product.categoryName, path: `/product-category/${product.categorySlug}/` },
             { name: product.title, path: `/product/${product.slug}/` },
           ]),
@@ -159,7 +163,8 @@ async function ProductDetail({
       <Breadcrumbs
         className="px-7 pt-7"
         items={[
-          { label: t('breadcrumbShop'), href: '/shop' },
+          { label: navT('home'), href: '/' },
+          { label: navT('allProducts'), href: '/shop' },
           { label: product.categoryName, href: `/product-category/${product.categorySlug}` },
         ]}
       />

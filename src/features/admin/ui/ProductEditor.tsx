@@ -367,7 +367,7 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                 required
               />
             </Field>
-            <p className="mt-3.5 mb-4 rounded-control bg-sunken px-3.5 py-2.5 font-display text-[12.5px] text-muted">
+            <p className="mt-3.5 mb-4 rounded-control bg-sunken px-3.5 py-2.5 font-display text-[12.5px] text-muted normal-case">
               {siteHost}/product/{nextSlug(product.slug, slug) || 'novyy-tovar'}
             </p>
             <SummaryField defaultValue={typed.summary ?? product.summary} error={fieldError('summary')} />
