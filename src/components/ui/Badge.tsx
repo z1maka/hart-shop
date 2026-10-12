@@ -10,8 +10,8 @@ type BadgeProps = {
 }
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  ink: 'bg-ink text-on-dark',
-  accent: 'bg-accent-soft text-accent-hover',
+  ink: 'bg-ink text-khaki',
+  accent: 'bg-accent-soft text-accent',
   alert: 'bg-alert text-white',
 }
 
@@ -19,7 +19,7 @@ export function Badge({ tone = 'ink', className, children }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-pill px-[11px] py-1.5 text-[11px] font-semibold',
+        'inline-flex items-center rounded-chip px-2 py-1 font-display text-[11px] font-semibold tracking-[0.1em]',
         TONE_CLASSES[tone],
         className,
       )}

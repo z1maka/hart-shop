@@ -48,7 +48,7 @@ export async function ProductCard({
     <article className="flex h-full flex-col overflow-hidden rounded-card border border-subtle bg-raised">
       <Link
         href={productHref(product.slug, matchedColors)}
-        className="relative block aspect-square overflow-hidden bg-raised"
+        className="relative block aspect-square overflow-hidden bg-sunken"
         tabIndex={-1}
         aria-hidden
       >
@@ -62,22 +62,22 @@ export async function ProductCard({
             className="object-cover"
           />
         ) : null}
-        {product.badge ? <Badge className="absolute top-3 left-3">{product.badge}</Badge> : null}
+        {product.badge ? <Badge className="absolute top-2.5 left-2.5">{product.badge}</Badge> : null}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 px-[18px] pt-4 pb-[18px]">
+      <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         {product.metaLine ? (
-          <p className="text-[12px] font-medium text-faint">{product.metaLine}</p>
+          <p className="text-[11.5px] font-semibold text-faint">{product.metaLine}</p>
         ) : null}
 
-        <h3 className="text-[15.5px] leading-[1.35] font-semibold text-ink">
-          <Link href={productHref(product.slug, matchedColors)} className="hover:text-accent-hover">
+        <h3 className="text-[14px] leading-[1.35] font-bold text-ink">
+          <Link href={productHref(product.slug, matchedColors)} className="hover:text-accent">
             {product.title}
           </Link>
         </h3>
 
         {product.rating ? (
-          <p className="flex items-center gap-1.5 text-[12px] font-medium text-muted">
+          <p className="flex items-center gap-1.5 text-[12px] text-muted">
             <RatingStars
               rating={Math.round(product.rating.average)}
               label={reviewsT('ratingAria', { rating: formatAverage(product.rating.average) })}
@@ -94,7 +94,7 @@ export async function ProductCard({
               <ColorSwatch key={color} name={color} isSelected={matchedColors.includes(color)} />
             ))}
             {matchedColors.length > 0 ? (
-              <span className="ml-1 text-[12px] font-medium text-accent-hover">
+              <span className="ml-1 text-[12px] font-semibold text-accent">
                 {t('inThisModel', {
                   colors: matchedColors
                     .map((color) => (colorsT.has(color) ? colorsT(color) : color))
@@ -110,7 +110,7 @@ export async function ProductCard({
             <div>
               <Price money={product.price} compareAt={product.regularPrice} note={t('vatIncluded')} />
               {product.wholesale ? (
-                <p className="mt-1 text-[12px] font-medium text-accent-hover">
+                <p className="mt-1 text-[12px] font-semibold text-khaki-ink">
                   {t('wholesaleLine', {
                     min: product.wholesale.minQuantity,
                     price: formatMoney(product.wholesale.price),
@@ -126,7 +126,7 @@ export async function ProductCard({
                 analyticsItem={analyticsItem(product)}
               />
             ) : (
-              <span className="flex min-h-11 items-center rounded-control border border-subtle bg-surface px-4 text-[13px] font-semibold text-faint">
+              <span className="flex min-h-10 items-center rounded-control border border-subtle bg-surface px-3.5 text-[13px] font-bold text-faint">
                 {t('soldOut')}
               </span>
             )}
@@ -136,7 +136,7 @@ export async function ProductCard({
             <div className="mb-2.5">
               <Price money={product.price} compareAt={product.regularPrice} note={t('vatIncluded')} />
             {product.wholesale ? (
-              <p className="mt-1 text-[12px] font-medium text-accent-hover">
+              <p className="mt-1 text-[12px] font-semibold text-khaki-ink">
                 {t('wholesaleLine', {
                   min: product.wholesale.minQuantity,
                   price: formatMoney(product.wholesale.price),
@@ -153,7 +153,7 @@ export async function ProductCard({
                 analyticsItem={analyticsItem(product)}
               />
             ) : (
-              <span className="flex min-h-11 w-full items-center justify-center rounded-control border border-subtle bg-surface text-[13px] font-semibold text-faint">
+              <span className="flex min-h-10 w-full items-center justify-center rounded-control border border-subtle bg-surface text-[13px] font-bold text-faint">
                 {t('outOfStock')}
               </span>
             )}

@@ -26,7 +26,7 @@ export function RatingStars({ rating, label, size = 'md', className }: RatingSta
       className={cn('inline-flex leading-none', SIZE_CLASSES[size], className)}
     >
       {STAR_POSITIONS.map((position) => (
-        <span key={position} aria-hidden className={position <= rating ? 'text-ink' : 'text-faint'}>
+        <span key={position} aria-hidden className={position <= rating ? 'text-khaki-ink' : 'text-strong'}>
           ★
         </span>
       ))}

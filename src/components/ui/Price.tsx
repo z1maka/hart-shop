@@ -22,7 +22,7 @@ export function Price({ money, compareAt = null, size = 'md', note, className }:
   return (
     <div className={className}>
       <div className="flex flex-wrap items-baseline gap-2">
-        <span className={cn('font-display font-bold text-ink', SIZE_CLASSES[size])}>
+        <span className={cn('font-display font-semibold text-ink', SIZE_CLASSES[size])}>
           {formatMoney(money)}
         </span>
         {compareAt ? (

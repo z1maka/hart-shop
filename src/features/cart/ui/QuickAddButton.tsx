@@ -60,10 +60,10 @@ export function QuickAddButton({
       disabled={isPending}
       aria-label={`${label ?? t('addToCart')} — ${productTitle}`}
       className={cn(
-        'min-h-11 rounded-control border px-4 text-[13px] font-semibold transition-colors',
+        'min-h-10 rounded-control border px-3.5 text-[13px] font-bold transition-colors',
         status === 'added'
-          ? 'border-accent bg-accent text-accent-fg'
-          : 'border-strong bg-surface text-ink hover:border-accent hover:bg-accent hover:text-accent-fg',
+          ? 'border-ink bg-ink text-on-dark'
+          : 'border-accent bg-accent text-accent-fg hover:border-accent-hover hover:bg-accent-hover',
         status === 'failed' && 'border-alert text-alert',
         className,
       )}
