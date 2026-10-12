@@ -47,6 +47,10 @@ next-env.d.ts
 .env*.local
 .env.production
 
+# The designer's brand kit stays local; the site's copies of its files live in
+# public/ and src/app/.
+/design/
+
 # test artifacts
 /test-results
 /playwright-report
