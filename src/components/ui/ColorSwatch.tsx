@@ -40,6 +40,12 @@ const PATTERN_CLASSES: Record<string, string> = {
   Хакі: 'bg-camo-khaki',
   Camo: 'bg-camo-camo',
   Камуфляж: 'bg-camo-camo',
+  // The bought-in gear's own colourways (headphones, backpacks, stretchers).
+  Сірий: 'bg-camo-grey',
+  'Сірий піксель': 'bg-camo-grey-pixel',
+  'Сірий камуфляж': 'bg-camo-grey-camo',
+  'Пісочний камуфляж': 'bg-camo-coyote',
+  'Зелений камуфляж': 'bg-camo-green',
 }
 
 const SIZE_CLASSES: Record<ColorSwatchSize, string> = {

@@ -62,6 +62,9 @@
   --color-camo-green: #3f5233;
   --color-camo-khaki: #7d7a5a;
   --color-camo-camo: #6b6f4e;
+  --color-camo-grey: #7f837c;
+  --color-camo-grey-pixel: #9a9d94;
+  --color-camo-grey-camo: #6e716b;
   --color-camo-default: #a9a695;
 
   --font-sans: var(--font-manrope), system-ui, sans-serif;

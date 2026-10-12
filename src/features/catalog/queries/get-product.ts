@@ -66,7 +66,7 @@ export type ProductDetailView = {
   readonly stockTotal: number
   readonly seoTitle: string
   readonly seoDescription: string
-  // Null for the shop's own sewing.
+  // Null carries the shop's name: its own sewing, or goods without a brand.
   readonly brand: string | null
   readonly colorGroup: string | null
   readonly faq: readonly FaqEntry[]

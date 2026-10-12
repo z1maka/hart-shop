@@ -14,6 +14,7 @@ const PRODUCT_INPUT: ProductJsonLdInput = {
   description: 'Пончо',
   sku: 'FOX-UA-1',
   brand: null,
+  isOwnProduction: true,
   price: createMoney(220000, Currency.Uah),
   weightGrams: 900,
   imageUrls: [],
@@ -32,10 +33,17 @@ describe('productJsonLd', () => {
   })
 
   it("names a bought-in product's maker and claims no country for it", () => {
-    const bought = productJsonLd({ ...PRODUCT_INPUT, brand: "Walker's" })
+    const bought = productJsonLd({ ...PRODUCT_INPUT, brand: "Walker's", isOwnProduction: false })
 
     expect(bought.brand).toEqual({ '@type': 'Brand', name: "Walker's" })
     expect(bought).not.toHaveProperty('countryOfOrigin')
+  })
+
+  it('names the shop for unbranded bought-in gear, still without a country', () => {
+    const unbranded = productJsonLd({ ...PRODUCT_INPUT, isOwnProduction: false })
+
+    expect(unbranded.brand).toEqual({ '@type': 'Brand', name: 'Гарт' })
+    expect(unbranded).not.toHaveProperty('countryOfOrigin')
   })
 
   it('points the offer at the canonical address, trailing slash included', () => {

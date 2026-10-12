@@ -177,7 +177,7 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   name="brand"
                   defaultValue={typed.brand ?? product.brand}
                   maxLength={80}
-                  placeholder="Пусто — наш пошив"
+                  placeholder="Пусто — наш пошив или без бренда"
                   className={inputClassName}
                 />
               </Field>
@@ -252,8 +252,8 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
             </EditorNote>
 
             <EditorNote>
-              Бренд заполняется только у чужих товаров (Walker&apos;s, Mil-Tec…): он уходит в Google
-              и в рекламу. Группа цветов — одинаковое слово у товаров, которые являются одной
+              Бренд заполняется у чужих товаров с известным производителем (Walker&apos;s, Mil-Tec…):
+              он уходит в Google и в рекламу; пусто — название магазина. Группа цветов — одинаковое слово у товаров, которые являются одной
               моделью в разных расцветках, например «poncho-3-layers»: у каждой карточки свой цвет и
               текст, а плитки цветов ведут на соседние карточки.
             </EditorNote>

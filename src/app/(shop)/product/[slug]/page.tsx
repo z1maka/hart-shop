@@ -129,6 +129,7 @@ async function ProductDetail({
             description: product.seoDescription,
             sku: product.sku,
             brand: product.brand,
+            isOwnProduction: OWN_PRODUCTION_CATEGORY_SLUGS.includes(product.categorySlug),
             price: product.price,
             weightGrams: product.weightGrams,
             imageUrls: product.images.map((image) => image.url),
