@@ -22,10 +22,10 @@ export type HeaderProps = {
 
 // The pages that are not product categories. Each sits in the bar from the
 // width where it fits beside the menus and lives in «Більше» below that, so
-// it is reachable at every width and never shown twice. Measured: at 1280px
-// the bar with the first two ran 36px past the edge; all four need ~1440px.
-// A fifth link at 1440px pushed the cart 27px past the edge once the cart
-// badge showed a count, so it joins the bar only from 1536px.
+// it is reachable at every width and never shown twice. Measured with the
+// Гарт lockup (128px wide) and a count on the cart badge: the first two fit
+// from 1404px, the third from 1482px, the last two from 1551px; each
+// threshold below keeps ~20px spare for a two-digit count.
 const PAGE_LINKS = [
   { key: 'delivery', href: '/delivery', inlineFrom: 'wide' },
   { key: 'refunds', href: '/refund-policy', inlineFrom: 'wide' },
@@ -36,9 +36,16 @@ const PAGE_LINKS = [
 
 // Spelled out in full because Tailwind only emits classes it can read.
 const INLINE_FROM = {
-  wide: { bar: 'hidden min-[1360px]:block', menu: 'min-[1360px]:hidden' },
-  extraWide: { bar: 'hidden min-[1440px]:block', menu: 'min-[1440px]:hidden' },
-  widest: { bar: 'hidden min-[1536px]:block', menu: 'min-[1536px]:hidden' },
+  wide: { bar: 'hidden min-[1420px]:block', menu: 'min-[1420px]:hidden' },
+  extraWide: { bar: 'hidden min-[1500px]:block', menu: 'min-[1500px]:hidden' },
+  widest: { bar: 'hidden min-[1580px]:block', menu: 'min-[1580px]:hidden' },
+} as const
+
+// The custom-order pill follows the same rule: in the bar once the whole bar
+// fits (1090px with a cart count, measured), first in «Більше» below that.
+const CUSTOM_ORDER_INLINE = {
+  bar: 'hidden min-[1110px]:inline-flex',
+  menu: 'min-[1110px]:hidden',
 } as const
 
 const BAR_LINK_CLASS =
@@ -73,6 +80,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
     .map((category) => ({ label: category.name, href: `/product-category/${category.slug}` }))
 
   const moreMenu: readonly NavMenuItem[] = [
+    { label: t('customOrderShort'), href: CUSTOM_ORDER_HREF, className: CUSTOM_ORDER_INLINE.menu },
     ...ungrouped,
     ...pageLinks.map((link) => ({
       label: link.label,
@@ -129,7 +137,10 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2.5 lg:pl-6">
           <Link
             href={CUSTOM_ORDER_HREF}
-            className="mr-1 hidden min-h-[42px] items-center gap-2 rounded-pill border-[1.5px] border-accent-edge bg-accent-tint px-4 text-[13px] font-semibold whitespace-nowrap text-accent-hover transition-colors hover:border-accent hover:bg-accent-soft hover:text-ink lg:inline-flex"
+            className={cn(
+              'mr-1 min-h-[42px] items-center gap-2 rounded-pill border-[1.5px] border-accent-edge bg-accent-tint px-4 text-[13px] font-semibold whitespace-nowrap text-accent-hover transition-colors hover:border-accent hover:bg-accent-soft hover:text-ink',
+              CUSTOM_ORDER_INLINE.bar,
+            )}
           >
             <ScissorsIcon />
             {t('customOrderShort')}
