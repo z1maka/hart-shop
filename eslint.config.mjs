@@ -18,6 +18,7 @@ const config = [
     ignores: [
       '.next/**',
       'coverage/**',
+      'design/**',
       'design-source/**',
       'node_modules/**',
       'src/db/migrations/**',
