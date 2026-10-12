@@ -66,6 +66,9 @@ export type ProductJsonLdInput = {
   readonly title: string
   readonly description: string
   readonly sku: string
+  // The maker of a bought-in product; null for the shop's own sewing, which
+  // carries the shop's name and is made in Ukraine.
+  readonly brand: string | null
   readonly price: Money
   // The parcel weight Merchant Center prices delivery by.
   readonly weightGrams: number
@@ -96,8 +99,8 @@ export function productJsonLd(input: ProductJsonLdInput): JsonLdNode {
     sku: input.sku,
     url,
     image: [...input.imageUrls],
-    brand: { '@type': 'Brand', name: siteConfig.name },
-    countryOfOrigin: 'UA',
+    brand: { '@type': 'Brand', name: input.brand ?? siteConfig.name },
+    ...(input.brand === null ? { countryOfOrigin: 'UA' } : {}),
     ...(input.colors.length > 0 ? { color: input.colors.join(', ') } : {}),
     // What Search Console asked for on every product (25.09.2026): the
     // rating and the reviews, once there are any.

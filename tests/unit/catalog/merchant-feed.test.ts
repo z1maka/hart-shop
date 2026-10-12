@@ -15,6 +15,7 @@ const PRODUCT: FeedProduct = {
   sourceId: 35635,
   slug: 'anty-teploviziyna-nakydka-poncho-a6286',
   sku: 'FOX-UA-35635',
+  colorGroup: null,
   title: 'Антитепловізійне пончо',
   description: 'Пончо\n\nз двома шарами   тканини',
   priceCents: 220000,
@@ -101,6 +102,12 @@ describe('metaCatalogItemOf', () => {
 })
 
 describe('feedItemOf', () => {
+  it("groups a colour sold on its own page with the model's other colours", () => {
+    const item = feedItemOf({ ...PRODUCT, colorGroup: 'poncho-3-layers' }, OLIVE, CONTEXT)
+
+    expect(item.itemGroupId).toBe('poncho-3-layers')
+  })
+
   it('describes the variant as a shopper would find it on the page', () => {
     const item = feedItemOf(PRODUCT, OLIVE, CONTEXT)
 

@@ -19,6 +19,9 @@ export type FeedProduct = {
   readonly sourceId: number | null
   readonly slug: string
   readonly sku: string
+  // Set when the product is one colour of a model sold per colour: the
+  // colours' offers form one group, as the variants of one product do.
+  readonly colorGroup: string | null
   readonly title: string
   readonly description: string
   readonly priceCents: number
@@ -127,7 +130,7 @@ export function feedItemOf(
 
   return {
     id: offerIdOf(variant.sku, product.sourceId, context.productIdCarrierSku),
-    itemGroupId: product.sku,
+    itemGroupId: product.colorGroup ?? product.sku,
     title: feedTitle(product.title, distinguishing),
     description: feedDescription(product.description, product.title),
     link: productLink(context.siteUrl, product.slug, context.hasColorChoice ? variant.color : null),

@@ -90,7 +90,7 @@ function itemsOf(
   const context = {
     ...choicesOf(variants),
     siteUrl: env.NEXT_PUBLIC_SITE_URL,
-    brand: siteConfig.name,
+    brand: product.brand ?? siteConfig.name,
     productIdCarrierSku: productIdCarrierOf(variants),
   }
   const feedProduct = {

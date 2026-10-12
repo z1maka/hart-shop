@@ -436,6 +436,8 @@ const catalogColumns = {
 
 export type FeedProductRow = CatalogProductRow & {
   readonly sourceId: number | null
+  readonly brand: string | null
+  readonly colorGroup: string | null
   readonly description: string
   readonly specs: readonly { label: string; value: string }[]
   readonly productGoogleCategory: number | null
@@ -593,6 +595,8 @@ export const catalogReadRepository = {
       .select({
         ...catalogColumns,
         sourceId: products.sourceId,
+        brand: products.brand,
+        colorGroup: products.colorGroup,
         description: products.description,
         specs: products.specs,
         productGoogleCategory: products.googleProductCategory,

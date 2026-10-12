@@ -13,6 +13,7 @@ const PRODUCT_INPUT: ProductJsonLdInput = {
   title: 'Антитепловізійне пончо',
   description: 'Пончо',
   sku: 'FOX-UA-1',
+  brand: null,
   price: createMoney(220000, Currency.Uah),
   weightGrams: 900,
   imageUrls: [],
@@ -25,6 +26,18 @@ const PRODUCT_INPUT: ProductJsonLdInput = {
 const PRODUCT = productJsonLd(PRODUCT_INPUT)
 
 describe('productJsonLd', () => {
+  it('names the shop as the brand of its own sewing, made in Ukraine', () => {
+    expect(PRODUCT.brand).toEqual({ '@type': 'Brand', name: 'Гарт' })
+    expect(PRODUCT.countryOfOrigin).toBe('UA')
+  })
+
+  it("names a bought-in product's maker and claims no country for it", () => {
+    const bought = productJsonLd({ ...PRODUCT_INPUT, brand: "Walker's" })
+
+    expect(bought.brand).toEqual({ '@type': 'Brand', name: "Walker's" })
+    expect(bought).not.toHaveProperty('countryOfOrigin')
+  })
+
   it('points the offer at the canonical address, trailing slash included', () => {
     // Without the slash a shopping engine checking the offer lands on a redirect.
     const offers = PRODUCT.offers as Record<string, unknown>

@@ -128,6 +128,7 @@ async function ProductDetail({
             title: product.title,
             description: product.seoDescription,
             sku: product.sku,
+            brand: product.brand,
             price: product.price,
             weightGrams: product.weightGrams,
             imageUrls: product.images.map((image) => image.url),
