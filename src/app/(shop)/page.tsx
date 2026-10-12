@@ -6,7 +6,6 @@ import { getTranslations } from 'next-intl/server'
 import { JsonLd } from '@/components/JsonLd'
 import { TrustRow } from '@/components/layout/TrustRow'
 import { Button } from '@/components/ui/Button'
-import { NovaPoshtaMark } from '@/components/ui/NovaPoshtaMark'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { HERO_PRODUCT_SLUG, ROLE_CARD_COVERS } from '@/config/catalog'
 import { FABRIC_LAYERS } from '@/config/fabric-layers'
@@ -59,10 +58,10 @@ export default async function HomePage() {
 
       <section className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-center gap-9 px-7 py-13">
         <div>
-          <p className="mb-5 inline-block rounded-pill bg-accent-soft px-3.5 py-2 text-[12px] font-semibold tracking-[0.04em] text-accent-hover">
+          <p className="mb-5 inline-block border-l-[3px] border-khaki-mark bg-sunken px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-accent">
             {t('badge')}
           </p>
-          <h1 className="mb-4 max-w-[16ch] font-display text-display font-bold text-balance text-ink">
+          <h1 className="mb-4.5 max-w-[16ch] font-display text-display font-bold text-balance text-ink">
             {t('title')}
           </h1>
           <p className="mb-7 max-w-[50ch] text-[16.5px] leading-relaxed text-pretty text-muted">
@@ -72,17 +71,19 @@ export default async function HomePage() {
             <Button size="lg" asChild>
               <Link href="/shop">{t('shopCta')}</Link>
             </Button>
-            <Button size="lg" variant="secondary" asChild>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="border-ink bg-transparent hover:bg-ink hover:text-on-dark"
+              asChild
+            >
               <Link href="/about-us">{t('aboutCta')}</Link>
             </Button>
           </div>
           {/* On the first screen, where someone who needs their own size is
               still deciding whether this shop can help at all. */}
           <p className="mt-4 text-[13.5px] text-muted">
-            <Link
-              href={CUSTOM_ORDER_HREF}
-              className="font-semibold text-accent-hover underline-offset-4 hover:underline"
-            >
+            <Link href={CUSTOM_ORDER_HREF} className="font-bold text-accent hover:text-ink">
               {t('customCta')}
             </Link>
           </p>
@@ -96,13 +97,10 @@ export default async function HomePage() {
       <section className="px-7 pb-14">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-2.5">
           <div>
-            <p className="mb-1 text-[13px] font-semibold text-accent-hover">{t('whatConcealing')}</p>
+            <p className="mb-1 text-[13px] font-bold text-khaki-ink">{t('whatConcealing')}</p>
             <h2 className="font-display text-h2 font-bold text-ink">{t('chooseByTask')}</h2>
           </div>
-          <Link
-            href="/shop"
-            className="text-[13.5px] font-semibold text-accent-hover hover:underline"
-          >
+          <Link href="/shop" className="text-[13.5px] font-bold text-accent hover:text-ink">
             {t('browseAll')}
           </Link>
         </div>
@@ -122,10 +120,7 @@ export default async function HomePage() {
       <section className="border-y border-subtle bg-surface px-7 py-12">
         <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2.5">
           <h2 className="font-display text-h2 font-bold text-ink">{t('bestSellers')}</h2>
-          <Link
-            href="/shop"
-            className="text-[13.5px] font-semibold text-accent-hover hover:underline"
-          >
+          <Link href="/shop" className="text-[13.5px] font-bold text-accent hover:text-ink">
             {t('browseAll')}
           </Link>
         </div>
@@ -146,8 +141,9 @@ export default async function HomePage() {
               className="rounded-card border border-subtle bg-surface p-5"
             >
               <div className={cn('mb-4 h-9 rounded-chip', layer.swatchClass)} aria-hidden />
-              <h3 className="text-[13.5px] font-semibold text-ink">
-                {layer.number} · {layersT(`${layer.number}.title`)}
+              <h3 className="text-[13.5px] font-extrabold text-ink">
+                <span className="font-display text-khaki-ink">{layer.number}</span> ·{' '}
+                {layersT(`${layer.number}.title`)}
               </h3>
               <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted">
                 {layersT(`${layer.number}.body`)}
@@ -161,15 +157,12 @@ export default async function HomePage() {
       <CustomOrderBand />
 
       <section className="border-t border-subtle bg-surface px-7 py-12">
-        <h2 className="mb-6 flex items-center gap-3 font-display text-h2 font-bold text-ink">
-          <NovaPoshtaMark size={36} />
-          {t('deliveryTitle')}
-        </h2>
+        <h2 className="mb-6 font-display text-h2 font-bold text-ink">{t('deliveryTitle')}</h2>
         <div className="mb-8 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-5">
           {DELIVERY_CARD_KEYS.map((key) => (
             <article key={key} className="rounded-card border border-subtle bg-raised p-5">
               <DeliveryKindIcon kind={key} />
-              <h3 className="mt-3 text-[13.5px] font-semibold text-ink">
+              <h3 className="mt-3 text-[13.5px] font-extrabold text-ink">
                 {deliveryT(`shipping.${key}.heading`)}
               </h3>
               <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted">
@@ -178,7 +171,9 @@ export default async function HomePage() {
             </article>
           ))}
         </div>
-        <TrustRow />
+        <div className="border-t border-subtle pt-5">
+          <TrustRow />
+        </div>
       </section>
     </>
   )
@@ -208,9 +203,9 @@ async function HeroImage({ cardTitle, cardSub }: HeroImageProps) {
           className="object-cover object-[center_22%]"
         />
       </div>
-      <div className="absolute bottom-4.5 left-4.5 rounded-control bg-surface/95 px-4 py-3 shadow-float">
-        <p className="text-[13px] font-semibold text-ink">{cardTitle}</p>
-        <p className="mt-0.5 text-[12px] text-muted">{cardSub}</p>
+      <div className="absolute bottom-4.5 left-4.5 rounded-control border-l-[3px] border-khaki bg-header px-4 py-3 shadow-float">
+        <p className="text-[13px] font-bold text-on-dark">{cardTitle}</p>
+        <p className="mt-0.5 text-[12px] text-on-dark-muted">{cardSub}</p>
       </div>
     </div>
   )
@@ -238,7 +233,7 @@ async function RoleCard({ categorySlug, title, body }: RoleCardProps) {
   return (
     <Link
       href={`/product-category/${categorySlug}`}
-      className="block overflow-hidden rounded-card border border-subtle bg-surface hover:border-faint hover:shadow-card"
+      className="block overflow-hidden rounded-card border border-subtle bg-surface transition-shadow hover:border-strong hover:shadow-card"
     >
       <div className="relative aspect-4/3 bg-sunken">
         {cover ? (
@@ -252,7 +247,7 @@ async function RoleCard({ categorySlug, title, body }: RoleCardProps) {
         ) : null}
       </div>
       <div className="px-5 pt-4.5 pb-5.5">
-        <h3 className="mb-1.5 font-display text-[17px] font-semibold tracking-[-0.01em] text-ink">
+        <h3 className="mb-1.5 font-display text-[20px] font-semibold tracking-[0.04em] text-ink">
           {title}
         </h3>
         <p className="text-[13.5px] leading-relaxed text-muted">{body}</p>
@@ -283,7 +278,7 @@ const DELIVERY_ICON_PATHS: Record<(typeof DELIVERY_CARD_KEYS)[number], string> =
 
 function DeliveryKindIcon({ kind }: { readonly kind: (typeof DELIVERY_CARD_KEYS)[number] }) {
   return (
-    <span className="flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent-hover">
+    <span className="flex size-10 items-center justify-center rounded-control bg-accent-soft text-accent">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
         <path
           d={DELIVERY_ICON_PATHS[kind]}

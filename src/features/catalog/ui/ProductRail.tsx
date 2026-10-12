@@ -113,10 +113,10 @@ function RailArrow({
       onClick={onClick}
       style={top === null ? undefined : { top }}
       className={cn(
-        'absolute z-10 flex size-11 -translate-y-1/2 items-center justify-center rounded-full',
+        'absolute z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-control',
         top === null && 'top-1/3',
-        'border border-subtle bg-surface text-[16px] text-ink shadow-card transition-colors',
-        'hover:border-accent hover:text-accent-hover',
+        'border border-strong bg-raised text-[15px] text-ink shadow-card transition-colors',
+        'hover:border-ink hover:bg-ink hover:text-on-dark',
         side === 'left' ? '-left-3' : '-right-3',
       )}
     >
