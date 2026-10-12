@@ -4,13 +4,13 @@ import {
   fbcOf,
   isOwnPage,
   metaContentTypeOf,
-  metaRelaySchema,
   MetaRelayEventName,
   purchaseEventId,
   toMetaRelay,
   toMetaServerEvent,
   type MetaVisitor,
 } from '@/features/analytics/model/meta-capi'
+import { metaRelaySchema } from '@/features/analytics/schema/meta-relay-schema'
 
 const PAGE = 'https://fox-armor.com.ua/product/poncho/'
 const NOW_MS = 1_791_620_000_123

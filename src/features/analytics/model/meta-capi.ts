@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { CURRENCY, toMajorUnits, type AnalyticsEvent } from '@/features/analytics/model/events'
 
 // The Conversions API repeats each pixel event from the server, so a sale is
@@ -27,41 +26,30 @@ export function metaContentTypeOf(eventName: MetaRelayEventName): MetaContentTyp
     : 'product'
 }
 
-const MAX_CONTENT_IDS = 50
-const MAX_VALUE_CENTS = 100_000_000
 const ORDER_PAGE_PATH = '/order/'
 
-const eventId = z
-  .string()
-  .regex(/^[\w:.-]+$/)
-  .max(80)
-const eventSourceUrl = z.url().max(2_000)
+// What the browser posts to /api/meta/events; schema/meta-relay-schema.ts
+// checks it on arrival. Written out here rather than inferred from that
+// schema so the browser's tracking code imports no Zod.
+type MetaRelayBase = {
+  readonly eventId: string
+  readonly eventSourceUrl: string
+}
 
-// What the browser posts to /api/meta/events. A purchase names its order and
-// nothing else: the value and the items are read from the order on the
-// server, so a forged request cannot report a sale that did not happen.
-export const metaRelaySchema = z.discriminatedUnion('eventName', [
-  z.object({
-    eventName: z.enum([
-      MetaRelayEventName.ViewContent,
-      MetaRelayEventName.AddToCart,
-      MetaRelayEventName.InitiateCheckout,
-    ]),
-    eventId,
-    eventSourceUrl,
-    contentIds: z.array(z.string().trim().min(1).max(100)).min(1).max(MAX_CONTENT_IDS),
-    valueCents: z.number().int().min(0).max(MAX_VALUE_CENTS),
-  }),
-  z.object({ eventName: z.literal(MetaRelayEventName.Lead), eventId, eventSourceUrl }),
-  z.object({
-    eventName: z.literal(MetaRelayEventName.Purchase),
-    eventId,
-    eventSourceUrl,
-    orderToken: z.string().trim().min(1).max(200),
-  }),
-])
-
-export type MetaRelay = z.infer<typeof metaRelaySchema>
+export type MetaRelay =
+  | (MetaRelayBase & {
+      readonly eventName:
+        | typeof MetaRelayEventName.ViewContent
+        | typeof MetaRelayEventName.AddToCart
+        | typeof MetaRelayEventName.InitiateCheckout
+      readonly contentIds: readonly string[]
+      readonly valueCents: number
+    })
+  | (MetaRelayBase & { readonly eventName: typeof MetaRelayEventName.Lead })
+  | (MetaRelayBase & {
+      readonly eventName: typeof MetaRelayEventName.Purchase
+      readonly orderToken: string
+    })
 
 // A purchase keeps the same id however often it is reported: the order page
 // can be opened again in another browser, and Meta then drops the repeat.

@@ -1,11 +1,9 @@
 import { z } from 'zod'
 import { ReviewStatus } from '@/db/enums'
+import { MAX_BODY_LENGTH, MIN_BODY_LENGTH } from '@/features/reviews/model/review-body'
 import { MAX_RATING, MIN_RATING } from '@/features/reviews/model/review-summary'
 
-// Long enough to say something about the product; short enough to read on a
-// phone. The name is what the page shows beside the stars.
-const MIN_BODY_LENGTH = 20
-const MAX_BODY_LENGTH = 2000
+// The name is what the page shows beside the stars.
 const MIN_NAME_LENGTH = 2
 const MAX_NAME_LENGTH = 60
 const MAX_PHONE_LENGTH = 32
@@ -33,4 +31,3 @@ export const ReviewReplySchema = z.object({
   body: z.string().trim().min(MIN_NAME_LENGTH).max(MAX_REPLY_LENGTH),
 })
 
-export { MIN_BODY_LENGTH, MAX_BODY_LENGTH }

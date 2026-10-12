@@ -7,7 +7,7 @@ import { Field, inputClassName, textareaClassName } from '@/components/ui/Field'
 import { UaPhoneInput } from '@/components/ui/UaPhoneField'
 import { submitReviewAction } from '@/features/reviews/actions/review-actions'
 import { MAX_RATING } from '@/features/reviews/model/review-summary'
-import { MAX_BODY_LENGTH, MIN_BODY_LENGTH } from '@/features/reviews/schema/review-schema'
+import { MAX_BODY_LENGTH, MIN_BODY_LENGTH } from '@/features/reviews/model/review-body'
 import { cn } from '@/lib/utils'
 
 const STAR_POSITIONS = Array.from({ length: MAX_RATING }, (_, index) => index + 1)

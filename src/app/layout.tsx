@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import uk from '@/messages/uk.json'
 import { getTranslations } from 'next-intl/server'
 import { bodyFont, displayFont } from '@/app/fonts'
+import { pickClientMessages } from '@/i18n/client-messages'
 import { IntlProvider } from '@/i18n/IntlProvider'
 import { env } from '@/lib/env'
 import { cn } from '@/lib/utils'
@@ -17,13 +18,15 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
+const CLIENT_MESSAGES = pickClientMessages(uk)
+
 // Handed to the provider statically: letting it read the request config on
 // its own would make every page dynamic at the html tag.
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="uk" className={cn('h-full', displayFont.variable, bodyFont.variable)}>
       <body className="flex min-h-full flex-col">
-        <IntlProvider locale="uk" messages={uk}>
+        <IntlProvider locale="uk" messages={CLIENT_MESSAGES}>
           {children}
         </IntlProvider>
       </body>

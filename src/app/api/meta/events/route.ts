@@ -5,11 +5,11 @@ import { CONSENT_COOKIE, parseConsent, shouldLoadTags } from '@/features/analyti
 import {
   fbcOf,
   isOwnPage,
-  metaRelaySchema,
   MetaRelayEventName,
   toMetaServerEvent,
   type MetaSale,
 } from '@/features/analytics/model/meta-capi'
+import { metaRelaySchema } from '@/features/analytics/schema/meta-relay-schema'
 import { getOrderByToken } from '@/features/orders'
 import { env } from '@/lib/env'
 import { isConversionsApiConfigured, sendToConversionsApi } from '@/lib/meta-capi'

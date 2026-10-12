@@ -18,9 +18,8 @@ export {
   type AdminReviewPage,
   type AdminReviewView,
 } from '@/features/reviews/queries/list-reviews'
+export { MAX_BODY_LENGTH, MIN_BODY_LENGTH } from '@/features/reviews/model/review-body'
 export {
-  MAX_BODY_LENGTH,
-  MIN_BODY_LENGTH,
   ReviewReplySchema,
   ReviewStatusSchema,
   SubmitReviewSchema,
