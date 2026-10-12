@@ -17,7 +17,7 @@
 | `www` | CNAME | те саме, без проксі | 308 на апекс |
 | `media` | R2 custom domain | бакет `hart-media` | фото товарів |
 | `resend._domainkey`, `send` (MX, TXT), `rsend` | Resend | пошта `orders@hart-shop.com` |
-| `_dmarc` | TXT | `v=DMARC1; p=none; rua=mailto:office@fox-armor.org` | як у FOX |
+| `_dmarc` | TXT | `v=DMARC1; p=none; rua=mailto:office@hart-shop.com` | звіти DMARC |
 
 ## 2. Сервіси
 
