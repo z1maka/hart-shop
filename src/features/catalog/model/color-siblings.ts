@@ -1,0 +1,25 @@
+export type ColorSiblingRow = {
+  readonly slug: string
+  readonly color: string | null
+}
+
+export type ColorLink = {
+  readonly color: string
+  readonly href: string
+}
+
+// The other colours of the same model, each sold on a page of its own. A
+// colour this product sells itself stays with its own tile, and a colour two
+// siblings share links to the first of them, so every colour shows once.
+export function colorLinksOf(
+  currentSlug: string,
+  ownColors: readonly string[],
+  siblings: readonly ColorSiblingRow[],
+): ColorLink[] {
+  return siblings.reduce<ColorLink[]>((links, sibling) => {
+    const { color } = sibling
+    if (sibling.slug === currentSlug || color === null) return links
+    if (ownColors.includes(color) || links.some((link) => link.color === color)) return links
+    return [...links, { color, href: `/product/${sibling.slug}` }]
+  }, [])
+}

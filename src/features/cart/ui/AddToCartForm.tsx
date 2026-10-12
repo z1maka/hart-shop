@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
@@ -39,8 +40,19 @@ type AddToCartFormProps = {
   // product as a whole, so the counter starts from them.
   readonly inCartQuantity: number
   readonly initialColor: string | null
+  // The model's other colours, each sold on a page of its own: their tiles
+  // lead there instead of switching this page's variant.
+  readonly colorLinks?: readonly { readonly color: string; readonly href: string }[]
   readonly analyticsItem?: AnalyticsItem
 }
+
+type ColorTile = {
+  readonly color: string
+  readonly href: string | null
+}
+
+const TILE_CLASS = 'flex size-11 items-center justify-center rounded-control p-[3px] transition-colors'
+const IDLE_TILE_CLASS = 'border border-strong hover:border-ink'
 
 const DEFAULT_VARIANT_LABEL = 'Standard'
 
@@ -60,6 +72,7 @@ export function AddToCartForm({
   wholesale,
   inCartQuantity,
   initialColor,
+  colorLinks = [],
   analyticsItem,
 }: AddToCartFormProps) {
   const t = useTranslations('addToCart')
@@ -138,6 +151,7 @@ export function AddToCartForm({
   // A single unnamed variant is the donor saying "one finish"; a picker with one
   // dead option is worse than no picker.
   const hasPatternChoice = colors.length > 1 || colors[0] !== DEFAULT_VARIANT_LABEL
+  const colorTiles = colorTilesOf(colors, colorLinks)
 
   return (
     <div className="flex flex-col gap-5">
@@ -149,22 +163,34 @@ export function AddToCartForm({
           {/* Colour tiles, as the Гарт design draws them; the name is read
               out and shown on hover, and the line above names the choice. */}
           <div className="flex flex-wrap gap-2">
-            {colors.map((entry) => (
-              <button
-                key={entry}
-                type="button"
-                onClick={() => handleColorChange(entry)}
-                aria-pressed={entry === color}
-                aria-label={colorsT.has(entry) ? colorsT(entry) : entry}
-                title={colorsT.has(entry) ? colorsT(entry) : entry}
-                className={cn(
-                  'flex size-11 items-center justify-center rounded-control p-[3px] transition-colors',
-                  entry === color ? 'border-2 border-ink' : 'border border-strong hover:border-ink',
-                )}
-              >
-                <ColorSwatch name={entry} className="size-full rounded-[2px] border-0" />
-              </button>
-            ))}
+            {colorTiles.map((tile) => {
+              const name = colorsT.has(tile.color) ? colorsT(tile.color) : tile.color
+              const swatch = <ColorSwatch name={tile.color} className="size-full rounded-[2px] border-0" />
+
+              return tile.href ? (
+                <Link
+                  key={tile.color}
+                  href={tile.href}
+                  aria-label={name}
+                  title={name}
+                  className={cn(TILE_CLASS, IDLE_TILE_CLASS)}
+                >
+                  {swatch}
+                </Link>
+              ) : (
+                <button
+                  key={tile.color}
+                  type="button"
+                  onClick={() => handleColorChange(tile.color)}
+                  aria-pressed={tile.color === color}
+                  aria-label={name}
+                  title={name}
+                  className={cn(TILE_CLASS, tile.color === color ? 'border-2 border-ink' : IDLE_TILE_CLASS)}
+                >
+                  {swatch}
+                </button>
+              )
+            })}
           </div>
         </div>
       ) : null}
@@ -265,4 +291,17 @@ export function AddToCartForm({
       ) : null}
     </div>
   )
+}
+
+// Without sibling pages the tiles keep the variants' own order; with them,
+// one alphabetical row, so the model's colours sit in the same places on
+// every one of its pages.
+function colorTilesOf(
+  colors: readonly string[],
+  links: readonly { readonly color: string; readonly href: string }[],
+): ColorTile[] {
+  const own = colors.map((color) => ({ color, href: null }))
+  if (links.length === 0) return own
+
+  return [...own, ...links].sort((first, second) => first.color.localeCompare(second.color, 'uk'))
 }

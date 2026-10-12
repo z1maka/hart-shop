@@ -21,6 +21,7 @@ export {
 export { getCategoryCounts } from '@/features/catalog/queries/get-category-counts'
 export { getColorFacets } from '@/features/catalog/queries/get-color-facets'
 export { getCategoryCover } from '@/features/catalog/queries/get-category-covers'
+export { getColorLinks } from '@/features/catalog/queries/get-color-links'
 export {
   getProductBySlug,
   getPublishedProductSlugs,

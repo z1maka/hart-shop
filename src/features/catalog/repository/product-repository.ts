@@ -1,5 +1,6 @@
 import type { ProductVideo } from '@/features/catalog/model/product-video'
 import type { FaqEntry } from '@/features/catalog/model/category-content'
+import type { ColorSiblingRow } from '@/features/catalog/model/color-siblings'
 import {
   and,
   asc,
@@ -545,6 +546,23 @@ export const catalogReadRepository = {
       )
       .orderBy(desc(products.priceCents))
       .limit(limit)
+  },
+
+  // One row per colour each published product of the group sells, in a fixed
+  // order so every sibling page draws the tiles the same way.
+  async findColorSiblings(colorGroup: string): Promise<ColorSiblingRow[]> {
+    return db
+      .selectDistinct({
+        slug: products.slug,
+        color: sql<string | null>`${productVariants.options}->>'Color'`,
+      })
+      .from(products)
+      .innerJoin(
+        productVariants,
+        and(eq(productVariants.productId, products.id), eq(productVariants.isActive, true)),
+      )
+      .where(and(eq(products.colorGroup, colorGroup), eq(products.status, ProductStatus.Published)))
+      .orderBy(sql`${productVariants.options}->>'Color'`, asc(products.slug))
   },
 
   async findPublishedSlugs(): Promise<string[]> {

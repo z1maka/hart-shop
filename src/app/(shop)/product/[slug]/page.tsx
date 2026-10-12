@@ -15,6 +15,7 @@ import { SelectedColorProvider } from '@/components/ui/SelectedColor'
 import {
   coverIndexByColor,
   getArchivedProductDestination,
+  getColorLinks,
   getProductBySlug,
   getPublishedProductSlugs,
   getCompanionProducts,
@@ -424,9 +425,11 @@ async function VariantPicker({
   product: ProductDetailView
   searchParams: PageProps<'/product/[slug]'>['searchParams']
 }) {
-  const [requested, inCartQuantity] = await Promise.all([
+  const ownColors = [...new Set(product.variants.map((variant) => variant.color))]
+  const [requested, inCartQuantity, colorLinks] = await Promise.all([
     searchParams,
     getProductQuantityInCart(product.slug),
+    getColorLinks(product.slug, product.colorGroup, ownColors),
   ])
 
   return (
@@ -442,10 +445,8 @@ async function VariantPicker({
             }
           : null
       }
-      initialColor={requestedColorOf(
-        requested,
-        product.variants.map((variant) => variant.color),
-      )}
+      initialColor={requestedColorOf(requested, ownColors)}
+      colorLinks={colorLinks}
       analyticsItem={toAnalyticsItem(product)}
     />
   )
