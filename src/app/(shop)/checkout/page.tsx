@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { getTranslations } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
+import { StreamedPageBody } from '@/components/layout/StreamedPageBody'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getCart, type CartView } from '@/features/cart'
@@ -25,9 +26,11 @@ export default async function CheckoutPage() {
   return (
     <div className="px-7 py-10">
       <h1 className="mb-6 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <Suspense fallback={<Skeleton className="h-96 w-full rounded-card" />}>
-        <CheckoutContents />
-      </Suspense>
+      <StreamedPageBody>
+        <Suspense fallback={<Skeleton className="h-96 w-full rounded-card" />}>
+          <CheckoutContents />
+        </Suspense>
+      </StreamedPageBody>
     </div>
   )
 }

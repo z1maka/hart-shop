@@ -3,6 +3,7 @@ import { getTranslations } from 'next-intl/server'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { StreamedPageBody } from '@/components/layout/StreamedPageBody'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getCheckoutAvailability, QuickOrderPanel } from '@/features/checkout'
@@ -25,18 +26,20 @@ export default async function CartPage() {
 
   return (
     <div className="px-7 py-10">
-      {/* No "continue shopping" link: the cart is the last step before paying,
-          and a way back to the catalogue here costs more orders than it adds.
-          The empty cart has its own way to the catalogue. */}
+      {/* The way back to the catalogue is a quiet text link beside the title,
+          as the Гарт design sets it: there for whoever wants to add one more
+          thing, without competing with the order panel below. */}
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="font-display text-h1 font-bold text-ink">{t('title')}</h1>
         <Link href="/shop" className="text-[13.5px] font-bold text-accent hover:text-ink">
           {t('continueShopping')}
         </Link>
       </div>
-      <Suspense fallback={<Skeleton className="h-96 w-full rounded-card" />}>
-        <CartContents />
-      </Suspense>
+      <StreamedPageBody>
+        <Suspense fallback={<Skeleton className="h-96 w-full rounded-card" />}>
+          <CartContents />
+        </Suspense>
+      </StreamedPageBody>
     </div>
   )
 }

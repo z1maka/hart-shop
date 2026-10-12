@@ -49,6 +49,11 @@ const DRAWER_ONLY_LINKS = [
 const BAR_LINK_CLASS =
   'inline-flex min-h-10 items-center rounded-control px-3 font-display text-[14px] font-medium tracking-[0.06em] whitespace-nowrap text-on-dark transition-colors hover:bg-dark-hover hover:text-khaki'
 
+// The bar's height at each width: the tallest control (the 44px menu button
+// below lg, the 42px cart above) plus its padding. Fixed, so the placeholder
+// shown while the header streams in takes exactly the same room.
+const HEADER_ROW_HEIGHT = 'h-17 sm:h-18 lg:h-17.5'
+
 const NAV_GROUP_KEYS: Record<string, string> = {
   Concealment: 'concealment',
   Equipment: 'equipment',
@@ -102,9 +107,9 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 border-b-[3px] border-header-line bg-header">
-      <div className="flex flex-nowrap items-center gap-x-3 px-4 py-3 sm:px-7 sm:py-3.5">
+      <div className={cn('flex flex-nowrap items-center gap-x-3 px-4 sm:px-7', HEADER_ROW_HEIGHT)}>
         <Link href="/" aria-label={`${siteConfig.name} home`} className="shrink-0">
-          <Wordmark tone="light" height={40} isEager />
+          <Wordmark isEager />
         </Link>
 
         <nav className="ml-3 hidden items-center gap-x-0.5 lg:flex">
@@ -148,6 +153,14 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
         </div>
       </div>
     </header>
+  )
+}
+
+export function HeaderPlaceholder() {
+  return (
+    <div className="border-b-[3px] border-header-line bg-header">
+      <div className={HEADER_ROW_HEIGHT} />
+    </div>
   )
 }
 

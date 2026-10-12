@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { Footer } from '@/components/layout/Footer'
-import { Header } from '@/components/layout/Header'
+import { Header, HeaderPlaceholder } from '@/components/layout/Header'
 import { ImageGuard } from '@/components/layout/ImageGuard'
 import { TopBar } from '@/components/layout/TopBar'
 import { getCartItemCount } from '@/features/cart'
@@ -18,7 +18,7 @@ export function SiteShell({ children }: { readonly children: React.ReactNode }) 
   return (
     <div className="flex min-h-full flex-col bg-canvas">
       <TopBar />
-      <Suspense fallback={<div className="h-[71px] border-b-[3px] border-header-line bg-header" />}>
+      <Suspense fallback={<HeaderPlaceholder />}>
         <ShopHeader />
       </Suspense>
       <main className="flex-1">{children}</main>
