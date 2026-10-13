@@ -63,23 +63,3 @@ export const COMPANIONS: Readonly<Record<string, CompanionRule>> = {
   noshi: { productSlugs: [], categorySlugs: ['ryukzaki', 'taktichna-forma'] },
   'taktichna-forma': { productSlugs: [], categorySlugs: ['ryukzaki', 'anti-dronovi-nakidki'] },
 }
-
-// A home role card fronts the dearest product of its category unless the
-// owner picked a photo for the task itself: a shot of the range blending into
-// terrain says more than one product's first studio frame. The file lives in
-// public/home; width and height are the file's own pixels.
-export type RoleCardCover = {
-  readonly url: string
-  readonly alt: string
-  readonly width: number
-  readonly height: number
-}
-
-export const ROLE_CARD_COVERS: Readonly<Record<string, RoleCardCover>> = {
-  'anti-dronovi-nakidki': {
-    url: '/home/role-maskuvannya.webp',
-    alt: 'Маскувальне пончо з 3D-листям зі спини в осінній посадці',
-    width: 1600,
-    height: 1200,
-  },
-}

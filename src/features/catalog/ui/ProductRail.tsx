@@ -21,7 +21,7 @@ const CARD_WIDTH = cn(
 )
 
 export function ProductRail({ children }: ProductRailProps) {
-  const t = useTranslations('home')
+  const t = useTranslations('rail')
   const trackRef = useRef<HTMLDivElement>(null)
   const [canScrollBack, setCanScrollBack] = useState(false)
   const [canScrollForward, setCanScrollForward] = useState(false)
@@ -71,7 +71,7 @@ export function ProductRail({ children }: ProductRailProps) {
 
       {canScrollBack ? (
         <RailArrow
-          label={t('railPrev')}
+          label={t('prev')}
           side="left"
           top={arrowTop}
           onClick={() => scrollByViewport(-1)}
@@ -81,7 +81,7 @@ export function ProductRail({ children }: ProductRailProps) {
       ) : null}
       {canScrollForward ? (
         <RailArrow
-          label={t('railNext')}
+          label={t('next')}
           side="right"
           top={arrowTop}
           onClick={() => scrollByViewport(1)}
