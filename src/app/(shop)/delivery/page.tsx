@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const SHIPPING_KEYS = ['branch', 'locker', 'courier'] as const
 const PAYMENT_KEYS = ['cod', 'card', 'invoice'] as const
-const WARRANTY_KEYS = ['period', 'seasons', 'law'] as const
+const WARRANTY_KEYS = ['period', 'claim', 'law'] as const
 const GRAMS_PER_KILO = 1000
 
 // The rates the product markup and Merchant Center state, said in words so
