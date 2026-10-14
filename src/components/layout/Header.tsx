@@ -23,20 +23,20 @@ export type HeaderProps = {
 // The pages that are not product categories, as the Гарт design lists them.
 // Each sits in the bar from the width where it fits beside the menus and lives
 // in «Більше» below that, so it is reachable at every width and never shown
-// twice. Measured with the 171px lockup and a count on the cart: delivery
-// fits from ~1150px, about from ~1235px, and contacts takes the place of
-// «Більше» right after; each threshold keeps ~20px spare for a longer count.
+// twice. Measured with the 171px lockup, the custom-order button and a count
+// on the cart: the bar holds its menus and the button from ~1190px, delivery
+// from ~1360px, and about with contacts, in place of «Більше», from ~1440px;
+// each threshold keeps ~20px spare for a longer count.
 const PAGE_LINKS = [
   { key: 'delivery', href: '/delivery', inlineFrom: 'wide' },
   { key: 'aboutUs', href: '/about-us', inlineFrom: 'extraWide' },
-  { key: 'contactUs', href: '/contact', inlineFrom: 'widest' },
+  { key: 'contactUs', href: '/contact', inlineFrom: 'extraWide' },
 ] as const
 
 // Spelled out in full because Tailwind only emits classes it can read.
 const INLINE_FROM = {
-  wide: { bar: 'hidden min-[1160px]:inline-flex', menu: 'min-[1160px]:hidden' },
-  extraWide: { bar: 'hidden min-[1240px]:inline-flex', menu: 'min-[1240px]:hidden' },
-  widest: { bar: 'hidden min-[1260px]:inline-flex', menu: 'min-[1260px]:hidden' },
+  wide: { bar: 'hidden min-[1380px]:inline-flex', menu: 'min-[1380px]:hidden' },
+  extraWide: { bar: 'hidden min-[1460px]:inline-flex', menu: 'min-[1460px]:hidden' },
 } as const
 
 // Not in the bar at any width, but a phone has nothing else: the drawer lists
@@ -48,6 +48,19 @@ const DRAWER_ONLY_LINKS = [
 
 const BAR_LINK_CLASS =
   'inline-flex min-h-10 items-center rounded-control px-3 font-display text-[14px] font-medium tracking-[0.06em] whitespace-nowrap text-on-dark transition-colors hover:bg-dark-hover hover:text-khaki'
+
+// The one call to action beside the cart: most shoppers never scroll down to
+// the custom-order band on the home page (owner, 14.10.2026). Outlined, so the
+// filled cart stays the strongest thing in the bar. Below the width where it
+// fits it heads «Більше», and a phone has it second in the drawer.
+const CUSTOM_ORDER_CTA = {
+  bar: 'hidden min-[1210px]:inline-flex',
+  menu: 'min-[1210px]:hidden',
+} as const
+const CUSTOM_ORDER_CTA_CLASS = cn(
+  'min-h-[42px] items-center rounded-control border border-khaki px-3.5 font-display text-[13px] font-semibold tracking-[0.06em] whitespace-nowrap text-khaki uppercase transition-colors hover:bg-khaki hover:text-ink',
+  CUSTOM_ORDER_CTA.bar,
+)
 
 // The bar's height at each width: the tallest control (the 44px menu button
 // below lg, the 42px cart above) plus its padding. Fixed, so the placeholder
@@ -83,6 +96,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
     .map((category) => ({ label: category.name, href: `/product-category/${category.slug}` }))
 
   const moreMenu: readonly NavMenuItem[] = [
+    { label: t('customOrder'), href: CUSTOM_ORDER_HREF, className: CUSTOM_ORDER_CTA.menu },
     ...ungrouped,
     ...pageLinks.map((link) => ({
       label: link.label,
@@ -92,7 +106,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
   ]
   // Once every page link is in the bar the menu would open empty, so it goes
   // with them; an ungrouped category keeps it.
-  const moreTriggerClass = ungrouped.length === 0 ? INLINE_FROM.widest.menu : undefined
+  const moreTriggerClass = ungrouped.length === 0 ? INLINE_FROM.extraWide.menu : undefined
 
   // Second in the drawer, not last: a shopper who needs another size gives up
   // long before the end of the category list.
@@ -136,6 +150,9 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
             cart is the one filled thing in the bar, in khaki. */}
         <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2.5 lg:pl-4">
           {search}
+          <Link href={CUSTOM_ORDER_HREF} className={CUSTOM_ORDER_CTA_CLASS}>
+            {t('customOrder')}
+          </Link>
           <Link
             href="/cart"
             aria-label={t('cart')}
