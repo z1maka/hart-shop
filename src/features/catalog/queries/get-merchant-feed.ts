@@ -4,6 +4,7 @@ import { siteConfig } from '@/config/site'
 import { effectiveGoogleCategory } from '@/features/catalog/model/google-category'
 import {
   feedItemOf,
+  feedListedProducts,
   materialOf,
   merchantFeedXml,
   metaCatalogItemOf,
@@ -29,7 +30,7 @@ export async function getMerchantFeedXml(): Promise<string> {
   cacheTag('catalog')
   cacheLife('hours')
 
-  return feedXml(await feedItems(await catalogReadRepository.findPublishedForFeed()))
+  return feedXml(await feedItems(await listedProducts()))
 }
 
 // The same items for Meta's catalogue, cut to what the workshop sews and
@@ -39,11 +40,15 @@ export async function getMetaCatalogXml(): Promise<string> {
   cacheTag('catalog')
   cacheLife('hours')
 
-  const products = (await catalogReadRepository.findPublishedForFeed()).filter((product) =>
+  const products = (await listedProducts()).filter((product) =>
     META_CATALOG_CATEGORY_SLUGS.includes(product.categorySlug),
   )
 
   return feedXml(await feedItems(products, metaCatalogItemOf))
+}
+
+async function listedProducts(): Promise<FeedProductRow[]> {
+  return feedListedProducts(await catalogReadRepository.findPublishedForFeed())
 }
 
 type ItemIdRule = (item: FeedItem, variantSku: string) => FeedItem

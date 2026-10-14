@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   escapeXml,
   feedItemOf,
+  feedListedProducts,
   materialOf,
   merchantFeedXml,
   metaCatalogItemOf,
@@ -50,6 +51,19 @@ const COLOURS_OF_A_SIMPLE_PRODUCT = [
   { sku: 'FOX-UA-35964-WINTER' },
   { sku: 'FOX-UA-35964-PIXEL' },
 ]
+
+describe('feedListedProducts', () => {
+  it('keeps the products the owner does not advertise out of the feeds', () => {
+    const products = [
+      { slug: 'kriplennya-povorotni-na-reytsi-arc-na-sholom' },
+      { slug: 'anty-teploviziyna-nakydka-poncho-a6286' },
+    ]
+
+    expect(feedListedProducts(products)).toEqual([
+      { slug: 'anty-teploviziyna-nakydka-poncho-a6286' },
+    ])
+  })
+})
 
 describe('productIdCarrierOf', () => {
   it('is the untouched variant of a simple product', () => {

@@ -3,6 +3,7 @@ import {
   FEED_APPAREL_AGE_GROUP,
   FEED_APPAREL_GENDER,
   FEED_DESCRIPTION_MAX_LENGTH,
+  FEED_EXCLUDED_SLUGS,
   FEED_MATERIAL_MAX_LENGTH,
   FEED_MATERIAL_SPEC_LABEL,
   FEED_TITLE_MAX_LENGTH,
@@ -81,6 +82,12 @@ export type FeedChoices = {
 // for a variable product and the product id for a simple one.
 const VARIATION_SKU = /-V(\d+)$/
 const SIMPLE_VARIANT_SKU = /-STD$/
+
+export function feedListedProducts<T extends { readonly slug: string }>(
+  products: readonly T[],
+): T[] {
+  return products.filter((product) => !FEED_EXCLUDED_SLUGS.includes(product.slug))
+}
 
 // The plugin made one offer per simple WordPress product. Where the site now
 // sells that product in several colours, one of them carries the product's

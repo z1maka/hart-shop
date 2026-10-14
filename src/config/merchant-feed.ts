@@ -27,3 +27,11 @@ export const FEED_MATERIAL_MAX_LENGTH = 200
 // Everything worn in the catalogue is cut for adults of either sex.
 export const FEED_APPAREL_GENDER = 'unisex'
 export const FEED_APPAREL_AGE_GROUP = 'adult'
+
+// Published products kept out of both feeds while they stay on the site. The
+// owner does not advertise the ARC helmet mounts (14.10.2026), on their own or
+// in the headset kit.
+export const FEED_EXCLUDED_SLUGS: readonly string[] = [
+  'kriplennya-povorotni-na-reytsi-arc-na-sholom',
+  'komplekt-oryhinalnyy-aktyvni-navushnyky-walkers-razor-usa-z-povorotnymy-kriplennyamy',
+]
