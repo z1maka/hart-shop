@@ -126,6 +126,16 @@ describe('feedItemOf', () => {
     })
   })
 
+  it('turns the page markup into plain sentences for the feed', () => {
+    const item = feedItemOf(
+      { ...PRODUCT, description: '## Конструкція\n- Три шари\n- Без фольги\n\nТримає дощ.' },
+      OLIVE,
+      CONTEXT,
+    )
+
+    expect(item.description).toBe('Конструкція. Три шари. Без фольги. Тримає дощ.')
+  })
+
   it('quotes the price the cart charges, sale and variant delta included', () => {
     const item = feedItemOf(
       { ...PRODUCT, salePriceCents: 199000 },

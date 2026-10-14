@@ -9,6 +9,7 @@ import {
   LEGACY_OFFER_ID_PREFIX,
   NEW_OFFER_ID_PREFIX,
 } from '@/config/merchant-feed'
+import { parseStory, type StoryBlock } from '@/features/catalog/model/category-content'
 import type { GoogleCategory } from '@/features/catalog/model/google-category'
 import { COLOR_PARAM } from '@/features/catalog/model/requested-color'
 import { decimalAmount } from '@/lib/money'
@@ -187,10 +188,29 @@ function feedTitle(title: string, distinguishing: readonly (string | null)[]): s
 }
 
 function feedDescription(description: string, title: string): string {
-  const text = (description.trim() || title).replace(/\s+/g, ' ').trim()
+  const source = description.trim() ? plainTextOf(description) : title
+  const text = source.replace(/\s+/g, ' ').trim()
   return text.length <= FEED_DESCRIPTION_MAX_LENGTH
     ? text
     : `${text.slice(0, FEED_DESCRIPTION_MAX_LENGTH - 1)}…`
+}
+
+// Merchant Center and Meta show the description as plain text, where the
+// page's «## » headings and «- » bullets would print as literal marks. A
+// heading or a bullet becomes a sentence of its own; paragraphs stay as typed.
+function plainTextOf(description: string): string {
+  return parseStory(description).map(blockText).join(' ')
+}
+
+function blockText(block: StoryBlock): string {
+  if (block.type === 'list') return block.items.map(asSentence).join(' ')
+  return block.type === 'heading' ? asSentence(block.text) : block.text
+}
+
+const SENTENCE_END = /[.!?:;…]$/
+
+function asSentence(text: string): string {
+  return SENTENCE_END.test(text) ? text : `${text}.`
 }
 
 // Meta matches pixel events to a catalogue item by its id: the cart and the
