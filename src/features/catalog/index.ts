@@ -15,6 +15,7 @@ export {
   getCatalogPage,
   getFeaturedProducts,
   getCompanionProducts,
+  getCartCompanions,
   type CatalogPage,
   type CatalogQuery,
 } from '@/features/catalog/queries/get-products'

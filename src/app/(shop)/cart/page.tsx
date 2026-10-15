@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getCheckoutAvailability, QuickOrderPanel } from '@/features/checkout'
 import { getCart, type CartView } from '@/features/cart'
-import { getFeaturedProducts } from '@/features/catalog'
+import { getCartCompanions, getFeaturedProducts } from '@/features/catalog'
 import { ProductGrid } from '@/features/catalog/ui/ProductGrid'
 import { CartLineControls } from '@/features/cart/ui/CartLineControls'
+
+const CART_COMPANION_COUNT = 3
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('meta')
@@ -51,9 +53,12 @@ async function CartContents() {
     return <EmptyCart />
   }
 
+  // On a wide screen the order panel spans both rows, so the companions fill
+  // the column under a short list instead of leaving it empty; on a phone they
+  // come after the panel and never push the phone field down.
   return (
-    <div className="flex flex-wrap items-start gap-6">
-      <div className="min-w-[min(100%,320px)] flex-[999_1_520px] overflow-hidden rounded-card border border-subtle bg-raised">
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:grid-rows-[auto_1fr]">
+      <div className="overflow-hidden rounded-card border border-subtle bg-raised">
         {cart.lines.map((line) => (
           <article
             key={line.id}
@@ -114,7 +119,24 @@ async function CartContents() {
       </div>
 
       <CartSummaryPanel cart={cart} />
+      <CartCompanions productSlugs={[...new Set(cart.lines.map((line) => line.productSlug))]} />
     </div>
+  )
+}
+
+async function CartCompanions({ productSlugs }: { readonly productSlugs: readonly string[] }) {
+  const [companions, t] = await Promise.all([
+    getCartCompanions(productSlugs, CART_COMPANION_COUNT),
+    getTranslations('pdp'),
+  ])
+
+  if (companions.length === 0) return null
+
+  return (
+    <section className="lg:col-start-1">
+      <h2 className="mb-4 font-display text-h3 font-bold text-ink">{t('companions')}</h2>
+      <ProductGrid products={companions} layout="compact" />
+    </section>
   )
 }
 
@@ -149,7 +171,7 @@ async function CartSummaryPanel({ cart }: { cart: CartView }) {
   const { isCardPaymentAvailable } = await getCheckoutAvailability()
 
   return (
-    <aside className="flex min-w-[min(100%,320px)] flex-[1_1_360px] flex-col gap-3.5">
+    <aside className="flex flex-col gap-3.5 lg:col-start-2 lg:row-span-2 lg:row-start-1">
       <dl className="grid gap-2 rounded-card border border-subtle bg-raised p-5 text-[14px]">
         <div className="flex justify-between gap-3">
           <dt className="text-muted">{t('totalItems', { count: cart.itemCount })}</dt>

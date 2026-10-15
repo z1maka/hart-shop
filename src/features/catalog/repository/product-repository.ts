@@ -500,6 +500,17 @@ export const catalogReadRepository = {
     return row ?? null
   },
 
+  async findPublishedCategorySlug(slug: string): Promise<string | null> {
+    const [row] = await db
+      .select({ categorySlug: categories.slug })
+      .from(products)
+      .innerJoin(categories, eq(products.categoryId, categories.id))
+      .where(and(eq(products.slug, slug), eq(products.status, ProductStatus.Published)))
+      .limit(1)
+
+    return row?.categorySlug ?? null
+  },
+
   async findArchivedBySlug(slug: string): Promise<ArchivedProductRow | null> {
     const [row] = await db
       .select({ categorySlug: categories.slug, isCategoryVisible: categories.isVisible })

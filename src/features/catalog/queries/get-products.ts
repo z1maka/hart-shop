@@ -133,6 +133,25 @@ export async function getCompanionProducts(
   return toCardViews(rows)
 }
 
+// "З цим купують" under the cart: what completes the product added first,
+// without anything the cart already holds.
+export async function getCartCompanions(
+  cartSlugs: readonly string[],
+  limit: number,
+): Promise<ProductCardView[]> {
+  'use cache'
+  cacheTag('catalog')
+  cacheLife('days')
+
+  const [anchorSlug] = cartSlugs
+  if (!anchorSlug) return []
+  const categorySlug = await catalogReadRepository.findPublishedCategorySlug(anchorSlug)
+  if (!categorySlug) return []
+
+  const companions = await getCompanionProducts(categorySlug, anchorSlug, limit + cartSlugs.length)
+  return companions.filter((product) => !cartSlugs.includes(product.slug)).slice(0, limit)
+}
+
 async function toCardViews(rows: readonly CatalogProductRow[]): Promise<ProductCardView[]> {
   const productT = await getTranslations('product')
   const productIds = rows.map((row) => row.id)
