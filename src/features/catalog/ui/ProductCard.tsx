@@ -179,6 +179,6 @@ function analyticsItem(product: ProductCardView) {
 function productHref(slug: string, matchedColors: readonly string[]): string {
   const [color] = matchedColors
   return color
-    ? `/product/${slug}?${COLOR_PARAM}=${encodeURIComponent(color)}`
-    : `/product/${slug}`
+    ? `/product/${slug}/?${COLOR_PARAM}=${encodeURIComponent(color)}`
+    : `/product/${slug}/`
 }

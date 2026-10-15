@@ -79,7 +79,7 @@ async function CategoryHeader({ category: activeCategory }: { category: Category
         className="mb-3.5"
         items={[
           { label: navT('home'), href: '/' },
-          { label: navT('allProducts'), href: '/shop' },
+          { label: navT('allProducts'), href: '/shop/' },
           { label: activeCategory.name },
         ]}
       />

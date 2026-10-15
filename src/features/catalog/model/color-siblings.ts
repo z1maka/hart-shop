@@ -20,6 +20,6 @@ export function colorLinksOf(
     const { color } = sibling
     if (sibling.slug === currentSlug || color === null) return links
     if (ownColors.includes(color) || links.some((link) => link.color === color)) return links
-    return [...links, { color, href: `/product/${sibling.slug}` }]
+    return [...links, { color, href: `/product/${sibling.slug}/` }]
   }, [])
 }

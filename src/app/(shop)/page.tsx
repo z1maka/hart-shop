@@ -85,7 +85,7 @@ export default async function HomePage() {
       <section className="border-y border-subtle bg-surface px-7 py-12">
         <div className="mb-5 flex flex-wrap items-baseline justify-between gap-2.5">
           <h2 className={SECTION_TITLE}>{t('bestSellers')}</h2>
-          <Link href="/shop" className={TEXT_LINK}>
+          <Link href="/shop/" className={TEXT_LINK}>
             {t('browseAll')}
           </Link>
         </div>
@@ -129,7 +129,7 @@ async function Hero() {
         </p>
         <div className="flex flex-wrap gap-3">
           <Button size="lg" asChild>
-            <Link href="/shop">{t('shopCta')}</Link>
+            <Link href="/shop/">{t('shopCta')}</Link>
           </Button>
           <Button
             size="lg"
@@ -137,7 +137,7 @@ async function Hero() {
             className="border-ink bg-transparent hover:bg-ink hover:text-on-dark"
             asChild
           >
-            <Link href="/about-us">{t('aboutCta')}</Link>
+            <Link href="/about-us/">{t('aboutCta')}</Link>
           </Button>
         </div>
         {/* On the first screen, where someone who needs their own size is
@@ -419,7 +419,7 @@ async function UnitsBand() {
             <Link href={CUSTOM_ORDER_HREF}>{t('units.customCta')}</Link>
           </Button>
           <Button size="lg" variant="outlineOnDark" asChild>
-            <Link href="/contact">{t('units.contactCta')}</Link>
+            <Link href="/contact/">{t('units.contactCta')}</Link>
           </Button>
         </div>
       </div>
@@ -437,7 +437,7 @@ async function GuidesSection() {
           <h2 className={cn(SECTION_TITLE, 'mb-2.5')}>{t('guidesTitle')}</h2>
           <p className={SECTION_LEAD}>{t('guidesLead')}</p>
         </div>
-        <Link href="/guides" className={TEXT_LINK}>
+        <Link href="/guides/" className={TEXT_LINK}>
           {t('guidesAll')}
         </Link>
       </div>

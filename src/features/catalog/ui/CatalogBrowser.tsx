@@ -62,20 +62,20 @@ export async function CatalogBrowser({
     getCategoryCounts(),
   ])
 
-  const basePath = categorySlug ? `/product-category/${categorySlug}` : '/shop'
+  const basePath = categorySlug ? `/product-category/${categorySlug}/` : '/shop/'
   const totalCount = Object.values(categoryCounts).reduce((total, count) => total + count, 0)
 
   const categoryOptions: CategoryFilterOption[] = [
     {
       label: navT('allProducts'),
       count: totalCount,
-      href: buildHref('/shop', { colors, weightBand, sort }),
+      href: buildHref('/shop/', { colors, weightBand, sort }),
       isActive: !categorySlug,
     },
     ...categories.map((entry) => ({
       label: entry.name,
       count: categoryCounts[entry.slug] ?? 0,
-      href: buildHref(`/product-category/${entry.slug}`, { colors, weightBand, sort }),
+      href: buildHref(`/product-category/${entry.slug}/`, { colors, weightBand, sort }),
       isActive: entry.slug === categorySlug,
     })),
   ]

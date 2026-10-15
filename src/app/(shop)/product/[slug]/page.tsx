@@ -170,8 +170,8 @@ async function ProductDetail({
         className="px-7 pt-7"
         items={[
           { label: navT('home'), href: '/' },
-          { label: navT('allProducts'), href: '/shop' },
-          { label: product.categoryName, href: `/product-category/${product.categorySlug}` },
+          { label: navT('allProducts'), href: '/shop/' },
+          { label: product.categoryName, href: `/product-category/${product.categorySlug}/` },
         ]}
       />
 

@@ -56,7 +56,7 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
         <p className="mb-6 max-w-[60ch] text-[14px] leading-relaxed text-muted">{t('sentBody')}</p>
         <div className="flex flex-wrap gap-3">
           <Button asChild>
-            <Link href="/shop">{t('backToShop')}</Link>
+            <Link href="/shop/">{t('backToShop')}</Link>
           </Button>
           <Button variant="quiet" onClick={() => setIsSent(false)}>
             {t('sendAnother')}

@@ -25,8 +25,8 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const BEFORE_YOU_WRITE = [
-  { href: '/delivery', key: 'shipping' },
-  { href: '/refund-policy', key: 'returns' },
+  { href: '/delivery/', key: 'shipping' },
+  { href: '/refund-policy/', key: 'returns' },
 ] as const
 
 // The design sets the fastest channel apart on a dark card.

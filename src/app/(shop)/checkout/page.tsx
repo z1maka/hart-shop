@@ -39,7 +39,7 @@ async function CheckoutContents() {
   const cart = await getCart()
 
   if (!cart || cart.lines.length === 0) {
-    redirect('/cart')
+    redirect('/cart/')
   }
 
   const availability = await getCheckoutAvailability()
@@ -113,7 +113,7 @@ async function OrderSummary({ cart }: { cart: CartView }) {
       </dl>
 
       <Button variant="secondary" className="w-full" asChild>
-        <Link href="/cart">{t('summary.backToCart')}</Link>
+        <Link href="/cart/">{t('summary.backToCart')}</Link>
       </Button>
     </aside>
   )

@@ -187,19 +187,19 @@ export function MiniCart() {
 
             <div className="grid gap-2.5">
               <Button size="lg" asChild>
-                <Link href="/checkout" onClick={() => setIsOpen(false)}>
+                <Link href="/checkout/" onClick={() => setIsOpen(false)}>
                   {t('checkout', { amount: cart.subtotalLabel })}
                 </Link>
               </Button>
               {/* The phone-only path, offered at the moment the buyer has
                   just added something — not only on the cart page. */}
               <Button variant="secondary" asChild>
-                <Link href="/cart#quick" onClick={() => setIsOpen(false)}>
+                <Link href="/cart/#quick" onClick={() => setIsOpen(false)}>
                   {t('quickOrder')}
                 </Link>
               </Button>
               <Link
-                href="/cart"
+                href="/cart/"
                 onClick={() => setIsOpen(false)}
                 className="text-center text-[13px] font-semibold text-muted hover:text-ink"
               >

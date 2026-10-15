@@ -12,12 +12,12 @@ export type FooterProps = {
 // although the design left them out: this column is their one link from every
 // page. The privacy policy and the seller's details sit in the bottom row.
 const CUSTOMER_LINK_KEYS = [
-  { key: 'delivery', href: '/delivery' },
-  { key: 'refunds', href: '/refund-policy' },
+  { key: 'delivery', href: '/delivery/' },
+  { key: 'refunds', href: '/refund-policy/' },
   { key: 'customOrder', href: CUSTOM_ORDER_HREF },
-  { key: 'aboutUs', href: '/about-us' },
-  { key: 'guides', href: '/guides' },
-  { key: 'contactUs', href: '/contact' },
+  { key: 'aboutUs', href: '/about-us/' },
+  { key: 'guides', href: '/guides/' },
+  { key: 'contactUs', href: '/contact/' },
 ] as const
 
 const FULL_LOGO = { src: '/logo/hart-full.png', width: 220, height: 210 } as const
@@ -43,7 +43,7 @@ export async function Footer({ categories }: FooterProps) {
 
         <FooterColumn title={t('shop')}>
           {categories.map((category) => (
-            <FooterLink key={category.slug} href={`/product-category/${category.slug}`}>
+            <FooterLink key={category.slug} href={`/product-category/${category.slug}/`}>
               {category.name}
             </FooterLink>
           ))}
@@ -75,10 +75,10 @@ export async function Footer({ categories }: FooterProps) {
           </span>
         </div>
         <nav className="flex gap-4">
-          <Link href="/privacy-policy" className="hover:text-on-dark">
+          <Link href="/privacy-policy/" className="hover:text-on-dark">
             {t('privacy')}
           </Link>
-          <Link href="/about-us#seller" className="hover:text-on-dark">
+          <Link href="/about-us/#seller" className="hover:text-on-dark">
             {t('imprint')}
           </Link>
         </nav>

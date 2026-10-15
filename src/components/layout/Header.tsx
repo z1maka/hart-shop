@@ -28,9 +28,9 @@ export type HeaderProps = {
 // from ~1360px, and about with contacts, in place of «Більше», from ~1440px;
 // each threshold keeps ~20px spare for a longer count.
 const PAGE_LINKS = [
-  { key: 'delivery', href: '/delivery', inlineFrom: 'wide' },
-  { key: 'aboutUs', href: '/about-us', inlineFrom: 'extraWide' },
-  { key: 'contactUs', href: '/contact', inlineFrom: 'extraWide' },
+  { key: 'delivery', href: '/delivery/', inlineFrom: 'wide' },
+  { key: 'aboutUs', href: '/about-us/', inlineFrom: 'extraWide' },
+  { key: 'contactUs', href: '/contact/', inlineFrom: 'extraWide' },
 ] as const
 
 // Spelled out in full because Tailwind only emits classes it can read.
@@ -42,8 +42,8 @@ const INLINE_FROM = {
 // Not in the bar at any width, but a phone has nothing else: the drawer lists
 // them after the bar's own pages.
 const DRAWER_ONLY_LINKS = [
-  { key: 'refunds', href: '/refund-policy' },
-  { key: 'guides', href: '/guides' },
+  { key: 'refunds', href: '/refund-policy/' },
+  { key: 'guides', href: '/guides/' },
 ] as const
 
 const BAR_LINK_CLASS =
@@ -89,13 +89,13 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
     items: group.categorySlugs
       .map((slug) => categories.find((category) => category.slug === slug))
       .filter((category): category is HeaderCategory => category !== undefined)
-      .map((category) => ({ label: category.name, href: `/product-category/${category.slug}` })),
+      .map((category) => ({ label: category.name, href: `/product-category/${category.slug}/` })),
   })).filter((group) => group.items.length > 0)
 
   const groupedSlugs = new Set(NAV_GROUPS.flatMap((group) => group.categorySlugs))
   const ungrouped: NavMenuItem[] = categories
     .filter((category) => !groupedSlugs.has(category.slug))
-    .map((category) => ({ label: category.name, href: `/product-category/${category.slug}` }))
+    .map((category) => ({ label: category.name, href: `/product-category/${category.slug}/` }))
 
   const moreMenu: readonly NavMenuItem[] = [
     { label: t('customOrder'), href: CUSTOM_ORDER_HREF, className: CUSTOM_ORDER_CTA.menu },
@@ -113,7 +113,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
   // Second in the drawer, not last: a shopper who needs another size gives up
   // long before the end of the category list.
   const mobileLinks: NavLink[] = [
-    { label: t('allProducts'), href: '/shop' },
+    { label: t('allProducts'), href: '/shop/' },
     { label: t('customOrder'), href: CUSTOM_ORDER_HREF },
     ...groups.flatMap((group) => group.items),
     ...ungrouped,
@@ -129,7 +129,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
         </Link>
 
         <nav className="ml-3 hidden items-center gap-x-0.5 lg:flex">
-          <Link href="/shop" className={BAR_LINK_CLASS}>
+          <Link href="/shop/" className={BAR_LINK_CLASS}>
             {t('allProducts')}
           </Link>
           {groups.map((group) => (
@@ -156,7 +156,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
             {t('customOrder')}
           </Link>
           <Link
-            href="/cart"
+            href="/cart/"
             aria-label={t('cart')}
             className="inline-flex min-h-[42px] items-center gap-2 rounded-control bg-khaki px-3 text-[13px] font-extrabold whitespace-nowrap text-ink transition-colors hover:bg-khaki-hover sm:px-4"
           >

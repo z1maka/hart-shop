@@ -7,13 +7,13 @@ export default async function ShopNotFound() {
   const t = await getTranslations('nav')
 
   const links: NotFoundLink[] = [
-    { href: '/shop', label: t('allProducts') },
+    { href: '/shop/', label: t('allProducts') },
     ...categories.map((category) => ({
-      href: `/product-category/${category.slug}`,
+      href: `/product-category/${category.slug}/`,
       label: category.name,
     })),
-    { href: '/delivery', label: t('delivery') },
-    { href: '/about-us', label: t('aboutUs') },
+    { href: '/delivery/', label: t('delivery') },
+    { href: '/about-us/', label: t('aboutUs') },
   ]
 
   return <NotFoundPanel links={links} />

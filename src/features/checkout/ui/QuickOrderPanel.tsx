@@ -98,7 +98,7 @@ export function QuickOrderPanel({
           for the way there. */}
       <Button variant="outlineOnDark" asChild className="mt-2.5 min-h-12 w-full">
         <Link
-          href="/checkout"
+          href="/checkout/"
           onClick={() => {
             if (phone === '') return
             try {

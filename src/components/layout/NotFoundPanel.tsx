@@ -38,7 +38,7 @@ export async function NotFoundPanel({ links = [] }: NotFoundPanelProps) {
 
       <div className="relative mt-7 flex flex-wrap justify-center gap-3">
         <Button size="lg" asChild>
-          <Link href="/shop">{t('browse')}</Link>
+          <Link href="/shop/">{t('browse')}</Link>
         </Button>
         <Button size="lg" variant="secondary" asChild>
           <Link href="/">{t('backHome')}</Link>

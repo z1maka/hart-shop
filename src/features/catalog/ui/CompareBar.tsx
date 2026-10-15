@@ -102,7 +102,7 @@ function ComparisonTable({
           </th>
           {comparison.columns.map((column) => (
             <th key={column.slug} className="p-2 text-left align-bottom">
-              <Link href={`/product/${column.slug}`} className="block">
+              <Link href={`/product/${column.slug}/`} className="block">
                 <span className="relative block aspect-square w-full overflow-hidden rounded-chip bg-raised">
                   {column.imageUrl ? (
                     <Image

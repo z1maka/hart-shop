@@ -33,7 +33,7 @@ export default async function CartPage() {
           thing, without competing with the order panel below. */}
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="font-display text-h1 font-bold text-ink">{t('title')}</h1>
-        <Link href="/shop" className="text-[13.5px] font-bold text-accent hover:text-ink">
+        <Link href="/shop/" className="text-[13.5px] font-bold text-accent hover:text-ink">
           {t('continueShopping')}
         </Link>
       </div>
@@ -65,7 +65,7 @@ async function CartContents() {
             className="flex flex-wrap items-center gap-4 border-b border-subtle p-4 last:border-b-0"
           >
             <Link
-              href={`/product/${line.productSlug}`}
+              href={`/product/${line.productSlug}/`}
               className="relative size-24 shrink-0 overflow-hidden rounded-chip bg-sunken"
             >
               {line.imageUrl ? (
@@ -81,7 +81,7 @@ async function CartContents() {
 
             <div className="min-w-40 flex-1">
               <Link
-                href={`/product/${line.productSlug}`}
+                href={`/product/${line.productSlug}/`}
                 className="text-[15px] font-extrabold text-ink hover:text-accent"
               >
                 {line.title}
@@ -149,14 +149,14 @@ async function EmptyCart() {
         <h2 className="mb-2.5 font-display text-h2 font-bold text-ink">{t('emptyTitle')}</h2>
         <p className="mb-5 text-[14.5px] text-muted">{t('emptyLead')}</p>
         <Button asChild>
-          <Link href="/shop">{t('browse')}</Link>
+          <Link href="/shop/">{t('browse')}</Link>
         </Button>
       </div>
 
       <section>
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2.5">
           <h3 className="font-display text-h3 font-bold text-ink">{t('startWith')}</h3>
-          <Link href="/shop" className="text-[13.5px] font-bold text-accent hover:text-ink">
+          <Link href="/shop/" className="text-[13.5px] font-bold text-accent hover:text-ink">
             {t('allProducts')}
           </Link>
         </div>

@@ -67,7 +67,7 @@ export function CustomOrderForm({ items, initialItem, fromProduct }: CustomOrder
         <h2 className="mb-3 font-display text-h3 font-bold text-ink">{t('sentTitle')}</h2>
         <p className="mb-6 max-w-[56ch] text-[14px] leading-relaxed text-muted">{t('sentBody')}</p>
         <Button asChild>
-          <Link href="/shop">{t('sentCta')}</Link>
+          <Link href="/shop/">{t('sentCta')}</Link>
         </Button>
       </div>
     )

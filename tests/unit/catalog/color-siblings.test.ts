@@ -10,14 +10,14 @@ const SIBLINGS = [
 describe('colorLinksOf', () => {
   it('links every other colour of the model to its own page', () => {
     expect(colorLinksOf('poncho-olive', ['Олива'], SIBLINGS)).toEqual([
-      { color: 'Мультикам', href: '/product/poncho-multicam' },
-      { color: 'Піксель', href: '/product/poncho-pixel' },
+      { color: 'Мультикам', href: '/product/poncho-multicam/' },
+      { color: 'Піксель', href: '/product/poncho-pixel/' },
     ])
   })
 
   it('leaves a colour the product sells itself to its own tile', () => {
     expect(colorLinksOf('poncho-olive', ['Олива', 'Піксель'], SIBLINGS)).toEqual([
-      { color: 'Мультикам', href: '/product/poncho-multicam' },
+      { color: 'Мультикам', href: '/product/poncho-multicam/' },
     ])
   })
 
@@ -25,8 +25,8 @@ describe('colorLinksOf', () => {
     const siblings = [...SIBLINGS, { slug: 'poncho-pixel-old', color: 'Піксель' }]
 
     expect(colorLinksOf('poncho-multicam', ['Мультикам'], siblings)).toEqual([
-      { color: 'Олива', href: '/product/poncho-olive' },
-      { color: 'Піксель', href: '/product/poncho-pixel' },
+      { color: 'Олива', href: '/product/poncho-olive/' },
+      { color: 'Піксель', href: '/product/poncho-pixel/' },
     ])
   })
 

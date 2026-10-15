@@ -91,7 +91,7 @@ export function SearchDialog({ suggestions, initialResults }: SearchDialogProps)
             {results.map((result) => (
               <DialogPrimitive.Close key={result.slug} asChild>
                 <Link
-                  href={`/product/${result.slug}`}
+                  href={`/product/${result.slug}/`}
                   className={cn(
                     'flex w-full items-center gap-3.5 rounded-control p-2.5 text-left hover:bg-hover',
                   )}
