@@ -31,6 +31,7 @@ export function SiteShell({ children }: { readonly children: React.ReactNode }) 
           gaMeasurementId: env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? null,
           googleAdsId: env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? null,
           googleAdsConversionLabel: env.NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL ?? null,
+          isGoogleAdsInGoogleTag: env.NEXT_PUBLIC_GOOGLE_ADS_IN_GOOGLE_TAG,
           metaPixelId: env.NEXT_PUBLIC_META_PIXEL_ID ?? null,
           tiktokPixelId: env.NEXT_PUBLIC_TIKTOK_PIXEL_ID ?? null,
           clarityProjectId: env.NEXT_PUBLIC_CLARITY_PROJECT_ID ?? null,

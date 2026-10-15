@@ -9,6 +9,7 @@ export type AnalyticsIds = {
   readonly gaMeasurementId: string | null
   readonly googleAdsId: string | null
   readonly googleAdsConversionLabel: string | null
+  readonly isGoogleAdsInGoogleTag: boolean
   readonly metaPixelId: string | null
   readonly tiktokPixelId: string | null
   readonly clarityProjectId: string | null
@@ -28,6 +29,10 @@ export function AnalyticsScripts({ ids }: { readonly ids: AnalyticsIds }) {
     ids.googleAdsId && ids.googleAdsConversionLabel
       ? `${ids.googleAdsId}/${ids.googleAdsConversionLabel}`
       : null
+  // Inside the GA4 Google tag the Ads destination is set up by gtag.js itself;
+  // the purchase conversion still reaches it by send_to.
+  const isAdsInLoadedTag = ids.isGoogleAdsInGoogleTag && ids.gaMeasurementId !== null
+  const adsConfigId = isAdsInLoadedTag ? null : ids.googleAdsId
 
   return (
     <>
@@ -48,7 +53,7 @@ gtag('consent', 'default', {
 });
 gtag('js', new Date());
 ${ids.gaMeasurementId ? `gtag('config', '${ids.gaMeasurementId}', { send_page_view: true });` : ''}
-${ids.googleAdsId ? `gtag('config', '${ids.googleAdsId}');` : ''}
+${adsConfigId ? `gtag('config', '${adsConfigId}');` : ''}
 ${
   // The purchase conversion is fired from services/track.ts, which only sees
   // window globals. Setting the target in the same script that defines gtag

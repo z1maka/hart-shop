@@ -89,6 +89,11 @@ const envSchema = z.object({
   // reach GA4 but are never counted as Ads conversions.
   NEXT_PUBLIC_GOOGLE_ADS_ID: optionalString,
   NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL: optionalString,
+  // True once the Ads account is a destination of the GA4 Google tag (Tag
+  // Manager → Google tag → Destinations): that one gtag.js then serves both,
+  // and a separate Ads `config` would download a second copy (149 KB, seen
+  // 15.10.2026). Off, the Ads tag is configured on its own.
+  NEXT_PUBLIC_GOOGLE_ADS_IN_GOOGLE_TAG: z.stringbool().default(false),
   NEXT_PUBLIC_CLARITY_PROJECT_ID: optionalString,
   NEXT_PUBLIC_META_PIXEL_ID: optionalString,
   // The Conversions API copy of the pixel's events (/api/meta/events). Absent
