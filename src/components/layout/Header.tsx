@@ -51,10 +51,12 @@ const BAR_LINK_CLASS =
 
 // The one call to action beside the cart: most shoppers never scroll down to
 // the custom-order band on the home page (owner, 14.10.2026). Outlined, so the
-// filled cart stays the strongest thing in the bar. Below the width where it
-// fits it heads «Більше», and a phone has it second in the drawer.
+// filled cart stays the strongest thing in the bar. A tablet has room for it
+// beside the drawer button; from 1024px the menus take that room until 1210px,
+// where it heads «Більше» instead. A phone has it in the strip above (TopBar)
+// and second in the drawer.
 const CUSTOM_ORDER_CTA = {
-  bar: 'hidden min-[1210px]:inline-flex',
+  bar: 'hidden md:inline-flex lg:hidden min-[1210px]:inline-flex',
   menu: 'min-[1210px]:hidden',
 } as const
 const CUSTOM_ORDER_CTA_CLASS = cn(
