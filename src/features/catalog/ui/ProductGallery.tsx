@@ -62,6 +62,17 @@ export function ProductGallery({
   const isHydrated = useIsHydrated()
   const [pick, setPick] = useState<GalleryPick | null>(null)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+  // On a slow phone line the strip's dozen thumbnails, all in the first
+  // screen, shared the bandwidth with the page's largest picture and held it
+  // back (15.10.2026: ~35 KB before the shot). They wait until the shot has
+  // loaded or failed; their tiles keep the size meanwhile, so nothing moves.
+  const [isCoverSettled, setIsCoverSettled] = useState(false)
+  const settleCover = useCallback(() => setIsCoverSettled(true), [])
+  // A shot already in the cache has loaded before hydration, when no onLoad
+  // was listening; the ref catches that case.
+  const coverRef = useCallback((image: HTMLImageElement | null) => {
+    if (image?.complete) setIsCoverSettled(true)
+  }, [])
   // The video whose player was started; leaving its slide stops it for good.
   const [playingId, setPlayingId] = useState<string | null>(null)
   const stopVideo = useCallback(() => setPlayingId(null), [])
@@ -85,6 +96,8 @@ export function ProductGallery({
   })
   const active = images[activeIndex]
   const activeVideo = active ? undefined : videos[activeIndex - images.length]
+  // A video in the square has no shot to wait for.
+  const isStripLoading = !isCoverSettled && Boolean(active)
   const isVideoPlaying = activeVideo !== undefined && activeVideo.youtubeId === playingId
 
   // Whatever took the square away from a playing video — an arrow, a
@@ -177,6 +190,9 @@ export function ProductGallery({
               // HTML, so a high fetch priority is all it needs.
               loading="eager"
               fetchPriority="high"
+              ref={coverRef}
+              onLoad={settleCover}
+              onError={settleCover}
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             />
             <span
@@ -224,7 +240,9 @@ export function ProductGallery({
                 index === activeIndex ? 'border-accent' : 'border-subtle opacity-80',
               )}
             >
-              <Image src={image.url} alt={image.alt} fill sizes="64px" className="object-cover" />
+              {isStripLoading ? null : (
+                <Image src={image.url} alt={image.alt} fill sizes="64px" className="object-cover" />
+              )}
             </button>
           ))}
           {videos.map((video, offset) => {
@@ -241,13 +259,15 @@ export function ProductGallery({
                   index === activeIndex ? 'border-accent' : 'border-subtle opacity-80',
                 )}
               >
-                <Image
-                  src={youtubeThumbnailUrl(video.youtubeId)}
-                  alt=""
-                  fill
-                  sizes="64px"
-                  className="object-cover"
-                />
+                {isStripLoading ? null : (
+                  <Image
+                    src={youtubeThumbnailUrl(video.youtubeId)}
+                    alt=""
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
+                )}
                 <span
                   aria-hidden
                   className="absolute inset-0 flex items-center justify-center bg-ink/25 text-on-dark"
