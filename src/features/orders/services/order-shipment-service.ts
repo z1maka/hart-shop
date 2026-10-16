@@ -355,7 +355,7 @@ type Announcement = {
   readonly waybill: Waybill
   readonly parcel: ParcelInput
   readonly issuedBy: string
-  // «ФОП Косенко М. С. · Миколаїв · Відділення №30», or null while the shop
+  // «ФОП Масний О. С. · Миколаїв · Відділення №30», or null while the shop
   // still runs on the single cabinet from the environment.
   readonly sender: string | null
 }

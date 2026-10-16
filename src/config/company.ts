@@ -1,10 +1,10 @@
 // What goes on an invoice. Kept in one place because it appears on the proforma,
 // in the imprint and in customs paperwork, and the three must not drift apart.
 export const COMPANY = {
-  legalName: 'ФОП Косенко Микола Степанович',
+  legalName: 'ФОП Масний Олександр Сергійович',
   tradingName: 'Гарт',
   addressLines: ['Ukraine'],
-  taxId: '3251211798',
+  taxId: '3172012013',
   phone: '+380 96 520 33 25',
   phoneHref: 'tel:+380965203325',
   email: 'office@hart-shop.com',
