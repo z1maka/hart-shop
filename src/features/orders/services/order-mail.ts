@@ -172,6 +172,7 @@ export const orderMail = {
       ['Перевозчик', input.carrierName],
       ['Оплата', PAYMENT_ROUTE_RU[order.paymentRoute]],
       ['Товары', itemLines(input.items).join(' · ')],
+      ...(order.customerNote ? [['Комментарий', order.customerNote] as const] : []),
     ]
 
     return deliverNotification(order.id, NotificationKind.OrderPlacedShopMail, () =>
@@ -183,7 +184,7 @@ export const orderMail = {
       html: `<table>${rows
         .map(
           ([label, value]) =>
-            `<tr><th align="left">${label}</th><td>${escapeHtml(value)}</td></tr>`,
+            `<tr><th align="left">${label}</th><td style="white-space:pre-line">${escapeHtml(value)}</td></tr>`,
         )
         .join('')}</table>`,
       }),

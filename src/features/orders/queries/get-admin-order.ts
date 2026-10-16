@@ -149,6 +149,7 @@ export type AdminOrderView = {
   readonly paidAt: string | null
   readonly buyerCompany: string | null
   readonly invoiceNumber: string | null
+  readonly customerNote: string | null
   // The channel the buyer came from; null when unknown (tracking refused,
   // or placed before the shop recorded it).
   readonly traffic: OrderTraffic | null
@@ -200,6 +201,7 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrderView | n
     paidAt: order.paidAt ? formatDateTime(order.paidAt) : null,
     buyerCompany: order.buyerCompany,
     invoiceNumber: order.invoiceNumber,
+    customerNote: order.customerNote,
     traffic: order.trafficSource
       ? { source: order.trafficSource, detail: order.trafficDetail }
       : null,

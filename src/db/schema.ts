@@ -321,6 +321,9 @@ export const orders = pgTable(
     deliveryKind: text('delivery_kind').notNull().default(DeliveryKind.Branch),
     pickupPointRef: text('pickup_point_ref'),
     pickupPointLabel: text('pickup_point_label'),
+    // What the buyer wrote at checkout about the order (when to call, which
+    // size, how to pack); null when they left nothing.
+    customerNote: text('customer_note'),
     country: char('country', { length: 2 }).notNull().default('UA'),
     carrier: carrierEnum('carrier'),
     // Which cabinet the waybill was issued from; printing, tracking and

@@ -78,6 +78,7 @@ function placeOrder(paymentRoute: PaymentRoute) {
     cardProvider: null,
     address: { fullName: 'Іван Коваль', line1: '', city: 'Львів', phone: '+380631234567' },
     pickupPoint: { ref: 'point-1', label: 'Львів, відділення №12' },
+    customerNote: 'Передзвоніть після 18:00',
     callbackOrigin: 'https://fox-armor-ua.vercel.app',
     traffic: { source: 'google_ads', detail: null },
   })
@@ -122,6 +123,14 @@ describe('checkoutService.placeOrder — paying by transfer', () => {
 
     expect(mocks.createPendingOrder).toHaveBeenCalledWith(
       expect.objectContaining({ traffic: { source: 'google_ads', detail: null } }),
+    )
+  })
+
+  it("keeps the buyer's note on the order", async () => {
+    await placeOrder(PaymentRoute.CashOnDelivery)
+
+    expect(mocks.createPendingOrder).toHaveBeenCalledWith(
+      expect.objectContaining({ customerNote: 'Передзвоніть після 18:00' }),
     )
   })
 

@@ -12,7 +12,8 @@ import { deliveryKindsFor, MANUAL_PICKUP_POINT_REF, needsStreetAddress } from '@
 import { startCheckoutAction } from '@/features/checkout/actions/checkout-actions'
 import { PickupPointPicker } from '@/features/checkout/ui/PickupPointPicker'
 import { cn } from '@/lib/utils'
-import { inputClassName } from '@/components/ui/Field'
+import { inputClassName, textareaClassName } from '@/components/ui/Field'
+import { ORDER_NOTE_MAX_LENGTH } from '@/features/checkout/model/order-note'
 
 type PaymentChoice = {
   readonly key: string
@@ -83,6 +84,7 @@ export function CheckoutFlow({
   const [manualPoint, setManualPoint] = useState('')
   const [pickupPoint, setPickupPoint] = useState<{ ref: string; label: string } | null>(null)
   const [choiceKey, setChoiceKey] = useState<string>(PaymentRoute.CashOnDelivery)
+  const [note, setNote] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [invalidFields, setInvalidFields] = useState<readonly string[]>([])
   const [isPending, startTransition] = useTransition()
@@ -254,6 +256,7 @@ export function CheckoutFlow({
           phone: phone.trim(),
         },
         pickupPoint: chosenPoint,
+        note,
       })
 
       if (!result.ok) {
@@ -513,6 +516,18 @@ export function CheckoutFlow({
             })}
           </div>
 
+          <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
+            {t('noteLabel')}
+            <textarea
+              name="order-note"
+              rows={3}
+              maxLength={ORDER_NOTE_MAX_LENGTH}
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              placeholder={t('notePlaceholder')}
+              className={cn(textareaClassName, 'min-h-24 font-normal')}
+            />
+          </label>
 
           <div className="flex flex-wrap gap-3">
             <Button variant="secondary" onClick={() => setStep(2)} className={BACK_BUTTON_CLASS}>

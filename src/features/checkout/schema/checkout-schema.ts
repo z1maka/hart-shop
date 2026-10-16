@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { Carrier, DeliveryKind, PaymentRoute } from '@/db/enums'
+import { ORDER_NOTE_MAX_LENGTH } from '@/features/checkout/model/order-note'
 
 const carriers = Object.values(Carrier) as [Carrier, ...Carrier[]]
 const kinds = Object.values(DeliveryKind) as [DeliveryKind, ...DeliveryKind[]]
@@ -7,6 +8,7 @@ const routes = Object.values(PaymentRoute) as [PaymentRoute, ...PaymentRoute[]]
 
 const line = z.string().trim().min(1).max(120)
 const optionalLine = z.string().trim().max(120)
+const orderNote = z.string().trim().max(ORDER_NOTE_MAX_LENGTH).optional()
 
 // A parcel needs somewhere to go: the carrier takes the money on delivery,
 // not the address.
@@ -37,6 +39,7 @@ export const StartCheckoutSchema = z
     cardProvider: z.string().trim().max(40).optional(),
     address: ShippingAddressSchema,
     pickupPoint: PickupPointSchema.optional(),
+    note: orderNote,
   })
   .refine(
     (value) =>
@@ -51,6 +54,7 @@ export const StartCheckoutSchema = z
 // the recipient, picking a branch or paying by card is the full checkout.
 export const QuickOrderSchema = z.object({
   phone: z.string().trim().min(6).max(32),
+  note: orderNote,
 })
 
 export type StartCheckoutInput = z.infer<typeof StartCheckoutSchema>

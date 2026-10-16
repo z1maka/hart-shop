@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
+import { textareaClassName } from '@/components/ui/Field'
 import { isUaPhoneComplete, UaPhoneInput } from '@/components/ui/UaPhoneField'
 import { trackEvent, type AnalyticsItem } from '@/features/analytics'
 import { quickOrderAction } from '@/features/checkout/actions/checkout-actions'
+import { ORDER_NOTE_MAX_LENGTH } from '@/features/checkout/model/order-note'
 import { PHONE_HANDOFF_KEY } from '@/features/checkout/model/phone-handoff'
+import { cn } from '@/lib/utils'
 
 type QuickOrderPanelProps = {
   readonly totalLabel: string
@@ -29,6 +32,8 @@ export function QuickOrderPanel({
   const t = useTranslations('cart')
   const router = useRouter()
   const [phone, setPhone] = useState('')
+  const [note, setNote] = useState('')
+  const [isNoteOpen, setIsNoteOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -42,7 +47,7 @@ export function QuickOrderPanel({
     trackEvent({ name: 'begin_checkout', items: analyticsItems, valueCents: totalCents })
 
     startTransition(async () => {
-      const result = await quickOrderAction({ phone })
+      const result = await quickOrderAction({ phone, note })
 
       if (result.ok) {
         router.push(result.data)
@@ -80,6 +85,32 @@ export function QuickOrderPanel({
           isEmphasised
         />
       </label>
+
+      {/* Folded by default: the panel promises an order by phone alone, and
+          the few with something to add open the field themselves. */}
+      {isNoteOpen ? (
+        <label className="mt-3 flex flex-col gap-1.5 text-[12.5px] font-bold text-khaki">
+          {t('quickOrder.noteLabel')}
+          <textarea
+            name="quick-order-note"
+            rows={3}
+            maxLength={ORDER_NOTE_MAX_LENGTH}
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder={t('quickOrder.notePlaceholder')}
+            autoFocus
+            className={cn(textareaClassName, 'min-h-20 border-transparent font-normal')}
+          />
+        </label>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setIsNoteOpen(true)}
+          className="mt-2.5 text-[12.5px] font-bold text-khaki hover:underline"
+        >
+          {t('quickOrder.noteToggle')}
+        </button>
+      )}
 
       <Button
         size="lg"

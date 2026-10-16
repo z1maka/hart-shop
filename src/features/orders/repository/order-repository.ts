@@ -190,6 +190,7 @@ export type OrderDraft = {
   readonly deliveryKind: DeliveryKind
   readonly pickupPointRef: string | null
   readonly pickupPointLabel: string | null
+  readonly customerNote: string | null
   readonly country: string
   readonly carrier: Carrier
   readonly bankRequisites: BankAccountDraft | null
@@ -241,6 +242,7 @@ export const orderRepository = {
           deliveryKind: draft.deliveryKind,
           pickupPointRef: draft.pickupPointRef,
           pickupPointLabel: draft.pickupPointLabel,
+          customerNote: draft.customerNote,
           country: draft.country,
           carrier: draft.carrier,
           bankRequisites: draft.bankRequisites,

@@ -65,6 +65,16 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
 
       <div className="flex flex-wrap items-start gap-4">
         <div className="grid min-w-[min(100%,340px)] flex-[999_1_460px] gap-4">
+          {/* Above the lines: the buyer's words can change what goes in the box. */}
+          {order.customerNote ? (
+            <section className="rounded-card border border-accent-edge bg-accent-tint p-5">
+              <h2 className="mb-2 text-[14px] font-semibold text-ink">Комментарий покупателя</h2>
+              <p className="text-[13.5px] leading-relaxed whitespace-pre-line text-ink">
+                {order.customerNote}
+              </p>
+            </section>
+          ) : null}
+
           <section className="rounded-card border border-subtle bg-surface p-5">
             <h2 className="mb-3 text-[14px] font-semibold text-ink">Состав заказа</h2>
             <div className="overflow-x-auto">

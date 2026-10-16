@@ -27,6 +27,7 @@ export type OrderDraftInput = {
   readonly address: Omit<ShippingAddress, 'country'>
   readonly deliveryKind: DeliveryKind
   readonly pickupPoint: { readonly ref: string; readonly label: string } | null
+  readonly customerNote: string | null
   // The account a transfer order is told to pay to, fixed at checkout.
   readonly bankRequisites: BankAccountDraft | null
   // The channel the shopper came from; null when unknown.
@@ -64,6 +65,7 @@ export const orderService = {
       deliveryKind: input.deliveryKind,
       pickupPointRef: input.pickupPoint?.ref ?? null,
       pickupPointLabel: input.pickupPoint?.label ?? null,
+      customerNote: input.customerNote,
       country: COUNTRY,
       carrier: input.carrier,
       bankRequisites: input.bankRequisites,

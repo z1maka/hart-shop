@@ -38,6 +38,8 @@ export type PlaceOrderInput = {
   readonly cardProvider: string | null
   readonly address: ShippingAddressInput
   readonly pickupPoint?: { readonly ref: string; readonly label: string }
+  // The buyer's own words about the order; null when they left none.
+  readonly customerNote: string | null
   // Where the acquirer returns the buyer and sends its webhook: the host this
   // checkout ran on, so a deployment always hears about its own payments.
   readonly callbackOrigin: string
@@ -72,6 +74,7 @@ export const checkoutService = {
         address: input.address,
         deliveryKind: input.deliveryKind,
         pickupPoint: input.pickupPoint ?? null,
+        customerNote: input.customerNote,
         bankRequisites,
         traffic: input.traffic,
       })

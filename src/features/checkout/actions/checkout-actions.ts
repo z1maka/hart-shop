@@ -3,6 +3,7 @@
 import { Carrier, DeliveryKind, PaymentRoute } from '@/db/enums'
 import { readTrafficTouch } from '@/features/analytics/session'
 import { clearCartId, readCartId } from '@/features/cart/session'
+import { normalizeOrderNote } from '@/features/checkout/model/order-note'
 import { checkoutService } from '@/features/checkout/services/create-session'
 import { QUICK_ORDER_POINT_REF } from '@/features/orders'
 import { QuickOrderSchema, StartCheckoutSchema } from '@/features/checkout/schema/checkout-schema'
@@ -27,6 +28,7 @@ export async function startCheckoutAction(input: unknown): Promise<ActionResult<
       cardProvider: parsed.data.cardProvider ?? null,
       address: parsed.data.address,
       pickupPoint: parsed.data.pickupPoint,
+      customerNote: normalizeOrderNote(parsed.data.note),
       callbackOrigin: await requestOrigin(),
       traffic: await readTrafficTouch(),
     })
@@ -72,6 +74,7 @@ export async function quickOrderAction(input: unknown): Promise<ActionResult<str
         phone: parsed.data.phone,
       },
       pickupPoint: point,
+      customerNote: normalizeOrderNote(parsed.data.note),
       callbackOrigin: await requestOrigin(),
       traffic: await readTrafficTouch(),
     })

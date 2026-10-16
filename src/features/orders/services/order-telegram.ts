@@ -40,6 +40,7 @@ export const orderTelegram = {
       `Доставка: ${escapeHtml([address.line1, address.city].filter(Boolean).join(', '))}`,
       `Перевозчик: ${escapeHtml(input.carrierName)}`,
       `Оплата: ${PAYMENT_ROUTE_RU[order.paymentRoute]}`,
+      ...(order.customerNote ? ['', `Комментарий: ${escapeHtml(order.customerNote)}`] : []),
       '',
       'Товары:',
       ...itemLines(input.items).map((line) => `• ${escapeHtml(line)}`),
