@@ -1,17 +1,12 @@
 import type { PaymentProvider } from '@/features/checkout/model/payment'
 import { monoPaymentProvider } from '@/features/checkout/services/mono-provider'
-import { wayforpayPaymentProvider } from '@/features/checkout/services/wayforpay-provider'
 import { isMonoConfigured } from '@/lib/mono'
-import { isWayforpayConfigured } from '@/lib/wayforpay'
 
-// The shop runs both acquirers and the buyer picks one at checkout; mono
-// leads because it is the shop's own, and the order records which one took
-// the money.
+// The acquirers this shop runs, in the order checkout offers them. Only mono
+// since 16.10.2026 (the owner dropped WayForPay); a second one is a new
+// provider added here, and the order records which one took the money.
 export function availableCardProviders(): readonly PaymentProvider[] {
-  return [
-    ...(isMonoConfigured() ? [monoPaymentProvider] : []),
-    ...(isWayforpayConfigured() ? [wayforpayPaymentProvider] : []),
-  ]
+  return isMonoConfigured() ? [monoPaymentProvider] : []
 }
 
 // What a buyer who expressed no preference gets, and what an older client

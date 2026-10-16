@@ -213,8 +213,7 @@ function Summary({
   readonly order: NonNullable<PaymentReturnView['order']>
   readonly t: Translator
 }) {
-  const provider =
-    order.providerId === 'mono' || order.providerId === 'wayforpay' ? order.providerId : 'other'
+  const provider = order.providerId === 'mono' ? order.providerId : 'other'
 
   return (
     <dl className="grid overflow-hidden rounded-card border border-subtle bg-surface/90 shadow-card backdrop-blur-sm sm:grid-cols-3">

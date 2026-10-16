@@ -28,7 +28,7 @@ export function returnOutcomeOf(status: PaymentStatus): ReturnOutcome {
   return OUTCOME_BY_STATUS[status]
 }
 
-// Both acquirers send the buyer here: mono with a GET, WayForPay with a POST.
+// mono sends the buyer back here with a GET.
 // The order is named by its access token — unguessable, unlike the order
 // number, which would let anyone walk through other buyers' orders.
 export const PAYMENT_RETURN_PATH = '/api/payments/return/'

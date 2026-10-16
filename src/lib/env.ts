@@ -127,11 +127,6 @@ const envSchema = z.object({
   // crons). Absent = the cron routes refuse every call.
   CRON_SECRET: optionalString,
 
-  // WayForPay acquiring, inherited from the WordPress shop. Both values come
-  // from the merchant cabinet; while either is absent the card route falls
-  // back to mono, and without a real mono token cards are hidden entirely.
-  WAYFORPAY_MERCHANT_ACCOUNT: optionalString,
-  WAYFORPAY_MERCHANT_SECRET: optionalString,
 })
 
 export type Env = z.infer<typeof envSchema>
