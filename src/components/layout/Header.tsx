@@ -54,9 +54,12 @@ const BAR_LINK_CLASS =
 // filled cart stays the strongest thing in the bar. A tablet has room for it
 // beside the drawer button; from 1024px the menus take that room until 1210px,
 // where it heads «Більше» instead. A phone has it in the strip above (TopBar)
-// and second in the drawer.
+// and second in the drawer. The two shown ranges must not overlap a hiding
+// rule: Tailwind emits px breakpoints before its rem ones, so an `lg:hidden`
+// here outranked `min-[1210px]:inline-flex` and kept the button off every
+// desktop (found 16.10.2026).
 const CUSTOM_ORDER_CTA = {
-  bar: 'hidden md:inline-flex lg:hidden min-[1210px]:inline-flex',
+  bar: 'hidden md:max-lg:inline-flex min-[1210px]:inline-flex',
   menu: 'min-[1210px]:hidden',
 } as const
 const CUSTOM_ORDER_CTA_CLASS = cn(
