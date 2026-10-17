@@ -2,6 +2,14 @@
 // longer published drops out of its block (and is logged), so a stale entry
 // never turns into a dead link. Each key names its words in uk.json `home`.
 
+// The first screen's photo, chosen by the owner (17.10.2026) and shown as
+// taken: a person in the 3D-leaf poncho. A file of its own, not a product
+// cover, so a product's gallery and the hero never move together.
+export const HERO_PHOTO = {
+  url: '/home/hero-poncho-3d.webp',
+  alt: 'Маскувальне пончо з 3D-листям у осінній посадці',
+} as const
+
 // The owner's photo for the home page: the range blending into terrain says
 // more than one product's studio frame. The file lives in public/home.
 const FIELD_PHOTO = {

@@ -6,7 +6,6 @@ import { getTranslations } from 'next-intl/server'
 import { JsonLd } from '@/components/JsonLd'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { HERO_PRODUCT_SLUG } from '@/config/catalog'
 import { CUSTOM_ORDER_HREF } from '@/config/custom-order'
 import { FABRIC_LAYERS } from '@/config/fabric-layers'
 import { CONTACT_CHANNELS } from '@/config/contact'
@@ -14,6 +13,7 @@ import { COMPANY } from '@/config/company'
 import {
   HOME_FABRIC_GUIDE_HREF,
   HOME_FACT_KEYS,
+  HERO_PHOTO,
   HOME_FAQ_KEYS,
   HOME_FEATURED_COUNT,
   HOME_STARLINK_CHOOSER,
@@ -149,9 +149,7 @@ async function Hero() {
         </p>
       </div>
 
-      <Suspense fallback={<Skeleton className="aspect-5/4 w-full rounded-card" />}>
-        <HeroImage cardTitle={t('heroCardTitle')} cardSub={t('heroCardSub')} />
-      </Suspense>
+      <HeroImage cardTitle={t('heroCardTitle')} cardSub={t('heroCardSub')} />
     </section>
   )
 }
@@ -161,18 +159,13 @@ type HeroImageProps = {
   readonly cardSub: string
 }
 
-async function HeroImage({ cardTitle, cardSub }: HeroImageProps) {
-  const cover =
-    (await getProductCover(HERO_PRODUCT_SLUG)) ?? (await getCategoryCover('anti-dronovi-nakidki'))
-
-  if (!cover) return <Skeleton className="aspect-5/4 w-full rounded-card" />
-
+function HeroImage({ cardTitle, cardSub }: HeroImageProps) {
   return (
     <div className="relative">
       <div className="relative aspect-5/4 overflow-hidden rounded-card bg-sunken shadow-hero">
         <Image
-          src={cover.url}
-          alt={cover.alt}
+          src={HERO_PHOTO.url}
+          alt={HERO_PHOTO.alt}
           fill
           sizes={HERO_IMAGE_SIZES}
           priority

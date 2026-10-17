@@ -1,10 +1,5 @@
 export const MAX_COMPARED_PRODUCTS = 4
 
-// The home hero shows this product's photo. Without the override the hero, the
-// "On the move" card and the first best-seller all render the same cover —
-// three copies of one photo on a single page.
-export const HERO_PRODUCT_SLUG = 'anty-teploviziyna-nakydka-poncho-multi-a-6286'
-
 // The categories the workshop sews itself. Their pages carry the maker's
 // note (own production, no foil, maker's prices) that used to open every
 // description in capitals; bought-in gear does not make that claim.
