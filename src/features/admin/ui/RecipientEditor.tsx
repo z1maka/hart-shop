@@ -18,6 +18,8 @@ type RecipientEditorProps = {
   readonly orderId: string
   readonly draft: RecipientDraft
   readonly buyerPointLabel: string | null
+  // The order's own branch or locker, kept chosen when only the name changes.
+  readonly current?: PointChoice | null
   // This phone's previous order, offered to fill the form in one click.
   readonly previous?: PreviousRecipient | null
   readonly parcelWeightGrams: number
@@ -32,6 +34,7 @@ export function RecipientEditor({
   orderId,
   draft,
   buyerPointLabel,
+  current = null,
   previous = null,
   parcelWeightGrams,
   onDone,
@@ -40,10 +43,11 @@ export function RecipientEditor({
   const [firstName, setFirstName] = useState(draft.firstName)
   const [lastName, setLastName] = useState(draft.lastName)
   const [phone, setPhone] = useState(maskUaPhone(draft.phone))
-  const [choice, setChoice] = useState<PointChoice | null>(null)
-  // A point taken from the previous order has no city picked in the picker,
-  // so it is shown on its own until the admin asks to change it.
-  const [isChoiceFromPrevious, setIsChoiceFromPrevious] = useState(false)
+  const [choice, setChoice] = useState<PointChoice | null>(current)
+  // A point already on the order, or taken from the previous one, has no city
+  // picked in the picker, so it is shown on its own until the admin asks to
+  // change it.
+  const [isChoiceShownAlone, setIsChoiceShownAlone] = useState(current !== null)
   const [notice, setNotice] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -59,12 +63,12 @@ export function RecipientEditor({
       pointName: entry.pointName,
       settlementName: entry.settlementName,
     })
-    setIsChoiceFromPrevious(true)
+    setIsChoiceShownAlone(true)
   }
 
-  function clearPreviousChoice() {
+  function clearShownChoice() {
     setChoice(null)
-    setIsChoiceFromPrevious(false)
+    setIsChoiceShownAlone(false)
   }
 
   function save() {
@@ -97,7 +101,7 @@ export function RecipientEditor({
   return (
     <div className="grid gap-3 border-t border-subtle pt-3">
       <p className="text-[13px] font-semibold text-ink">Получатель и отделение</p>
-      {previous && !isChoiceFromPrevious ? (
+      {previous && !isChoiceShownAlone ? (
         <PreviousOffer previous={previous} onUse={() => applyPrevious(previous)} />
       ) : null}
       <div className="grid gap-3 sm:grid-cols-2">
@@ -110,10 +114,10 @@ export function RecipientEditor({
           Покупатель выбрал: «{buyerPointLabel}»
         </p>
       ) : null}
-      {isChoiceFromPrevious && choice ? (
+      {isChoiceShownAlone && choice ? (
         <Chosen
           label={`${choice.pointName} · ${choice.settlementName}`}
-          onChange={clearPreviousChoice}
+          onChange={clearShownChoice}
         />
       ) : (
         <AdminPointPicker

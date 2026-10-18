@@ -59,16 +59,20 @@ export type AdminOrderLine = {
   readonly linePriceLabel: string
 }
 
-// The recipient of this phone's previous order, offered on a quick order so
-// a returning buyer is not asked for the same branch twice.
-export type PreviousRecipient = {
-  readonly orderNumber: string
-  readonly firstName: string
-  readonly lastName: string
+// A branch or locker as the recipient form shows it once chosen.
+export type RecipientPoint = {
   readonly kind: typeof DeliveryKind.Branch | typeof DeliveryKind.Locker
   readonly pointRef: string
   readonly pointName: string
   readonly settlementName: string
+}
+
+// The recipient of this phone's previous order, offered on a quick order so
+// a returning buyer is not asked for the same branch twice.
+export type PreviousRecipient = RecipientPoint & {
+  readonly orderNumber: string
+  readonly firstName: string
+  readonly lastName: string
 }
 
 // Where the parcel is, in the carrier's own words, as the hourly tracking
@@ -107,6 +111,9 @@ export type AdminWaybillView = SenderChoices & {
   readonly mustSettleRecipient: boolean
   readonly recipient: RecipientDraft
   readonly previousRecipient: PreviousRecipient | null
+  // Where the parcel goes now: correcting only the name keeps it chosen
+  // instead of sending the admin back to the city and branch search.
+  readonly currentPoint: RecipientPoint | null
   // What the buyer chose or typed, to find the same point by.
   readonly buyerPointLabel: string | null
   // A courier order issues its waybill to a door picked on the form.
@@ -236,9 +243,10 @@ async function waybillViewOf(
   items: readonly OrderItemRow[],
 ): Promise<AdminWaybillView> {
   const carrier = order.carrier ?? Carrier.NovaPost
-  const [blocker, senderChoices] = await Promise.all([
+  const [blocker, senderChoices, currentPoint] = await Promise.all([
     waybillBlockerOf(order, carrier),
     senderChoicesOf(order, carrier),
+    order.carrierDocumentRef ? null : currentPointOf(order, carrier),
   ])
   const mustSettleRecipient = isSettledByRecipient(blocker)
   const cod = codCents(order)
@@ -255,6 +263,7 @@ async function waybillViewOf(
     mustSettleRecipient,
     recipient: recipientDraft(order),
     previousRecipient: mustSettleRecipient ? await previousRecipientOf(order, carrier) : null,
+    currentPoint,
     buyerPointLabel: isQuickOrder(order.pickupPointRef) ? null : order.pickupPointLabel,
     isCourier: isCourierOrder(order),
     buyerAddress: isCourierOrder(order) ? typedAddress(order.shippingAddress) : null,
@@ -353,6 +362,19 @@ function typedAddress(address: ShippingAddress): string {
 // A returning buyer's last few orders are enough to find a branch that is
 // still open.
 const PREVIOUS_ORDERS_CHECKED = 5
+
+// The order's own branch or locker while the carrier still knows it; a quick
+// order's placeholder or a point typed by hand has nothing to offer.
+async function currentPointOf(order: OrderRow, carrier: Carrier): Promise<RecipientPoint | null> {
+  const ref = order.pickupPointRef
+  if (!ref || ref === QUICK_ORDER_POINT_REF || ref === MANUAL_PICKUP_POINT_REF) return null
+
+  const settlementName = settlementOfLabel(order.pickupPointLabel)
+  const point = await pickupDirectoryFor(carrier).findPickupPoint(ref)
+  if (!point || point.kind === DeliveryKind.Courier || !settlementName) return null
+
+  return { kind: point.kind, pointRef: point.ref, pointName: point.name, settlementName }
+}
 
 async function previousRecipientOf(
   order: OrderRow,

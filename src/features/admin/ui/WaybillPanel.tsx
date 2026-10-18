@@ -76,6 +76,7 @@ function WaybillBody({ orderId, waybill, trackingNumber, trackingUrl }: WaybillP
             orderId={orderId}
             draft={waybill.recipient}
             buyerPointLabel={waybill.buyerPointLabel}
+            current={waybill.currentPoint}
             previous={waybill.previousRecipient}
             parcelWeightGrams={waybill.weightGrams}
           />
@@ -231,6 +232,7 @@ function IssueForm({
           orderId={orderId}
           draft={waybill.recipient}
           buyerPointLabel={waybill.buyerPointLabel}
+          current={waybill.currentPoint}
           parcelWeightGrams={waybill.weightGrams}
           onDone={() => setIsEditingRecipient(false)}
         />
