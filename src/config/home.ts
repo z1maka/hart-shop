@@ -17,10 +17,10 @@ const FIELD_PHOTO = {
   alt: 'Маскувальне пончо з 3D-листям зі спини в осінній посадці',
 } as const
 
-const BLANKET_SLUG =
+export const BLANKET_SLUG =
   'anty-teploviziyne-odeyalo-zakhysna-nakydka-vid-droniv-zakhyshchaye-vid-teploviziynoho-sposterezhennya'
 
-const TENT_SLUG =
+export const TENT_SLUG =
   'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor'
 
 // Where a tile's picture comes from: the owner's own photo, one product's

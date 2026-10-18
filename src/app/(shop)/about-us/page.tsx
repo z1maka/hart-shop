@@ -1,11 +1,17 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Suspense } from 'react'
-import { Skeleton } from '@/components/ui/Skeleton'
-import { getCategoryCover } from '@/features/catalog'
 import { getActiveBankAccount } from '@/features/billing'
 import { getTranslations } from 'next-intl/server'
+import { ABOUT_COLLAGE } from '@/config/about'
 import { COMPANY } from '@/config/company'
+import { cn } from '@/lib/utils'
+
+// A quarter of the hero: half a column (two columns from 772px in the 1440px
+// shell, 28px page padding, 36px gap) less the 10px gap between tiles.
+const COLLAGE_TILE_SIZES =
+  '(min-width: 1440px) 332px, (min-width: 772px) calc(25vw - 28px), calc(50vw - 33px)'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('meta')
@@ -62,9 +68,30 @@ export default async function AboutPage() {
           </dl>
         </div>
 
-        <Suspense fallback={<Skeleton className="aspect-5/4 w-full rounded-card" />}>
-          <WorkshopImage />
-        </Suspense>
+        <ul className="grid aspect-5/4 grid-cols-2 grid-rows-2 gap-2.5">
+          {ABOUT_COLLAGE.map((tile) => (
+            <li key={tile.key}>
+              <Link
+                href={tile.href}
+                className="group relative block size-full overflow-hidden rounded-card bg-sunken shadow-card"
+              >
+                <Image
+                  src={tile.url}
+                  alt={tile.alt}
+                  fill
+                  sizes={COLLAGE_TILE_SIZES}
+                  className={cn(
+                    'object-cover transition-transform duration-300 group-hover:scale-[1.03]',
+                    tile.focus,
+                  )}
+                />
+                <span className="absolute bottom-2.5 left-2.5 rounded-control border-l-[3px] border-khaki bg-header px-3 py-1.5 text-[12.5px] font-bold text-on-dark">
+                  {t(`collage.${tile.key}`)}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5 px-7 pb-12">
@@ -140,23 +167,5 @@ async function SellerAccount() {
         {requisites.bankName}, {t('sellerMfo')} {requisites.mfo}
       </dd>
     </>
-  )
-}
-
-async function WorkshopImage() {
-  const cover = await getCategoryCover('anti-dronovi-nakidki')
-
-  if (!cover) return <Skeleton className="aspect-5/4 w-full rounded-card" />
-
-  return (
-    <div className="relative aspect-5/4 overflow-hidden rounded-card bg-sunken shadow-hero">
-      <Image
-        src={cover.url}
-        alt={cover.alt}
-        fill
-        sizes="(min-width: 1024px) 620px, 100vw"
-        className="object-cover"
-      />
-    </div>
   )
 }
