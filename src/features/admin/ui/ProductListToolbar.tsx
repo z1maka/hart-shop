@@ -1,7 +1,9 @@
 import { ADMIN_PRODUCTS_PER_PAGE } from '@/config/admin'
+import Link from 'next/link'
 import {
   catalogHref,
   CatalogSort,
+  CatalogView,
   type CatalogFilters,
 } from '@/features/admin/model/catalog-filters'
 import { NavigateSelect } from '@/features/admin/ui/NavigateSelect'
@@ -16,6 +18,12 @@ const SORT_LABELS: Record<CatalogSort, string> = {
   [CatalogSort.PriceDesc]: 'сначала дороже',
   [CatalogSort.Updated]: 'недавно изменённые',
   [CatalogSort.Position]: 'по позиции в каталоге',
+  [CatalogSort.Status]: 'по статусу',
+}
+
+const VIEW_LABELS: Record<CatalogView, string> = {
+  [CatalogView.Table]: 'Таблица',
+  [CatalogView.Cards]: 'Карточки',
 }
 
 export function ProductListToolbar({ filters }: { readonly filters: CatalogFilters }) {
@@ -50,11 +58,40 @@ export function ProductListToolbar({ filters }: { readonly filters: CatalogFilte
       </form>
       <SlashFocus targetId={SEARCH_INPUT_ID} />
       <NavigateSelect label="Сортировка:" value={filters.sort} options={sortOptions} />
+      <ViewSwitch filters={filters} />
     </div>
   )
 }
 
-// A new search keeps the category, state, archive, sort and page size the
+function ViewSwitch({ filters }: { readonly filters: CatalogFilters }) {
+  return (
+    <nav
+      aria-label="Вид списка"
+      className="flex rounded-control border-[1.5px] border-strong bg-raised p-0.5"
+    >
+      {Object.values(CatalogView).map((view) => {
+        const isActive = filters.view === view
+        return (
+          <Link
+            key={view}
+            href={catalogHref(filters, { view, page: filters.page }, ADMIN_PRODUCTS_PER_PAGE)}
+            scroll={false}
+            aria-current={isActive ? 'page' : undefined}
+            className={
+              isActive
+                ? 'rounded-[7px] bg-ink px-3.5 py-2 text-[12.5px] font-semibold text-on-dark'
+                : 'rounded-[7px] px-3.5 py-2 text-[12.5px] font-semibold text-muted hover:text-ink'
+            }
+          >
+            {VIEW_LABELS[view]}
+          </Link>
+        )
+      })}
+    </nav>
+  )
+}
+
+// A new search keeps the category, state, archive, sort, view and page size the
 // admin is looking at; only the page starts again.
 function KeptFilters({ filters }: { readonly filters: CatalogFilters }) {
   const kept = Object.entries({
@@ -62,6 +99,7 @@ function KeptFilters({ filters }: { readonly filters: CatalogFilters }) {
     state: filters.state,
     archive: filters.isArchive ? '1' : null,
     sort: filters.sort === CatalogSort.Category ? null : filters.sort,
+    view: filters.view === CatalogView.Table ? null : filters.view,
     size: filters.pageSize === ADMIN_PRODUCTS_PER_PAGE ? null : String(filters.pageSize),
   }).filter((entry): entry is [string, string] => entry[1] !== null)
 

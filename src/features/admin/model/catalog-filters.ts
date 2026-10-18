@@ -22,9 +22,20 @@ export const CatalogSort = {
   Updated: 'updated',
   // The order of «Рекомендовані» in the shop.
   Position: 'position',
+  // Live first, then what buyers cannot see: the order of the state badges.
+  Status: 'status',
 } as const
 
 export type CatalogSort = (typeof CatalogSort)[keyof typeof CatalogSort]
+
+// The table edits weight and position in place; the cards show the photos
+// the way the shop does.
+export const CatalogView = {
+  Table: 'table',
+  Cards: 'cards',
+} as const
+
+export type CatalogView = (typeof CatalogView)[keyof typeof CatalogView]
 
 export type CatalogFilters = {
   readonly search: string
@@ -32,8 +43,37 @@ export type CatalogFilters = {
   readonly state: CatalogState | null
   readonly isArchive: boolean
   readonly sort: CatalogSort
+  readonly view: CatalogView
   readonly page: number
   readonly pageSize: number
+}
+
+export const SortableColumn = {
+  Price: 'price',
+  Position: 'position',
+  Status: 'status',
+} as const
+
+export type SortableColumn = (typeof SortableColumn)[keyof typeof SortableColumn]
+
+export type ColumnSort = {
+  // The sort a click on the header asks for.
+  readonly next: CatalogSort
+  // How the list is sorted by this column now; null when it is not.
+  readonly direction: 'asc' | 'desc' | null
+}
+
+// A header click sorts by its column; the price header flips between cheaper
+// and dearer first, position and status have one natural order.
+export function columnSort(current: CatalogSort, column: SortableColumn): ColumnSort {
+  if (column === SortableColumn.Price) {
+    if (current === CatalogSort.PriceAsc) return { next: CatalogSort.PriceDesc, direction: 'asc' }
+    if (current === CatalogSort.PriceDesc) return { next: CatalogSort.PriceAsc, direction: 'desc' }
+    return { next: CatalogSort.PriceAsc, direction: null }
+  }
+
+  const sort = column === SortableColumn.Position ? CatalogSort.Position : CatalogSort.Status
+  return { next: sort, direction: current === sort ? 'asc' : null }
 }
 
 type SearchParams = Readonly<Record<string, string | string[] | undefined>>
@@ -63,6 +103,7 @@ export function parseCatalogFilters(
     state: oneOf(single(params.state), CatalogState),
     isArchive: single(params.archive) === '1',
     sort: oneOf(single(params.sort), CatalogSort) ?? CatalogSort.Category,
+    view: oneOf(single(params.view), CatalogView) ?? CatalogView.Table,
     page: Number.isInteger(page) && page >= 1 ? page : 1,
     pageSize: pageSizes.includes(pageSize) ? pageSize : defaultSize,
   }
@@ -83,6 +124,7 @@ export function catalogHref(
   if (next.state) params.set('state', next.state)
   if (next.isArchive) params.set('archive', '1')
   if (next.sort !== CatalogSort.Category) params.set('sort', next.sort)
+  if (next.view !== CatalogView.Table) params.set('view', next.view)
   if (next.pageSize !== defaultPageSize) params.set('size', String(next.pageSize))
   if (next.page > 1) params.set('page', String(next.page))
 

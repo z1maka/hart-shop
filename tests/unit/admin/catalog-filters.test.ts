@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest'
 import {
   CatalogSort,
   CatalogState,
+  CatalogView,
   catalogHref,
+  columnSort,
   pageWindow,
   parseCatalogFilters,
+  SortableColumn,
 } from '@/features/admin/model/catalog-filters'
 
 const SIZES = [25, 50, 100]
@@ -19,6 +22,7 @@ describe('parseCatalogFilters', () => {
           state: 'draft',
           archive: '1',
           sort: 'price_desc',
+          view: 'cards',
           page: '3',
           size: '50',
         },
@@ -30,6 +34,7 @@ describe('parseCatalogFilters', () => {
       state: CatalogState.Draft,
       isArchive: true,
       sort: CatalogSort.PriceDesc,
+      view: CatalogView.Cards,
       page: 3,
       pageSize: 50,
     })
@@ -37,13 +42,17 @@ describe('parseCatalogFilters', () => {
 
   it('falls back to defaults for anything missing or unknown', () => {
     expect(
-      parseCatalogFilters({ state: 'out_of_stock', sort: 'random', page: '-2', size: '7' }, SIZES),
+      parseCatalogFilters(
+        { state: 'out_of_stock', sort: 'random', view: 'grid', page: '-2', size: '7' },
+        SIZES,
+      ),
     ).toEqual({
       search: '',
       category: null,
       state: null,
       isArchive: false,
       sort: CatalogSort.Category,
+      view: CatalogView.Table,
       page: 1,
       pageSize: 25,
     })
@@ -51,6 +60,10 @@ describe('parseCatalogFilters', () => {
 
   it('ignores repeated parameters', () => {
     expect(parseCatalogFilters({ q: ['a', 'b'] }, SIZES).search).toBe('')
+  })
+
+  it('reads the status sort', () => {
+    expect(parseCatalogFilters({ sort: 'status' }, SIZES).sort).toBe(CatalogSort.Status)
   })
 })
 
@@ -73,6 +86,14 @@ describe('catalogHref', () => {
     expect(catalogHref(filtered, { page: 2 }, 25)).toBe(
       '/admin/catalog?state=published&size=50&page=2',
     )
+  })
+
+  it('keeps the card view in the address and leaves the table out', () => {
+    const cards = { ...base, view: CatalogView.Cards }
+    expect(catalogHref(cards, { sort: CatalogSort.Status }, 25)).toBe(
+      '/admin/catalog?sort=status&view=cards',
+    )
+    expect(catalogHref(cards, { view: CatalogView.Table }, 25)).toBe('/admin/catalog')
   })
 
   it('clears a filter set to null', () => {
@@ -103,5 +124,35 @@ describe('pageWindow', () => {
 describe('the weight gap as a filter', () => {
   it('is a state the address can carry', () => {
     expect(parseCatalogFilters({ state: 'no_weight' }, [25]).state).toBe(CatalogState.NoWeight)
+  })
+})
+
+describe('columnSort', () => {
+  it('sorts by price cheaper first, then flips on the next click', () => {
+    expect(columnSort(CatalogSort.Category, SortableColumn.Price)).toEqual({
+      next: CatalogSort.PriceAsc,
+      direction: null,
+    })
+    expect(columnSort(CatalogSort.PriceAsc, SortableColumn.Price)).toEqual({
+      next: CatalogSort.PriceDesc,
+      direction: 'asc',
+    })
+    expect(columnSort(CatalogSort.PriceDesc, SortableColumn.Price)).toEqual({
+      next: CatalogSort.PriceAsc,
+      direction: 'desc',
+    })
+  })
+
+  it('sorts by position and status in their one order', () => {
+    expect(columnSort(CatalogSort.Title, SortableColumn.Position)).toEqual({
+      next: CatalogSort.Position,
+      direction: null,
+    })
+    expect(columnSort(CatalogSort.Position, SortableColumn.Position).direction).toBe('asc')
+    expect(columnSort(CatalogSort.Status, SortableColumn.Status)).toEqual({
+      next: CatalogSort.Status,
+      direction: 'asc',
+    })
+    expect(columnSort(CatalogSort.Status, SortableColumn.Price).direction).toBeNull()
   })
 })

@@ -298,6 +298,15 @@ function adminOrder(sort: CatalogSortKey): SQL[] {
 // What the buyer pays: the list shows the sale price, so it sorts by it too.
 const buyerPrice = sql`coalesce(${products.salePriceCents}, ${products.priceCents})`
 
+// The state badges in the order the list shows them: on sale, out of stock,
+// draft, hidden with its category. The stock is the grouped variants' sum.
+const stateRank = sql`case
+  when not ${categories.isVisible} then 3
+  when ${products.status} <> ${ProductStatus.Published} then 2
+  when coalesce(sum(${productVariants.stockQty}), 0) = 0 then 1
+  else 0
+end`
+
 function sortKeys(sort: CatalogSortKey): SQL[] {
   switch (sort) {
     case CatalogSort.Title:
@@ -311,6 +320,8 @@ function sortKeys(sort: CatalogSortKey): SQL[] {
     // The shop's «Рекомендовані» order, so the owner sees the shelf they set.
     case CatalogSort.Position:
       return [sql`${products.catalogOrder} asc nulls last`, asc(products.title)]
+    case CatalogSort.Status:
+      return [asc(stateRank), asc(products.title)]
     case CatalogSort.Category:
       return [asc(categories.position), asc(products.title)]
   }

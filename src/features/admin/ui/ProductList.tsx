@@ -10,36 +10,24 @@ import { errorText } from '@/features/admin/ui/messages'
 import { ProductPublishToggle } from '@/features/admin/ui/ProductPublishToggle'
 import { CatalogPositionCell } from '@/features/admin/ui/CatalogPositionCell'
 import { WeightCell } from '@/features/admin/ui/WeightCell'
-import type { AdminProductRow, AdminProductState } from '@/features/admin/queries/get-admin-catalog'
+import type { AdminProductRow } from '@/features/admin/queries/get-admin-catalog'
+import type { ColumnSort, SortableColumn } from '@/features/admin/model/catalog-filters'
+import { ProductStateBadge } from '@/features/admin/ui/ProductStateBadge'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 
-// The state names as the admin reads them; out of stock stays visible in
-// the row even though it is not a filter.
-const STATE_LABELS: Record<AdminProductState, string> = {
-  published: 'Опубликован',
-  out_of_stock: 'Нет в наличии',
-  draft: 'Черновик',
-  category_hidden: 'Скрыт с категорией',
-  archived: 'Архив',
-}
-
-const STATE_CLASSES: Record<AdminProductState, string> = {
-  published: 'bg-accent-soft text-accent-hover',
-  out_of_stock: 'bg-alert-soft text-alert',
-  draft: 'bg-sunken text-muted',
-  category_hidden: 'bg-sunken text-muted',
-  archived: 'bg-sunken text-muted',
-}
-
 const headerCell = 'p-3 text-[12px] font-semibold whitespace-nowrap text-muted'
+
+// Where a click on a sortable header leads, and how that column sorts now.
+export type SortHeaders = Readonly<Record<SortableColumn, ColumnSort & { readonly href: string }>>
 
 type ProductListProps = {
   readonly rows: readonly AdminProductRow[]
   readonly isArchive: boolean
+  readonly sortHeaders: SortHeaders
 }
 
-export function ProductList({ rows, isArchive }: ProductListProps) {
+export function ProductList({ rows, isArchive, sortHeaders }: ProductListProps) {
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
   // Only a product whose category is on the shop can be published on its own.
   const selectable = rows.filter((row) => !row.isCategoryHidden).map((row) => row.slug)
@@ -79,16 +67,20 @@ export function ProductList({ rows, isArchive }: ProductListProps) {
               </th>
               <th className={cn(headerCell, 'w-full')}>Товар</th>
               <th className={headerCell}>Артикул</th>
-              <th className={cn(headerCell, 'text-right')}>Цена</th>
+              <th className={cn(headerCell, 'text-right')}>
+                <SortLink sort={sortHeaders.price}>Цена</SortLink>
+              </th>
               <th className={cn(headerCell, 'text-right')}>Вес, кг</th>
               <th
                 className={cn(headerCell, 'text-right')}
                 title="Порядок в «Рекомендовані» на сайте"
               >
-                Позиция
+                <SortLink sort={sortHeaders.position}>Позиция</SortLink>
               </th>
               <th className={cn(headerCell, 'text-right')}>Остаток</th>
-              <th className={headerCell}>Состояние</th>
+              <th className={headerCell}>
+                <SortLink sort={sortHeaders.status}>Состояние</SortLink>
+              </th>
               <th className={cn(headerCell, 'pr-4 text-right')}>Действие</th>
             </tr>
           </thead>
@@ -234,14 +226,7 @@ function ProductRow({ product, isSelected, onToggle }: ProductRowProps) {
         {product.stock}
       </td>
       <td className="p-3">
-        <span
-          className={cn(
-            'inline-block rounded-pill px-2.5 py-1.5 text-[11px] font-semibold whitespace-nowrap',
-            STATE_CLASSES[product.state],
-          )}
-        >
-          {STATE_LABELS[product.state]}
-        </span>
+        <ProductStateBadge state={product.state} />
       </td>
       <td className="p-3 pr-4 text-right">
         <ProductPublishToggle
@@ -253,6 +238,33 @@ function ProductRow({ product, isSelected, onToggle }: ProductRowProps) {
         />
       </td>
     </tr>
+  )
+}
+
+const SORT_ARROWS = { asc: '↑', desc: '↓' } as const
+
+function SortLink({
+  sort,
+  children,
+}: {
+  readonly sort: ColumnSort & { readonly href: string }
+  readonly children: string
+}) {
+  return (
+    <Link
+      href={sort.href}
+      scroll={false}
+      className={cn(
+        'inline-flex items-center gap-1 hover:text-ink hover:underline',
+        sort.direction && 'text-ink',
+      )}
+      aria-label={`Сортировать: ${children}`}
+    >
+      {children}
+      <span aria-hidden="true" className={cn('text-[11px]', !sort.direction && 'text-faint')}>
+        {sort.direction ? SORT_ARROWS[sort.direction] : '↕'}
+      </span>
+    </Link>
   )
 }
 
