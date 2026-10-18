@@ -13,6 +13,7 @@ import {
 import { errorText } from '@/features/admin/ui/messages'
 import type { ProductEditorImage } from '@/features/admin/queries/get-product-draft'
 import { prepareUpload } from '@/features/admin/ui/prepare-upload'
+import { uploadInOrder, type UploadFailure } from '@/features/admin/ui/upload-queue'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -21,16 +22,30 @@ type ProductPhotosProps = {
   readonly images: readonly ProductEditorImage[]
 }
 
+type UploadProgress = {
+  readonly done: number
+  readonly total: number
+}
+
+type UploadReport = {
+  readonly failures: readonly UploadFailure[]
+  readonly total: number
+}
+
 const ACCEPTED = 'image/jpeg,image/png,image/webp,image/avif'
+const SEND_FAILED = 'Файл не дошёл до сервера. Попробуйте ещё раз.'
 
 export function ProductPhotos({ slug, images }: ProductPhotosProps) {
   const router = useRouter()
   const fileInput = useRef<HTMLInputElement>(null)
   const [error, setError] = useState<string | null>(null)
+  const [progress, setProgress] = useState<UploadProgress | null>(null)
+  const [report, setReport] = useState<UploadReport | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function run(action: () => Promise<ImageActionResult>) {
     setError(null)
+    setReport(null)
     startTransition(async () => {
       const result = await action()
 
@@ -43,13 +58,33 @@ export function ProductPhotos({ slug, images }: ProductPhotosProps) {
     })
   }
 
-  function upload(file: File) {
-    run(async () => {
+  async function uploadOne(file: File): Promise<string | null> {
+    try {
       const formData = new FormData()
       formData.set('slug', slug)
       formData.set('file', await prepareUpload(file))
 
-      return uploadProductImageAction(null, formData)
+      const result = await uploadProductImageAction(null, formData)
+      return result.ok ? null : errorText(result.error)
+    } catch {
+      // The request itself failed (network, a body Vercel refused): the file
+      // is named in the report and the rest of the batch still goes.
+      return SEND_FAILED
+    }
+  }
+
+  function uploadAll(files: readonly File[]) {
+    setError(null)
+    setReport(null)
+    setProgress({ done: 0, total: files.length })
+    startTransition(async () => {
+      const failures = await uploadInOrder(files, uploadOne, (done) =>
+        setProgress({ done, total: files.length }),
+      )
+
+      setProgress(null)
+      if (failures.length > 0) setReport({ failures, total: files.length })
+      router.refresh()
     })
   }
 
@@ -141,8 +176,11 @@ export function ProductPhotos({ slug, images }: ProductPhotosProps) {
         >
           <span className="font-display text-[20px] font-bold text-faint">+</span>
           <span className="text-[12px] font-medium text-muted">
-            {isPending ? 'Загружаем…' : 'Добавить фото'}
+            {addTileLabel(progress, isPending)}
           </span>
+          {isPending ? null : (
+            <span className="text-[10.5px] text-faint">можно сразу несколько</span>
+          )}
         </button>
       </div>
 
@@ -150,15 +188,38 @@ export function ProductPhotos({ slug, images }: ProductPhotosProps) {
         ref={fileInput}
         type="file"
         accept={ACCEPTED}
+        multiple
         className="hidden"
         onChange={(event) => {
-          const file = event.target.files?.[0]
+          const files = Array.from(event.target.files ?? [])
           event.target.value = ''
-          if (file) upload(file)
+          if (files.length > 0) uploadAll(files)
         }}
       />
 
       {error ? <p className="mt-3 text-[12.5px] text-alert">{error}</p> : null}
+
+      {report ? (
+        <div className="mt-3 text-[12.5px] text-alert">
+          <p>
+            Не загрузились {report.failures.length} из {report.total}:
+          </p>
+          <ul className="mt-1 list-disc pl-5">
+            {report.failures.map((failure, index) => (
+              <li key={`${failure.fileName}-${index}`}>
+                {failure.fileName} — {failure.message}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
     </div>
   )
+}
+
+function addTileLabel(progress: UploadProgress | null, isPending: boolean): string {
+  if (progress) {
+    return `Загружаем ${Math.min(progress.done + 1, progress.total)} из ${progress.total}…`
+  }
+  return isPending ? 'Загружаем…' : 'Добавить фото'
 }
