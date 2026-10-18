@@ -105,6 +105,14 @@
   --animate-indeterminate: indeterminate 1.5s ease-in-out infinite;
   --animate-rise-in: rise-in 0.5s ease-out both;
 
+  /* The cart drawer slides in from the right over a fading backdrop and back
+     out on close (owner, 18.10.2026: it used to jump). Radix keeps it mounted
+     until the closing animation ends. */
+  --animate-drawer-in: drawer-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-drawer-out: drawer-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-fade-in: fade-in 0.32s ease-out both;
+  --animate-fade-out: fade-out 0.22s ease-in both;
+
   @keyframes draw-in {
     from {
       stroke-dashoffset: 1;
@@ -168,6 +176,42 @@
     to {
       transform: translateY(0);
       opacity: 1;
+    }
+  }
+
+  @keyframes drawer-in {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes drawer-out {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
     }
   }
 }

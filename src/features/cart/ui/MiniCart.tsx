@@ -98,8 +98,8 @@ export function MiniCart() {
   return (
     <DialogPrimitive.Root open={isOpen} onOpenChange={setIsOpen}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-ink/45" />
-        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex w-[min(400px,92vw)] flex-col bg-surface shadow-[-10px_0_40px_rgb(35_36_29_/_0.2)]">
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-ink/45 motion-safe:data-[state=closed]:animate-fade-out motion-safe:data-[state=open]:animate-fade-in" />
+        <DialogPrimitive.Content className="fixed inset-y-0 right-0 z-50 flex w-[min(400px,92vw)] flex-col bg-surface shadow-[-10px_0_40px_rgb(35_36_29_/_0.2)] motion-safe:data-[state=closed]:animate-drawer-out motion-safe:data-[state=open]:animate-drawer-in">
           <div className="flex items-center justify-between border-b border-subtle p-5">
             <DialogPrimitive.Title className="font-display text-[17px] font-bold text-ink">
               {t('title')}
