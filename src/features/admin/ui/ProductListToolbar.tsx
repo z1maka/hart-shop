@@ -15,6 +15,7 @@ const SORT_LABELS: Record<CatalogSort, string> = {
   [CatalogSort.PriceAsc]: 'сначала дешевле',
   [CatalogSort.PriceDesc]: 'сначала дороже',
   [CatalogSort.Updated]: 'недавно изменённые',
+  [CatalogSort.Position]: 'по позиции в каталоге',
 }
 
 export function ProductListToolbar({ filters }: { readonly filters: CatalogFilters }) {

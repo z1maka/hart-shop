@@ -203,6 +203,7 @@ export const adminCatalogRepository = {
         priceCents: products.priceCents,
         salePriceCents: products.salePriceCents,
         weightGrams: products.weightGrams,
+        catalogOrder: products.catalogOrder,
         categoryName: categories.name,
         categoryVisible: categories.isVisible,
         stock: sql<number>`coalesce(sum(${productVariants.stockQty}), 0)::int`,
@@ -229,6 +230,7 @@ export const adminCatalogRepository = {
       priceCents: row.priceCents,
       salePriceCents: row.salePriceCents,
       weightGrams: row.weightGrams,
+      catalogOrder: row.catalogOrder,
       stock: row.stock,
       variants: row.variants,
       cover: covers.get(row.id) ?? null,
@@ -306,6 +308,9 @@ function sortKeys(sort: CatalogSortKey): SQL[] {
       return [desc(buyerPrice), asc(products.title)]
     case CatalogSort.Updated:
       return [desc(products.updatedAt)]
+    // The shop's «Рекомендовані» order, so the owner sees the shelf they set.
+    case CatalogSort.Position:
+      return [sql`${products.catalogOrder} asc nulls last`, asc(products.title)]
     case CatalogSort.Category:
       return [asc(categories.position), asc(products.title)]
   }
@@ -530,6 +535,18 @@ export const adminProductRepository = {
     const changed = await db
       .update(products)
       .set({ weightGrams, updatedAt: new Date() })
+      .where(eq(products.slug, slug))
+      .returning({ id: products.id })
+
+    return changed.length > 0
+  },
+
+  // The shelf order buyers see under «Рекомендовані»; null takes the product
+  // off the arranged part of the shelf.
+  async setCatalogOrder(slug: string, catalogOrder: number | null): Promise<boolean> {
+    const changed = await db
+      .update(products)
+      .set({ catalogOrder, updatedAt: new Date() })
       .where(eq(products.slug, slug))
       .returning({ id: products.id })
 

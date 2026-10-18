@@ -8,6 +8,7 @@ import { ProductStatus } from '@/db/enums'
 import { setProductsStatusAction } from '@/features/admin/actions/catalog-actions'
 import { errorText } from '@/features/admin/ui/messages'
 import { ProductPublishToggle } from '@/features/admin/ui/ProductPublishToggle'
+import { CatalogPositionCell } from '@/features/admin/ui/CatalogPositionCell'
 import { WeightCell } from '@/features/admin/ui/WeightCell'
 import type { AdminProductRow, AdminProductState } from '@/features/admin/queries/get-admin-catalog'
 import { Button } from '@/components/ui/Button'
@@ -80,6 +81,12 @@ export function ProductList({ rows, isArchive }: ProductListProps) {
               <th className={headerCell}>Артикул</th>
               <th className={cn(headerCell, 'text-right')}>Цена</th>
               <th className={cn(headerCell, 'text-right')}>Вес, кг</th>
+              <th
+                className={cn(headerCell, 'text-right')}
+                title="Порядок в «Рекомендовані» на сайте"
+              >
+                Позиция
+              </th>
               <th className={cn(headerCell, 'text-right')}>Остаток</th>
               <th className={headerCell}>Состояние</th>
               <th className={cn(headerCell, 'pr-4 text-right')}>Действие</th>
@@ -209,6 +216,13 @@ function ProductRow({ product, isSelected, onToggle }: ProductRowProps) {
           slug={product.slug}
           title={product.title}
           weightKgInput={product.weightKgInput}
+        />
+      </td>
+      <td className="p-3 text-right">
+        <CatalogPositionCell
+          slug={product.slug}
+          title={product.title}
+          positionInput={product.catalogPositionInput}
         />
       </td>
       <td

@@ -1,0 +1,2 @@
+ALTER TABLE "products" ADD COLUMN "catalog_order" integer;--> statement-breakpoint
+CREATE INDEX "products_catalog_order_idx" ON "products" USING btree ("catalog_order") WHERE "products"."catalog_order" is not null;

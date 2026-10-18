@@ -7,7 +7,7 @@ import {
 } from '@/features/admin/repository/admin-catalog-repository'
 import { categoryManagementService } from '@/features/catalog'
 import { ProductStatus } from '@/db/enums'
-import { gramsToKilosInput } from '@/features/admin/model/product-form'
+import { catalogPositionInput, gramsToKilosInput } from '@/features/admin/model/product-form'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
 import { publicUrl } from '@/lib/storage'
 
@@ -68,6 +68,8 @@ export type AdminProductRow = {
   readonly stock: number
   // Empty until someone fills it; the carrier cannot price a parcel without.
   readonly weightKgInput: string
+  // Place under «Рекомендовані»; empty for a product the owner has not placed.
+  readonly catalogPositionInput: string
   readonly coverUrl: string | null
   readonly coverAlt: string
 }
@@ -136,6 +138,7 @@ function toProductRow(row: ProductListRow): AdminProductRow {
     struckPriceLabel: hasSale ? hryvnias(row.priceCents) : null,
     stock: row.stock,
     weightKgInput: gramsToKilosInput(row.weightGrams),
+    catalogPositionInput: catalogPositionInput(row.catalogOrder),
     coverUrl: row.cover ? publicUrl(row.cover.storageKey) : null,
     coverAlt: row.cover?.alt ?? row.title,
   }

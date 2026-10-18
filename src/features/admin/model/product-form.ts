@@ -101,3 +101,20 @@ export function kilosToGrams(kilos: number): number {
 export function gramsToKilosInput(grams: number): string {
   return grams > 0 ? String(grams / GRAMS_PER_KILO) : ''
 }
+
+export const MAX_CATALOG_POSITION = 999
+
+const WHOLE_NUMBER_PATTERN = /^\d+$/
+
+// The place the owner types in the admin list. Blank takes the product off
+// the arranged shelf; anything but digits comes back as NaN for the schema
+// to refuse, so "1,5" or "-2" is never read as some other place.
+export function parseCatalogPosition(input: string): number | null {
+  const trimmed = input.trim()
+  if (trimmed === '') return null
+  return WHOLE_NUMBER_PATTERN.test(trimmed) ? Number(trimmed) : Number.NaN
+}
+
+export function catalogPositionInput(catalogOrder: number | null): string {
+  return catalogOrder === null ? '' : String(catalogOrder)
+}

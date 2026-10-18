@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  catalogPositionInput,
   discountPercent,
   gramsToKilosInput,
   hryvniasToKopiykas,
   kilosToGrams,
   isValidSalePrice,
+  parseCatalogPosition,
   parseDecimalInput,
   parseSpecs,
   parseStock,
@@ -127,6 +129,30 @@ describe('product weight', () => {
 
   it('leaves an unweighed product empty rather than showing zero', () => {
     expect(gramsToKilosInput(0)).toBe('')
+  })
+})
+
+describe('catalog position', () => {
+  it('reads the place the owner typed', () => {
+    expect(parseCatalogPosition('3')).toBe(3)
+    expect(parseCatalogPosition(' 12 ')).toBe(12)
+  })
+
+  it('reads a blank cell as no place on the arranged shelf', () => {
+    expect(parseCatalogPosition('')).toBeNull()
+    expect(parseCatalogPosition('   ')).toBeNull()
+  })
+
+  it.each(['1,5', '-2', 'перший', '1e2', '0x10'])(
+    'refuses «%s» instead of guessing a place',
+    (input) => {
+      expect(parseCatalogPosition(input)).toBeNaN()
+    },
+  )
+
+  it('writes the place back, blank for a product without one', () => {
+    expect(catalogPositionInput(7)).toBe('7')
+    expect(catalogPositionInput(null)).toBe('')
   })
 })
 

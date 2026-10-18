@@ -764,12 +764,13 @@ function publishedFilters(filters: CatalogFilters): SQL[] {
   return conditions
 }
 
-// The shelf the owner arranged, then the newest work. Price-first as the
-// default put the cheapest thing in the shop — a T-shirt, a pair of arm
-// covers — where the flagship belongs.
+// The shelf the owner arranged in the admin list, then the home rail's
+// picks, then the newest work. Price-first as the default put the cheapest
+// thing in the shop — a T-shirt, a pair of arm covers — where the flagship
+// belongs.
 function orderFor(sort: CatalogSort): SQL {
   if (sort === 'price-asc') return asc(products.priceCents)
   if (sort === 'price-desc') return desc(products.priceCents)
   if (sort === 'weight-asc') return asc(products.weightGrams)
-  return sql`${products.featuredOrder} asc nulls last, ${products.createdAt} desc`
+  return sql`${products.catalogOrder} asc nulls last, ${products.featuredOrder} asc nulls last, ${products.createdAt} desc`
 }

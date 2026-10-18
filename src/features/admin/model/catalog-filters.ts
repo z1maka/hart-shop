@@ -20,6 +20,8 @@ export const CatalogSort = {
   PriceAsc: 'price_asc',
   PriceDesc: 'price_desc',
   Updated: 'updated',
+  // The order of «Рекомендовані» in the shop.
+  Position: 'position',
 } as const
 
 export type CatalogSort = (typeof CatalogSort)[keyof typeof CatalogSort]

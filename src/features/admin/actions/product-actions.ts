@@ -25,7 +25,9 @@ import {
   hryvniasToKopiykas,
   isValidSalePrice,
   kilosToGrams,
+  MAX_CATALOG_POSITION,
   MAX_PRODUCT_WEIGHT_KG,
+  parseCatalogPosition,
   parseDecimalInput,
   parseSpecs,
   parseStock,
@@ -206,6 +208,40 @@ export async function setProductWeightAction(input: unknown): Promise<ActionResu
     await productAdminService.setWeight(parsed.data.slug, kilosToGrams(parsed.data.weightKg))
     updateTag('catalog')
     logger.info('Product weight set', { admin: session.email, slug: parsed.data.slug })
+    return actionOk(null)
+  } catch (error) {
+    return toActionError(error)
+  }
+}
+
+const CatalogPositionSchema = z.object({
+  slug: z.string().trim().min(1).max(160),
+  // Blank clears the place; otherwise a whole number, 1 being the first card.
+  position: z
+    .string()
+    .trim()
+    .transform(parseCatalogPosition)
+    .pipe(z.number().int().min(1).max(MAX_CATALOG_POSITION).nullable()),
+})
+
+// The order of «Рекомендовані» in the shop, set row by row in the catalog list.
+export async function setProductCatalogPositionAction(
+  input: unknown,
+): Promise<ActionResult<null>> {
+  const session = await readAdminSession()
+  if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
+
+  const parsed = CatalogPositionSchema.safeParse(input)
+  if (!parsed.success) return validationFailed(parsed.error)
+
+  try {
+    await productAdminService.setCatalogPosition(parsed.data.slug, parsed.data.position)
+    updateTag('catalog')
+    logger.info('Product catalog position set', {
+      admin: session.email,
+      slug: parsed.data.slug,
+      position: parsed.data.position,
+    })
     return actionOk(null)
   } catch (error) {
     return toActionError(error)

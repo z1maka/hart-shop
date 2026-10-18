@@ -128,6 +128,10 @@ export const products = pgTable(
     // first card, null keeps the product off the rail. When no product
     // carries a position the rail falls back to the per-category mix.
     featuredOrder: integer('featured_order'),
+    // Place under «Рекомендовані» in the catalog and every category, set by the
+    // owner in the admin list: 1 comes first, null follows the numbered ones.
+    // Kept apart from featuredOrder so arranging the shelf never moves the rail.
+    catalogOrder: integer('catalog_order'),
     // The name a list can print. The imported WordPress titles carry every
     // keyword the old shop ranked for, which is right for the page heading
     // and unreadable in a card, a search result or a cart line.
@@ -180,6 +184,9 @@ export const products = pgTable(
     index('products_featured_order_idx')
       .on(table.featuredOrder)
       .where(sql`${table.featuredOrder} is not null`),
+    index('products_catalog_order_idx')
+      .on(table.catalogOrder)
+      .where(sql`${table.catalogOrder} is not null`),
     index('products_color_group_idx')
       .on(table.colorGroup)
       .where(sql`${table.colorGroup} is not null`),

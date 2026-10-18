@@ -407,6 +407,13 @@
       "when": 1792137180895,
       "tag": "0057_order_customer_note",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1792320295647,
+      "tag": "0058_product_catalog_order",
+      "breakpoints": true
     }
   ]
 }

@@ -87,6 +87,11 @@ export const productAdminService = {
     if (!changed) throw new ProductNotFoundError(slug)
   },
 
+  async setCatalogPosition(slug: string, position: number | null): Promise<void> {
+    const changed = await adminProductRepository.setCatalogOrder(slug, position)
+    if (!changed) throw new ProductNotFoundError(slug)
+  },
+
   async setStatusMany(slugs: readonly string[], status: ProductStatus): Promise<number> {
     return adminProductRepository.setStatusMany(slugs, status)
   },
