@@ -1,4 +1,5 @@
 import sharp from 'sharp'
+import { productImageKeys } from '@/lib/product-image-key'
 import { putObject, deleteObject } from '@/lib/storage'
 
 // One square canvas for every product shot: the catalogue mixes square studio
@@ -44,8 +45,7 @@ export async function storeProductImage(
     .webp({ quality: WEBP_QUALITY })
     .toBuffer()
 
-  const storageKey = productImageKey(productSlug, index)
-  const squareStorageKey = `products/${productSlug}/${index}-square.webp`
+  const { storageKey, squareStorageKey } = productImageKeys(productSlug, index)
 
   await Promise.all([
     putObject({ key: storageKey, body: contained, contentType: 'image/webp' }),
@@ -53,20 +53,6 @@ export async function storeProductImage(
   ])
 
   return { storageKey, squareStorageKey, width: TARGET_SIZE, height: TARGET_SIZE }
-}
-
-export function productImageKey(productSlug: string, index: number): string {
-  return `products/${productSlug}/${index}.webp`
-}
-
-// The key carries the index, so a new upload never lands on a key another
-// row still points at, whatever was deleted in between.
-export function nextImageKeyIndex(existingKeys: readonly string[]): number {
-  const used = existingKeys
-    .map((key) => Number(key.split('/').at(-1)?.replace('.webp', '')))
-    .filter((index) => Number.isInteger(index))
-
-  return used.length === 0 ? 0 : Math.max(...used) + 1
 }
 
 export async function removeProductImage(image: {

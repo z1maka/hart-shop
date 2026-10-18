@@ -1,5 +1,6 @@
 import { adminProductRepository } from '@/features/admin/repository/admin-catalog-repository'
-import { nextImageKeyIndex, removeProductImage, storeProductImage } from '@/lib/product-image'
+import { removeProductImage, storeProductImage } from '@/lib/product-image'
+import { nextImageKeyIndex } from '@/lib/product-image-key'
 import {
   ProductImageNotFoundError,
   ProductNotFoundError,

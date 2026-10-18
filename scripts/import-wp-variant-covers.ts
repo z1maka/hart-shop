@@ -6,7 +6,7 @@ import {
   type ProductImageRow,
 } from '@/features/catalog/repository/product-repository'
 import { closeDb } from '@/lib/db'
-import { nextImageKeyIndex, productImageKey } from '@/lib/product-image'
+import { legacyProductImageKey, nextImageKeyIndex } from '@/lib/product-image-key'
 import { decodeEntities } from './lib/html-text'
 import { importProductImage } from './lib/images'
 import {
@@ -124,7 +124,7 @@ function trustsSourceOrder(
   const byKey = new Map(images.map((image) => [image.storageKey, image]))
 
   return product.images.every((source, index) => {
-    const ours = byKey.get(productImageKey(slug, index))
+    const ours = byKey.get(legacyProductImageKey(slug, index))
     if (!ours) return false
 
     const alt = decodeEntities(source.alt)
@@ -143,7 +143,7 @@ function knownKeyOf(
   const index = product.images.findIndex((image) => image.id === sourceImageId)
   if (index === -1) return null
 
-  const key = productImageKey(slug, index)
+  const key = legacyProductImageKey(slug, index)
   return gallery.keys.has(key) ? key : null
 }
 
@@ -158,7 +158,7 @@ async function importedKeyOf(
   const index = nextImageKeyIndex([...gallery.keys])
   const position = gallery.originalCount + gallery.importedKeyBySourceId.size
   const key = isDryRun
-    ? productImageKey(target.slug, index)
+    ? legacyProductImageKey(target.slug, index)
     : await importCover(target, image, index, position)
   if (isDryRun) console.info(`    would import ${image.src} as ${key}`)
 
