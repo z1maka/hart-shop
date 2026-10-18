@@ -8,14 +8,17 @@ type DialogProps = {
   readonly isOpen: boolean
   readonly onOpenChange: (isOpen: boolean) => void
   readonly title: string
-  readonly placement?: 'center' | 'right'
+  readonly placement?: DialogPlacement
   readonly className?: string
   readonly children: ReactNode
 }
 
-const PLACEMENT_CLASSES: Record<'center' | 'right', string> = {
+type DialogPlacement = 'center' | 'right' | 'fullscreen'
+
+const PLACEMENT_CLASSES: Record<DialogPlacement, string> = {
   center: 'left-1/2 top-1/2 w-[min(560px,92vw)] -translate-x-1/2 -translate-y-1/2 rounded-card',
   right: 'right-0 top-0 h-full w-[min(380px,90vw)] shadow-[-10px_0_40px_rgb(35_36_29_/_0.2)]',
+  fullscreen: 'inset-3 rounded-card sm:inset-6',
 }
 
 export function Dialog({

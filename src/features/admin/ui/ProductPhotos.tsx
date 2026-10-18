@@ -12,6 +12,7 @@ import {
 } from '@/features/admin/actions/product-image-actions'
 import { errorText } from '@/features/admin/ui/messages'
 import type { ProductEditorImage } from '@/features/admin/queries/get-product-draft'
+import { PhotoViewer } from '@/features/admin/ui/PhotoViewer'
 import { prepareUpload } from '@/features/admin/ui/prepare-upload'
 import { uploadInOrder, type UploadFailure } from '@/features/admin/ui/upload-queue'
 import { useRouter } from 'next/navigation'
@@ -41,6 +42,7 @@ export function ProductPhotos({ slug, images }: ProductPhotosProps) {
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState<UploadProgress | null>(null)
   const [report, setReport] = useState<UploadReport | null>(null)
+  const [viewedIndex, setViewedIndex] = useState<number | null>(null)
   const [isPending, startTransition] = useTransition()
 
   function run(action: () => Promise<ImageActionResult>) {
@@ -90,13 +92,20 @@ export function ProductPhotos({ slug, images }: ProductPhotosProps) {
 
   return (
     <div>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(200px,100%),1fr))] gap-3">
         {images.map((image, index) => (
           <figure
             key={image.storageKey}
             className="relative aspect-square overflow-hidden rounded-[10px] border border-subtle bg-sunken"
           >
-            <Image src={image.url} alt={image.alt} fill sizes="200px" className="object-cover" />
+            <button
+              type="button"
+              onClick={() => setViewedIndex(index)}
+              aria-label={`Открыть фото ${index + 1}`}
+              className="absolute inset-0 cursor-zoom-in"
+            >
+              <Image src={image.url} alt={image.alt} fill sizes="320px" className="object-cover" />
+            </button>
 
             {index === 0 ? (
               <figcaption className="absolute top-2 left-2 rounded-pill bg-ink px-2.5 py-1.5 text-[10px] font-semibold text-on-dark">
@@ -183,6 +192,8 @@ export function ProductPhotos({ slug, images }: ProductPhotosProps) {
           )}
         </button>
       </div>
+
+      <PhotoViewer images={images} index={viewedIndex} onIndexChange={setViewedIndex} />
 
       <input
         ref={fileInput}

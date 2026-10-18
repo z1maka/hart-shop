@@ -5,7 +5,9 @@ import { publicUrl } from '@/lib/storage'
 
 export type ProductEditorImage = {
   readonly storageKey: string
+  // The square crop for the tile; fullUrl is the whole shot for the viewer.
   readonly url: string
+  readonly fullUrl: string
   readonly alt: string
 }
 
@@ -110,6 +112,7 @@ export async function getProductEditorView(slug: string): Promise<ProductEditorV
     images: draft.images.map((image) => ({
       storageKey: image.storageKey,
       url: publicUrl(image.squareStorageKey ?? image.storageKey),
+      fullUrl: publicUrl(image.storageKey),
       alt: image.alt,
     })),
     categories: categories.map((category) => ({

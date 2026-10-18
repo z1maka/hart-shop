@@ -29,7 +29,11 @@ describe('uploadInOrder', () => {
   it('reports progress after every file', async () => {
     const progress: number[] = []
 
-    await uploadInOrder(files, async () => null, (done) => progress.push(done))
+    await uploadInOrder(
+      files,
+      async () => null,
+      (done) => progress.push(done),
+    )
 
     expect(progress).toEqual([1, 2, 3])
   })
@@ -52,6 +56,12 @@ describe('uploadInOrder', () => {
   })
 
   it('returns no failures for an empty selection', async () => {
-    expect(await uploadInOrder([], async () => null, () => {})).toEqual([])
+    expect(
+      await uploadInOrder(
+        [],
+        async () => null,
+        () => {},
+      ),
+    ).toEqual([])
   })
 })
