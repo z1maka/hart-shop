@@ -21,6 +21,7 @@ import {
   type DoorNames,
   type ParcelInput,
 } from '@/features/orders/model/shipment'
+import { toPackingItem } from '@/features/orders/model/notification-format'
 import { orderTelegram } from '@/features/orders/services/order-telegram'
 import { canTransition } from '@/features/orders/model/status-flow'
 import {
@@ -398,7 +399,7 @@ async function sendCard(
     : (order.pickupPointLabel ?? address.city)
 
   try {
-    const items = await orderRepository.findItems(order.id)
+    const sources = await orderRepository.findPackingSources(order.id)
     await orderTelegram.sendWaybillIssued({
       orderId: order.id,
       orderNumber: order.orderNumber,
@@ -413,7 +414,7 @@ async function sendCard(
       declaredValueCents: order.totalCents,
       codCents: codCents(order),
       issuedBy,
-      items,
+      items: sources.map((source) => toPackingItem(source, env.NEXT_PUBLIC_SITE_URL)),
     })
   } catch (error) {
     logger.error('Waybill card for the packing chat failed', {

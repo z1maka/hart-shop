@@ -20,6 +20,47 @@ export function itemLines(items: readonly OrderItemRow[]): string[] {
   })
 }
 
+// One order line as the packing chat reads it: the purchase snapshot, and the
+// product as it is now while the bought variant still exists.
+export type PackingSource = {
+  readonly quantity: number
+  readonly productSlug: string
+  readonly productTitle: string
+  readonly variantLabel: string
+  readonly currentSlug: string | null
+  readonly packingTitle: string | null
+  readonly shortTitle: string | null
+  readonly color: string | null
+}
+
+export type PackingItem = {
+  readonly productUrl: string
+  // The workshop's name; the shop's short title until the owner gives one.
+  readonly name: string
+  readonly color: string | null
+  readonly quantity: number
+}
+
+export function toPackingItem(source: PackingSource, siteUrl: string): PackingItem {
+  const slug = source.currentSlug ?? source.productSlug
+  return {
+    productUrl: `${siteUrl}/product/${encodeURIComponent(slug)}/`,
+    name: source.packingTitle?.trim() || source.shortTitle?.trim() || source.productTitle,
+    color: source.color ?? (source.variantLabel.trim() || null),
+    quantity: source.quantity,
+  }
+}
+
+// The workshop picks goods by its own names (owner's format, 19.10.2026): the
+// page, the name and the colour; the count only when there is more than one.
+export function packingItemLines(item: PackingItem): string[] {
+  return [
+    `${item.productUrl} - ${item.name}`,
+    ...(item.color ? [`колір: ${item.color.toLowerCase()}`] : []),
+    ...(item.quantity > 1 ? [`кількість: ${item.quantity}`] : []),
+  ]
+}
+
 export type WaybillNotice = {
   readonly orderId: string
   readonly orderNumber: string
@@ -36,7 +77,7 @@ export type WaybillNotice = {
   readonly declaredValueCents: number
   readonly codCents: number
   readonly issuedBy: string
-  readonly items: readonly OrderItemRow[]
+  readonly items: readonly PackingItem[]
 }
 
 // The packing chat's card for a fresh waybill: what goes in the box, where it
@@ -56,7 +97,10 @@ export function waybillIssuedTelegramText(notice: WaybillNotice): string {
     `Контроль оплаты: ${cod}`,
     '',
     'Товары:',
-    ...itemLines(notice.items).map((line) => `• ${escapeHtml(line)}`),
+    ...notice.items.flatMap((item, index) => [
+      ...(index > 0 ? [''] : []),
+      ...packingItemLines(item).map(escapeHtml),
+    ]),
     '',
     `Создал: ${escapeHtml(notice.issuedBy)}`,
     `<a href="${escapeHtml(notice.trackingUrl)}">Отслеживание</a> · <a href="${escapeHtml(notice.adminOrderUrl)}">Заказ в админке</a>`,

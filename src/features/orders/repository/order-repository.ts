@@ -19,7 +19,7 @@ import {
   type SQL,
   notExists,
 } from 'drizzle-orm'
-import { orderItems, orderNotifications, orders } from '@/db/schema'
+import { orderItems, orderNotifications, orders, products, productVariants } from '@/db/schema'
 import {
   type Locale,
   type NotificationKind,
@@ -34,6 +34,7 @@ import {
   OrderShelf,
   RETURN_ORDER_STATUS,
 } from '@/features/orders/model/order-shelves'
+import type { PackingSource } from '@/features/orders/model/notification-format'
 import { QUICK_ORDER_POINT_REF } from '@/features/orders/model/quick-order'
 import { type OrderStatusFilter, statusMatchOf } from '@/features/orders/model/status-filter'
 import { ParcelStage } from '@/features/shipping/model/parcel-tracking'
@@ -803,6 +804,27 @@ export const orderRepository = {
 
   async findItems(orderId: string): Promise<OrderItemRow[]> {
     return db.select().from(orderItems).where(eq(orderItems.orderId, orderId))
+  },
+
+  // The lines next to the product as it is now — the workshop's name, the
+  // current page and the bought variant's colour; a deleted variant leaves
+  // only the snapshot.
+  async findPackingSources(orderId: string): Promise<PackingSource[]> {
+    return db
+      .select({
+        quantity: orderItems.quantity,
+        productSlug: orderItems.productSlug,
+        productTitle: orderItems.productTitle,
+        variantLabel: orderItems.variantLabel,
+        currentSlug: products.slug,
+        packingTitle: products.packingTitle,
+        shortTitle: products.shortTitle,
+        color: sql<string | null>`${productVariants.options} ->> 'Color'`,
+      })
+      .from(orderItems)
+      .leftJoin(productVariants, eq(productVariants.id, orderItems.variantId))
+      .leftJoin(products, eq(products.id, productVariants.productId))
+      .where(eq(orderItems.orderId, orderId))
   },
 
   // Orders placed in the week starting on that Monday, on `timeZone`'s

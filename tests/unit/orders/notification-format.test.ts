@@ -10,12 +10,16 @@ import {
   money,
   orderPlacedSmsText,
   orderShippedSmsText,
+  packingItemLines,
   parcelRefusedTelegramText,
   quickOrderReminderTelegramText,
   REVIEW_REQUEST_MAIL,
   PAYMENT_ROUTE_RU,
+  toPackingItem,
   waybillIssuedTelegramText,
   waybillLabelCaption,
+  type PackingItem,
+  type PackingSource,
   type WaybillNotice,
 } from '@/features/orders/model/notification-format'
 import { Carrier, PaymentRoute } from '@/db/enums'
@@ -109,7 +113,10 @@ describe('quickOrderReminderTelegramText', () => {
 })
 
 describe('review request mail', () => {
-  const product = { name: 'Пончо Model FX-2 з Molle', url: 'https://fox-armor.com.ua/product/fx-2/#reviews' }
+  const product = {
+    name: 'Пончо Model FX-2 з Molle',
+    url: 'https://fox-armor.com.ua/product/fx-2/#reviews',
+  }
 
   it('names the product in the mail subject', () => {
     expect(REVIEW_REQUEST_MAIL.subject(product)).toBe('Як вам Пончо Model FX-2 з Molle?')
@@ -146,7 +153,95 @@ describe('orderPlacedSmsText', () => {
   })
 })
 
+const SITE = 'https://hart-shop.com'
+
+function packingSource(overrides: Partial<PackingSource>): PackingSource {
+  return {
+    quantity: 1,
+    productSlug: 'zymovyi-chokhol-na-starlink-z-3d-sitkoiu',
+    productTitle: 'Зимовий самоохолоджуваючий чохол на Starlink з вентиляцією і 3D-сіткою',
+    variantLabel: 'Білий',
+    currentSlug: 'zymovyi-chokhol-na-starlink-z-3d-sitkoiu',
+    packingTitle: 'чохол на старлінк з ребрами+ сітка',
+    shortTitle: 'Зимовий чохол на Starlink з 3D-сіткою',
+    color: 'Білий',
+    ...overrides,
+  }
+}
+
+describe('toPackingItem', () => {
+  it('names the line the way the workshop does, on the current page', () => {
+    expect(toPackingItem(packingSource({}), SITE)).toEqual({
+      productUrl: 'https://hart-shop.com/product/zymovyi-chokhol-na-starlink-z-3d-sitkoiu/',
+      name: 'чохол на старлінк з ребрами+ сітка',
+      color: 'Білий',
+      quantity: 1,
+    })
+  })
+
+  it('falls back to the short title, then to the title the buyer saw', () => {
+    expect(toPackingItem(packingSource({ packingTitle: null }), SITE).name).toBe(
+      'Зимовий чохол на Starlink з 3D-сіткою',
+    )
+    expect(toPackingItem(packingSource({ packingTitle: ' ', shortTitle: null }), SITE).name).toBe(
+      'Зимовий самоохолоджуваючий чохол на Starlink з вентиляцією і 3D-сіткою',
+    )
+  })
+
+  it('keeps the bought page and colour once the variant is gone', () => {
+    const item = toPackingItem(
+      packingSource({ currentSlug: null, packingTitle: null, shortTitle: null, color: null }),
+      SITE,
+    )
+    expect(item.productUrl).toBe(
+      'https://hart-shop.com/product/zymovyi-chokhol-na-starlink-z-3d-sitkoiu/',
+    )
+    expect(item.color).toBe('Білий')
+  })
+
+  it('has no colour for a product sold in one kind', () => {
+    expect(toPackingItem(packingSource({ color: null, variantLabel: '' }), SITE).color).toBeNull()
+  })
+
+  it('encodes a Cyrillic slug into a working link', () => {
+    expect(toPackingItem(packingSource({ currentSlug: 'тент' }), SITE).productUrl).toBe(
+      'https://hart-shop.com/product/%D1%82%D0%B5%D0%BD%D1%82/',
+    )
+  })
+})
+
+describe('packingItemLines', () => {
+  const item: PackingItem = {
+    productUrl: 'https://hart-shop.com/product/maskuvalne-poncho-fx14-3d-lystya-class-d/',
+    name: 'пончо усиленный + сетка',
+    color: 'Зимовий мультикам',
+    quantity: 1,
+  }
+
+  it('prints the page, the workshop name and the colour in the owner’s words', () => {
+    expect(packingItemLines(item)).toEqual([
+      'https://hart-shop.com/product/maskuvalne-poncho-fx14-3d-lystya-class-d/ - пончо усиленный + сетка',
+      'колір: зимовий мультикам',
+    ])
+  })
+
+  it('adds the count only when there is more than one', () => {
+    expect(packingItemLines({ ...item, quantity: 3 })).toContain('кількість: 3')
+    expect(packingItemLines(item).join('\n')).not.toContain('кількість')
+  })
+
+  it('leaves the colour line out for a colourless product', () => {
+    expect(packingItemLines({ ...item, color: null })).toHaveLength(1)
+  })
+})
+
 describe('waybillIssuedTelegramText', () => {
+  const packed: PackingItem = {
+    productUrl: 'https://hart-shop.com/product/antydron-poncho-predator-class-c-uv-em-zakhyst/',
+    name: 'пончо скафандр',
+    color: 'Олива',
+    quantity: 2,
+  }
   const notice: WaybillNotice = {
     orderId: '00000000-0000-0000-0000-000000000009',
     orderNumber: 'FOX-2026-000011',
@@ -161,7 +256,7 @@ describe('waybillIssuedTelegramText', () => {
     declaredValueCents: 590_000,
     codCents: 590_000,
     issuedBy: 'office@fox-armor.org',
-    items: [item({})],
+    items: [packed],
   }
 
   it('leaves the sender line out without a cabinet, rather than printing nothing', () => {
@@ -177,9 +272,23 @@ describe('waybillIssuedTelegramText', () => {
     expect(text).toContain('Куда: Відділення №1')
     expect(text).toContain('Вес: 2,4 кг')
     expect(text).toContain(`Контроль оплаты: ${money(590_000)}`)
-    expect(text).toContain('• 2 × Пончо Multi 3 (Мультикам)')
+    expect(text).toContain(
+      'https://hart-shop.com/product/antydron-poncho-predator-class-c-uv-em-zakhyst/ - пончо скафандр\nколір: олива\nкількість: 2',
+    )
     expect(text).toContain('Создал: office@fox-armor.org')
     expect(text).toContain('href="https://novaposhta.ua/tracking/?cargo_number=20451539841508"')
+  })
+
+  it('parts the lines with a blank line, one block per product', () => {
+    const blanket: PackingItem = {
+      productUrl: 'https://hart-shop.com/product/blanket/',
+      name: 'одеяло',
+      color: null,
+      quantity: 1,
+    }
+    expect(waybillIssuedTelegramText({ ...notice, items: [packed, blanket] })).toContain(
+      'кількість: 2\n\nhttps://hart-shop.com/product/blanket/ - одеяло\n',
+    )
   })
 
   it('says a prepaid parcel collects nothing', () => {

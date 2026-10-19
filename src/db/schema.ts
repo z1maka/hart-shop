@@ -136,10 +136,9 @@ export const products = pgTable(
     // keyword the old shop ranked for, which is right for the page heading
     // and unreadable in a card, a search result or a cart line.
     shortTitle: text('short_title'),
-    // How the workshop calls it («ноги», «руки», «тент»); never shown to a
-    // buyer. Filled for the anti-drone range, not read yet: the packing chat's
-    // card switches to it once the owner's list covers the whole range
-    // (owner's decision, 26.09.2026).
+    // How the workshop calls it («чехлы ноги», «тент»); never shown to a
+    // buyer. The packing chat's waybill card names the line by it (owner's
+    // format, 19.10.2026); a product without one goes by its short title.
     packingTitle: text('packing_title'),
     status: productStatusEnum('status').notNull().default(ProductStatus.Draft),
     // Set when hiding a category archives this product, so re-publishing the
