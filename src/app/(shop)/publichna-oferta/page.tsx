@@ -18,6 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const SELLER_ROWS = [
   { key: 'name', value: COMPANY.legalName, href: null },
   { key: 'taxId', value: COMPANY.taxId, href: null },
+  { key: 'address', value: COMPANY.addressLines.join(', '), href: null },
   { key: 'phone', value: COMPANY.phone, href: COMPANY.phoneHref },
   { key: 'email', value: COMPANY.email, href: `mailto:${COMPANY.email}` },
   { key: 'site', value: COMPANY.site, href: null },
@@ -29,10 +30,10 @@ const SELLER_ROWS = [
 const SECTIONS = [
   { key: 'general', clauses: ['offer', 'law', 'form'] },
   { key: 'subject', clauses: ['transfer', 'description', 'custom'] },
-  { key: 'ordering', clauses: ['accept', 'details', 'confirm'] },
+  { key: 'ordering', clauses: ['accept', 'details', 'confirm', 'cancel'] },
   { key: 'price', clauses: ['currency', 'fixed', 'shipping'] },
   { key: 'payment', clauses: ['choice', 'cod', 'card', 'transfer'] },
-  { key: 'delivery', clauses: ['carrier', 'dispatch', 'details'] },
+  { key: 'delivery', clauses: ['carrier', 'dispatch', 'uncollected', 'details'] },
   { key: 'returns', clauses: ['returns', 'warranty'] },
   { key: 'data', clauses: ['processing'] },
   { key: 'disputes', clauses: ['talk', 'law'] },

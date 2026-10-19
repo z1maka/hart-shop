@@ -3,7 +3,7 @@
 export const COMPANY = {
   legalName: 'ФОП Масний Олександр Сергійович',
   tradingName: 'Гарт',
-  addressLines: ['Ukraine'],
+  addressLines: ['вул. Будівельників, 18', 'м. Миколаїв, Миколаївська обл.', '54000'],
   taxId: '3172012013',
   phone: '+380 96 520 33 25',
   phoneHref: 'tel:+380965203325',
