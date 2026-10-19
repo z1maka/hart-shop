@@ -47,8 +47,13 @@ export const HOME_TILES = [
   { key: 'gear', href: `/product/${BLANKET_SLUG}/`, image: { kind: 'product', slug: BLANKET_SLUG } },
 ] as const satisfies readonly { key: string; href: string; image: HomeTileImage }[]
 
+const STARLINK_3D_AUTUMN_SLUG = 'samookholodzhuvalnyi-chokhol-na-starlink-z-3d-sitkoiu-osinnii'
+
 // «Чохол на Starlink за три питання»: the category text's three questions,
-// each answer pointing at the cover that fits it.
+// each answer pointing at the cover that fits it. Where one of the shop's own
+// 3D-mesh covers fits, it is the answer (owner, 19.10.2026) — the autumn one
+// answers two questions; terminal models and the all-season vent stay on the
+// shaped covers.
 export const HOME_STARLINK_CHOOSER = [
   {
     key: 'terminal',
@@ -67,15 +72,15 @@ export const HOME_STARLINK_CHOOSER = [
         key: 'ventilated',
         slug: 'polozheniya-antiteplovogo-rezhima-na-starlink-iz-sistemy-okhlazhdeniya-bud-yaka-model',
       },
-      { key: 'selfCooling', slug: 'посилений-самоохолоджуючий-антитепл' },
+      { key: 'selfCooling', slug: STARLINK_3D_AUTUMN_SLUG },
     ],
   },
   {
     key: 'place',
     options: [
       { key: 'snow', slug: 'winter-cover-anti-thermal-vision-and-anti' },
-      { key: 'snowLong', slug: 'copyenhanced-anti-thermal-vision-h' },
-      { key: 'grass', slug: 'antyteplovizornyy-chokhol-na-starlink-iz-maskuvalnoyu-sitkoyu' },
+      { key: 'snowLong', slug: 'zymovyi-chokhol-na-starlink-z-3d-sitkoiu' },
+      { key: 'grass', slug: STARLINK_3D_AUTUMN_SLUG },
     ],
   },
 ] as const
