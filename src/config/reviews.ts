@@ -1,3 +1,5 @@
+import { DISPATCH_DAYS, TRANSIT_DAYS } from '@/config/delivery'
+
 // When the shop asks a buyer how the product is: long enough after the
 // parcel was handed over to have used it, not so long that the order is
 // forgotten. One ask per order, never repeated.
@@ -9,3 +11,10 @@ export const REVIEW_REQUEST_WITHIN_DAYS = 14
 // come from FOX's marketplace page: both stay on the page and in its summary,
 // but Google's markup carries only reviews collected here from this day on.
 export const OWN_REVIEWS_SINCE = new Date('2026-10-12T00:00:00+03:00')
+
+// Google Customer Reviews writes to the buyer after the date the order page
+// names as delivery: the dispatch and transit days the shop promises, plus a
+// day to collect the parcel from the branch, all counted in business days.
+const BRANCH_PICKUP_BUSINESS_DAYS = 1
+export const REVIEW_SURVEY_AFTER_BUSINESS_DAYS =
+  DISPATCH_DAYS.max + TRANSIT_DAYS.max + BRANCH_PICKUP_BUSINESS_DAYS

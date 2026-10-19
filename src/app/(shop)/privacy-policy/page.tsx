@@ -16,7 +16,16 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const COLLECTED_KEYS = ['order', 'quick', 'enquiry', 'payment', 'technical'] as const
 const PURPOSE_KEYS = ['fulfil', 'contact', 'returns', 'accounting', 'marketing'] as const
-const RECIPIENT_KEYS = ['carrier', 'payments', 'sms', 'mail', 'hosting', 'staff', 'ads'] as const
+const RECIPIENT_KEYS = [
+  'carrier',
+  'payments',
+  'sms',
+  'mail',
+  'hosting',
+  'staff',
+  'ads',
+  'reviews',
+] as const
 const COOKIE_KEYS = [
   'cart',
   'consent',
@@ -24,6 +33,7 @@ const COOKIE_KEYS = [
   'analytics',
   'googleAds',
   'metaPixel',
+  'googleReviews',
 ] as const
 const RIGHT_KEYS = ['know', 'access', 'correct', 'withdraw', 'complain'] as const
 

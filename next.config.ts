@@ -36,6 +36,10 @@ const CLARITY_SYNC_HOSTS = 'https://c.bing.com'
 // IPv6 enrichment call goes to a second one, and without it every page load
 // logs a CSP violation.
 const TIKTOK_HOSTS = 'https://analytics.tiktok.com https://analytics-ipv6.tiktokw.us'
+// Google Customer Reviews: platform.js and its modules come from apis.google.com,
+// the survey offer itself is a www.google.com frame on the order page.
+const GOOGLE_REVIEWS_SCRIPT_HOSTS = 'https://apis.google.com'
+const GOOGLE_REVIEWS_FRAME_HOSTS = 'https://www.google.com'
 
 // Analytics load only after consent, but the policy has to allow them upfront —
 // a blocked script after the banner is accepted looks like a broken banner.
@@ -43,13 +47,13 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   // React's development build needs eval() for its debugging features; the
   // production build never calls it.
-  `script-src 'self' 'unsafe-inline' ${isProduction ? '' : "'unsafe-eval'"} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${TIKTOK_HOSTS}`,
+  `script-src 'self' 'unsafe-inline' ${isProduction ? '' : "'unsafe-eval'"} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${TIKTOK_HOSTS} ${GOOGLE_REVIEWS_SCRIPT_HOSTS}`,
   "style-src 'self' 'unsafe-inline'",
   `img-src 'self' data: blob: ${mediaOrigin?.origin ?? ''} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${CLARITY_SYNC_HOSTS} ${TIKTOK_HOSTS}`,
   "font-src 'self' data:",
   `connect-src 'self' ${mediaOrigin?.origin ?? ''} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${TIKTOK_HOSTS}`,
   // Product videos play in YouTube's privacy-enhanced player.
-  "frame-src 'self' https://www.facebook.com https://www.youtube-nocookie.com",
+  `frame-src 'self' https://www.facebook.com https://www.youtube-nocookie.com ${GOOGLE_REVIEWS_FRAME_HOSTS}`,
   "object-src 'none'",
   "base-uri 'self'",
   // The Meta pixel posts larger events (a purchase with items) through a

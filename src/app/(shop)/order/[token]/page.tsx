@@ -3,9 +3,10 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getTranslations } from 'next-intl/server'
-import { TrackEventOnce } from '@/features/analytics'
+import { GoogleReviewsOptIn, TrackEventOnce } from '@/features/analytics'
 import { BankTransferDetails, getOrderByToken } from '@/features/orders'
 import { OrderTimeline } from '@/features/orders/ui/OrderTimeline'
+import { env } from '@/lib/env'
 
 export const metadata: Metadata = {
   title: 'Ваше замовлення',
@@ -51,6 +52,12 @@ async function OrderDetail({ params }: { params: PageProps<'/order/[token]'>['pa
           orderToken: token,
         }}
       />
+      {order.reviewSurvey && env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID ? (
+        <GoogleReviewsOptIn
+          merchantId={env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID}
+          {...order.reviewSurvey}
+        />
+      ) : null}
 
       {order.isParcelReturning ? (
         <section className="mb-6 rounded-card border border-alert-edge bg-alert-soft p-6">
