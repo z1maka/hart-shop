@@ -472,6 +472,23 @@
     "placingOrder": "Оформлюємо…",
     "noteLabel": "Коментар до замовлення (необов'язково)",
     "notePlaceholder": "Наприклад: коли зручно передзвонити, який розмір потрібен, побажання до пакування",
+    "contact": {
+      "title": "Зв'язатися зі мною через",
+      "channels": {
+        "call": "Дзвінок",
+        "viber": "Viber",
+        "telegram": "Telegram",
+        "whatsapp": "WhatsApp"
+      },
+      "sure": "Усе вірно — підтверджувати замовлення не потрібно",
+      "hints": {
+        "call": "Менеджер зателефонує на номер <number>{phone}</number>, щоб звірити дані й відділення.",
+        "no_call": "Не телефонуємо й не пишемо: відправимо за вказаними даними. Зв'яжемося, лише якщо з замовленням щось буде не так.",
+        "viber": "Напишемо у Viber на номер <number>{phone}</number>.",
+        "telegram": "Напишемо в Telegram на номер <number>{phone}</number>.",
+        "whatsapp": "Напишемо у WhatsApp на номер <number>{phone}</number>."
+      }
+    },
     "placeOrder": "Оформити замовлення — {amount}",
     "routes": {
       "cod": {

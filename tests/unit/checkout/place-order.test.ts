@@ -54,7 +54,7 @@ vi.mock('@/features/checkout/services/payment-provider', () => ({
 }))
 vi.mock('@/lib/storage', () => ({ publicUrl: vi.fn() }))
 
-import { Carrier, DeliveryKind, PaymentRoute } from '@/db/enums'
+import { Carrier, ContactPreference, DeliveryKind, PaymentRoute } from '@/db/enums'
 import { checkoutService } from '@/features/checkout/services/create-session'
 
 const ACCOUNT = {
@@ -79,6 +79,7 @@ function placeOrder(paymentRoute: PaymentRoute) {
     address: { fullName: 'Іван Коваль', line1: '', city: 'Львів', phone: '+380631234567' },
     pickupPoint: { ref: 'point-1', label: 'Львів, відділення №12' },
     customerNote: 'Передзвоніть після 18:00',
+    contactPreference: ContactPreference.Viber,
     callbackOrigin: 'https://fox-armor-ua.vercel.app',
     traffic: { source: 'google_ads', detail: null },
   })
@@ -131,6 +132,14 @@ describe('checkoutService.placeOrder — paying by transfer', () => {
 
     expect(mocks.createPendingOrder).toHaveBeenCalledWith(
       expect.objectContaining({ customerNote: 'Передзвоніть після 18:00' }),
+    )
+  })
+
+  it('keeps how the buyer wants the order confirmed', async () => {
+    await placeOrder(PaymentRoute.CashOnDelivery)
+
+    expect(mocks.createPendingOrder).toHaveBeenCalledWith(
+      expect.objectContaining({ contactPreference: ContactPreference.Viber }),
     )
   })
 

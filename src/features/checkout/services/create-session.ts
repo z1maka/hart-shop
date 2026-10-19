@@ -1,4 +1,4 @@
-import { PaymentRoute, type Carrier, type DeliveryKind } from '@/db/enums'
+import { PaymentRoute, type Carrier, type ContactPreference, type DeliveryKind } from '@/db/enums'
 import type { BankAccountDraft } from '@/config/requisites'
 import { bankAccountService, requisitesSnapshot } from '@/features/billing'
 import { cartService } from '@/features/cart/services/cart-service'
@@ -40,6 +40,7 @@ export type PlaceOrderInput = {
   readonly pickupPoint?: { readonly ref: string; readonly label: string }
   // The buyer's own words about the order; null when they left none.
   readonly customerNote: string | null
+  readonly contactPreference: ContactPreference
   // Where the acquirer returns the buyer and sends its webhook: the host this
   // checkout ran on, so a deployment always hears about its own payments.
   readonly callbackOrigin: string
@@ -75,6 +76,7 @@ export const checkoutService = {
         deliveryKind: input.deliveryKind,
         pickupPoint: input.pickupPoint ?? null,
         customerNote: input.customerNote,
+        contactPreference: input.contactPreference,
         bankRequisites,
         traffic: input.traffic,
       })

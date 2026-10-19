@@ -11,6 +11,7 @@ import {
   parcelStageLabel,
   PAYMENT_ROUTE_LABELS,
 } from '@/features/admin/ui/order-status'
+import { ContactLine } from '@/features/admin/ui/ContactLine'
 import { destinationMark } from '@/features/admin/ui/order-destination'
 import { readinessHint, readinessNote } from '@/features/admin/ui/order-readiness'
 import { TRAFFIC_SOURCE_LABELS, UNKNOWN_TRAFFIC_LABEL } from '@/features/admin/ui/traffic-labels'
@@ -234,6 +235,7 @@ function OrderRow({ order, isPicking, isSettled, isSelected, onToggle }: OrderRo
       <td className="p-3">
         {order.buyerName}
         <span className="block text-[12px] whitespace-nowrap text-faint">{order.phone ?? '—'}</span>
+        <ContactLine contact={order.contact} />
       </td>
       <td className="w-[270px] max-w-[270px] min-w-[270px] p-3">
         <DestinationCell destination={order.destination} />

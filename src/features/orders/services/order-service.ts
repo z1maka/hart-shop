@@ -2,7 +2,13 @@ import { randomBytes } from 'node:crypto'
 import type { BankAccountDraft } from '@/config/requisites'
 import { CARRIER_NAMES } from '@/config/delivery'
 import { DEFAULT_LOCALE } from '@/config/locales'
-import { OrderStatus, type Carrier, type DeliveryKind, type PaymentRoute } from '@/db/enums'
+import {
+  OrderStatus,
+  type Carrier,
+  type ContactPreference,
+  type DeliveryKind,
+  type PaymentRoute,
+} from '@/db/enums'
 import { cartRepository } from '@/features/cart/repository/cart-repository'
 import { inventoryService } from '@/features/inventory'
 import { formatOrderNumber } from '@/features/orders/model/order-number'
@@ -28,6 +34,7 @@ export type OrderDraftInput = {
   readonly deliveryKind: DeliveryKind
   readonly pickupPoint: { readonly ref: string; readonly label: string } | null
   readonly customerNote: string | null
+  readonly contactPreference: ContactPreference
   // The account a transfer order is told to pay to, fixed at checkout.
   readonly bankRequisites: BankAccountDraft | null
   // The channel the shopper came from; null when unknown.
@@ -66,6 +73,7 @@ export const orderService = {
       pickupPointRef: input.pickupPoint?.ref ?? null,
       pickupPointLabel: input.pickupPoint?.label ?? null,
       customerNote: input.customerNote,
+      contactPreference: input.contactPreference,
       country: COUNTRY,
       carrier: input.carrier,
       bankRequisites: input.bankRequisites,

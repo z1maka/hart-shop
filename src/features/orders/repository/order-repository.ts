@@ -25,6 +25,7 @@ import {
   type NotificationKind,
   OrderStatus,
   type Carrier,
+  type ContactPreference,
   DeliveryKind,
   PaymentRoute,
   type TrafficSource,
@@ -54,6 +55,7 @@ export type OrderPageRow = {
   readonly buyerName: string
   // The buyer's phone: what the team dials, and the contact every order has.
   readonly phone: string | null
+  readonly contactPreference: ContactPreference
   readonly traffic: OrderTraffic | null
   readonly paymentRoute: PaymentRoute
   readonly totalCents: number
@@ -192,6 +194,7 @@ export type OrderDraft = {
   readonly pickupPointRef: string | null
   readonly pickupPointLabel: string | null
   readonly customerNote: string | null
+  readonly contactPreference: ContactPreference
   readonly country: string
   readonly carrier: Carrier
   readonly bankRequisites: BankAccountDraft | null
@@ -244,6 +247,7 @@ export const orderRepository = {
           pickupPointRef: draft.pickupPointRef,
           pickupPointLabel: draft.pickupPointLabel,
           customerNote: draft.customerNote,
+          contactPreference: draft.contactPreference,
           country: draft.country,
           carrier: draft.carrier,
           bankRequisites: draft.bankRequisites,
@@ -623,6 +627,7 @@ export const orderRepository = {
         carrierDocumentRef: orders.carrierDocumentRef,
         trafficSource: orders.trafficSource,
         trafficDetail: orders.trafficDetail,
+        contactPreference: orders.contactPreference,
       })
       .from(orders)
       .where(listCondition(query))

@@ -3,6 +3,7 @@ import { siteConfig } from '@/config/site'
 import { parseRequisitesSnapshot } from '@/config/requisites'
 import { NotificationKind, PaymentRoute } from '@/db/enums'
 import { bankAccountService } from '@/features/billing'
+import { CONTACT_PREFERENCE_RU, isSpecialContact } from '@/features/orders/model/contact-preference'
 import {
   deliverNotification,
   skipNotification,
@@ -171,6 +172,9 @@ export const orderMail = {
       ['Доставка', [address.line1, address.city].filter(Boolean).join(', ')],
       ['Перевозчик', input.carrierName],
       ['Оплата', PAYMENT_ROUTE_RU[order.paymentRoute]],
+      ...(isSpecialContact(order.contactPreference)
+        ? [['Связь', CONTACT_PREFERENCE_RU[order.contactPreference]] as const]
+        : []),
       ['Товары', itemLines(input.items).join(' · ')],
       ...(order.customerNote ? [['Комментарий', order.customerNote] as const] : []),
     ]

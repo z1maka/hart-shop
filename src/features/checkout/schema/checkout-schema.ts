@@ -1,10 +1,14 @@
 import { z } from 'zod'
-import { Carrier, DeliveryKind, PaymentRoute } from '@/db/enums'
+import { Carrier, ContactPreference, DeliveryKind, PaymentRoute } from '@/db/enums'
 import { ORDER_NOTE_MAX_LENGTH } from '@/features/checkout/model/order-note'
 
 const carriers = Object.values(Carrier) as [Carrier, ...Carrier[]]
 const kinds = Object.values(DeliveryKind) as [DeliveryKind, ...DeliveryKind[]]
 const routes = Object.values(PaymentRoute) as [PaymentRoute, ...PaymentRoute[]]
+const contactPreferences = Object.values(ContactPreference) as [
+  ContactPreference,
+  ...ContactPreference[],
+]
 
 const line = z.string().trim().min(1).max(120)
 const optionalLine = z.string().trim().max(120)
@@ -40,6 +44,7 @@ export const StartCheckoutSchema = z
     address: ShippingAddressSchema,
     pickupPoint: PickupPointSchema.optional(),
     note: orderNote,
+    contactPreference: z.enum(contactPreferences).default(ContactPreference.Call),
   })
   .refine(
     (value) =>

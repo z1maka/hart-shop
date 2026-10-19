@@ -147,3 +147,15 @@ export const TrafficSource = {
 } as const
 
 export type TrafficSource = (typeof TrafficSource)[keyof typeof TrafficSource]
+
+// How the buyer wants the order confirmed: the shop's usual call, no contact
+// at all because they are sure, or a message in their messenger instead.
+export const ContactPreference = {
+  Call: 'call',
+  NoCall: 'no_call',
+  Viber: 'viber',
+  Telegram: 'telegram',
+  WhatsApp: 'whatsapp',
+} as const
+
+export type ContactPreference = (typeof ContactPreference)[keyof typeof ContactPreference]

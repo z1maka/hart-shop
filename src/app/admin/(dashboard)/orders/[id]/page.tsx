@@ -65,6 +65,29 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
 
       <div className="flex flex-wrap items-start gap-4">
         <div className="grid min-w-[min(100%,340px)] flex-[999_1_460px] gap-4">
+          {/* First thing the team sees: whether to call at all. */}
+          {order.contact.isSpecial ? (
+            <section className="rounded-card border border-accent-edge bg-accent-tint p-5">
+              <h2 className="mb-2 text-[14px] font-semibold text-ink">Связь с покупателем</h2>
+              <p className="text-[13.5px] leading-relaxed text-ink first-letter:uppercase">
+                {order.contact.label}
+                {order.contact.chatUrl ? (
+                  <>
+                    {' · '}
+                    <a
+                      href={order.contact.chatUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold underline underline-offset-2 hover:text-accent-hover"
+                    >
+                      открыть чат
+                    </a>
+                  </>
+                ) : null}
+              </p>
+            </section>
+          ) : null}
+
           {/* Above the lines: the buyer's words can change what goes in the box. */}
           {order.customerNote ? (
             <section className="rounded-card border border-accent-edge bg-accent-tint p-5">
@@ -118,6 +141,7 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
               <Row label="Получатель" value={order.address.fullName} />
               {order.email ? <Row label="Почта" value={order.email} /> : null}
               {order.address.phone ? <Row label="Телефон" value={order.address.phone} /> : null}
+              <Row label="Связь" value={order.contact.label} />
               {order.buyerCompany ? <Row label="Компания" value={order.buyerCompany} /> : null}
               <Row
                 label="Адрес"

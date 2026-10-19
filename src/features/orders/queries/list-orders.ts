@@ -1,4 +1,5 @@
 import { Carrier, type OrderStatus, type PaymentRoute } from '@/db/enums'
+import { contactView, type ContactView } from '@/features/orders/model/contact-preference'
 import {
   DestinationKind,
   destinationWithPoint,
@@ -37,6 +38,8 @@ export type OrderListRow = {
   readonly placedDayLabel: string
   readonly buyerName: string
   readonly phone: string | null
+  // How the buyer wants the order confirmed, and a chat when they asked for one.
+  readonly contact: ContactView
   // The channel the buyer came from; null when unknown.
   readonly traffic: OrderTraffic | null
   readonly paymentRoute: PaymentRoute
@@ -117,6 +120,7 @@ function toListRow(entry: ResolvedRow, knownPoints: ReadonlySet<string>): OrderL
     placedDayLabel: formatDate(row.createdAt),
     buyerName: row.buyerName,
     phone: row.phone,
+    contact: contactView(row.contactPreference, row.phone),
     traffic: row.traffic,
     paymentRoute: row.paymentRoute,
     totalLabel: formatMoney(createMoney(row.totalCents, Currency.Uah)),

@@ -48,6 +48,11 @@
   --color-alert-soft: #f5e9e3;
   --color-alert-on-dark: #f0a48f;
 
+  /* Messenger marks keep their own colours: a buyer finds Viber by its purple. */
+  --color-brand-viber: #7360f2;
+  --color-brand-telegram: #26a5e4;
+  --color-brand-whatsapp: #25d366;
+
   --color-camo-multicam: #7d6b4a;
   --color-camo-olive: #4a5a3a;
   --color-camo-pixel: #5d6e58;

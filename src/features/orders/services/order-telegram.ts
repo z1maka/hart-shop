@@ -12,7 +12,12 @@ import {
   type WaybillNotice,
 } from '@/features/orders/model/notification-format'
 import type { OrderMailInput } from '@/features/orders/services/order-mail'
+import type { OrderRow } from '@/features/orders/repository/order-repository'
 import { NotificationKind } from '@/db/enums'
+import {
+  CONTACT_PREFERENCE_RU,
+  messengerWebChatUrl,
+} from '@/features/orders/model/contact-preference'
 import { deliverNotification, skipNotification } from '@/features/orders/services/notification-log'
 import { env } from '@/lib/env'
 import { isTelegramConfigured, sendTelegramDocument, sendTelegramMessage } from '@/lib/telegram'
@@ -36,6 +41,7 @@ export const orderTelegram = {
       '',
       `Покупатель: ${escapeHtml(address.fullName)}`,
       ...(address.phone ? [`Телефон: ${escapeHtml(address.phone)}`] : []),
+      contactLine(order),
       ...(order.email ? [`Email: ${escapeHtml(order.email)}`] : []),
       `Доставка: ${escapeHtml([address.line1, address.city].filter(Boolean).join(', '))}`,
       `Перевозчик: ${escapeHtml(input.carrierName)}`,
@@ -102,4 +108,12 @@ export const orderTelegram = {
       }),
     )
   },
+}
+
+// Right under the phone, so whoever takes the order sees how to reach the
+// buyer before dialling; a messenger comes with its chat when Telegram can link it.
+function contactLine(order: OrderRow): string {
+  const label = `<b>Связь: ${CONTACT_PREFERENCE_RU[order.contactPreference]}</b>`
+  const chatUrl = messengerWebChatUrl(order.contactPreference, order.shippingAddress.phone)
+  return chatUrl ? `${label} · <a href="${escapeHtml(chatUrl)}">открыть чат</a>` : label
 }

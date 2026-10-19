@@ -43,6 +43,7 @@ import {
   type CarrierAccount,
   type ParcelStage,
 } from '@/features/shipping'
+import { contactView, type ContactView } from '@/features/orders/model/contact-preference'
 import { toUkrainianMsisdn } from '@/features/orders/model/phone'
 import { isQuickOrder, QUICK_ORDER_POINT_REF } from '@/features/orders/model/quick-order'
 import { notificationRepository } from '@/features/orders/repository/notification-repository'
@@ -157,6 +158,9 @@ export type AdminOrderView = {
   readonly buyerCompany: string | null
   readonly invoiceNumber: string | null
   readonly customerNote: string | null
+  // How the buyer wants the order confirmed, in the team's words, and a chat
+  // with them when they asked for a messenger.
+  readonly contact: ContactView
   // The channel the buyer came from; null when unknown (tracking refused,
   // or placed before the shop recorded it).
   readonly traffic: OrderTraffic | null
@@ -209,6 +213,7 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrderView | n
     buyerCompany: order.buyerCompany,
     invoiceNumber: order.invoiceNumber,
     customerNote: order.customerNote,
+    contact: contactView(order.contactPreference, order.shippingAddress.phone),
     traffic: order.trafficSource
       ? { source: order.trafficSource, detail: order.trafficDetail }
       : null,

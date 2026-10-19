@@ -1,6 +1,6 @@
 'use server'
 
-import { Carrier, DeliveryKind, PaymentRoute } from '@/db/enums'
+import { Carrier, ContactPreference, DeliveryKind, PaymentRoute } from '@/db/enums'
 import { readTrafficTouch } from '@/features/analytics/session'
 import { clearCartId, readCartId } from '@/features/cart/session'
 import { normalizeOrderNote } from '@/features/checkout/model/order-note'
@@ -29,6 +29,7 @@ export async function startCheckoutAction(input: unknown): Promise<ActionResult<
       address: parsed.data.address,
       pickupPoint: parsed.data.pickupPoint,
       customerNote: normalizeOrderNote(parsed.data.note),
+      contactPreference: parsed.data.contactPreference,
       callbackOrigin: await requestOrigin(),
       traffic: await readTrafficTouch(),
     })
@@ -75,6 +76,8 @@ export async function quickOrderAction(input: unknown): Promise<ActionResult<str
       },
       pickupPoint: point,
       customerNote: normalizeOrderNote(parsed.data.note),
+      // A quick order is settled by the call the buyer asked for.
+      contactPreference: ContactPreference.Call,
       callbackOrigin: await requestOrigin(),
       traffic: await readTrafficTouch(),
     })

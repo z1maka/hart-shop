@@ -1,0 +1,1 @@
+ALTER TABLE "orders" ADD COLUMN "contact_preference" text DEFAULT 'call' NOT NULL;

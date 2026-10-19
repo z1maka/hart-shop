@@ -7,9 +7,10 @@ import { NovaPoshtaMark } from '@/components/ui/NovaPoshtaMark'
 import { UaPhoneField, isUaPhoneComplete, maskUaPhone } from '@/components/ui/UaPhoneField'
 import { PHONE_HANDOFF_KEY } from '@/features/checkout/model/phone-handoff'
 import { trackEvent, type AnalyticsItem } from '@/features/analytics'
-import { Carrier, DeliveryKind, PaymentRoute } from '@/db/enums'
+import { Carrier, ContactPreference, DeliveryKind, PaymentRoute } from '@/db/enums'
 import { deliveryKindsFor, MANUAL_PICKUP_POINT_REF, needsStreetAddress } from '@/config/delivery'
 import { startCheckoutAction } from '@/features/checkout/actions/checkout-actions'
+import { ContactPreferencePicker } from '@/features/checkout/ui/ContactPreferencePicker'
 import { PickupPointPicker } from '@/features/checkout/ui/PickupPointPicker'
 import { cn } from '@/lib/utils'
 import { inputClassName, textareaClassName } from '@/components/ui/Field'
@@ -85,6 +86,9 @@ export function CheckoutFlow({
   const [pickupPoint, setPickupPoint] = useState<{ ref: string; label: string } | null>(null)
   const [choiceKey, setChoiceKey] = useState<string>(PaymentRoute.CashOnDelivery)
   const [note, setNote] = useState('')
+  const [contactPreference, setContactPreference] = useState<ContactPreference>(
+    ContactPreference.Call,
+  )
   const [error, setError] = useState<string | null>(null)
   const [invalidFields, setInvalidFields] = useState<readonly string[]>([])
   const [isPending, startTransition] = useTransition()
@@ -257,6 +261,7 @@ export function CheckoutFlow({
         },
         pickupPoint: chosenPoint,
         note,
+        contactPreference,
       })
 
       if (!result.ok) {
@@ -515,6 +520,14 @@ export function CheckoutFlow({
               )
             })}
           </div>
+
+          {/* Asked last, once the buyer has seen the whole order: the shop calls
+              to confirm unless they say they are sure or want a message. */}
+          <ContactPreferencePicker
+            value={contactPreference}
+            phone={phone}
+            onChange={setContactPreference}
+          />
 
           <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
             {t('noteLabel')}
