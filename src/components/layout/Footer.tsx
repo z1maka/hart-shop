@@ -10,7 +10,8 @@ export type FooterProps = {
 
 // The pages a shopper looks for, in the Гарт design's order. The guides stay
 // although the design left them out: this column is their one link from every
-// page. The privacy policy and the seller's details sit in the bottom row.
+// page. The offer, the privacy policy and the seller's details sit in the
+// bottom row.
 const CUSTOMER_LINK_KEYS = [
   { key: 'delivery', href: '/delivery/' },
   { key: 'refunds', href: '/refund-policy/' },
@@ -74,7 +75,10 @@ export async function Footer({ categories }: FooterProps) {
             </a>
           </span>
         </div>
-        <nav className="flex gap-4">
+        <nav className="flex flex-wrap gap-x-4 gap-y-1">
+          <Link href="/publichna-oferta/" className="hover:text-on-dark">
+            {t('offer')}
+          </Link>
           <Link href="/privacy-policy/" className="hover:text-on-dark">
             {t('privacy')}
           </Link>

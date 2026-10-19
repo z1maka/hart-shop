@@ -12,6 +12,7 @@ const STATIC_PATHS: readonly string[] = [
   '/delivery/',
   '/refund-policy/',
   '/privacy-policy/',
+  '/publichna-oferta/',
   '/contact/',
   '/poshyv-na-zamovlennya/',
   '/guides/',
