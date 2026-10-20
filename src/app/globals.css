@@ -58,6 +58,7 @@
   --color-camo-pixel: #5d6e58;
   --color-camo-winter: #e7e5e0;
   --color-camo-white: #f4f3ef;
+  --color-camo-blot: #5b5148;
   --color-camo-coyote: #8a7454;
   --color-camo-kryptek: #4a4f3f;
   --color-camo-leopard: #7a6a4e;
@@ -219,6 +220,16 @@
       opacity: 0;
     }
   }
+}
+
+/* «Зимова клякса» is a white field with sparse dark blots: a flat white swatch
+   would read as plain «Білий». */
+@utility bg-camo-winter-blot {
+  background-color: var(--color-camo-white);
+  background-image:
+    radial-gradient(circle at 28% 32%, var(--color-camo-blot) 0 17%, transparent 18%),
+    radial-gradient(circle at 72% 62%, var(--color-camo-blot) 0 13%, transparent 14%),
+    radial-gradient(circle at 40% 82%, var(--color-camo-blot) 0 8%, transparent 9%);
 }
 
 @layer base {

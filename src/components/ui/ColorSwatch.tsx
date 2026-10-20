@@ -20,6 +20,7 @@ const PATTERN_CLASSES: Record<string, string> = {
   Зимовий: 'bg-camo-winter',
   'Winter Multicam': 'bg-camo-winter',
   'Зимовий мультикам': 'bg-camo-winter',
+  'Зимова клякса': 'bg-camo-winter-blot',
   White: 'bg-camo-white',
   Білий: 'bg-camo-white',
   Coyote: 'bg-camo-coyote',
