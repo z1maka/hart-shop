@@ -35,3 +35,22 @@ export const FEED_EXCLUDED_SLUGS: readonly string[] = [
   'kriplennya-povorotni-na-reytsi-arc-na-sholom',
   'komplekt-oryhinalnyy-aktyvni-navushnyky-walkers-razor-usa-z-povorotnymy-kriplennyamy',
 ]
+
+// When not empty, the Google feed carries only these variants. Merchant Center
+// suspended the account for misrepresentation on 20.10.2026; until it is
+// reinstated the owner lists only the advertised items shot by the shop
+// itself (FX14 in winter has no photos of its own yet). The Meta feed and the
+// site are not affected.
+export const MERCHANT_FEED_VARIANT_SKUS: readonly string[] = [
+  '3600-2-MULTICAM',
+  'HART-P3-WINTER',
+  'HART-P3-POCKET-MULTICAM',
+  'HART-P3-POCKET-OL-OLIVE',
+  'HART-P3-POCKET-PX-PIXEL',
+  'HART-35563-MULTICAM',
+  'HART-35986-PIXEL',
+  'HART-SL-COOL-3D-MULTICAM',
+  'HART-SL-COOL-3D-PX-PIXEL',
+  'HART-SL-VENT-3D-WINTER',
+  'HART-38679-V38680',
+]

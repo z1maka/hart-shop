@@ -89,6 +89,11 @@ export function feedListedProducts<T extends { readonly slug: string }>(
   return products.filter((product) => !FEED_EXCLUDED_SLUGS.includes(product.slug))
 }
 
+// An empty allowlist lists every variant.
+export function isAllowlistedVariant(sku: string, allowlist: readonly string[]): boolean {
+  return allowlist.length === 0 || allowlist.includes(sku)
+}
+
 // The plugin made one offer per simple WordPress product. Where the site now
 // sells that product in several colours, one of them carries the product's
 // id and its history: the untouched `-STD` variant, else the first colour.

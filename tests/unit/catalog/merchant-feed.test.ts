@@ -3,6 +3,7 @@ import {
   escapeXml,
   feedItemOf,
   feedListedProducts,
+  isAllowlistedVariant,
   materialOf,
   merchantFeedXml,
   metaCatalogItemOf,
@@ -62,6 +63,19 @@ describe('feedListedProducts', () => {
     expect(feedListedProducts(products)).toEqual([
       { slug: 'anty-teploviziyna-nakydka-poncho-a6286' },
     ])
+  })
+})
+
+describe('isAllowlistedVariant', () => {
+  it('lists only the named variants', () => {
+    const allowlist = ['3600-2-MULTICAM']
+
+    expect(isAllowlistedVariant('3600-2-MULTICAM', allowlist)).toBe(true)
+    expect(isAllowlistedVariant('3600-2-WINTER', allowlist)).toBe(false)
+  })
+
+  it('lists every variant when the allowlist is empty', () => {
+    expect(isAllowlistedVariant('3600-2-WINTER', [])).toBe(true)
   })
 })
 
