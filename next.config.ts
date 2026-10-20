@@ -107,6 +107,13 @@ const RENAMED_WORDPRESS_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
     'komplekt-sholom-kevlar-3a-fast-nij0106-01-iiia-3a-oryhinal-aktyvni-navushnyky-walkers-razor',
 }
 
+// Slugs this shop changed after launch, Cyrillic ones moved to Latin on the
+// owner's request (20.10.2026). Each change ships with its redirect here
+// (AGENTS.md §1). Old → current.
+const RENAMED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
+  'чохол-антитепловізор-та-антидрон-для-2': 'antyteploviziynyi-chokhol-na-antenu-avenger',
+}
+
 // Products folded into another card: the old page moves to where its variants
 // are sold now. The Gen 3 cover became the «Gen 3 / Gen 4» choice of the
 // Gen 2–4 card (owner, 20.10.2026). Old → current.
@@ -162,6 +169,7 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       ...productRedirects(RENAMED_WORDPRESS_PRODUCT_SLUGS),
+      ...productRedirects(RENAMED_PRODUCT_SLUGS),
       ...productRedirects(MERGED_PRODUCT_SLUGS),
     ]
   },

@@ -62,7 +62,7 @@ export const HOME_STARLINK_CHOOSER = [
       { key: 'gen2to4', slug: 'chekhol-antiteplovizor-i-antidron-dlya-starlink' },
       { key: 'mini', slug: 'copy-case-anti-thermal-vision-and-anti-dr' },
       { key: 'adaptis', slug: 'чохол-антитепловізор-та-антидрон-для' },
-      { key: 'avenger', slug: 'чохол-антитепловізор-та-антидрон-для-2' },
+      { key: 'avenger', slug: 'antyteploviziynyi-chokhol-na-antenu-avenger' },
     ],
   },
   {
