@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import { ColorSwatch } from '@/components/ui/ColorSwatch'
 import { SizeGuideDialog } from '@/components/ui/SizeGuideDialog'
 import { sizeGuideRowsFor } from '@/config/size-guide'
-import { sizeAxisOf } from '@/config/variant-size'
+import { sizeAxisOf, sizeNoteOf } from '@/config/variant-size'
 import { Button } from '@/components/ui/Button'
 import { useSelectedColor } from '@/components/ui/SelectedColor'
 import { addToCartAction } from '@/features/cart/actions/cart-actions'
@@ -208,6 +208,8 @@ export function AddToCartForm({
                 (candidate) => candidate.color === color && candidate.size === entry,
               )
               const isDisabled = !variant?.isAvailable
+              const isActive = entry === activeSize
+              const note = sizeNoteOf(entry)
 
               return (
                 <button
@@ -215,10 +217,10 @@ export function AddToCartForm({
                   type="button"
                   disabled={isDisabled}
                   onClick={() => setSize(entry)}
-                  aria-pressed={entry === activeSize}
+                  aria-pressed={isActive}
                   className={cn(
-                    'min-h-11.5 rounded-control border-[1.5px] px-4.5 text-[13.5px] font-bold transition-colors',
-                    entry === activeSize
+                    'flex min-h-11.5 flex-col items-center justify-center rounded-option border-[1.5px] px-5 py-2 text-[13.5px] font-bold transition-colors',
+                    isActive
                       ? 'border-ink bg-ink text-on-dark'
                       : 'border-strong bg-raised text-ink hover:border-ink',
                     isDisabled &&
@@ -226,6 +228,16 @@ export function AddToCartForm({
                   )}
                 >
                   {entry}
+                  {note ? (
+                    <span
+                      className={cn(
+                        'mt-0.5 text-[11.5px] leading-tight font-medium',
+                        isActive ? 'text-on-dark/75' : 'text-muted',
+                      )}
+                    >
+                      {note}
+                    </span>
+                  ) : null}
                 </button>
               )
             })}

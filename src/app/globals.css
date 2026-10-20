@@ -92,6 +92,8 @@
   --radius-chip: 3px;
   --radius-control: 4px;
   --radius-card: 6px;
+  /* Size and model choices: softer than a control, so they read as options. */
+  --radius-option: 12px;
   --radius-pill: 100px;
 
   --shadow-hero: 0 24px 50px rgb(31 42 31 / 0.22);
