@@ -109,9 +109,12 @@ const RENAMED_WORDPRESS_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
 
 // Slugs this shop changed after launch, Cyrillic ones moved to Latin on the
 // owner's request (20.10.2026). Each change ships with its redirect here
-// (AGENTS.md §1). Old → current.
+// (AGENTS.md §1), every old slug pointing straight at the current one. The
+// «Avenger» card turned out to be the Acasom ROC-6 cover (owner, 20.10.2026).
+// Old → current.
 const RENAMED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
-  'чохол-антитепловізор-та-антидрон-для-2': 'antyteploviziynyi-chokhol-na-antenu-avenger',
+  'чохол-антитепловізор-та-антидрон-для-2': 'antyteploviziynyi-chokhol-na-acasom-roc-6',
+  'antyteploviziynyi-chokhol-na-antenu-avenger': 'antyteploviziynyi-chokhol-na-acasom-roc-6',
 }
 
 // Products folded into another card: the old page moves to where its variants
