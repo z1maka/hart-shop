@@ -64,6 +64,7 @@ export const HOME_STARLINK_CHOOSER = [
       { key: 'adaptis', slug: 'чохол-антитепловізор-та-антидрон-для' },
       { key: 'avenger', slug: 'antyteploviziynyi-chokhol-na-avenger-big-hulk' },
       { key: 'acasom', slug: 'antyteploviziynyi-chokhol-na-acasom-roc-6' },
+      { key: 'acasomRoc4', slug: 'antyteploviziynyi-chokhol-na-acasom-roc-4' },
     ],
   },
   {
