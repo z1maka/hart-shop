@@ -84,8 +84,8 @@ describe('productJsonLd', () => {
       unitCode: 'DAY',
     })
     expect(offers.shippingDetails.deliveryTime.transitTime).toMatchObject({
-      minValue: 0,
-      maxValue: 1,
+      minValue: 1,
+      maxValue: 2,
       unitCode: 'DAY',
     })
     expect(offers.shippingDetails.shippingRate).toEqual({

@@ -43,13 +43,14 @@ export const WAYBILL_PARCEL_GRAMS = { min: 100, max: 30_000 } as const
 export const WAYBILL_DESCRIPTION_MAX_LENGTH = 100
 
 // What the product pages tell Google about delivery, kept to the Merchant
-// Center shipping rule «2 days-paid»: 0–2 business days in total. The shop
-// dispatches the same or the next day («Відправка щодня»).
+// Center shipping rule «Нова Пошта»: 1–3 business days in total. The shop
+// dispatches the same or the next day («Відправка щодня»), and the delivery
+// page promises the parcel 1–2 business days after dispatch.
 export const DISPATCH_DAYS = { min: 0, max: 1 } as const
-export const TRANSIT_DAYS = { min: 0, max: 1 } as const
+export const TRANSIT_DAYS = { min: 1, max: 2 } as const
 
 // The same rule's cost by parcel weight, as entered in Merchant Center on
-// 30.09.2026. The buyer pays the carrier on receipt, so these are Nova
+// 20.10.2026. The buyer pays the carrier on receipt, so these are Nova
 // Poshta's branch-to-branch tariffs (in force from 10.09.2026) rounded up to
 // cover the declared-value fee: Google accepts an overestimate, never less.
 // The markup and Merchant Center must say the same — change both together.
