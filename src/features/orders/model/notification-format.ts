@@ -1,4 +1,5 @@
 import { bankMfo, paymentPurpose, type BankRequisites } from '@/config/requisites'
+import { SizeAxis, sizeAxisOf } from '@/config/variant-size'
 import { Carrier, PaymentRoute } from '@/db/enums'
 import type { OrderItemRow } from '@/features/orders/repository/order-repository'
 import { groupIban } from '@/lib/iban'
@@ -31,6 +32,7 @@ export type PackingSource = {
   readonly packingTitle: string | null
   readonly shortTitle: string | null
   readonly color: string | null
+  readonly size: string | null
 }
 
 export type PackingItem = {
@@ -38,25 +40,37 @@ export type PackingItem = {
   // The workshop's name; the shop's short title until the owner gives one.
   readonly name: string
   readonly color: string | null
+  readonly size: string | null
   readonly quantity: number
 }
 
 export function toPackingItem(source: PackingSource, siteUrl: string): PackingItem {
   const slug = source.currentSlug ?? source.productSlug
+  // A deleted variant names neither colour nor size: the label bought then
+  // stands in for the colour, so the line still says what went in the box.
+  const isVariantGone = source.color === null && source.size === null
   return {
     productUrl: `${siteUrl}/product/${encodeURIComponent(slug)}/`,
     name: source.packingTitle?.trim() || source.shortTitle?.trim() || source.productTitle,
-    color: source.color ?? (source.variantLabel.trim() || null),
+    color: source.color ?? (isVariantGone ? source.variantLabel.trim() || null : null),
+    size: source.size,
     quantity: source.quantity,
   }
 }
 
+const PACKING_SIZE_LABEL: Record<SizeAxis, string> = {
+  [SizeAxis.Size]: 'розмір',
+  [SizeAxis.StarlinkModel]: 'модель',
+}
+
 // The workshop picks goods by its own names (owner's format, 19.10.2026): the
-// page, the name and the colour; the count only when there is more than one.
+// page, the name, the colour and the size or Starlink model it is cut to; the
+// count only when there is more than one.
 export function packingItemLines(item: PackingItem): string[] {
   return [
     `${item.productUrl} - ${item.name}`,
     ...(item.color ? [`колір: ${item.color.toLowerCase()}`] : []),
+    ...(item.size ? [`${PACKING_SIZE_LABEL[sizeAxisOf([item.size])]}: ${item.size}`] : []),
     ...(item.quantity > 1 ? [`кількість: ${item.quantity}`] : []),
   ]
 }

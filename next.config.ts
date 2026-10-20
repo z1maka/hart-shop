@@ -107,6 +107,23 @@ const RENAMED_WORDPRESS_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
     'komplekt-sholom-kevlar-3a-fast-nij0106-01-iiia-3a-oryhinal-aktyvni-navushnyky-walkers-razor',
 }
 
+// Products folded into another card: the old page moves to where its variants
+// are sold now. The Gen 3 cover became the «Gen 3 / Gen 4» choice of the
+// Gen 2–4 card (owner, 20.10.2026). Old → current.
+const MERGED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
+  'chokhol-antiteplovizor-i-antidron-dlya-starlinka-starlink-gen-3':
+    'chekhol-antiteplovizor-i-antidron-dlya-starlink',
+}
+
+// A Cyrillic slug arrives percent-encoded, and redirects match the raw path.
+function productRedirects(slugs: Readonly<Record<string, string>>) {
+  return Object.entries(slugs).map(([oldSlug, currentSlug]) => ({
+    source: `/product/${encodeURIComponent(oldSlug)}`,
+    destination: `/product/${currentSlug}/`,
+    permanent: true,
+  }))
+}
+
 const nextConfig: NextConfig = {
   // Baked into both bundles at build time: an admin form carries it, and a
   // save from a tab opened before a deploy is refused with «перезагрузите
@@ -144,13 +161,8 @@ const nextConfig: NextConfig = {
         destination: '/product-category/:slug/?page=:page',
         permanent: true,
       },
-      // Encoded for the same reason as the category above: a Cyrillic slug
-      // arrives percent-encoded.
-      ...Object.entries(RENAMED_WORDPRESS_PRODUCT_SLUGS).map(([oldSlug, currentSlug]) => ({
-        source: `/product/${encodeURIComponent(oldSlug)}`,
-        destination: `/product/${currentSlug}/`,
-        permanent: true,
-      })),
+      ...productRedirects(RENAMED_WORDPRESS_PRODUCT_SLUGS),
+      ...productRedirects(MERGED_PRODUCT_SLUGS),
     ]
   },
   async rewrites() {

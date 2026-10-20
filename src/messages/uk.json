@@ -198,8 +198,7 @@
         }
       },
       "options": {
-        "gen2": "Starlink Gen 2",
-        "gen3": "Starlink Gen 3",
+        "gen2to4": "Starlink Gen 2, Gen 3, Gen 4",
         "mini": "Starlink Mini",
         "adaptis": "Антена Adaptis",
         "avenger": "Антена Avenger",
@@ -297,6 +296,7 @@
   "addToCart": {
     "pattern": "Патерн — {color}",
     "size": "Розмір",
+    "starlinkModel": "Модель Starlink",
     "decrease": "Зменшити кількість",
     "increase": "Збільшити кількість",
     "addWithPrice": "До кошика — {price}",

@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { ColorSwatch } from '@/components/ui/ColorSwatch'
 import { SizeGuideDialog } from '@/components/ui/SizeGuideDialog'
 import { sizeGuideRowsFor } from '@/config/size-guide'
+import { sizeAxisOf } from '@/config/variant-size'
 import { Button } from '@/components/ui/Button'
 import { useSelectedColor } from '@/components/ui/SelectedColor'
 import { addToCartAction } from '@/features/cart/actions/cart-actions'
@@ -198,7 +199,7 @@ export function AddToCartForm({
       {sizes.length > 0 ? (
         <div>
           <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[13px] font-bold text-ink">{t('size')}</p>
+            <p className="text-[13px] font-bold text-ink">{t(sizeAxisOf(sizes))}</p>
             {sizeGuideRows.length > 0 ? <SizeGuideDialog rows={sizeGuideRows} /> : null}
           </div>
           <div className="flex flex-wrap gap-2">

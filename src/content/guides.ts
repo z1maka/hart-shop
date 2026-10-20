@@ -249,7 +249,7 @@ export const GUIDES: readonly Guide[] = [
     lead:
       'Працюючий термінал гріється, а в мороз ще й вмикає підігрів, щоб на ньому не налипав сніг. У тепловізорі дрона це яскравий прямокутник з рівними краями, який легко впізнати. Щоб обрати чохол, достатньо відповісти на три питання.',
     publishedAt: '2026-10-13',
-    updatedAt: '2026-10-13',
+    updatedAt: '2026-10-20',
     categorySlug: 'чохли-для-starlink',
     sections: [
       {
@@ -258,10 +258,9 @@ export const GUIDES: readonly Guide[] = [
           'Звичайні чохли фігурні й шиються під конкретний корпус, тому перед замовленням перевірте покоління. Якщо змінили термінал, перевірте й посадку: корпуси поколінь відрізняються.',
         ],
         bullets: [
-          'Starlink Gen 2, прямокутний: тришаровий чохол 544 × 513 × 303 мм, 550 г.',
-          'Starlink Gen 3 у стандартному комплекті: тришаровий чохол, 620 г.',
+          'Starlink Gen 2, Gen 3 і Gen 4: один тришаровий фігурний чохол, модель обираєте біля кольору. Під прямокутний Gen 2 він 544 × 513 × 303 мм і 550 г, під Gen 3 і Gen 4 у стандартному комплекті 620 г.',
           'Starlink Mini: 30 × 26 × 40 см, 380 г, для руху й коротких зупинок.',
-          'Зимовий тришаровий чохол: один на Gen 2, Gen 3 і Gen 4, 600 г.',
+          'Зимовий тришаровий чохол: так само на Gen 2, Gen 3 і Gen 4 з вибором моделі, 600 г.',
           'Антени Adaptis і AvengeAngel Avenger: окремі фігурні чохли.',
           'Чохол із маскувальною сіткою, посилені з вентиляцією й самоохолоджувальний: шиємо під довжину, ширину й висоту вашого терміналу, які ви надсилаєте після замовлення.',
         ],
@@ -308,8 +307,7 @@ export const GUIDES: readonly Guide[] = [
       },
     ],
     products: [
-      { slug: 'chekhol-antiteplovizor-i-antidron-dlya-starlink', label: 'Чохол на Starlink Gen 2' },
-      { slug: 'chokhol-antiteplovizor-i-antidron-dlya-starlinka-starlink-gen-3', label: 'Чохол на Starlink Gen 3' },
+      { slug: 'chekhol-antiteplovizor-i-antidron-dlya-starlink', label: 'Чохол на Starlink Gen 2, Gen 3, Gen 4' },
       { slug: 'copy-case-anti-thermal-vision-and-anti-dr', label: 'Чохол на Starlink Mini' },
       { slug: 'winter-cover-anti-thermal-vision-and-anti', label: 'Зимовий чохол на Starlink Gen 2, Gen 3, Gen 4' },
       { slug: 'antyteplovizornyy-chokhol-na-starlink-iz-maskuvalnoyu-sitkoyu', label: 'Чохол на Starlink з маскувальною сіткою' },

@@ -812,8 +812,8 @@ export const orderRepository = {
   },
 
   // The lines next to the product as it is now — the workshop's name, the
-  // current page and the bought variant's colour; a deleted variant leaves
-  // only the snapshot.
+  // current page and the bought variant's colour and size; a deleted variant
+  // leaves only the snapshot.
   async findPackingSources(orderId: string): Promise<PackingSource[]> {
     return db
       .select({
@@ -825,6 +825,7 @@ export const orderRepository = {
         packingTitle: products.packingTitle,
         shortTitle: products.shortTitle,
         color: sql<string | null>`${productVariants.options} ->> 'Color'`,
+        size: sql<string | null>`${productVariants.options} ->> 'Size'`,
       })
       .from(orderItems)
       .leftJoin(productVariants, eq(productVariants.id, orderItems.variantId))

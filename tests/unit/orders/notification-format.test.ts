@@ -165,6 +165,7 @@ function packingSource(overrides: Partial<PackingSource>): PackingSource {
     packingTitle: 'чохол на старлінк з ребрами+ сітка',
     shortTitle: 'Зимовий чохол на Starlink з 3D-сіткою',
     color: 'Білий',
+    size: null,
     ...overrides,
   }
 }
@@ -175,8 +176,18 @@ describe('toPackingItem', () => {
       productUrl: 'https://hart-shop.com/product/zymovyi-chokhol-na-starlink-z-3d-sitkoiu/',
       name: 'чохол на старлінк з ребрами+ сітка',
       color: 'Білий',
+      size: null,
       quantity: 1,
     })
+  })
+
+  it('carries the size the bought variant is cut to', () => {
+    expect(toPackingItem(packingSource({ size: 'Gen 3 / Gen 4' }), SITE).size).toBe('Gen 3 / Gen 4')
+  })
+
+  it('does not pass a size-only label off as a colour', () => {
+    const item = toPackingItem(packingSource({ color: null, size: 'XL', variantLabel: 'XL' }), SITE)
+    expect(item).toMatchObject({ color: null, size: 'XL' })
   })
 
   it('falls back to the short title, then to the title the buyer saw', () => {
@@ -215,6 +226,7 @@ describe('packingItemLines', () => {
     productUrl: 'https://hart-shop.com/product/maskuvalne-poncho-fx14-3d-lystya-class-d/',
     name: 'пончо усиленный + сетка',
     color: 'Зимовий мультикам',
+    size: null,
     quantity: 1,
   }
 
@@ -233,6 +245,15 @@ describe('packingItemLines', () => {
   it('leaves the colour line out for a colourless product', () => {
     expect(packingItemLines({ ...item, color: null })).toHaveLength(1)
   })
+
+  it('names the Starlink model a cover is cut to, or the size of anything else', () => {
+    expect(packingItemLines({ ...item, color: 'Олива', size: 'Gen 3 / Gen 4' })).toEqual([
+      'https://hart-shop.com/product/maskuvalne-poncho-fx14-3d-lystya-class-d/ - пончо усиленный + сетка',
+      'колір: олива',
+      'модель: Gen 3 / Gen 4',
+    ])
+    expect(packingItemLines({ ...item, size: 'XL' })).toContain('розмір: XL')
+  })
 })
 
 describe('waybillIssuedTelegramText', () => {
@@ -240,6 +261,7 @@ describe('waybillIssuedTelegramText', () => {
     productUrl: 'https://hart-shop.com/product/antydron-poncho-predator-class-c-uv-em-zakhyst/',
     name: 'пончо скафандр',
     color: 'Олива',
+    size: null,
     quantity: 2,
   }
   const notice: WaybillNotice = {
@@ -284,6 +306,7 @@ describe('waybillIssuedTelegramText', () => {
       productUrl: 'https://hart-shop.com/product/blanket/',
       name: 'одеяло',
       color: null,
+      size: null,
       quantity: 1,
     }
     expect(waybillIssuedTelegramText({ ...notice, items: [packed, blanket] })).toContain(

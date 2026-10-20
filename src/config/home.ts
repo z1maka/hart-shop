@@ -53,13 +53,13 @@ const STARLINK_3D_AUTUMN_SLUG = 'samookholodzhuvalnyi-chokhol-na-starlink-z-3d-s
 // each answer pointing at the cover that fits it. Where one of the shop's own
 // 3D-mesh covers fits, it is the answer (owner, 19.10.2026) — the autumn one
 // answers two questions; terminal models and the all-season vent stay on the
-// shaped covers.
+// shaped covers. Gen 2, 3 and 4 share one card, the model picked by the
+// colour (owner, 20.10.2026).
 export const HOME_STARLINK_CHOOSER = [
   {
     key: 'terminal',
     options: [
-      { key: 'gen2', slug: 'chekhol-antiteplovizor-i-antidron-dlya-starlink' },
-      { key: 'gen3', slug: 'chokhol-antiteplovizor-i-antidron-dlya-starlinka-starlink-gen-3' },
+      { key: 'gen2to4', slug: 'chekhol-antiteplovizor-i-antidron-dlya-starlink' },
       { key: 'mini', slug: 'copy-case-anti-thermal-vision-and-anti-dr' },
       { key: 'adaptis', slug: 'чохол-антитепловізор-та-антидрон-для' },
       { key: 'avenger', slug: 'чохол-антитепловізор-та-антидрон-для-2' },
