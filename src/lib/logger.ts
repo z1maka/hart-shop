@@ -17,12 +17,19 @@ function serializeContext(context: LogContext): LogContext {
   )
 }
 
+// The clock Next.js lets a prerender read: `new Date()` there aborts the build
+// (cache components), so a page that logs while it is prerendered — the home
+// page reporting a product the admin just archived — would fail every deploy.
+function timestamp(): string {
+  return new Date(performance.timeOrigin + performance.now()).toISOString()
+}
+
 function write(level: LogLevel, message: string, context?: LogContext): void {
   const payload = context ? serializeContext(context) : undefined
 
   if (isStructured) {
     console[level](
-      JSON.stringify({ level, message, timestamp: new Date().toISOString(), ...payload }),
+      JSON.stringify({ level, message, timestamp: timestamp(), ...payload }),
     )
     return
   }
