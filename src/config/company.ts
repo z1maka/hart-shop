@@ -3,7 +3,9 @@
 export const COMPANY = {
   legalName: 'ФОП Масний Олександр Сергійович',
   tradingName: 'Гарт',
-  addressLines: ['вул. Будівельників, 18', 'м. Миколаїв, Миколаївська обл.', '54000'],
+  // As the ЄДР extract states it (21.10.2026): Google checks the seller's
+  // address against the registry, so it is copied, not reworded.
+  addressLines: ['вул. Авангардна, будинок 17, 23', 'м. Миколаїв, Миколаївська обл.', '54034'],
   taxId: '3172012013',
   phone: '+380 96 520 33 25',
   phoneHref: 'tel:+380965203325',
