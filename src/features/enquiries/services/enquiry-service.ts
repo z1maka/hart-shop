@@ -11,6 +11,7 @@ import { EnquiryKind, type EnquiryStatus } from '@/db/enums'
 import { enquiryRepository } from '@/features/enquiries/repository/enquiry-repository'
 import { enquiryRecipient } from '@/lib/env'
 import { EnquiryNotFoundError } from '@/lib/errors'
+import { escapeHtml } from '@/lib/html'
 import { logger } from '@/lib/logger'
 import { sendMail } from '@/lib/mailer'
 
@@ -119,7 +120,10 @@ function messageOf(input: CustomOrderInput): string {
 
 function asTable(rows: readonly (readonly string[])[]): string {
   const body = rows
-    .map(([label, value]) => `<tr><th align="left">${label}</th><td>${value}</td></tr>`)
+    .map(
+      ([label = '', value = '']) =>
+        `<tr><th align="left">${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`,
+    )
     .join('')
 
   return `<table>${body}</table>`

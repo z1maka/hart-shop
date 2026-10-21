@@ -2,6 +2,7 @@ import { bankMfo, paymentPurpose, type BankRequisites } from '@/config/requisite
 import { SizeAxis, sizeAxisOf } from '@/config/variant-size'
 import { Carrier, PaymentRoute } from '@/db/enums'
 import type { OrderItemRow } from '@/features/orders/repository/order-repository'
+import { escapeHtml } from '@/lib/html'
 import { groupIban } from '@/lib/iban'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
 import { formatKilos } from '@/lib/weight'
@@ -190,13 +191,7 @@ export function money(cents: number): string {
   return formatMoney(createMoney(cents, Currency.Uah))
 }
 
-export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-}
+export { escapeHtml }
 
 // Buyer-facing summary lines of the confirmation mail. Delivery is billed by
 // Nova Poshta on receipt, so a zero shipping charge means "carrier's tariff",
