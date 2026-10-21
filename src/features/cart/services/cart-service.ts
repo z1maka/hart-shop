@@ -57,6 +57,17 @@ export const cartService = {
     return this.requireSummary(cartId)
   },
 
+  async switchVariant(cartId: string, itemId: string, variantId: string): Promise<CartSummary> {
+    const result = await cartRepository.switchVariant(cartId, itemId, variantId)
+
+    if (result.status === 'variant_missing') throw new VariantNotFoundError(variantId)
+    if (result.status === 'out_of_stock') {
+      throw new OutOfStockError(variantId, result.requested, result.available)
+    }
+
+    return this.requireSummary(cartId)
+  },
+
   async removeItem(cartId: string, itemId: string): Promise<CartSummary> {
     await cartRepository.removeItem(cartId, itemId)
     return this.requireSummary(cartId)

@@ -310,7 +310,13 @@
       "VALIDATION_FAILED": "Оберіть варіант, перш ніж додати в кошик."
     },
     "wholesaleAhead": "Ще {missing} шт до оптової ціни",
-    "wholesaleApplied": "Оптова ціна: {price}/шт."
+    "wholesaleApplied": "Оптова ціна: {price}/шт.",
+    "choose": {
+      "size": "Оберіть розмір",
+      "starlinkModel": "Оберіть модель Starlink"
+    },
+    "close": "Закрити",
+    "productPage": "Усе про товар →"
   },
   "cart": {
     "title": "Кошик",

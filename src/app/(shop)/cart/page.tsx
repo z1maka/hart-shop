@@ -11,6 +11,7 @@ import { getCart, type CartView } from '@/features/cart'
 import { getCartCompanions, getFeaturedProducts } from '@/features/catalog'
 import { ProductGrid } from '@/features/catalog/ui/ProductGrid'
 import { CartLineControls } from '@/features/cart/ui/CartLineControls'
+import { CartLineOptions } from '@/features/cart/ui/CartLineOptions'
 
 const CART_COMPANION_COUNT = 3
 
@@ -86,7 +87,7 @@ async function CartContents() {
               >
                 {line.title}
               </Link>
-              <p className="mt-1 text-[12.5px] text-muted">{line.variantLabel}</p>
+              <CartLineOptions line={line} />
               {line.isWholesalePrice ? (
                 <span className="mt-1.5 inline-block rounded-chip bg-accent-soft px-2 py-0.5 text-[11px] font-bold text-accent">
                   {t('wholesaleTag')}

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/Button'
 import { removeCartItemAction, updateCartItemAction } from '@/features/cart/actions/cart-actions'
 import { getCartAction } from '@/features/cart/actions/get-cart-action'
 import type { CartView } from '@/features/cart/queries/get-cart'
+import { CartLineOptions } from '@/features/cart/ui/CartLineOptions'
 
 export const CART_UPDATED_EVENT = 'fox:cart-updated'
 
@@ -121,7 +122,7 @@ export function MiniCart() {
                   <span className="block text-[13.5px] leading-snug font-semibold text-ink">
                     {line.title}
                   </span>
-                  <span className="mt-0.5 block text-[12px] text-faint">{line.variantLabel}</span>
+                  <CartLineOptions line={line} density="compact" onSwitched={() => void load()} />
                   {line.isWholesalePrice ? (
                     <span className="mt-1 inline-block rounded-chip bg-accent-soft px-2 py-0.5 text-[11px] font-bold text-accent">
                       {t('wholesaleTag')}

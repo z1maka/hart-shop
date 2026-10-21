@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  isSizeAxisShownOnCard,
+  isSizeAxisProminent,
   SizeAxis,
   sizeAxisOf,
   sizeDimensionsOf,
@@ -22,10 +22,10 @@ describe('sizeAxisOf', () => {
   })
 })
 
-describe('isSizeAxisShownOnCard', () => {
-  it('lists Starlink models on the card and leaves clothing sizes to the page', () => {
-    expect(isSizeAxisShownOnCard(SizeAxis.StarlinkModel)).toBe(true)
-    expect(isSizeAxisShownOnCard(SizeAxis.Size)).toBe(false)
+describe('isSizeAxisProminent', () => {
+  it('spells out Starlink models and leaves clothing sizes as plain text', () => {
+    expect(isSizeAxisProminent(SizeAxis.StarlinkModel)).toBe(true)
+    expect(isSizeAxisProminent(SizeAxis.Size)).toBe(false)
   })
 })
 

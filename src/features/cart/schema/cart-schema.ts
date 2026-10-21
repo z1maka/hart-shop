@@ -14,5 +14,10 @@ export const RemoveCartItemSchema = z.object({
   itemId: z.uuid(),
 })
 
+export const SwitchCartItemVariantSchema = z.object({
+  itemId: z.uuid(),
+  variantId: z.uuid(),
+})
+
 export type AddToCartInput = z.infer<typeof AddToCartSchema>
 

@@ -4,6 +4,7 @@ import {
   wholesaleAhead,
   type WholesaleLineInput,
 } from '@/features/cart/model/wholesale-line'
+import { lineModelOptionsOf, type LineModelOption } from '@/features/cart/model/line-models'
 import { readCartId } from '@/features/cart/session'
 import { createMoney, Currency, formatMoney, type Money } from '@/lib/money'
 import { publicUrl } from '@/lib/storage'
@@ -15,6 +16,9 @@ export type CartLineView = {
   readonly productSlug: string
   readonly title: string
   readonly variantLabel: string
+  readonly color: string | null
+  readonly size: string | null
+  readonly modelOptions: readonly LineModelOption[]
   readonly quantity: number
   readonly unitPrice: Money
   readonly linePrice: Money
@@ -61,6 +65,9 @@ export async function getCart(): Promise<CartView | null> {
       productSlug: item.productSlug,
       title: item.productTitle,
       variantLabel: item.variantLabel,
+      color: item.color,
+      size: item.size,
+      modelOptions: lineModelOptionsOf(item.sizeOptions),
       quantity: item.quantity,
       unitPrice: createMoney(item.unitPriceCents, Currency.Uah),
       linePrice: createMoney(item.unitPriceCents * item.quantity, Currency.Uah),

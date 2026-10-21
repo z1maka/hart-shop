@@ -8,6 +8,7 @@ import { StreamedPageBody } from '@/components/layout/StreamedPageBody'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getCart, type CartView } from '@/features/cart'
+import { CartLineVariant } from '@/features/cart/ui/CartLineVariant'
 import { CheckoutFlow, getCheckoutAvailability } from '@/features/checkout'
 import { formatMoney } from '@/lib/money'
 
@@ -70,7 +71,10 @@ async function CheckoutContents() {
 }
 
 async function OrderSummary({ cart }: { cart: CartView }) {
-  const t = await getTranslations('checkout')
+  const [t, addToCartT] = await Promise.all([
+    getTranslations('checkout'),
+    getTranslations('addToCart'),
+  ])
 
   return (
     <aside className="min-w-[min(100%,300px)] flex-[1_1_320px] rounded-card border border-subtle bg-surface p-5.5">
@@ -88,11 +92,14 @@ async function OrderSummary({ cart }: { cart: CartView }) {
             </span>
             <span className="flex-1">
               <span className="block text-[13.5px] font-bold text-ink">{line.title}</span>
-              <span className="mt-0.5 block text-[12px] text-faint">
-                {[line.variantLabel, t('summary.pcs', { count: line.quantity })]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </span>
+              <CartLineVariant
+                variantLabel={line.variantLabel}
+                color={line.color}
+                size={line.size}
+                axisLabel={(axis) => addToCartT(axis)}
+                extra={t('summary.pcs', { count: line.quantity })}
+                density="compact"
+              />
             </span>
             <span className="text-[13.5px] font-semibold text-ink">
               {formatMoney(line.linePrice)}

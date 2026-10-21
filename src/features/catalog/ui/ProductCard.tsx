@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge'
 import { ColorSwatch } from '@/components/ui/ColorSwatch'
 import { Price } from '@/components/ui/Price'
 import { QuickAddButton } from '@/features/cart/ui/QuickAddButton'
+import { QuickChoiceDialog } from '@/features/cart/ui/QuickChoiceDialog'
 import { CardSizeLabels } from '@/features/catalog/ui/CardSizeLabels'
 import { CompareToggle } from '@/features/catalog/ui/CompareToggle'
 import { cardImageFor, type ProductCardView } from '@/features/catalog/model/product-view'
@@ -124,11 +125,11 @@ export async function ProductCard({
               ) : null}
             </div>
             {product.quickAddVariantId ? (
-              <QuickAddButton
+              <CardAddButton
+                product={product}
                 variantId={product.quickAddVariantId}
-                productTitle={product.title}
+                preferredColor={matchedColors[0] ?? null}
                 label={t('add')}
-                analyticsItem={analyticsItem(product)}
               />
             ) : (
               <span className="flex min-h-10 items-center rounded-control border border-subtle bg-surface px-3.5 text-[13px] font-bold text-faint">
@@ -151,11 +152,12 @@ export async function ProductCard({
             </div>
 
             {product.quickAddVariantId ? (
-              <QuickAddButton
+              <CardAddButton
+                product={product}
                 variantId={product.quickAddVariantId}
-                productTitle={product.title}
+                preferredColor={matchedColors[0] ?? null}
+                label={t('addToCart')}
                 className="w-full"
-                analyticsItem={analyticsItem(product)}
               />
             ) : (
               <span className="flex min-h-10 w-full items-center justify-center rounded-control border border-subtle bg-surface text-[13px] font-bold text-faint">
@@ -168,6 +170,48 @@ export async function ProductCard({
         )}
       </div>
     </article>
+  )
+}
+
+// One variant in stock goes straight to the cart; several open the choice
+// dialog, so a model or colour is never picked for the buyer.
+function CardAddButton({
+  product,
+  variantId,
+  preferredColor,
+  label,
+  className,
+}: {
+  readonly product: ProductCardView
+  readonly variantId: string
+  readonly preferredColor: string | null
+  readonly label: string
+  readonly className?: string
+}) {
+  if (product.variantChoiceCount <= 1) {
+    return (
+      <QuickAddButton
+        variantId={variantId}
+        productTitle={product.title}
+        label={label}
+        className={className}
+        analyticsItem={analyticsItem(product)}
+      />
+    )
+  }
+
+  return (
+    <QuickChoiceDialog
+      productTitle={product.title}
+      productHref={productHref(product.slug, preferredColor ? [preferredColor] : [])}
+      image={product.image ? { url: product.image.url, alt: product.image.alt } : null}
+      priceLabel={formatMoney(product.price)}
+      variants={product.variants}
+      preferredColor={preferredColor}
+      analyticsItem={analyticsItem(product)}
+      triggerLabel={label}
+      triggerClassName={className}
+    />
   )
 }
 

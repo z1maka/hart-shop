@@ -1,4 +1,4 @@
-import { isSizeAxisShownOnCard, sizeAxisOf, type SizeAxis } from '@/config/variant-size'
+import { isSizeAxisProminent, sizeAxisOf, type SizeAxis } from '@/config/variant-size'
 import { createMoney, Currency, type Money } from '@/lib/money'
 
 const GRAMS_PER_KILO = 1000
@@ -31,6 +31,14 @@ export type CardSizeChoice = {
   readonly sizes: readonly string[]
 }
 
+// One variant as the card's choice dialog offers it.
+export type CardVariantView = {
+  readonly id: string
+  readonly color: string | null
+  readonly size: string | null
+  readonly isAvailable: boolean
+}
+
 export type ProductCardView = {
   readonly slug: string
   readonly sku: string
@@ -49,6 +57,8 @@ export type ProductCardView = {
   readonly quickAddVariantId: string | null
   readonly quickAddVariantLabel: string | null
   readonly variantChoiceCount: number
+  // Every variant on sale: with more than one in stock, the card asks which.
+  readonly variants: readonly CardVariantView[]
   // Published reviews only; null until the product has any.
   readonly rating: { readonly average: number; readonly count: number } | null
   // The volume price, said on the card so a unit buyer sees it before opening.
@@ -109,7 +119,7 @@ export function cardSizeChoiceOf(
   if (sizes.length === 0) return null
 
   const axis = sizeAxisOf(sizes)
-  return isSizeAxisShownOnCard(axis) ? { axis, sizes } : null
+  return isSizeAxisProminent(axis) ? { axis, sizes } : null
 }
 
 export function isVariantAvailable(stockQty: number): boolean {

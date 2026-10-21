@@ -21,14 +21,15 @@ const STARLINK_DISHES: Readonly<Record<string, OptionDimensions>> = {
 }
 
 type SizeAxisSpec = {
-  // A cover is bought for one dish, so its models belong on the catalogue
-  // card (owner, 21.10.2026); a clothing size is picked on the product page.
-  readonly isShownOnCard: boolean
+  // A cover fits one dish only, so its model is spelled out wherever the
+  // buyer could get it wrong: on the catalogue card and on the cart line
+  // (owner, 21.10.2026). A clothing size stays plain text.
+  readonly isProminent: boolean
 }
 
 const SIZE_AXIS_SPECS: Readonly<Record<SizeAxis, SizeAxisSpec>> = {
-  [SizeAxis.Size]: { isShownOnCard: false },
-  [SizeAxis.StarlinkModel]: { isShownOnCard: true },
+  [SizeAxis.Size]: { isProminent: false },
+  [SizeAxis.StarlinkModel]: { isProminent: true },
 }
 
 export function sizeAxisOf(sizes: readonly string[]): SizeAxis {
@@ -37,8 +38,8 @@ export function sizeAxisOf(sizes: readonly string[]): SizeAxis {
   return isStarlinkModel ? SizeAxis.StarlinkModel : SizeAxis.Size
 }
 
-export function isSizeAxisShownOnCard(axis: SizeAxis): boolean {
-  return SIZE_AXIS_SPECS[axis].isShownOnCard
+export function isSizeAxisProminent(axis: SizeAxis): boolean {
+  return SIZE_AXIS_SPECS[axis].isProminent
 }
 
 export function sizeDimensionsOf(size: string): OptionDimensions | null {

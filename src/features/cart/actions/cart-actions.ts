@@ -5,6 +5,7 @@ import { cartService } from '@/features/cart/services/cart-service'
 import {
   AddToCartSchema,
   RemoveCartItemSchema,
+  SwitchCartItemVariantSchema,
   UpdateCartItemSchema,
 } from '@/features/cart/schema/cart-schema'
 import { readCartId, writeCartId } from '@/features/cart/session'
@@ -58,6 +59,29 @@ export async function removeCartItemAction(input: unknown): Promise<ActionResult
 
   try {
     const summary = await cartService.removeItem(cartId, parsed.data.itemId)
+    updateTag('cart')
+
+    return actionOk(toActionData(summary.totals.itemCount, summary.totals.subtotal.amountCents))
+  } catch (error) {
+    return toActionError(error)
+  }
+}
+
+export async function switchCartItemVariantAction(
+  input: unknown,
+): Promise<ActionResult<CartActionData>> {
+  const parsed = SwitchCartItemVariantSchema.safeParse(input)
+  if (!parsed.success) return actionError('VALIDATION_FAILED', 'Check the selected variant.')
+
+  const cartId = await readCartId()
+  if (!cartId) return actionError('CART_NOT_FOUND', 'Your cart has expired.')
+
+  try {
+    const summary = await cartService.switchVariant(
+      cartId,
+      parsed.data.itemId,
+      parsed.data.variantId,
+    )
     updateTag('cart')
 
     return actionOk(toActionData(summary.totals.itemCount, summary.totals.subtotal.amountCents))

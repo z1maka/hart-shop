@@ -17,6 +17,7 @@ import {
   colorOf,
   effectivePrice,
   isVariantAvailable,
+  sizeOf,
   struckPrice,
   type ProductCardView,
   type ProductImageView,
@@ -199,6 +200,12 @@ async function toCardViews(rows: readonly CatalogProductRow[]): Promise<ProductC
       quickAddVariantId: inStock[0]?.id ?? null,
       quickAddVariantLabel: inStock[0] ? variantLabelOf(inStock[0].options) : null,
       variantChoiceCount: inStock.length,
+      variants: productVariants.map((variant) => ({
+        id: variant.id,
+        color: colorOf(variant.options),
+        size: sizeOf(variant.options),
+        isAvailable: isVariantAvailable(variant.stockQty),
+      })),
       rating: ratingOf(ratings.get(row.id)),
       wholesale: wholesaleOf(row),
     }

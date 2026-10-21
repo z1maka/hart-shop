@@ -120,6 +120,9 @@
   --animate-drawer-out: drawer-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
   --animate-fade-in: fade-in 0.32s ease-out both;
   --animate-fade-out: fade-out 0.22s ease-in both;
+  /* The catalogue card's choice dialog rises from the bottom edge on phones. */
+  --animate-sheet-in: sheet-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-sheet-out: sheet-out 0.22s cubic-bezier(0.4, 0, 1, 1) both;
 
   @keyframes draw-in {
     from {
@@ -202,6 +205,24 @@
     }
     to {
       transform: translateX(100%);
+    }
+  }
+
+  @keyframes sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes sheet-out {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(100%);
     }
   }
 
