@@ -67,7 +67,7 @@ export async function getCart(): Promise<CartView | null> {
       variantLabel: item.variantLabel,
       color: item.color,
       size: item.size,
-      modelOptions: lineModelOptionsOf(item.sizeOptions),
+      modelOptions: lineModelOptionsOf(item.sizeOptions, item.quantity),
       quantity: item.quantity,
       unitPrice: createMoney(item.unitPriceCents, Currency.Uah),
       linePrice: createMoney(item.unitPriceCents * item.quantity, Currency.Uah),

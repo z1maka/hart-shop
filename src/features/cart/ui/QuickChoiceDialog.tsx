@@ -11,15 +11,18 @@ import { ColorSwatch } from '@/components/ui/ColorSwatch'
 import { sizeAxisOf } from '@/config/variant-size'
 import { trackEvent, type AnalyticsItem } from '@/features/analytics'
 import { addToCartAction } from '@/features/cart/actions/cart-actions'
+import { cartErrorText } from '@/features/cart/model/cart-errors'
 import {
   colorsOf,
   initialPickOf,
+  pickWithColor,
   sizesOf,
   variantOf,
   type ChoosableVariant,
   type VariantPick,
 } from '@/features/cart/model/variant-choice'
 import { CART_UPDATED_EVENT } from '@/features/cart/ui/MiniCart'
+import { QUICK_ADD_BASE_CLASS, QUICK_ADD_IDLE_CLASS } from '@/features/cart/ui/QuickAddButton'
 import { SizePicker } from '@/features/cart/ui/SizePicker'
 import { cn } from '@/lib/utils'
 
@@ -54,11 +57,10 @@ export function QuickChoiceDialog({
   triggerClassName,
 }: QuickChoiceDialogProps) {
   const t = useTranslations('addToCart')
-  const productT = useTranslations('product')
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [pick, setPick] = useState<VariantPick>(() => initialPickOf(variants, preferredColor))
-  const [isFailed, setIsFailed] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
 
   const colors = colorsOf(variants)
@@ -75,7 +77,7 @@ export function QuickChoiceDialog({
     setIsOpen(next)
     if (!next) return
     setPick(initialPickOf(variants, preferredColor))
-    setIsFailed(false)
+    setError(null)
   }
 
   function handleAdd() {
@@ -83,8 +85,10 @@ export function QuickChoiceDialog({
 
     startTransition(async () => {
       const result = await addToCartAction({ variantId: chosen.id, quantity: 1 })
-      setIsFailed(!result.ok)
-      if (!result.ok) return
+      if (!result.ok) {
+        setError(cartErrorText(result.error, (code) => t(`errors.${code}`)))
+        return
+      }
 
       // The dialog steps aside for the mini cart, which opens on the event
       // and shows the line just added, model and all.
@@ -99,10 +103,7 @@ export function QuickChoiceDialog({
     <DialogPrimitive.Root open={isOpen} onOpenChange={handleOpenChange}>
       <DialogPrimitive.Trigger
         aria-label={`${triggerLabel} — ${productTitle}`}
-        className={cn(
-          'min-h-10 rounded-control border border-accent bg-accent px-3.5 text-[13px] font-bold text-accent-fg transition-colors hover:border-accent-hover hover:bg-accent-hover',
-          triggerClassName,
-        )}
+        className={cn(QUICK_ADD_BASE_CLASS, QUICK_ADD_IDLE_CLASS, triggerClassName)}
       >
         {triggerLabel}
       </DialogPrimitive.Trigger>
@@ -127,7 +128,7 @@ export function QuickChoiceDialog({
               <ColorChoice
                 colors={colors}
                 activeColor={pick.color}
-                onSelect={(color) => setPick(initialPickOf(variants, color))}
+                onSelect={(color) => setPick(pickWithColor(variants, pick, color))}
               />
             ) : null}
 
@@ -152,8 +153,10 @@ export function QuickChoiceDialog({
             >
               {buttonLabel()}
             </Button>
-            {isFailed ? (
-              <p className="text-[13px] font-medium text-alert">{productT('outOfStock')}</p>
+            {error ? (
+              <p role="alert" className="text-[13px] font-medium text-alert">
+                {error}
+              </p>
             ) : null}
             <Link
               href={productHref}

@@ -8,6 +8,7 @@ import { ColorSwatch } from '@/components/ui/ColorSwatch'
 import { Button } from '@/components/ui/Button'
 import { useSelectedColor } from '@/components/ui/SelectedColor'
 import { addToCartAction } from '@/features/cart/actions/cart-actions'
+import { cartErrorText } from '@/features/cart/model/cart-errors'
 import { trackEvent, type AnalyticsItem } from '@/features/analytics'
 import { CART_UPDATED_EVENT } from '@/features/cart/ui/MiniCart'
 import { SizePicker } from '@/features/cart/ui/SizePicker'
@@ -57,13 +58,6 @@ const DEFAULT_VARIANT_LABEL = 'Standard'
 
 // A basket big enough for a unit's order, never more than the shelf holds.
 const MAX_QUANTITY = 99
-
-const KNOWN_ERROR_CODES = new Set([
-  'OUT_OF_STOCK',
-  'VARIANT_NOT_FOUND',
-  'CART_NOT_FOUND',
-  'VALIDATION_FAILED',
-])
 
 export function AddToCartForm({
   variants,
@@ -117,11 +111,7 @@ export function AddToCartForm({
       const result = await addToCartAction({ variantId: selected.id, quantity: orderedQuantity })
 
       if (!result.ok) {
-        setError(
-          KNOWN_ERROR_CODES.has(result.error.code)
-            ? t(`errors.${result.error.code}`)
-            : result.error.message,
-        )
+        setError(cartErrorText(result.error, (code) => t(`errors.${code}`)))
         return
       }
 

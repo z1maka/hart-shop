@@ -48,6 +48,18 @@ export function variantOf(
   )
 }
 
+// A new colour keeps the size already chosen when the colour sells it, so a
+// buyer who picked the model first does not pick it again.
+export function pickWithColor(
+  variants: readonly ChoosableVariant[],
+  pick: VariantPick,
+  color: string,
+): VariantPick {
+  const sizes = sizesOf(variants, color)
+  if (pick.size !== null && sizes.includes(pick.size)) return { color, size: pick.size }
+  return { color, size: sizes.length === 1 ? (sizes[0] ?? null) : null }
+}
+
 // Where the dialog opens: the colour asked for (a card filtered to it), else
 // the first one; the size only when the colour leaves no choice.
 export function initialPickOf(

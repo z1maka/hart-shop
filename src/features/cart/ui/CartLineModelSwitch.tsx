@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { switchCartItemVariantAction } from '@/features/cart/actions/cart-actions'
+import { cartErrorText } from '@/features/cart/model/cart-errors'
 import type { LineModelOption } from '@/features/cart/model/line-models'
 import {
   CART_LINE_GAP_CLASSES,
@@ -21,8 +22,6 @@ type CartLineModelSwitchProps = {
   readonly density?: CartLineDensity
   readonly onSwitched?: () => void
 }
-
-const KNOWN_ERROR_CODES = new Set(['OUT_OF_STOCK', 'VARIANT_NOT_FOUND', 'CART_NOT_FOUND'])
 
 // The line's model as small tags, one per model: the buyer who picked the
 // wrong dish switches it here instead of removing the line and starting
@@ -52,8 +51,7 @@ export function CartLineModelSwitch({
     startTransition(async () => {
       const result = await switchCartItemVariantAction({ itemId, variantId })
       if (!result.ok) {
-        const { code, message } = result.error
-        setError(KNOWN_ERROR_CODES.has(code) ? t(`errors.${code}`) : message)
+        setError(cartErrorText(result.error, (code) => t(`errors.${code}`)))
         return
       }
       router.refresh()

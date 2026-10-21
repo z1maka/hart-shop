@@ -134,17 +134,7 @@ export const cartRepository = {
   // an add.
   async switchVariant(cartId: string, itemId: string, variantId: string): Promise<AddItemResult> {
     return db.transaction(async (tx) => {
-      const [item] = await tx
-        .select({
-          quantity: cartItems.quantity,
-          variantId: cartItems.variantId,
-          productId: productVariants.productId,
-        })
-        .from(cartItems)
-        .innerJoin(productVariants, eq(productVariants.id, cartItems.variantId))
-        .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cartId)))
-        .limit(1)
-
+      const item = await findLine(tx, cartId, itemId)
       if (!item) return { status: 'variant_missing' }
       if (item.variantId === variantId) return { status: 'added', quantity: item.quantity }
 
@@ -158,15 +148,12 @@ export const cartRepository = {
         return { status: 'out_of_stock', requested: nextQuantity, available }
       }
 
-      if (heldQuantity > 0) {
-        await tx.delete(cartItems).where(eq(cartItems.id, itemId))
-        await writeLine(tx, cartId, variant, nextQuantity)
-      } else {
-        await tx
-          .update(cartItems)
-          .set({ ...lineSnapshotOf(variant), updatedAt: new Date() })
-          .where(eq(cartItems.id, itemId))
-      }
+      await moveLine(tx, {
+        cartId,
+        itemId,
+        variant,
+        mergedQuantity: heldQuantity > 0 ? nextQuantity : null,
+      })
       await repriceProduct(tx, cartId, variant.productId)
       await tx.update(carts).set({ updatedAt: new Date() }).where(eq(carts.id, cartId))
 
@@ -276,6 +263,55 @@ async function lockVariant(tx: Transaction, variantId: string): Promise<LockedVa
     .limit(1)
 
   return variant ?? null
+}
+
+async function findLine(
+  tx: Transaction,
+  cartId: string,
+  itemId: string,
+): Promise<{ quantity: number; variantId: string; productId: string } | null> {
+  const [item] = await tx
+    .select({
+      quantity: cartItems.quantity,
+      variantId: cartItems.variantId,
+      productId: productVariants.productId,
+    })
+    .from(cartItems)
+    .innerJoin(productVariants, eq(productVariants.id, cartItems.variantId))
+    .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cartId)))
+    .limit(1)
+
+  return item ?? null
+}
+
+type LineMove = {
+  readonly cartId: string
+  readonly itemId: string
+  readonly variant: LockedVariant
+  // The units the variant's existing line ends up with; null when no line
+  // holds the variant yet.
+  readonly mergedQuantity: number | null
+}
+
+// The line takes the new variant in place, keeping its spot in the cart;
+// when another line already holds the variant, that line takes the units
+// and this one goes.
+async function moveLine(tx: Transaction, move: LineMove): Promise<void> {
+  const { cartId, itemId, variant, mergedQuantity } = move
+
+  if (mergedQuantity === null) {
+    await tx
+      .update(cartItems)
+      .set({ ...lineSnapshotOf(variant), updatedAt: new Date() })
+      .where(eq(cartItems.id, itemId))
+    return
+  }
+
+  await tx.delete(cartItems).where(eq(cartItems.id, itemId))
+  await tx
+    .update(cartItems)
+    .set({ quantity: mergedQuantity, updatedAt: new Date() })
+    .where(and(eq(cartItems.cartId, cartId), eq(cartItems.variantId, variant.id)))
 }
 
 async function lineQuantityOf(tx: Transaction, cartId: string, variantId: string): Promise<number> {

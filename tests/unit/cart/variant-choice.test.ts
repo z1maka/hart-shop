@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   colorsOf,
   initialPickOf,
+  pickWithColor,
   sizesOf,
   variantOf,
   type ChoosableVariant,
@@ -52,5 +53,20 @@ describe('initialPickOf', () => {
     expect(
       initialPickOf([{ id: 'one', color: 'Олива', size: 'Gen 2', isAvailable: true }], null),
     ).toEqual({ color: 'Олива', size: 'Gen 2' })
+  })
+})
+
+describe('pickWithColor', () => {
+  it('keeps the model chosen before the colour changed', () => {
+    expect(
+      pickWithColor(MESH_COVER, { color: 'Мультикам', size: 'Gen 3 / Gen 4' }, 'Піксель'),
+    ).toEqual({ color: 'Піксель', size: 'Gen 3 / Gen 4' })
+  })
+
+  it('drops a model the new colour does not sell', () => {
+    expect(pickWithColor(MESH_COVER, { color: 'Мультикам', size: 'Gen 5' }, 'Піксель')).toEqual({
+      color: 'Піксель',
+      size: null,
+    })
   })
 })

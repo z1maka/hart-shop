@@ -20,6 +20,12 @@ type Status = 'idle' | 'added' | 'failed'
 
 const RESET_DELAY_MS = 2200
 
+// Shared with the card's choice dialog trigger, so both read as one button.
+export const QUICK_ADD_BASE_CLASS =
+  'min-h-10 rounded-control border px-3.5 text-[13px] font-bold transition-colors'
+export const QUICK_ADD_IDLE_CLASS =
+  'border-accent bg-accent text-accent-fg hover:border-accent-hover hover:bg-accent-hover'
+
 const RESULT_KEYS = {
   added: 'added',
   failed: 'outOfStock',
@@ -60,10 +66,8 @@ export function QuickAddButton({
       disabled={isPending}
       aria-label={`${label ?? t('addToCart')} — ${productTitle}`}
       className={cn(
-        'min-h-10 rounded-control border px-3.5 text-[13px] font-bold transition-colors',
-        status === 'added'
-          ? 'border-ink bg-ink text-on-dark'
-          : 'border-accent bg-accent text-accent-fg hover:border-accent-hover hover:bg-accent-hover',
+        QUICK_ADD_BASE_CLASS,
+        status === 'added' ? 'border-ink bg-ink text-on-dark' : QUICK_ADD_IDLE_CLASS,
         status === 'failed' && 'border-alert text-alert',
         className,
       )}
