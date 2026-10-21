@@ -1,3 +1,5 @@
+import { OWN_PRODUCTION_CATEGORY_SLUGS } from '@/config/catalog'
+
 // The Google Merchant Center product feed the new site serves in place of the
 // Google for WooCommerce plugin, which pushed the catalogue from WordPress
 // through the Content API and stops the day WordPress does.
@@ -36,21 +38,15 @@ export const FEED_EXCLUDED_SLUGS: readonly string[] = [
   'komplekt-oryhinalnyy-aktyvni-navushnyky-walkers-razor-usa-z-povorotnymy-kriplennyamy',
 ]
 
-// When not empty, the Google feed carries only these variants. Merchant Center
-// suspended the account for misrepresentation on 20.10.2026; until it is
-// reinstated the owner lists only the advertised items shot by the shop
-// itself (FX14 in winter has no photos of its own yet). The Meta feed and the
-// site are not affected.
-export const MERCHANT_FEED_VARIANT_SKUS: readonly string[] = [
-  '3600-2-MULTICAM',
-  'HART-P3-WINTER',
-  'HART-P3-POCKET-MULTICAM',
-  'HART-P3-POCKET-OL-OLIVE',
-  'HART-P3-POCKET-PX-PIXEL',
-  'HART-35563-MULTICAM',
-  'HART-35986-PIXEL',
-  'HART-SL-COOL-3D-MULTICAM',
-  'HART-SL-COOL-3D-PX-PIXEL',
-  'HART-SL-VENT-3D-WINTER',
-  'HART-38679-V38680',
+// The Google feed carries what the workshop sews — ponchos, tents and Starlink
+// covers — plus the stretchers and T-shirts (owner, 21.10.2026). Helmets,
+// headsets and backpacks stay out while Merchant Center reviews the
+// misrepresentation suspension of 20.10.2026.
+const STRETCHERS_CATEGORY_SLUG = 'noshi'
+const TACTICAL_CLOTHING_CATEGORY_SLUG = 'taktichna-forma'
+
+export const MERCHANT_FEED_CATEGORY_SLUGS: readonly string[] = [
+  ...OWN_PRODUCTION_CATEGORY_SLUGS,
+  STRETCHERS_CATEGORY_SLUG,
+  TACTICAL_CLOTHING_CATEGORY_SLUG,
 ]

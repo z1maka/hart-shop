@@ -1,12 +1,11 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import { MERCHANT_FEED_VARIANT_SKUS } from '@/config/merchant-feed'
+import { MERCHANT_FEED_CATEGORY_SLUGS } from '@/config/merchant-feed'
 import { META_CATALOG_CATEGORY_SLUGS } from '@/config/meta-catalog'
 import { siteConfig } from '@/config/site'
 import { effectiveGoogleCategory } from '@/features/catalog/model/google-category'
 import {
   feedItemOf,
   feedListedProducts,
-  isAllowlistedVariant,
   materialOf,
   merchantFeedXml,
   metaCatalogItemOf,
@@ -32,11 +31,7 @@ export async function getMerchantFeedXml(): Promise<string> {
   cacheTag('catalog')
   cacheLife('hours')
 
-  return feedXml(
-    await feedItems(await listedProducts(), {
-      isListed: (variantSku) => isAllowlistedVariant(variantSku, MERCHANT_FEED_VARIANT_SKUS),
-    }),
-  )
+  return feedXml(await feedItems(await listedProductsIn(MERCHANT_FEED_CATEGORY_SLUGS)))
 }
 
 // The same items for Meta's catalogue, cut to what the workshop sews and
@@ -46,31 +41,25 @@ export async function getMetaCatalogXml(): Promise<string> {
   cacheTag('catalog')
   cacheLife('hours')
 
-  const products = (await listedProducts()).filter((product) =>
-    META_CATALOG_CATEGORY_SLUGS.includes(product.categorySlug),
+  return feedXml(
+    await feedItems(await listedProductsIn(META_CATALOG_CATEGORY_SLUGS), metaCatalogItemOf),
   )
-
-  return feedXml(await feedItems(products, { rekey: metaCatalogItemOf }))
 }
 
-async function listedProducts(): Promise<FeedProductRow[]> {
-  return feedListedProducts(await catalogReadRepository.findPublishedForFeed())
+async function listedProductsIn(categorySlugs: readonly string[]): Promise<FeedProductRow[]> {
+  return feedListedProducts(await catalogReadRepository.findPublishedForFeed()).filter((product) =>
+    categorySlugs.includes(product.categorySlug),
+  )
 }
 
 type ItemIdRule = (item: FeedItem, variantSku: string) => FeedItem
 
-type FeedItemRules = {
-  readonly rekey: ItemIdRule
-  readonly isListed: (variantSku: string) => boolean
-}
-
-const EVERY_ITEM_AS_IS: FeedItemRules = { rekey: (item) => item, isListed: () => true }
+const KEEP_ITEM_ID: ItemIdRule = (item) => item
 
 async function feedItems(
   products: readonly FeedProductRow[],
-  overrides: Partial<FeedItemRules> = {},
+  rekey: ItemIdRule = KEEP_ITEM_ID,
 ): Promise<FeedItem[]> {
-  const rules = { ...EVERY_ITEM_AS_IS, ...overrides }
   const productIds = products.map((product) => product.id)
   const [variants, images] = await Promise.all([
     catalogReadRepository.findVariantsByProductIds(productIds),
@@ -84,7 +73,7 @@ async function feedItems(
       product,
       variantsByProduct.get(product.id) ?? [],
       imagesByProduct.get(product.id) ?? [],
-      rules,
+      rekey,
     ),
   )
 }
@@ -104,7 +93,7 @@ function itemsOf(
   product: FeedProductRow,
   variants: readonly ProductVariantRow[],
   images: readonly ProductImageRow[],
-  rules: FeedItemRules,
+  rekey: ItemIdRule,
 ): FeedItem[] {
   const context = {
     ...choicesOf(variants),
@@ -123,29 +112,23 @@ function itemsOf(
   }
   const imageUrlById = new Map(images.map((image) => [image.id, publicUrl(image.storageKey)]))
 
-  // Titles name a colour by every variant on sale, listed or not, so an
-  // item keeps its title when the allowlist changes.
-  return variants
-    .filter((variant) => rules.isListed(variant.sku))
-    .map((variant) =>
-      rules.rekey(
-        feedItemOf(
-          feedProduct,
-          {
-            sku: variant.sku,
-            color: colorOf(variant.options),
-            size: sizeOf(variant.options),
-            priceDeltaCents: variant.priceDeltaCents,
-            stockQty: variant.stockQty,
-            imageUrl: variant.coverImageId
-              ? (imageUrlById.get(variant.coverImageId) ?? null)
-              : null,
-          },
-          context,
-        ),
-        variant.sku,
+  return variants.map((variant) =>
+    rekey(
+      feedItemOf(
+        feedProduct,
+        {
+          sku: variant.sku,
+          color: colorOf(variant.options),
+          size: sizeOf(variant.options),
+          priceDeltaCents: variant.priceDeltaCents,
+          stockQty: variant.stockQty,
+          imageUrl: variant.coverImageId ? (imageUrlById.get(variant.coverImageId) ?? null) : null,
+        },
+        context,
       ),
-    )
+      variant.sku,
+    ),
+  )
 }
 
 function choicesOf(variants: readonly ProductVariantRow[]): FeedChoices {
