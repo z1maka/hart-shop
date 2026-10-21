@@ -6,9 +6,11 @@ Resend sends: the branded HTML (the shop's Ranger Green and khaki, logo, field
 photo, product rows, catalogue button, seller's footer) and the plain-text
 twin, so every letter looks the same whoever wrote it.
 
-Usage: python3 -I scripts/b2b-mail/render_letter.py <doc-read.json> <№> <out.json>
-<doc-read.json> is the Docs connector's `read` reply ({"data": {"xml": …}});
-<out.json> gets {"subject", "html", "text"} for the Resend payload.
+Usage: python3 -I scripts/b2b-mail/render_letter.py <№> <out.json> <doc-read.json>...
+Each <doc-read.json> is one page of the Docs connector's `read` reply
+({"data": {"xml": …}}): a large doc comes back capped, so every page of the
+read is passed, in order. <out.json> gets {"subject", "html", "text"} for the
+Resend payload.
 """
 
 import html
@@ -80,8 +82,13 @@ def plain(runs: list[Run]) -> str:
     return "".join("\n" if run.is_break else run.text for run in runs).strip()
 
 
-def letter_blocks(root: ET.Element, number: str) -> list[ET.Element]:
-    blocks = list(root)
+def doc_blocks(pages: list[str]) -> list[ET.Element]:
+    # A capped page ends in a <gap/> and the next page starts where it
+    # stopped, so the pages' blocks in order are the whole doc.
+    return [block for page in pages for block in ET.fromstring(page) if block.tag != "gap"]
+
+
+def letter_blocks(blocks: list[ET.Element], number: str) -> list[ET.Element]:
     marker = f"№{number} ·"
     start = next(
         (i for i, block in enumerate(blocks)
@@ -110,9 +117,9 @@ def add_paragraph(letter: Letter, runs: list[Run]) -> None:
         letter.blocks.append(("text", runs))
 
 
-def parse_letter(xml: str, number: str) -> Letter:
+def parse_letter(pages: list[str], number: str) -> Letter:
     letter = Letter()
-    for block in letter_blocks(ET.fromstring(xml), number):
+    for block in letter_blocks(doc_blocks(pages), number):
         if block.tag == "paragraph":
             add_paragraph(letter, runs_of(block))
         elif block.tag == "list":
@@ -251,9 +258,11 @@ def letter_text(letter: Letter) -> str:
 
 
 def main() -> None:
-    source, number, target = sys.argv[1:4]
-    xml = json.load(open(source, encoding="utf-8"))["data"]["xml"]
-    letter = parse_letter(xml, number)
+    number, target, *sources = sys.argv[1:]
+    if not sources:
+        raise SystemExit(__doc__)
+    pages = [json.load(open(source, encoding="utf-8"))["data"]["xml"] for source in sources]
+    letter = parse_letter(pages, number)
     payload = {"subject": letter.subject, "html": letter_html(letter), "text": letter_text(letter)}
     json.dump(payload, open(target, "w", encoding="utf-8"), ensure_ascii=False)
     products = sum(len(content) for kind, content in letter.blocks if kind == "products")
