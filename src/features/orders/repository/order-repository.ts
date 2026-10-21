@@ -811,17 +811,15 @@ export const orderRepository = {
     return db.select().from(orderItems).where(eq(orderItems.orderId, orderId))
   },
 
-  // The lines next to the product as it is now — the workshop's name, the
-  // current page and the bought variant's colour and size; a deleted variant
-  // leaves only the snapshot.
+  // The lines next to the product as it is now — the workshop's name and the
+  // bought variant's colour and size; a deleted variant leaves only the
+  // snapshot.
   async findPackingSources(orderId: string): Promise<PackingSource[]> {
     return db
       .select({
         quantity: orderItems.quantity,
-        productSlug: orderItems.productSlug,
         productTitle: orderItems.productTitle,
         variantLabel: orderItems.variantLabel,
-        currentSlug: products.slug,
         packingTitle: products.packingTitle,
         shortTitle: products.shortTitle,
         color: sql<string | null>`${productVariants.options} ->> 'Color'`,

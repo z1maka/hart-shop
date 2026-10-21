@@ -153,15 +153,11 @@ describe('orderPlacedSmsText', () => {
   })
 })
 
-const SITE = 'https://hart-shop.com'
-
 function packingSource(overrides: Partial<PackingSource>): PackingSource {
   return {
     quantity: 1,
-    productSlug: 'zymovyi-chokhol-na-starlink-z-3d-sitkoiu',
     productTitle: 'Зимовий самоохолоджуваючий чохол на Starlink з вентиляцією і 3D-сіткою',
     variantLabel: 'Білий',
-    currentSlug: 'zymovyi-chokhol-na-starlink-z-3d-sitkoiu',
     packingTitle: 'чохол на старлінк з ребрами+ сітка',
     shortTitle: 'Зимовий чохол на Starlink з 3D-сіткою',
     color: 'Білий',
@@ -171,9 +167,8 @@ function packingSource(overrides: Partial<PackingSource>): PackingSource {
 }
 
 describe('toPackingItem', () => {
-  it('names the line the way the workshop does, on the current page', () => {
-    expect(toPackingItem(packingSource({}), SITE)).toEqual({
-      productUrl: 'https://hart-shop.com/product/zymovyi-chokhol-na-starlink-z-3d-sitkoiu/',
+  it('names the line the way the workshop does', () => {
+    expect(toPackingItem(packingSource({}))).toEqual({
       name: 'чохол на старлінк з ребрами+ сітка',
       color: 'Білий',
       size: null,
@@ -182,59 +177,45 @@ describe('toPackingItem', () => {
   })
 
   it('carries the size the bought variant is cut to', () => {
-    expect(toPackingItem(packingSource({ size: 'Gen 3 / Gen 4' }), SITE).size).toBe('Gen 3 / Gen 4')
+    expect(toPackingItem(packingSource({ size: 'Gen 3 / Gen 4' })).size).toBe('Gen 3 / Gen 4')
   })
 
   it('does not pass a size-only label off as a colour', () => {
-    const item = toPackingItem(packingSource({ color: null, size: 'XL', variantLabel: 'XL' }), SITE)
+    const item = toPackingItem(packingSource({ color: null, size: 'XL', variantLabel: 'XL' }))
     expect(item).toMatchObject({ color: null, size: 'XL' })
   })
 
   it('falls back to the short title, then to the title the buyer saw', () => {
-    expect(toPackingItem(packingSource({ packingTitle: null }), SITE).name).toBe(
+    expect(toPackingItem(packingSource({ packingTitle: null })).name).toBe(
       'Зимовий чохол на Starlink з 3D-сіткою',
     )
-    expect(toPackingItem(packingSource({ packingTitle: ' ', shortTitle: null }), SITE).name).toBe(
+    expect(toPackingItem(packingSource({ packingTitle: ' ', shortTitle: null })).name).toBe(
       'Зимовий самоохолоджуваючий чохол на Starlink з вентиляцією і 3D-сіткою',
     )
   })
 
-  it('keeps the bought page and colour once the variant is gone', () => {
+  it('keeps the bought colour once the variant is gone', () => {
     const item = toPackingItem(
-      packingSource({ currentSlug: null, packingTitle: null, shortTitle: null, color: null }),
-      SITE,
-    )
-    expect(item.productUrl).toBe(
-      'https://hart-shop.com/product/zymovyi-chokhol-na-starlink-z-3d-sitkoiu/',
+      packingSource({ packingTitle: null, shortTitle: null, color: null }),
     )
     expect(item.color).toBe('Білий')
   })
 
   it('has no colour for a product sold in one kind', () => {
-    expect(toPackingItem(packingSource({ color: null, variantLabel: '' }), SITE).color).toBeNull()
-  })
-
-  it('encodes a Cyrillic slug into a working link', () => {
-    expect(toPackingItem(packingSource({ currentSlug: 'тент' }), SITE).productUrl).toBe(
-      'https://hart-shop.com/product/%D1%82%D0%B5%D0%BD%D1%82/',
-    )
+    expect(toPackingItem(packingSource({ color: null, variantLabel: '' })).color).toBeNull()
   })
 })
 
 describe('packingItemLines', () => {
   const item: PackingItem = {
-    productUrl: 'https://hart-shop.com/product/maskuvalne-poncho-fx14-3d-lystya-class-d/',
     name: 'пончо усиленный + сетка',
     color: 'Зимовий мультикам',
     size: null,
     quantity: 1,
   }
 
-  it('prints the page, the workshop name and the colour in the owner’s words', () => {
-    expect(packingItemLines(item)).toEqual([
-      'https://hart-shop.com/product/maskuvalne-poncho-fx14-3d-lystya-class-d/ - пончо усиленный + сетка',
-      'колір: зимовий мультикам',
-    ])
+  it('prints the workshop name and the colour in the owner\u2019s words', () => {
+    expect(packingItemLines(item)).toEqual(['пончо усиленный + сетка', 'колір: зимовий мультикам'])
   })
 
   it('adds the count only when there is more than one', () => {
@@ -248,7 +229,7 @@ describe('packingItemLines', () => {
 
   it('names the Starlink model a cover is cut to, or the size of anything else', () => {
     expect(packingItemLines({ ...item, color: 'Олива', size: 'Gen 3 / Gen 4' })).toEqual([
-      'https://hart-shop.com/product/maskuvalne-poncho-fx14-3d-lystya-class-d/ - пончо усиленный + сетка',
+      'пончо усиленный + сетка',
       'колір: олива',
       'модель: Gen 3 / Gen 4',
     ])
@@ -257,73 +238,47 @@ describe('packingItemLines', () => {
 })
 
 describe('waybillIssuedTelegramText', () => {
-  const packed: PackingItem = {
-    productUrl: 'https://hart-shop.com/product/antydron-poncho-predator-class-c-uv-em-zakhyst/',
-    name: 'пончо скафандр',
-    color: 'Олива',
-    size: null,
-    quantity: 2,
+  const cover: PackingItem = {
+    name: 'чохол на старлінк з ребрами+ сітка',
+    color: 'Мультикам',
+    size: 'Gen 3 / Gen 4',
+    quantity: 1,
   }
   const notice: WaybillNotice = {
     orderId: '00000000-0000-0000-0000-000000000009',
-    orderNumber: 'FOX-2026-000011',
-    waybillNumber: '20451539841508',
-    trackingUrl: 'https://novaposhta.ua/tracking/?cargo_number=20451539841508',
-    adminOrderUrl: 'https://fox-armor.com.ua/admin/orders/abc/',
-    recipient: 'Євген Тестовий',
-    phone: '+380 63 063 06 77',
-    sender: 'ФОП Косенко М. С. · Миколаїв · Відділення №30',
-    destination: 'Відділення №1: просп. Героїв України, 13 · м. Миколаїв',
-    weightGrams: 2400,
-    declaredValueCents: 590_000,
-    codCents: 590_000,
-    issuedBy: 'office@fox-armor.org',
-    items: [packed],
+    orderNumber: 'HART-2026-000008',
+    waybillNumber: '20451566991757',
+    items: [cover],
   }
 
-  it('leaves the sender line out without a cabinet, rather than printing nothing', () => {
-    // A shop still on the single environment cabinet has nothing to name.
-    expect(waybillIssuedTelegramText({ ...notice, sender: null })).not.toContain('Отправитель:')
+  it('says the waybill, the order and what goes in the box, nothing else', () => {
+    expect(waybillIssuedTelegramText(notice)).toBe(
+      [
+        '<b>ТТН 20451566991757 — заказ HART-2026-000008</b>',
+        '',
+        'Товары',
+        'чохол на старлінк з ребрами+ сітка',
+        'колір: мультикам',
+        'модель: Gen 3 / Gen 4',
+      ].join('\n'),
+    )
   })
 
-  it('carries what the packer needs: number, recipient, branch, weight, money, contents', () => {
-    const text = waybillIssuedTelegramText(notice)
-    expect(text).toContain('<b>ТТН 20451539841508 — заказ FOX-2026-000011</b>')
-    expect(text).toContain('Получатель: Євген Тестовий, +380 63 063 06 77')
-    expect(text).toContain('Отправитель: ФОП Косенко М. С. · Миколаїв · Відділення №30')
-    expect(text).toContain('Куда: Відділення №1')
-    expect(text).toContain('Вес: 2,4 кг')
-    expect(text).toContain(`Контроль оплаты: ${money(590_000)}`)
-    expect(text).toContain(
-      'https://hart-shop.com/product/antydron-poncho-predator-class-c-uv-em-zakhyst/ - пончо скафандр\nколір: олива\nкількість: 2',
-    )
-    expect(text).toContain('Создал: office@fox-armor.org')
-    expect(text).toContain('href="https://novaposhta.ua/tracking/?cargo_number=20451539841508"')
+  it('carries no links', () => {
+    expect(waybillIssuedTelegramText(notice)).not.toMatch(/https?:|href=/)
   })
 
   it('parts the lines with a blank line, one block per product', () => {
-    const blanket: PackingItem = {
-      productUrl: 'https://hart-shop.com/product/blanket/',
-      name: 'одеяло',
-      color: null,
-      size: null,
-      quantity: 1,
-    }
-    expect(waybillIssuedTelegramText({ ...notice, items: [packed, blanket] })).toContain(
-      'кількість: 2\n\nhttps://hart-shop.com/product/blanket/ - одеяло\n',
+    const blanket: PackingItem = { name: 'одеяло', color: null, size: null, quantity: 2 }
+    expect(waybillIssuedTelegramText({ ...notice, items: [cover, blanket] })).toContain(
+      'модель: Gen 3 / Gen 4\n\nодеяло\nкількість: 2',
     )
   })
 
-  it('says a prepaid parcel collects nothing', () => {
-    expect(waybillIssuedTelegramText({ ...notice, codCents: 0 })).toContain(
-      'Контроль оплаты: нет — заказ оплачен',
-    )
-  })
-
-  it('escapes what the buyer typed', () => {
-    expect(waybillIssuedTelegramText({ ...notice, recipient: '<b>Іван</b> & Ко' })).toContain(
-      '&lt;b&gt;Іван&lt;/b&gt; &amp; Ко',
-    )
+  it('escapes what the workshop name holds', () => {
+    expect(
+      waybillIssuedTelegramText({ ...notice, items: [{ ...cover, name: 'чохол <A&B>' }] }),
+    ).toContain('чохол &lt;A&amp;B&gt;')
   })
 })
 

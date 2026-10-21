@@ -9,10 +9,8 @@ import {
   waybillReadiness,
   WaybillReadiness,
   canRemoveWaybill,
-  codCents,
   doorAddressLines,
   isChosenCabinetUsable,
-  isCourierOrder,
   pickupPointLabel,
   WAYBILL_ISSUABLE_STATUSES,
   waybillBlocker,
@@ -31,10 +29,8 @@ import {
 } from '@/features/orders/repository/order-repository'
 import {
   cabinetServiceFor,
-  carrierAccounts,
   pickupDirectoryFor,
   waybillServiceFor,
-  type CarrierAccount,
   type Waybill,
   type WaybillRequest,
   type WaybillService,
@@ -52,7 +48,6 @@ import {
   WaybillOrderClosedError,
 } from '@/lib/errors'
 import { logger } from '@/lib/logger'
-import { adminUrl } from '@/lib/urls'
 
 export type IssuedWaybill = {
   readonly number: string
@@ -99,7 +94,7 @@ export const orderShipmentService = {
   ): Promise<IssuedWaybill> {
     const order = await findOrder(orderId)
     const request = buildWaybillRequest(order, parcel)
-    return issue(order, { request, parcel, issuedBy, accountId, shippingAddress: null })
+    return issue(order, { request, issuedBy, accountId, shippingAddress: null })
   },
 
   async issueCourierWaybill(
@@ -116,7 +111,6 @@ export const orderShipmentService = {
     const shippingAddress = { ...order.shippingAddress, ...doorAddressLines(delivery.door) }
     return issue(order, {
       request,
-      parcel,
       issuedBy: delivery.issuedBy,
       accountId: delivery.accountId ?? null,
       shippingAddress,
@@ -244,7 +238,6 @@ async function refusalOf(orderId: string): Promise<Error> {
 
 type Issue = {
   readonly request: WaybillRequest | null
-  readonly parcel: ParcelInput
   readonly issuedBy: string
   // Which cabinet to issue from; null takes the default one.
   readonly accountId: string | null
@@ -274,7 +267,12 @@ async function issue(order: OrderRow, details: Issue): Promise<IssuedWaybill> {
   const waybill = await service.create(details.request)
   // Logged before anything else can fail: this is the only trace of a
   // document that now exists in the cabinet.
-  logger.info('Waybill created', { orderId: order.id, carrier, ref: waybill.ref })
+  logger.info('Waybill created', {
+    orderId: order.id,
+    carrier,
+    ref: waybill.ref,
+    issuedBy: details.issuedBy,
+  })
 
   // A waybill exists once the box is closed, so the order is packed —
   // unless it is already past that and only getting a fresh label.
@@ -288,15 +286,7 @@ async function issue(order: OrderRow, details: Issue): Promise<IssuedWaybill> {
     packed,
     shippingAddress,
   })
-  announce(
-    { ...order, shippingAddress: shippingAddress ?? order.shippingAddress },
-    {
-      waybill,
-      parcel: details.parcel,
-      issuedBy: details.issuedBy,
-      sender: await describeSender(account),
-    },
-  )
+  announce(order, waybill)
   return { number: waybill.number, packed }
 }
 
@@ -352,21 +342,12 @@ async function withdraw(service: WaybillService, ref: string, orderId: string): 
   }
 }
 
-type Announcement = {
-  readonly waybill: Waybill
-  readonly parcel: ParcelInput
-  readonly issuedBy: string
-  // «ФОП Масний О. С. · Миколаїв · Відділення №30», or null while the shop
-  // still runs on the single cabinet from the environment.
-  readonly sender: string | null
-}
-
 // The packing chat hears about the waybill after the admin has the answer:
 // Telegram being slow must not hold the button.
-function announce(order: OrderRow, announcement: Announcement): void {
+function announce(order: OrderRow, waybill: Waybill): void {
   const tell = async () => {
-    await sendCard(order, announcement)
-    await sendLabel(order, announcement.waybill)
+    await sendCard(order, waybill)
+    await sendLabel(order, waybill)
   }
 
   try {
@@ -380,41 +361,14 @@ function announce(order: OrderRow, announcement: Announcement): void {
 }
 
 // A failed card must not cost the packer the label that follows it.
-// What the packing chat is told about the sender: the cabinet's counterparty
-// and the branch every cabinet hands parcels over at.
-async function describeSender(account: CarrierAccount | null): Promise<string | null> {
-  if (!account) return null
-
-  const warehouse = await carrierAccounts.readWarehouse()
-  return [account.senderName, warehouse?.label].filter(Boolean).join(' · ')
-}
-
-async function sendCard(
-  order: OrderRow,
-  { waybill, parcel, issuedBy, sender }: Announcement,
-): Promise<void> {
-  const address = order.shippingAddress
-  const destination = isCourierOrder(order)
-    ? `Курьер: ${address.line1}, ${address.city}`
-    : (order.pickupPointLabel ?? address.city)
-
+async function sendCard(order: OrderRow, waybill: Waybill): Promise<void> {
   try {
     const sources = await orderRepository.findPackingSources(order.id)
     await orderTelegram.sendWaybillIssued({
       orderId: order.id,
       orderNumber: order.orderNumber,
       waybillNumber: waybill.number,
-      trackingUrl: waybill.trackingUrl,
-      adminOrderUrl: adminUrl(`/admin/orders/${order.id}/`),
-      recipient: address.fullName,
-      phone: address.phone ?? null,
-      sender,
-      destination,
-      weightGrams: parcel.weightGrams,
-      declaredValueCents: order.totalCents,
-      codCents: codCents(order),
-      issuedBy,
-      items: sources.map((source) => toPackingItem(source, env.NEXT_PUBLIC_SITE_URL)),
+      items: sources.map(toPackingItem),
     })
   } catch (error) {
     logger.error('Waybill card for the packing chat failed', {

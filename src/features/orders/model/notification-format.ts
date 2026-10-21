@@ -5,7 +5,6 @@ import type { OrderItemRow } from '@/features/orders/repository/order-repository
 import { escapeHtml } from '@/lib/html'
 import { groupIban } from '@/lib/iban'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
-import { formatKilos } from '@/lib/weight'
 
 // Internal notifications (shop mail, Telegram) follow the admin language —
 // Russian, the same person who reads the admin panel.
@@ -26,10 +25,8 @@ export function itemLines(items: readonly OrderItemRow[]): string[] {
 // product as it is now while the bought variant still exists.
 export type PackingSource = {
   readonly quantity: number
-  readonly productSlug: string
   readonly productTitle: string
   readonly variantLabel: string
-  readonly currentSlug: string | null
   readonly packingTitle: string | null
   readonly shortTitle: string | null
   readonly color: string | null
@@ -37,7 +34,6 @@ export type PackingSource = {
 }
 
 export type PackingItem = {
-  readonly productUrl: string
   // The workshop's name; the shop's short title until the owner gives one.
   readonly name: string
   readonly color: string | null
@@ -45,13 +41,11 @@ export type PackingItem = {
   readonly quantity: number
 }
 
-export function toPackingItem(source: PackingSource, siteUrl: string): PackingItem {
-  const slug = source.currentSlug ?? source.productSlug
+export function toPackingItem(source: PackingSource): PackingItem {
   // A deleted variant names neither colour nor size: the label bought then
   // stands in for the colour, so the line still says what went in the box.
   const isVariantGone = source.color === null && source.size === null
   return {
-    productUrl: `${siteUrl}/product/${encodeURIComponent(slug)}/`,
     name: source.packingTitle?.trim() || source.shortTitle?.trim() || source.productTitle,
     color: source.color ?? (isVariantGone ? source.variantLabel.trim() || null : null),
     size: source.size,
@@ -65,11 +59,11 @@ const PACKING_SIZE_LABEL: Record<SizeAxis, string> = {
 }
 
 // The workshop picks goods by its own names (owner's format, 19.10.2026): the
-// page, the name, the colour and the size or Starlink model it is cut to; the
-// count only when there is more than one.
+// name, the colour and the size or Starlink model it is cut to; the count only
+// when there is more than one.
 export function packingItemLines(item: PackingItem): string[] {
   return [
-    `${item.productUrl} - ${item.name}`,
+    item.name,
     ...(item.color ? [`колір: ${item.color.toLowerCase()}`] : []),
     ...(item.size ? [`${PACKING_SIZE_LABEL[sizeAxisOf([item.size])]}: ${item.size}`] : []),
     ...(item.quantity > 1 ? [`кількість: ${item.quantity}`] : []),
@@ -80,45 +74,21 @@ export type WaybillNotice = {
   readonly orderId: string
   readonly orderNumber: string
   readonly waybillNumber: string
-  readonly trackingUrl: string
-  readonly adminOrderUrl: string
-  readonly recipient: string
-  readonly phone: string | null
-  // Which cabinet wrote the waybill and from which branch it goes: with
-  // several cabinets the packer has to know whose label is in their hand.
-  readonly sender: string | null
-  readonly destination: string
-  readonly weightGrams: number
-  readonly declaredValueCents: number
-  readonly codCents: number
-  readonly issuedBy: string
   readonly items: readonly PackingItem[]
 }
 
-// The packing chat's card for a fresh waybill: what goes in the box, where it
-// goes and how much the branch collects — enough to pack without the admin.
+// The packing chat's card for a fresh waybill: the number to match the label
+// and what goes in the box, nothing else (owner, 21.10.2026) — the recipient,
+// the branch and the money are on the label and in the admin.
 export function waybillIssuedTelegramText(notice: WaybillNotice): string {
-  const kilos = formatKilos(notice.weightGrams, 'ru-RU', 2)
-  const recipient = [notice.recipient, notice.phone].filter(Boolean).join(', ')
-  const cod = notice.codCents > 0 ? money(notice.codCents) : 'нет — заказ оплачен'
-
   return [
     `<b>ТТН ${escapeHtml(notice.waybillNumber)} — заказ ${escapeHtml(notice.orderNumber)}</b>`,
     '',
-    `Получатель: ${escapeHtml(recipient)}`,
-    ...(notice.sender ? [`Отправитель: ${escapeHtml(notice.sender)}`] : []),
-    `Куда: ${escapeHtml(notice.destination)}`,
-    `Вес: ${kilos} кг · объявленная стоимость ${money(notice.declaredValueCents)}`,
-    `Контроль оплаты: ${cod}`,
-    '',
-    'Товары:',
+    'Товары',
     ...notice.items.flatMap((item, index) => [
       ...(index > 0 ? [''] : []),
       ...packingItemLines(item).map(escapeHtml),
     ]),
-    '',
-    `Создал: ${escapeHtml(notice.issuedBy)}`,
-    `<a href="${escapeHtml(notice.trackingUrl)}">Отслеживание</a> · <a href="${escapeHtml(notice.adminOrderUrl)}">Заказ в админке</a>`,
   ].join('\n')
 }
 
