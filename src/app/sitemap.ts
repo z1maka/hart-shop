@@ -23,17 +23,24 @@ const PRODUCT_PRIORITY = 0.9
 const CATEGORY_PRIORITY = 0.8
 const PAGE_PRIORITY = 0.7
 
+type PageEntry = {
+  readonly path: string
+  readonly lastModified?: Date
+  readonly priority: number
+}
+
 // The sitemap is built whether or not the shop is indexable: robots.txt decides
 // who may crawl, and keeping the file populated means the switch at launch is
 // one variable rather than a deploy that also has to be checked.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { categories, products } = await getCatalogSitemap()
-  const buildTime = new Date()
 
-  const entries = [
+  // Static pages have no stored edit date, so they carry no lastmod: stamping
+  // them with the render time moves the date on every regeneration and teaches
+  // crawlers to ignore lastmod for the real product and category dates too.
+  const entries: readonly PageEntry[] = [
     ...STATIC_PATHS.map((path) => ({
       path,
-      lastModified: buildTime,
       priority: path === '/' ? HOME_PRIORITY : PAGE_PRIORITY,
     })),
     ...categories.map((category) => ({
