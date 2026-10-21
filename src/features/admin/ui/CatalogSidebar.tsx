@@ -23,7 +23,44 @@ type CatalogSidebarProps = {
   readonly categories: readonly AdminCategoryRow[]
 }
 
-export function CatalogSidebar({ filters, facets, categories }: CatalogSidebarProps) {
+export function CatalogSidebar(props: CatalogSidebarProps) {
+  return (
+    <aside className="w-full shrink-0 lg:w-60">
+      {/* On a phone the filters fold into one line: a full screen of links
+          stood between the tabs and the products. */}
+      <details className="group rounded-card border border-subtle bg-surface lg:hidden">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-4 text-[13px] font-semibold text-ink [&::-webkit-details-marker]:hidden">
+          <span className="min-w-0 truncate">Фильтры: {activeFiltersLabel(props)}</span>
+          <span
+            aria-hidden
+            className="shrink-0 text-muted transition-transform group-open:rotate-180"
+          >
+            ▾
+          </span>
+        </summary>
+        <div className="border-t border-subtle p-3">
+          <CatalogFilterPanel {...props} />
+        </div>
+      </details>
+      <div className="hidden lg:block">
+        <CatalogFilterPanel {...props} />
+      </div>
+    </aside>
+  )
+}
+
+function activeFiltersLabel({ filters, categories }: CatalogSidebarProps): string {
+  const category = categories.find((entry) => entry.slug === filters.category)
+  const parts = [
+    filters.isArchive ? 'архив' : null,
+    category ? category.name : 'все категории',
+    filters.state ? STATE_LABELS[filters.state].toLowerCase() : null,
+  ]
+
+  return parts.filter(Boolean).join(' · ')
+}
+
+function CatalogFilterPanel({ filters, facets, categories }: CatalogSidebarProps) {
   const href = (change: Partial<CatalogFilters>) =>
     catalogHref(filters, change, ADMIN_PRODUCTS_PER_PAGE)
   const categoryCount = (category: AdminCategoryRow) =>
@@ -32,7 +69,7 @@ export function CatalogSidebar({ filters, facets, categories }: CatalogSidebarPr
   return (
     // minmax(0, 1fr): long category names truncate instead of widening the
     // column and pushing their counts under the list.
-    <aside className="grid w-full shrink-0 grid-cols-[minmax(0,1fr)] gap-5 lg:w-60">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       <FilterGroup title="Категории">
         <FilterLink
           href={href({ category: null })}
@@ -72,7 +109,7 @@ export function CatalogSidebar({ filters, facets, categories }: CatalogSidebarPr
       )}
 
       <ArchiveCard filters={filters} archived={facets.archived} />
-    </aside>
+    </div>
   )
 }
 

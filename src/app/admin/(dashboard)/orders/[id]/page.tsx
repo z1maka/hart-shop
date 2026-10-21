@@ -1,15 +1,19 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import { DeliveryKind, NotificationStatus } from '@/db/enums'
 import { getAdminOrderView } from '@/features/admin/queries/get-admin-desk'
 import {
   NOTIFICATION_KIND_LABELS,
   NOTIFICATION_STATUS_LABELS,
 } from '@/features/admin/ui/notification-labels'
-import type { AdminNotificationView } from '@/features/orders/queries/get-admin-order'
+import type {
+  AdminNotificationView,
+  AdminOrderLine,
+} from '@/features/orders/queries/get-admin-order'
 import { OrderActionsPanel } from '@/features/admin/ui/OrderActionsPanel'
+import { PhoneLink } from '@/features/admin/ui/order-cells'
 import { WaybillPanel } from '@/features/admin/ui/WaybillPanel'
 import { trafficLabel } from '@/features/admin/ui/traffic-labels'
 import {
@@ -64,7 +68,7 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
       </div>
 
       <div className="flex flex-wrap items-start gap-4">
-        <div className="grid min-w-[min(100%,340px)] flex-[999_1_460px] gap-4">
+        <div className="grid min-w-[min(100%,340px)] flex-[999_1_460px] grid-cols-1 gap-4">
           {/* First thing the team sees: whether to call at all. */}
           {order.contact.isSpecial ? (
             <section className="rounded-card border border-accent-edge bg-accent-tint p-5">
@@ -100,14 +104,15 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
 
           <section className="rounded-card border border-subtle bg-surface p-5">
             <h2 className="mb-3 text-[14px] font-semibold text-ink">Состав заказа</h2>
-            <div className="overflow-x-auto">
+            <OrderLinesList lines={order.lines} />
+            <div className="hidden overflow-x-auto sm:block">
               <table className="w-full border-collapse text-[13.5px]">
                 <thead>
                   <tr className="text-left text-[12px] text-muted">
                     <th className="pb-2 font-semibold">Товар</th>
                     <th className="pb-2 font-semibold">Артикул</th>
-                    <th className="pb-2 text-right font-semibold">Кол-во</th>
-                    <th className="pb-2 text-right font-semibold">Сумма</th>
+                    <th className="pb-2 pl-3 text-right font-semibold">Кол-во</th>
+                    <th className="pb-2 pl-4 text-right font-semibold">Сумма</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -118,8 +123,8 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
                         <span className="block text-[12px] text-faint">{line.variantLabel}</span>
                       </td>
                       <td className="py-2.5 pr-3 whitespace-nowrap text-muted">{line.sku}</td>
-                      <td className="py-2.5 text-right text-muted">{line.quantity}</td>
-                      <td className="py-2.5 text-right font-semibold whitespace-nowrap">
+                      <td className="py-2.5 pl-3 text-right text-muted">{line.quantity}</td>
+                      <td className="py-2.5 pl-4 text-right font-semibold whitespace-nowrap">
                         {line.linePriceLabel}
                       </td>
                     </tr>
@@ -140,7 +145,9 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
             <dl className="grid gap-1.5 text-[13.5px]">
               <Row label="Получатель" value={order.address.fullName} />
               {order.email ? <Row label="Почта" value={order.email} /> : null}
-              {order.address.phone ? <Row label="Телефон" value={order.address.phone} /> : null}
+              {order.address.phone ? (
+                <Row label="Телефон" value={<PhoneLink phone={order.address.phone} />} />
+              ) : null}
               <Row label="Связь" value={order.contact.label} />
               {order.buyerCompany ? <Row label="Компания" value={order.buyerCompany} /> : null}
               <Row
@@ -164,7 +171,7 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
           </section>
         </div>
 
-        <aside className="grid min-w-[min(100%,300px)] flex-[1_1_320px] gap-4">
+        <aside className="grid min-w-[min(100%,300px)] flex-[1_1_320px] grid-cols-1 gap-4">
           <WaybillPanel
             orderId={order.id}
             waybill={order.waybill}
@@ -225,12 +232,41 @@ function ParcelRow({
   )
 }
 
-function Row({ label, value, isStrong }: { label: string; value: string; isStrong?: boolean }) {
+function Row({ label, value, isStrong }: { label: string; value: ReactNode; isStrong?: boolean }) {
   return (
     <div className="flex justify-between gap-4">
-      <dt className="text-muted">{label}</dt>
-      <dd className={isStrong ? 'font-semibold text-ink' : 'text-right text-ink'}>{value}</dd>
+      <dt className="shrink-0 text-muted">{label}</dt>
+      {/* An address or a payment reference breaks rather than widening the card. */}
+      <dd
+        className={cn('min-w-0 wrap-anywhere text-ink', isStrong ? 'font-semibold' : 'text-right')}
+      >
+        {value}
+      </dd>
     </div>
+  )
+}
+
+// The order lines on a phone: four table columns do not fit, and the
+// quantity pressed against the sum read as one number («1» + «2 900» = «12 900»).
+function OrderLinesList({ lines }: { readonly lines: readonly AdminOrderLine[] }) {
+  return (
+    <ul className="grid sm:hidden">
+      {lines.map((line) => (
+        <li
+          key={line.id}
+          className="grid gap-0.5 border-t border-subtle py-2.5 text-[13.5px] first:border-t-0 first:pt-0"
+        >
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="min-w-0 text-ink">{line.title}</span>
+            <span className="font-semibold whitespace-nowrap text-ink">{line.linePriceLabel}</span>
+          </span>
+          <span className="text-[12px] text-faint">{line.variantLabel}</span>
+          <span className="text-[12px] wrap-anywhere text-muted">
+            {line.sku} · {line.quantity} × {line.unitPriceLabel}
+          </span>
+        </li>
+      ))}
+    </ul>
   )
 }
 

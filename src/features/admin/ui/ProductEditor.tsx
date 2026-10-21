@@ -66,7 +66,8 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
   // Failed saves reset uncontrolled fields (React 19), so the typed values
   // ride back on the result and win over the stored ones.
   const typed = result && !result.ok ? (result.values ?? {}) : {}
-  const invalid = result && !result.ok && result.error.code === 'VALIDATION_FAILED' ? result.error : null
+  const invalid =
+    result && !result.ok && result.error.code === 'VALIDATION_FAILED' ? result.error : null
   const fieldError = (name: string): string | undefined =>
     invalid?.message === name ? (invalid.hint ?? 'проверьте значение') : undefined
 
@@ -134,7 +135,7 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
       </div>
 
       <div className="flex flex-wrap items-start gap-5">
-        <div className="grid min-w-[min(100%,320px)] flex-[999_1_460px] gap-5">
+        <div className="grid min-w-[min(100%,320px)] flex-[999_1_460px] grid-cols-1 gap-5">
           <EditorCard title="Основное">
             <div className="grid grid-cols-[repeat(auto-fit,minmax(min(200px,100%),1fr))] gap-4">
               <Field error={fieldError('sku')} label="Артикул">
@@ -190,7 +191,11 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   className={inputClassName}
                 />
               </Field>
-              <Field error={fieldError('title')} label="Название на витрине" className="col-span-full">
+              <Field
+                error={fieldError('title')}
+                label="Название на витрине"
+                className="col-span-full"
+              >
                 <input
                   name="title"
                   defaultValue={typed.title ?? product.title}
@@ -198,7 +203,11 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   required
                 />
               </Field>
-              <Field error={fieldError('shortTitle')} label="Короткое название для списков" className="col-span-full">
+              <Field
+                error={fieldError('shortTitle')}
+                label="Короткое название для списков"
+                className="col-span-full"
+              >
                 <input
                   name="shortTitle"
                   defaultValue={typed.shortTitle ?? product.shortTitle}
@@ -207,7 +216,11 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   className={inputClassName}
                 />
               </Field>
-              <Field error={fieldError('description')} label="Описание на витрине" className="col-span-full">
+              <Field
+                error={fieldError('description')}
+                label="Описание на витрине"
+                className="col-span-full"
+              >
                 <textarea
                   name="description"
                   rows={4}
@@ -216,7 +229,11 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   required
                 />
               </Field>
-              <Field error={fieldError('seoTitle')} label="Заголовок в Google" className="col-span-full">
+              <Field
+                error={fieldError('seoTitle')}
+                label="Заголовок в Google"
+                className="col-span-full"
+              >
                 <input
                   name="seoTitle"
                   defaultValue={typed.seoTitle ?? product.seoTitle}
@@ -225,7 +242,11 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   className={inputClassName}
                 />
               </Field>
-              <Field error={fieldError('seoDescription')} label="Описание в Google (до 160 знаков)" className="col-span-full">
+              <Field
+                error={fieldError('seoDescription')}
+                label="Описание в Google (до 160 знаков)"
+                className="col-span-full"
+              >
                 <textarea
                   name="seoDescription"
                   rows={2}
@@ -252,10 +273,11 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
             </EditorNote>
 
             <EditorNote>
-              Бренд заполняется у чужих товаров с известным производителем (Walker&apos;s, Mil-Tec…):
-              он уходит в Google и в рекламу; пусто — название магазина. Группа цветов — одинаковое слово у товаров, которые являются одной
-              моделью в разных расцветках, например «poncho-3-layers»: у каждой карточки свой цвет и
-              текст, а плитки цветов ведут на соседние карточки.
+              Бренд заполняется у чужих товаров с известным производителем (Walker&apos;s,
+              Mil-Tec…): он уходит в Google и в рекламу; пусто — название магазина. Группа цветов —
+              одинаковое слово у товаров, которые являются одной моделью в разных расцветках,
+              например «poncho-3-layers»: у каждой карточки свой цвет и текст, а плитки цветов ведут
+              на соседние карточки.
             </EditorNote>
           </EditorCard>
 
@@ -407,10 +429,13 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                 required
               />
             </Field>
-            <p className="mt-3.5 mb-4 rounded-control bg-sunken px-3.5 py-2.5 font-display text-[12.5px] text-muted normal-case">
+            <p className="mt-3.5 mb-4 rounded-control bg-sunken px-3.5 py-2.5 font-display text-[12.5px] break-all text-muted normal-case">
               {siteHost}/product/{nextSlug(product.slug, slug) || 'novyy-tovar'}
             </p>
-            <SummaryField defaultValue={typed.summary ?? product.summary} error={fieldError('summary')} />
+            <SummaryField
+              defaultValue={typed.summary ?? product.summary}
+              error={fieldError('summary')}
+            />
 
             <EditorNote>
               Адрес страницы после публикации лучше не менять: старые ссылки перестают работать, а
@@ -420,7 +445,7 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
           </EditorCard>
         </div>
 
-        <div className="grid min-w-[min(100%,280px)] flex-[1_1_300px] gap-4">
+        <div className="grid min-w-[min(100%,280px)] flex-[1_1_300px] grid-cols-1 gap-4">
           <div className="rounded-card border border-subtle bg-surface p-5">
             <p className="mb-3 text-[12.5px] font-semibold text-muted">Публикация</p>
             <ProductPublishToggle
