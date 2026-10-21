@@ -1,0 +1,1 @@
+ALTER TYPE "public"."enquiry_kind" ADD VALUE 'partner';

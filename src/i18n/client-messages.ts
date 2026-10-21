@@ -22,6 +22,7 @@ export const CLIENT_MESSAGE_NAMESPACES = [
   'nav',
   'orderTimeline',
   'pagination',
+  'partnersPage.form',
   'pdp',
   'privacyPage.consent',
   'product',

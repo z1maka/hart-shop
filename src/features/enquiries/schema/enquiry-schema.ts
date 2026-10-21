@@ -1,14 +1,18 @@
 import { z } from 'zod'
 import { CONTACT_TOPIC_IDS } from '@/config/contact'
 import { CUSTOM_ORDER_ITEM_IDS } from '@/config/custom-order'
+import { PARTNER_MODEL_IDS } from '@/config/partners'
 
 const topicIds = CONTACT_TOPIC_IDS as [string, ...string[]]
 const itemIds = CUSTOM_ORDER_ITEM_IDS as unknown as [string, ...string[]]
+const partnerModelIds = PARTNER_MODEL_IDS as unknown as [string, ...string[]]
 
 // Enough digits to be a phone at all; the shop calls the number rather than
 // validating it into a shape the buyer did not expect.
 const PHONE_MIN_DIGITS = 9
 const QUANTITY_MAX = 5000
+// ЄДРПОУ of a company has 8 digits, РНОКПП of a sole trader 10.
+const TAX_ID_PATTERN = /^(\d{8}|\d{10})$/
 
 export const MAX_MESSAGE_LENGTH = 2000
 
@@ -62,3 +66,29 @@ export const CustomOrderSchema = z.object({
 })
 
 export type CustomOrderInput = z.infer<typeof CustomOrderSchema>
+
+// A maker asking the shop to sell their goods. Settled over email with a
+// catalogue or price list attached, so the address is required here, and the
+// phone too: the first conversation is a call.
+export const PartnerApplicationSchema = z.object({
+  website: HoneypotSchema,
+  company: z.string().trim().min(2).max(200),
+  taxId: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => (value ? value.replace(/\s/g, '') : undefined))
+    .refine((value) => value === undefined || TAX_ID_PATTERN.test(value)),
+  contactName: z.string().trim().min(2).max(120),
+  phone: z
+    .string()
+    .trim()
+    .max(40)
+    .refine((value) => value.replace(/\D/g, '').length >= PHONE_MIN_DIGITS),
+  email: z.email(),
+  products: z.string().trim().min(10).max(MAX_MESSAGE_LENGTH),
+  links: optionalText(500),
+  model: z.enum(partnerModelIds),
+})
+
+export type PartnerApplicationInput = z.infer<typeof PartnerApplicationSchema>

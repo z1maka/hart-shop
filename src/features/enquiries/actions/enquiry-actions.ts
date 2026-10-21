@@ -1,6 +1,10 @@
 'use server'
 
-import { ContactMessageSchema, CustomOrderSchema } from '@/features/enquiries/schema/enquiry-schema'
+import {
+  ContactMessageSchema,
+  CustomOrderSchema,
+  PartnerApplicationSchema,
+} from '@/features/enquiries/schema/enquiry-schema'
 import { enquiryService } from '@/features/enquiries/services/enquiry-service'
 import { actionError, actionOk, toActionError, type ActionResult } from '@/lib/action-result'
 import { createFixedWindowLimiter } from '@/lib/rate-limit'
@@ -56,6 +60,28 @@ export async function submitCustomOrderAction(input: unknown): Promise<ActionRes
 
   try {
     await enquiryService.submitCustomOrder(parsed.data)
+    return actionOk(null)
+  } catch (error) {
+    return toActionError(error)
+  }
+}
+
+export async function submitPartnerApplicationAction(input: unknown): Promise<ActionResult<null>> {
+  const parsed = PartnerApplicationSchema.safeParse(input)
+  if (!parsed.success) {
+    return actionError(
+      'VALIDATION_FAILED',
+      'Name the company and a contact, leave a phone and an email, and say what you make.',
+    )
+  }
+
+  const gate = await checkSpamGate(parsed.data.website, 'partner')
+  if (gate.isSpam) return actionOk(null)
+  if (gate.throttled)
+    return actionError('RATE_LIMITED', 'Too many requests. Try again in a minute.')
+
+  try {
+    await enquiryService.submitPartnerApplication(parsed.data)
     return actionOk(null)
   } catch (error) {
     return toActionError(error)

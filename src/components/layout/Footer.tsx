@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { getTranslations } from 'next-intl/server'
 import { COMPANY } from '@/config/company'
 import { CUSTOM_ORDER_HREF } from '@/config/custom-order'
+import { PARTNERS_HREF } from '@/config/partners'
 
 export type FooterProps = {
   readonly categories: readonly { readonly slug: string; readonly name: string }[]
@@ -10,8 +11,8 @@ export type FooterProps = {
 
 // The pages a shopper looks for, in the Гарт design's order. The guides stay
 // although the design left them out: this column is their one link from every
-// page. The offer, the privacy policy and the seller's details sit in the
-// bottom row.
+// page. The page for other makers, the offer, the privacy policy and the
+// seller's details sit in the bottom row.
 const CUSTOMER_LINK_KEYS = [
   { key: 'delivery', href: '/delivery/' },
   { key: 'refunds', href: '/refund-policy/' },
@@ -76,6 +77,9 @@ export async function Footer({ categories }: FooterProps) {
           </span>
         </div>
         <nav className="flex flex-wrap gap-x-4 gap-y-1">
+          <Link href={PARTNERS_HREF} className="hover:text-on-dark">
+            {t('partners')}
+          </Link>
           <Link href="/publichna-oferta/" className="hover:text-on-dark">
             {t('offer')}
           </Link>

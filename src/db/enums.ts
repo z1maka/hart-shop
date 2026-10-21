@@ -66,6 +66,9 @@ export const EnquiryKind = {
   Quote: 'quote',
   Distributor: 'distributor',
   Contact: 'contact',
+  // A maker who wants the shop to sell their goods on consignment or by
+  // dropshipping (/spivpratsia/).
+  Partner: 'partner',
 } as const
 
 export type EnquiryKind = (typeof EnquiryKind)[keyof typeof EnquiryKind]

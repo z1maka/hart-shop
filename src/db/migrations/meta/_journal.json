@@ -421,6 +421,13 @@
       "when": 1792406049616,
       "tag": "0059_order_contact_preference",
       "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1792582114778,
+      "tag": "0060_enquiry_kind_partner",
+      "breakpoints": true
     }
   ]
 }

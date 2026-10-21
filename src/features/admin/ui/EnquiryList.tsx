@@ -13,6 +13,7 @@ const KIND_LABELS: Record<EnquiryKind, string> = {
   [EnquiryKind.Quote]: 'Пошив на заказ',
   [EnquiryKind.Distributor]: 'Дистрибуция',
   [EnquiryKind.Contact]: 'Сообщение',
+  [EnquiryKind.Partner]: 'Сотрудничество',
 }
 
 const STATUS_LABELS: Record<EnquiryStatus, string> = {

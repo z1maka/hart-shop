@@ -3,9 +3,11 @@ import {
   CUSTOM_ORDER_ITEM_LABELS_RU,
   type CustomOrderItemId,
 } from '@/config/custom-order'
+import { PARTNER_MODEL_LABELS_RU, type PartnerModelId } from '@/config/partners'
 import type {
   ContactMessageInput,
   CustomOrderInput,
+  PartnerApplicationInput,
 } from '@/features/enquiries/schema/enquiry-schema'
 import { EnquiryKind, type EnquiryStatus } from '@/db/enums'
 import { enquiryRepository } from '@/features/enquiries/repository/enquiry-repository'
@@ -103,6 +105,46 @@ export const enquiryService = {
 
     logger.info('Custom order request received', { item: input.item, quantity: input.quantity })
   },
+
+  // A maker offering their goods for the shop to sell. Answered by email with
+  // terms, so it goes in with the company and the contact person filled.
+  async submitPartnerApplication(input: PartnerApplicationInput): Promise<void> {
+    const modelLabel = PARTNER_MODEL_LABELS_RU[input.model as PartnerModelId] ?? input.model
+    const lines = [
+      ['Производитель', input.company],
+      ['ЄДРПОУ / РНОКПП', input.taxId ?? '—'],
+      ['Контакт', input.contactName],
+      ['Телефон', input.phone],
+      ['Email', input.email],
+      ['Формат', modelLabel],
+      ['Ссылки', input.links ?? '—'],
+      ['Что производят', input.products],
+    ]
+
+    await enquiryRepository.create({
+      kind: EnquiryKind.Partner,
+      organisation: input.company,
+      contactName: input.contactName,
+      email: input.email,
+      phone: input.phone,
+      telegram: null,
+      topic: `Сотрудничество: ${modelLabel}`,
+      country: null,
+      quantity: null,
+      message: partnerMessageOf(input),
+      cartLines: [],
+    })
+
+    await sendMail({
+      to: enquiryRecipient,
+      replyTo: input.email,
+      subject: `Сотрудничество — ${input.company}`,
+      text: lines.map(([label, value]) => `${label}: ${value}`).join('\n'),
+      html: asTable(lines),
+    })
+
+    logger.info('Partner application received', { model: input.model })
+  },
 }
 
 // Everything the admin needs while reading the list, in the order it is
@@ -116,6 +158,15 @@ function messageOf(input: CustomOrderInput): string {
   ].filter((line): line is string => line !== null)
 
   return [input.details, ...tail].join('\n')
+}
+
+function partnerMessageOf(input: PartnerApplicationInput): string {
+  const tail = [
+    input.links ? `Ссылки: ${input.links}` : null,
+    input.taxId ? `ЄДРПОУ / РНОКПП: ${input.taxId}` : null,
+  ].filter((line): line is string => line !== null)
+
+  return [input.products, ...tail].join('\n')
 }
 
 function asTable(rows: readonly (readonly string[])[]): string {
