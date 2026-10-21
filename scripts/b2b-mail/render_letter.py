@@ -26,6 +26,7 @@ CATALOGUE_HOST = "media.hart-shop.com/kp/"
 SUBJECT_PREFIX = "Тема:"
 SIGNATURE_START = "З повагою"
 OPT_OUT_STARTS = ("Якщо такі листи", "Якщо пропозиція не актуальна")
+PRICE_MARK = "₴"
 SELLER_LINE = "ФОП Масний Олександр Сергійович · РНОКПП 3172012013 · вул. Авангардна, будинок 17, 23, м. Миколаїв, 54034"
 
 INK = "#1f2a1f"
@@ -109,10 +110,14 @@ def add_paragraph(letter: Letter, runs: list[Run]) -> None:
         letter.subject = text[len(SUBJECT_PREFIX):].strip()
     elif catalogue:
         letter.catalogue_url = catalogue
-    elif text.startswith(SIGNATURE_START):
-        letter.signature = runs
     elif text.startswith(OPT_OUT_STARTS):
         letter.opt_out = text
+    elif text.startswith(SIGNATURE_START):
+        letter.signature = runs
+    elif letter.signature and text:
+        # The routine writes the sign-off one line per paragraph: the lines
+        # after «З повагою» are the signature, not body text above the buttons.
+        letter.signature = [*letter.signature, Run("", is_break=True), *runs]
     elif text:
         letter.blocks.append(("text", runs))
 
@@ -145,28 +150,40 @@ def inline_html(runs: list[Run], link_color: str = ACCENT) -> str:
 
 
 def product_parts(runs: list[Run]) -> tuple[str, str | None, str, str]:
+    """Name, link, price and the note under the name of one product line."""
     link = next((run for run in runs if run.href), None)
-    name = link.text if link else plain(runs)
-    rest = "".join(run.text for run in runs if run is not link and not run.is_break)
+    if link:
+        name = link.text
+        rest = "".join(run.text for run in runs if run is not link and not run.is_break)
+    else:
+        name, _, rest = plain(runs).partition(" — ")
     rest = rest.strip().lstrip("—–-:").strip().rstrip(";.").strip()
+    if PRICE_MARK not in rest:
+        # Made to measure, like the modular car tents: no price to show, the
+        # terms go under the name. In the price cell they stretched it across
+        # the table and squeezed every name in the letter to a word a line.
+        return name, link.href if link else None, "", rest
     price, _, wholesale = rest.partition(", ")
     return name, link.href if link else None, price, wholesale
 
 
 def product_row(runs: list[Run]) -> str:
-    name, href, price, wholesale = product_parts(runs)
+    name, href, price, note = product_parts(runs)
     title = (
         f'<a href="{html.escape(href)}" style="color:{INK};text-decoration:none">{html.escape(name)}</a>'
         if href else html.escape(name)
     )
-    note = (
-        f'<div style="font:400 13px/1.4 {TEXT_FONT};color:{MUTED};margin-top:2px">{html.escape(wholesale)}</div>'
-        if wholesale else ""
+    note_html = (
+        f'<div style="font:400 13px/1.4 {TEXT_FONT};color:{MUTED};margin-top:2px">{html.escape(note)}</div>'
+        if note else ""
     )
+    name_cell = f'<div style="font:700 15px/1.35 {TEXT_FONT};color:{INK}">{title}</div>{note_html}'
+    cell_style = f"padding:12px 14px;border-bottom:1px solid {LINE}"
+    if not price:
+        return f'<tr><td colspan="2" style="{cell_style}">{name_cell}</td></tr>'
     return (
-        f'<tr><td style="padding:12px 14px;border-bottom:1px solid {LINE}">'
-        f'<div style="font:700 15px/1.35 {TEXT_FONT};color:{INK}">{title}</div>{note}</td>'
-        f'<td align="right" style="padding:12px 14px;border-bottom:1px solid {LINE};white-space:nowrap;'
+        f'<tr><td width="100%" style="{cell_style}">{name_cell}</td>'
+        f'<td align="right" style="{cell_style};white-space:nowrap;'
         f'font:600 16px/1.2 {DISPLAY_FONT};color:{KHAKI_INK}">{html.escape(price)}</td></tr>'
     )
 
