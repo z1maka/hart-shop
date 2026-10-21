@@ -1,5 +1,8 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import { MERCHANT_FEED_CATEGORY_SLUGS } from '@/config/merchant-feed'
+import {
+  MERCHANT_FEED_CATEGORY_SLUGS,
+  MERCHANT_FEED_FOX_PHOTO_SLUGS,
+} from '@/config/merchant-feed'
 import { META_CATALOG_CATEGORY_SLUGS } from '@/config/meta-catalog'
 import { siteConfig } from '@/config/site'
 import { effectiveGoogleCategory } from '@/features/catalog/model/google-category'
@@ -31,7 +34,12 @@ export async function getMerchantFeedXml(): Promise<string> {
   cacheTag('catalog')
   cacheLife('hours')
 
-  return feedXml(await feedItems(await listedProductsIn(MERCHANT_FEED_CATEGORY_SLUGS)))
+  const products = await listedProductsIn(MERCHANT_FEED_CATEGORY_SLUGS)
+  return feedXml(
+    await feedItems(
+      products.filter((product) => !MERCHANT_FEED_FOX_PHOTO_SLUGS.includes(product.slug)),
+    ),
+  )
 }
 
 // The same items for Meta's catalogue, cut to what the workshop sews and
