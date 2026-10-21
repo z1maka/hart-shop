@@ -7,22 +7,47 @@ export const SizeAxis = {
 } as const
 export type SizeAxis = (typeof SizeAxis)[keyof typeof SizeAxis]
 
-// «Gen 2», «Gen 3 / Gen 4»: the names the variants carry in their Size option.
-const STARLINK_MODEL_PATTERN = /^Gen \d/
-
-// The dish each model is cut to, printed under its name so the buyer can tell
-// the two apart with a tape measure (owner, 20.10.2026).
-const STARLINK_DISH_SIZES: Readonly<Record<string, string>> = {
-  'Gen 2': '513 × 303 мм',
-  'Gen 3 / Gen 4': '594 × 383 мм',
+export type OptionDimensions = {
+  readonly widthMm: number
+  readonly heightMm: number
 }
 
-export function sizeNoteOf(size: string): string | null {
-  return Object.hasOwn(STARLINK_DISH_SIZES, size) ? (STARLINK_DISH_SIZES[size] ?? null) : null
+// The dish each Starlink model is cut to, as the variants name it in their
+// Size option. A model is a size listed here: a new dish is one more line,
+// and every page that offers models picks it up.
+const STARLINK_DISHES: Readonly<Record<string, OptionDimensions>> = {
+  'Gen 2': { widthMm: 513, heightMm: 303 },
+  'Gen 3 / Gen 4': { widthMm: 594, heightMm: 383 },
+}
+
+type SizeAxisSpec = {
+  // A cover is bought for one dish, so its models belong on the catalogue
+  // card (owner, 21.10.2026); a clothing size is picked on the product page.
+  readonly isShownOnCard: boolean
+}
+
+const SIZE_AXIS_SPECS: Readonly<Record<SizeAxis, SizeAxisSpec>> = {
+  [SizeAxis.Size]: { isShownOnCard: false },
+  [SizeAxis.StarlinkModel]: { isShownOnCard: true },
 }
 
 export function sizeAxisOf(sizes: readonly string[]): SizeAxis {
   const isStarlinkModel =
-    sizes.length > 0 && sizes.every((size) => STARLINK_MODEL_PATTERN.test(size))
+    sizes.length > 0 && sizes.every((size) => Object.hasOwn(STARLINK_DISHES, size))
   return isStarlinkModel ? SizeAxis.StarlinkModel : SizeAxis.Size
+}
+
+export function isSizeAxisShownOnCard(axis: SizeAxis): boolean {
+  return SIZE_AXIS_SPECS[axis].isShownOnCard
+}
+
+export function sizeDimensionsOf(size: string): OptionDimensions | null {
+  return Object.hasOwn(STARLINK_DISHES, size) ? (STARLINK_DISHES[size] ?? null) : null
+}
+
+// Printed under the model's name so the buyer can tell the dishes apart with
+// a tape measure (owner, 20.10.2026).
+export function sizeNoteOf(size: string): string | null {
+  const dimensions = sizeDimensionsOf(size)
+  return dimensions ? `${dimensions.widthMm} × ${dimensions.heightMm} мм` : null
 }

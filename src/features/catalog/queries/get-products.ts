@@ -13,6 +13,7 @@ import { FEATURED_CATEGORY_SLUGS } from '@/config/site'
 import { interleaveByCategory, pickCompanions } from '@/features/catalog/model/companions'
 import {
   buildMetaLine,
+  cardSizeChoiceOf,
   colorOf,
   effectivePrice,
   isVariantAvailable,
@@ -192,6 +193,7 @@ async function toCardViews(rows: readonly CatalogProductRow[]): Promise<ProductC
             .filter((color): color is string => color !== null),
         ),
       ],
+      sizeChoice: cardSizeChoiceOf(productVariants),
       // The card adds the first available variant and opens the mini cart, where
       // the chosen option is spelled out; the product page is for changing it.
       quickAddVariantId: inStock[0]?.id ?? null,

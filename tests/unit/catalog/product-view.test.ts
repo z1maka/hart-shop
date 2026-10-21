@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildMetaLine,
+  cardSizeChoiceOf,
   cardImageFor,
   coverIndexByColor,
   coverIndexFor,
@@ -158,3 +159,27 @@ describe('buildMetaLine', () => {
     expect(buildMetaLine(0, null, 'кг')).toBe('')
   })
 })
+
+describe('cardSizeChoiceOf', () => {
+  const variant = (options: Record<string, string>) => ({ options })
+
+  it('lists a cover\'s Starlink models once each, in the variants\' order', () => {
+    expect(
+      cardSizeChoiceOf([
+        variant({ Color: 'Олива', Size: 'Gen 2' }),
+        variant({ Color: 'Олива', Size: 'Gen 3 / Gen 4' }),
+        variant({ Color: 'Піксель', Size: 'Gen 2' }),
+      ]),
+    ).toEqual({ axis: 'starlinkModel', sizes: ['Gen 2', 'Gen 3 / Gen 4'] })
+  })
+
+  it('leaves clothing sizes to the product page', () => {
+    expect(cardSizeChoiceOf([variant({ Size: 'M' }), variant({ Size: 'L' })])).toBeNull()
+  })
+
+  it('has nothing to list for a product sold without a size', () => {
+    expect(cardSizeChoiceOf([variant({ Color: 'Мультикам' })])).toBeNull()
+    expect(cardSizeChoiceOf([])).toBeNull()
+  })
+})
+

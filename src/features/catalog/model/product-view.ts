@@ -1,3 +1,4 @@
+import { isSizeAxisShownOnCard, sizeAxisOf, type SizeAxis } from '@/config/variant-size'
 import { createMoney, Currency, type Money } from '@/lib/money'
 
 const GRAMS_PER_KILO = 1000
@@ -23,6 +24,13 @@ export type ProductVariantView = {
   readonly imageIndex: number | null
 }
 
+// The second choice spelled out on a card — a cover's Starlink models — when
+// its axis belongs there (config/variant-size.ts).
+export type CardSizeChoice = {
+  readonly axis: SizeAxis
+  readonly sizes: readonly string[]
+}
+
 export type ProductCardView = {
   readonly slug: string
   readonly sku: string
@@ -36,6 +44,7 @@ export type ProductCardView = {
   // A colour's own shot, for a card that opens on that colour.
   readonly imagesByColor: Readonly<Record<string, ProductImageView>>
   readonly colors: readonly string[]
+  readonly sizeChoice: CardSizeChoice | null
   readonly categorySlug: string
   readonly quickAddVariantId: string | null
   readonly quickAddVariantLabel: string | null
@@ -87,6 +96,20 @@ export function colorOf(options: Record<string, string>): string | null {
 
 export function sizeOf(options: Record<string, string>): string | null {
   return options[SIZE_OPTION_KEY] ?? null
+}
+
+// The sizes a card lists, in the variants' order, each once; none for a
+// product sold in one size or on an axis the card leaves to the page.
+export function cardSizeChoiceOf(
+  variants: readonly { readonly options: Record<string, string> }[],
+): CardSizeChoice | null {
+  const sizes = [
+    ...new Set(variants.map((variant) => sizeOf(variant.options)).filter((size) => size !== null)),
+  ]
+  if (sizes.length === 0) return null
+
+  const axis = sizeAxisOf(sizes)
+  return isSizeAxisShownOnCard(axis) ? { axis, sizes } : null
 }
 
 export function isVariantAvailable(stockQty: number): boolean {

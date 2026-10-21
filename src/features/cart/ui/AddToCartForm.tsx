@@ -5,14 +5,12 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState, useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { ColorSwatch } from '@/components/ui/ColorSwatch'
-import { SizeGuideDialog } from '@/components/ui/SizeGuideDialog'
-import { sizeGuideRowsFor } from '@/config/size-guide'
-import { sizeAxisOf, sizeNoteOf } from '@/config/variant-size'
 import { Button } from '@/components/ui/Button'
 import { useSelectedColor } from '@/components/ui/SelectedColor'
 import { addToCartAction } from '@/features/cart/actions/cart-actions'
 import { trackEvent, type AnalyticsItem } from '@/features/analytics'
 import { CART_UPDATED_EVENT } from '@/features/cart/ui/MiniCart'
+import { SizePicker } from '@/features/cart/ui/SizePicker'
 import { cn } from '@/lib/utils'
 
 export type PurchasableVariant = {
@@ -98,7 +96,6 @@ export function AddToCartForm({
     .filter((variant) => variant.color === color && variant.size !== null)
     .map((variant) => variant.size as string)
   const [size, setSize] = useState<string | null>(sizes[0] ?? null)
-  const sizeGuideRows = sizeGuideRowsFor(sizes)
   const [quantity, setQuantity] = useState(1)
 
   const activeSize = size && sizes.includes(size) ? size : (sizes[0] ?? null)
@@ -197,52 +194,17 @@ export function AddToCartForm({
       ) : null}
 
       {sizes.length > 0 ? (
-        <div>
-          <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[13px] font-bold text-ink">{t(sizeAxisOf(sizes))}</p>
-            {sizeGuideRows.length > 0 ? <SizeGuideDialog rows={sizeGuideRows} /> : null}
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {sizes.map((entry) => {
-              const variant = variants.find(
-                (candidate) => candidate.color === color && candidate.size === entry,
-              )
-              const isDisabled = !variant?.isAvailable
-              const isActive = entry === activeSize
-              const note = sizeNoteOf(entry)
-
-              return (
-                <button
-                  key={entry}
-                  type="button"
-                  disabled={isDisabled}
-                  onClick={() => setSize(entry)}
-                  aria-pressed={isActive}
-                  className={cn(
-                    'flex min-h-11.5 flex-col items-center justify-center rounded-option border-[1.5px] px-5 py-2 text-[13.5px] font-bold transition-colors',
-                    isActive
-                      ? 'border-ink bg-ink text-on-dark'
-                      : 'border-strong bg-raised text-ink hover:border-ink',
-                    isDisabled &&
-                      'cursor-not-allowed border-subtle bg-surface text-strong line-through',
-                  )}
-                >
-                  {entry}
-                  {note ? (
-                    <span
-                      className={cn(
-                        'mt-0.5 text-[11.5px] leading-tight font-medium',
-                        isActive ? 'text-on-dark/75' : 'text-muted',
-                      )}
-                    >
-                      {note}
-                    </span>
-                  ) : null}
-                </button>
-              )
-            })}
-          </div>
-        </div>
+        <SizePicker
+          options={sizes.map((entry) => ({
+            size: entry,
+            isAvailable: Boolean(
+              variants.find((candidate) => candidate.color === color && candidate.size === entry)
+                ?.isAvailable,
+            ),
+          }))}
+          activeSize={activeSize}
+          onSelect={setSize}
+        />
       ) : null}
 
       <div className="flex flex-wrap gap-3">

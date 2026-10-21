@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge'
 import { ColorSwatch } from '@/components/ui/ColorSwatch'
 import { Price } from '@/components/ui/Price'
 import { QuickAddButton } from '@/features/cart/ui/QuickAddButton'
+import { CardSizeLabels } from '@/features/catalog/ui/CardSizeLabels'
 import { CompareToggle } from '@/features/catalog/ui/CompareToggle'
 import { cardImageFor, type ProductCardView } from '@/features/catalog/model/product-view'
 import { COLOR_PARAM } from '@/features/catalog/model/requested-color'
@@ -88,11 +89,15 @@ export async function ProductCard({
           </p>
         ) : null}
 
-        {orderedColors.length > 0 ? (
+        {orderedColors.length > 0 || product.sizeChoice ? (
           <div className="flex flex-wrap items-center gap-1.5">
             {orderedColors.map((color) => (
               <ColorSwatch key={color} name={color} isSelected={matchedColors.includes(color)} />
             ))}
+            {orderedColors.length > 0 && product.sizeChoice ? (
+              <span aria-hidden className="mx-0.5 h-3.5 w-px bg-subtle" />
+            ) : null}
+            {product.sizeChoice ? <CardSizeLabels choice={product.sizeChoice} /> : null}
             {matchedColors.length > 0 ? (
               <span className="ml-1 text-[12px] font-semibold text-accent">
                 {t('inThisModel', {
