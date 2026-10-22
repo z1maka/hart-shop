@@ -17,8 +17,7 @@ const FIELD_PHOTO = {
   alt: 'Маскувальне пончо з 3D-листям зі спини в осінній посадці',
 } as const
 
-export const BLANKET_SLUG =
-  'anty-teploviziyne-odeyalo-zakhysna-nakydka-vid-droniv-zakhyshchaye-vid-teploviziynoho-sposterezhennya'
+export const BLANKET_SLUG = 'antyteploviziyna-kovdra-z-molle'
 
 export const TENT_SLUG =
   'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor'
@@ -60,8 +59,8 @@ export const HOME_STARLINK_CHOOSER = [
     key: 'terminal',
     options: [
       { key: 'gen2to4', slug: 'chekhol-antiteplovizor-i-antidron-dlya-starlink' },
-      { key: 'mini', slug: 'copy-case-anti-thermal-vision-and-anti-dr' },
-      { key: 'adaptis', slug: 'чохол-антитепловізор-та-антидрон-для' },
+      { key: 'mini', slug: 'antyteploviziynyi-chokhol-na-starlink-mini' },
+      { key: 'adaptis', slug: 'antyteploviziynyi-chokhol-na-antenu-adaptis' },
       { key: 'avenger', slug: 'antyteploviziynyi-chokhol-na-avenger-big-hulk' },
       { key: 'acasom', slug: 'antyteploviziynyi-chokhol-na-acasom-roc-6' },
       { key: 'acasomRoc4', slug: 'antyteploviziynyi-chokhol-na-acasom-roc-4' },

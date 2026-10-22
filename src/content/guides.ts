@@ -99,9 +99,9 @@ export const GUIDES: readonly Guide[] = [
       { slug: 'anty-teploviziyna-nakydka-poncho-multi-a-6286', label: 'Антитепловізійне пончо, 3 шари' },
       { slug: 'plashch-nakidka-poncho-s-trekhsharovoy-tkanyu-antiteploviziyniy-zakhist', label: 'Посилене антидронове пончо' },
       { slug: 'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho', label: 'Антидронове пончо з MOLLE, 4 шари' },
-      { slug: 'antydron-poncho-predator-class-c-uv-em-zakhyst', label: 'Антидронова накидка UV+EM з рукавами' },
+      { slug: 'antydronova-nakydka-uv-em-z-rukavamy', label: 'Антидронова накидка UV+EM з рукавами' },
       { slug: 'maskuvalne-poncho-fx14-3d-lystya-class-d', label: 'Маскувальне пончо з 3D-листям' },
-      { slug: 'chokhly-nakydni-predator-dlya-ruk-uv-em-zakhyst', label: 'Чохли на руки UV+EM' },
+      { slug: 'antyteploviziyni-chokhly-na-ruky-uv-em', label: 'Чохли на руки UV+EM' },
     ],
   },
   {
@@ -237,7 +237,7 @@ export const GUIDES: readonly Guide[] = [
       { slug: 'anty-teplovizorna-nakydka-poncho-zakhyst-vid-teplovizoriv-ta-droniv-multi-a6286-antydron-antyteplovizor', label: 'Легке антидронове пончо, 2 шари' },
       { slug: 'anty-teploviziyna-nakydka-poncho-a6286', label: 'Антитепловізійне пончо, 3 шари, олива' },
       { slug: 'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho', label: 'Антидронове пончо з MOLLE, 4 шари' },
-      { slug: 'anty-teploviziyne-odeyalo-zakhysna-nakydka-vid-droniv-zakhyshchaye-vid-teploviziynoho-sposterezhennya', label: 'Антитепловізійна ковдра з MOLLE' },
+      { slug: 'antyteploviziyna-kovdra-z-molle', label: 'Антитепловізійна ковдра з MOLLE' },
     ],
   },
   {
@@ -308,7 +308,7 @@ export const GUIDES: readonly Guide[] = [
     ],
     products: [
       { slug: 'chekhol-antiteplovizor-i-antidron-dlya-starlink', label: 'Чохол на Starlink Gen 2, Gen 3, Gen 4' },
-      { slug: 'copy-case-anti-thermal-vision-and-anti-dr', label: 'Чохол на Starlink Mini' },
+      { slug: 'antyteploviziynyi-chokhol-na-starlink-mini', label: 'Чохол на Starlink Mini' },
       { slug: 'winter-cover-anti-thermal-vision-and-anti', label: 'Зимовий чохол на Starlink Gen 2, Gen 3, Gen 4' },
       { slug: 'antyteplovizornyy-chokhol-na-starlink-iz-maskuvalnoyu-sitkoyu', label: 'Чохол на Starlink з маскувальною сіткою' },
       { slug: 'polozheniya-antiteplovogo-rezhima-na-starlink-iz-sistemy-okhlazhdeniya-bud-yaka-model', label: 'Посилений чохол на Starlink з вентиляцією' },
@@ -373,7 +373,7 @@ export const GUIDES: readonly Guide[] = [
       { slug: 'anty-teploviziyna-nakydka-poncho-multi-a-6286', label: 'Антитепловізійне пончо, 3 шари' },
       { slug: 'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor', label: 'Антитепловізійний тент, мультикам' },
       { slug: 'antyteploviziynyi-tent-250x150-zymovyi', label: 'Антитепловізійний тент, зимовий' },
-      { slug: 'anty-teploviziyne-odeyalo-zakhysna-nakydka-vid-droniv-zakhyshchaye-vid-teploviziynoho-sposterezhennya', label: 'Антитепловізійна ковдра з MOLLE' },
+      { slug: 'antyteploviziyna-kovdra-z-molle', label: 'Антитепловізійна ковдра з MOLLE' },
     ],
   },
   {

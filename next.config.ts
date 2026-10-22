@@ -111,10 +111,22 @@ const RENAMED_WORDPRESS_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
 // owner's request (20.10.2026). Each change ships with its redirect here
 // (AGENTS.md §1), every old slug pointing straight at the current one. The
 // «Avenger» card turned out to be the Acasom ROC-6 cover (owner, 20.10.2026).
-// Old → current.
+// Slugs that named FOX Armor's «Predator» model, read in English or named
+// the wrong colour or antenna now say what the card sells (owner, 22.10.2026);
+// cards in the Google feed kept theirs. Old → current.
 const RENAMED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
   'чохол-антитепловізор-та-антидрон-для-2': 'antyteploviziynyi-chokhol-na-acasom-roc-6',
   'antyteploviziynyi-chokhol-na-antenu-avenger': 'antyteploviziynyi-chokhol-na-acasom-roc-6',
+  'antydron-poncho-predator-class-a-uv-em-zakhyst': 'antydronove-poncho-uv-em',
+  'antydron-poncho-predator-class-c-uv-em-zakhyst': 'antydronova-nakydka-uv-em-z-rukavamy',
+  'chokhly-nakydni-predator-dlya-ruk-uv-em-zakhyst': 'antyteploviziyni-chokhly-na-ruky-uv-em',
+  'chokhly-ponozhni-predator-dlya-nih-uv-em-zakhyst': 'antyteploviziyni-chokhly-na-nohy-uv-em',
+  'copy-case-anti-thermal-vision-and-anti-dr': 'antyteploviziynyi-chokhol-na-starlink-mini',
+  'чохол-антитепловізор-та-антидрон-для': 'antyteploviziynyi-chokhol-na-antenu-adaptis',
+  'anty-teploviziynyy-tent-multi-a6286-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor':
+    'antyteploviziynyi-tent-250x150-piksel',
+  'anty-teploviziyne-odeyalo-zakhysna-nakydka-vid-droniv-zakhyshchaye-vid-teploviziynoho-sposterezhennya':
+    'antyteploviziyna-kovdra-z-molle',
 }
 
 // Products folded into another card: the old page moves to where its variants

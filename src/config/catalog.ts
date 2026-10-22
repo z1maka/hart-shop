@@ -46,8 +46,8 @@ export type CompanionRule = {
 export const COMPANIONS: Readonly<Record<string, CompanionRule>> = {
   'anti-dronovi-nakidki': {
     productSlugs: [
-      'chokhly-nakydni-predator-dlya-ruk-uv-em-zakhyst',
-      'chokhly-ponozhni-predator-dlya-nih-uv-em-zakhyst',
+      'antyteploviziyni-chokhly-na-ruky-uv-em',
+      'antyteploviziyni-chokhly-na-nohy-uv-em',
     ],
     categorySlugs: ['чохли-для-starlink', 'ryukzaki'],
   },
