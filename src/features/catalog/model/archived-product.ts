@@ -12,5 +12,7 @@ export type ArchivedProductCategory = {
 export function archivedProductDestination(product: ArchivedProductCategory): string {
   if (!product.categorySlug || !product.isCategoryVisible) return SHOP_PATH
 
-  return `/product-category/${product.categorySlug}/`
+  // Encoded: the address goes out as a Location header, which takes ASCII
+  // only — a Cyrillic shelf («чохли-для-starlink») made the redirect a 500.
+  return `/product-category/${encodeURIComponent(product.categorySlug)}/`
 }
