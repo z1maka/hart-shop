@@ -19,8 +19,9 @@ const FIELD_PHOTO = {
 
 export const BLANKET_SLUG = 'antyteploviziyna-kovdra-z-molle'
 
-export const TENT_SLUG =
-  'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor'
+// The pixel tent since the multicam one was unpublished (owner, 22.10.2026):
+// its cover is the pitched tarp with the size variants.
+export const TENT_SLUG = 'antyteploviziynyi-tent-250x150-piksel'
 
 // Where a tile's picture comes from: the owner's own photo, one product's
 // cover, or the dearest product of a category.
