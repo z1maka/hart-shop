@@ -26,7 +26,7 @@ export const CUSTOM_ORDER_ITEM_LABELS_RU: Record<CustomOrderItemId, string> = {
 // The photograph each card on the page borrows until the workshop supplies
 // pictures of its own finished custom work.
 export const CUSTOM_ORDER_ITEM_COVERS: Record<CustomOrderItemId, string> = {
-  tent: 'antyteploviziynyi-tent-250x150-piksel',
+  tent: 'antyteploviziynyi-tent-250x150-multykam',
   cover: 'antyteplovizornyy-chokhol-na-starlink-iz-maskuvalnoyu-sitkoyu',
   modular: 'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor',
   other: 'antyteploviziyni-chokhly-na-ruky-uv-em',

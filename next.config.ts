@@ -113,7 +113,8 @@ const RENAMED_WORDPRESS_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
 // «Avenger» card turned out to be the Acasom ROC-6 cover (owner, 20.10.2026).
 // Slugs that named FOX Armor's «Predator» model, read in English or named
 // the wrong colour or antenna now say what the card sells (owner, 22.10.2026);
-// cards in the Google feed kept theirs. Old → current.
+// cards in the Google feed kept theirs. The same day the pixel tent became the
+// multicam one and the khaki tent the olive one. Old → current.
 const RENAMED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
   'чохол-антитепловізор-та-антидрон-для-2': 'antyteploviziynyi-chokhol-na-acasom-roc-6',
   'antyteploviziynyi-chokhol-na-antenu-avenger': 'antyteploviziynyi-chokhol-na-acasom-roc-6',
@@ -124,17 +125,22 @@ const RENAMED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
   'copy-case-anti-thermal-vision-and-anti-dr': 'antyteploviziynyi-chokhol-na-starlink-mini',
   'чохол-антитепловізор-та-антидрон-для': 'antyteploviziynyi-chokhol-na-antenu-adaptis',
   'anty-teploviziynyy-tent-multi-a6286-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor':
-    'antyteploviziynyi-tent-250x150-piksel',
+    'antyteploviziynyi-tent-250x150-multykam',
+  'antyteploviziynyi-tent-250x150-piksel': 'antyteploviziynyi-tent-250x150-multykam',
+  'antyteploviziynyi-tent-250x150-khaki': 'antyteploviziynyi-tent-250x150-olyva',
   'anty-teploviziyne-odeyalo-zakhysna-nakydka-vid-droniv-zakhyshchaye-vid-teploviziynoho-sposterezhennya':
     'antyteploviziyna-kovdra-z-molle',
 }
 
 // Products folded into another card: the old page moves to where its variants
 // are sold now. The Gen 3 cover became the «Gen 3 / Gen 4» choice of the
-// Gen 2–4 card (owner, 20.10.2026). Old → current.
+// Gen 2–4 card (owner, 20.10.2026). The archived multicam tent's colour is
+// sold on the former pixel tent's card (owner, 22.10.2026). Old → current.
 const MERGED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
   'chokhol-antiteplovizor-i-antidron-dlya-starlinka-starlink-gen-3':
     'chekhol-antiteplovizor-i-antidron-dlya-starlink',
+  'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor':
+    'antyteploviziynyi-tent-250x150-multykam',
 }
 
 // A Cyrillic slug arrives percent-encoded, and redirects match the raw path.

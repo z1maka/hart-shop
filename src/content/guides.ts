@@ -342,7 +342,7 @@ export const GUIDES: readonly Guide[] = [
           'Позиція чи окоп, де кілька людей проводять години.',
           'Вхід у бліндаж, з якого виходить тепле повітря.',
           'Техніка на стоянці або навіс від машини.',
-          'Кольори: мультикам, піксель, хакі й зимовий для снігу.',
+          'Кольори: мультикам, олива й зимова клякса для снігу.',
         ],
       },
       {
@@ -371,7 +371,7 @@ export const GUIDES: readonly Guide[] = [
     products: [
       { slug: 'anty-teplovizorna-nakydka-poncho-zakhyst-vid-teplovizoriv-ta-droniv-multi-a6286-antydron-antyteplovizor', label: 'Легке антидронове пончо, 2 шари' },
       { slug: 'anty-teploviziyna-nakydka-poncho-multi-a-6286', label: 'Антитепловізійне пончо, 3 шари' },
-      { slug: 'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor', label: 'Антитепловізійний тент, мультикам' },
+      { slug: 'antyteploviziynyi-tent-250x150-multykam', label: 'Антитепловізійний тент, мультикам' },
       { slug: 'antyteploviziynyi-tent-250x150-zymovyi', label: 'Антитепловізійний тент, зимовий' },
       { slug: 'antyteploviziyna-kovdra-z-molle', label: 'Антитепловізійна ковдра з MOLLE' },
     ],
@@ -433,7 +433,7 @@ export const GUIDES: readonly Guide[] = [
     ],
     products: [
       { slug: 'anty-teploviziyna-nakydka-poncho-a6286', label: 'Антитепловізійне пончо, 3 шари, олива' },
-      { slug: 'antyteploviziynyi-tent-250x150-khaki', label: 'Антитепловізійний тент, хакі' },
+      { slug: 'antyteploviziynyi-tent-250x150-olyva', label: 'Антитепловізійний тент, олива' },
       { slug: 'polozheniya-antiteplovogo-rezhima-na-starlink-iz-sistemy-okhlazhdeniya-bud-yaka-model', label: 'Посилений чохол на Starlink з вентиляцією' },
       { slug: 'futbolka-taktychna-coolmax-1', label: 'Тактична футболка Coolmax' },
     ],

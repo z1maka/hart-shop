@@ -50,12 +50,9 @@ export const MERCHANT_FEED_CATEGORY_SLUGS: readonly string[] = OWN_PRODUCTION_CA
 export const MERCHANT_FEED_FOX_PHOTO_SLUGS: readonly string[] = [
   'anty-teploviziyna-nakydka-poncho-a6286',
   'antyteploviziyna-kovdra-z-molle',
-  'antyteploviziynyi-tent-250x150-piksel',
   'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor',
   'antydronove-poncho-uv-em',
   'antydronova-nakydka-uv-em-z-rukavamy',
-  'antyteploviziynyi-tent-250x150-khaki',
-  'antyteploviziynyi-tent-250x150-zymovyi',
   'antyteploviziyni-chokhly-na-ruky-uv-em',
   'antyteploviziyni-chokhly-na-nohy-uv-em',
   'plashch-nakidka-poncho-s-trekhsharovoy-tkanyu-antiteploviziyniy-zakhist',
