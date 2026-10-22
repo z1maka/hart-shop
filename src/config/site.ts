@@ -7,11 +7,11 @@ export const siteConfig = {
 } as const
 
 // The shop front shows what we make ourselves; resold equipment lives in the
-// catalogue but does not headline the home page. Slugs are the WordPress
-// category slugs, carried over verbatim (AGENTS.md §1).
+// catalogue but does not headline the home page. Slugs as in the categories
+// table: the WordPress ones, the Starlink shelf renamed to Latin (22.10.2026).
 export const FEATURED_CATEGORY_SLUGS: readonly string[] = [
   'anti-dronovi-nakidki',
-  'чохли-для-starlink',
+  'chokhly-dlya-starlink',
   'noshi',
   'ryukzaki',
 ] as const

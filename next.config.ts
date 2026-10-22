@@ -138,6 +138,20 @@ const MERGED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
 }
 
 // A Cyrillic slug arrives percent-encoded, and redirects match the raw path.
+// Categories renamed after launch: every address is Latin (owner, 22.10.2026),
+// and a Cyrillic one also broke the redirects that pointed at it. Old → current.
+const RENAMED_CATEGORY_SLUGS: Readonly<Record<string, string>> = {
+  'чохли-для-starlink': 'chokhly-dlya-starlink',
+}
+
+function categoryRedirects(slugs: Readonly<Record<string, string>>) {
+  return Object.entries(slugs).map(([oldSlug, currentSlug]) => ({
+    source: `/product-category/${encodeURIComponent(oldSlug)}`,
+    destination: `/product-category/${currentSlug}/`,
+    permanent: true,
+  }))
+}
+
 function productRedirects(slugs: Readonly<Record<string, string>>) {
   return Object.entries(slugs).map(([oldSlug, currentSlug]) => ({
     source: `/product/${encodeURIComponent(oldSlug)}`,
@@ -183,6 +197,7 @@ const nextConfig: NextConfig = {
         destination: '/product-category/:slug/?page=:page',
         permanent: true,
       },
+      ...categoryRedirects(RENAMED_CATEGORY_SLUGS),
       ...productRedirects(RENAMED_WORDPRESS_PRODUCT_SLUGS),
       ...productRedirects(RENAMED_PRODUCT_SLUGS),
       ...productRedirects(MERGED_PRODUCT_SLUGS),

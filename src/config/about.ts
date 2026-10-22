@@ -23,7 +23,7 @@ export const ABOUT_COLLAGE = [
     key: 'starlink',
     url: '/about/starlink.webp',
     alt: 'Чохли на Starlink у мультикамі, пікселі й зеленому камуфляжі поруч із терміналом',
-    href: '/product-category/чохли-для-starlink/',
+    href: '/product-category/chokhly-dlya-starlink/',
     focus: 'object-center',
   },
   {

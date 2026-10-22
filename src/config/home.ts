@@ -41,8 +41,8 @@ export const HOME_TILES = [
   { key: 'position', href: `/product/${TENT_SLUG}/`, image: { kind: 'product', slug: TENT_SLUG } },
   {
     key: 'starlink',
-    href: '/product-category/чохли-для-starlink/',
-    image: { kind: 'category', slug: 'чохли-для-starlink' },
+    href: '/product-category/chokhly-dlya-starlink/',
+    image: { kind: 'category', slug: 'chokhly-dlya-starlink' },
   },
   { key: 'gear', href: `/product/${BLANKET_SLUG}/`, image: { kind: 'product', slug: BLANKET_SLUG } },
 ] as const satisfies readonly { key: string; href: string; image: HomeTileImage }[]

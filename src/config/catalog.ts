@@ -5,7 +5,7 @@ export const MAX_COMPARED_PRODUCTS = 4
 // description in capitals; bought-in gear does not make that claim.
 export const OWN_PRODUCTION_CATEGORY_SLUGS: readonly string[] = [
   'anti-dronovi-nakidki',
-  'чохли-для-starlink',
+  'chokhly-dlya-starlink',
 ]
 
 // WooCommerce's colour terms (pa_color) by slug, as the WordPress shop listed
@@ -49,9 +49,9 @@ export const COMPANIONS: Readonly<Record<string, CompanionRule>> = {
       'antyteploviziyni-chokhly-na-ruky-uv-em',
       'antyteploviziyni-chokhly-na-nohy-uv-em',
     ],
-    categorySlugs: ['чохли-для-starlink', 'ryukzaki'],
+    categorySlugs: ['chokhly-dlya-starlink', 'ryukzaki'],
   },
-  'чохли-для-starlink': { productSlugs: [], categorySlugs: ['anti-dronovi-nakidki'] },
+  'chokhly-dlya-starlink': { productSlugs: [], categorySlugs: ['anti-dronovi-nakidki'] },
   'sholomi-bronepliti': { productSlugs: [], categorySlugs: ['navushniki-taktichni-kreplenya'] },
   'navushniki-taktichni-kreplenya': { productSlugs: [], categorySlugs: ['sholomi-bronepliti'] },
   ryukzaki: { productSlugs: [], categorySlugs: ['noshi', 'taktichna-forma'] },
