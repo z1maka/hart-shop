@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { connection } from 'next/server'
 import { GUIDES } from '@/content/guides'
 import { getCatalogSitemap } from '@/features/catalog'
 import { env } from '@/lib/env'
@@ -34,6 +35,11 @@ type PageEntry = {
 // who may crawl, and keeping the file populated means the switch at launch is
 // one variable rather than a deploy that also has to be checked.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Rendered per request so a published or renamed product shows up at once:
+  // prerendered, the file kept its build-time catalogue for a day, because a
+  // `catalog` tag purge does not reach a static metadata route. The catalogue
+  // read itself stays cached under that tag.
+  await connection()
   const { categories, products } = await getCatalogSitemap()
 
   // Static pages have no stored edit date, so they carry no lastmod: stamping
