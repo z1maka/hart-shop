@@ -445,6 +445,7 @@ export type FeedProductRow = CatalogProductRow & {
 }
 
 export type SitemapEntryRow = {
+  readonly id: string
   readonly slug: string
   readonly updatedAt: Date
 }
@@ -592,7 +593,7 @@ export const catalogReadRepository = {
   // fetch teaches crawlers to ignore it.
   async findPublishedForSitemap(): Promise<SitemapEntryRow[]> {
     return db
-      .select({ slug: products.slug, updatedAt: products.updatedAt })
+      .select({ id: products.id, slug: products.slug, updatedAt: products.updatedAt })
       .from(products)
       .innerJoin(categories, eq(products.categoryId, categories.id))
       .where(and(eq(products.status, ProductStatus.Published), eq(categories.isVisible, true)))

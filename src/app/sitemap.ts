@@ -29,6 +29,7 @@ type PageEntry = {
   readonly path: string
   readonly lastModified?: Date
   readonly priority: number
+  readonly images?: readonly string[]
 }
 
 // The sitemap is built whether or not the shop is indexable: robots.txt decides
@@ -59,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       path: `/product/${product.slug}/`,
       lastModified: product.lastModified,
       priority: PRODUCT_PRIORITY,
+      images: product.imageUrls,
     })),
     ...GUIDES.map((guide) => ({
       path: `/guides/${guide.slug}/`,
@@ -67,11 +69,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   ]
 
-  return entries.map(({ path, lastModified, priority }) => ({
+  return entries.map(({ path, lastModified, priority, images }) => ({
     url: absolute(path),
     lastModified,
     changeFrequency: 'weekly' as const,
     priority,
+    ...(images && images.length > 0 ? { images: [...images] } : {}),
   }))
 }
 
