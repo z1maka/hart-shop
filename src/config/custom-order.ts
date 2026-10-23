@@ -28,7 +28,7 @@ export const CUSTOM_ORDER_ITEM_LABELS_RU: Record<CustomOrderItemId, string> = {
 export const CUSTOM_ORDER_ITEM_COVERS: Record<CustomOrderItemId, string> = {
   tent: 'antyteploviziynyi-tent-250x150-multykam',
   cover: 'antyteplovizornyy-chokhol-na-starlink-iz-maskuvalnoyu-sitkoyu',
-  modular: 'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor',
+  modular: 'antyteploviziynyi-tent-250x150-olyva',
   other: 'antyteploviziyni-chokhly-na-ruky-uv-em',
 }
 
