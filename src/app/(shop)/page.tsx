@@ -166,7 +166,11 @@ function HeroImage({ cardTitle, cardSub }: HeroImageProps) {
           alt={HERO_PHOTO.alt}
           fill
           sizes={HERO_IMAGE_SIZES}
-          priority
+          // The page's LCP. `priority` is deprecated in Next 16 and only adds a
+          // preload link without a fetch priority; the <img> is already in the
+          // HTML, so a high fetch priority is all it needs.
+          loading="eager"
+          fetchPriority="high"
           className="object-cover object-[center_22%]"
         />
       </div>

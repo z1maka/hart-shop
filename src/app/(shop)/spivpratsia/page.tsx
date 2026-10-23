@@ -82,7 +82,8 @@ export default async function PartnersPage() {
             src={PARTNERS_HERO_PHOTO.url}
             alt={PARTNERS_HERO_PHOTO.alt}
             fill
-            priority
+            loading="eager"
+            fetchPriority="high"
             sizes="(min-width: 1024px) 520px, 100vw"
             className="object-cover"
           />

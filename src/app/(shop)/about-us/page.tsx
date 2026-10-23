@@ -93,6 +93,10 @@ export default async function AboutPage() {
                   alt={tile.alt}
                   fill
                   sizes={COLLAGE_TILE_SIZES}
+                  // The four tiles fill the first screen, and the largest is
+                  // the page's LCP: none of them may wait for a scroll.
+                  loading="eager"
+                  fetchPriority="high"
                   className={cn(
                     'object-cover transition-transform duration-300 group-hover:scale-[1.03]',
                     tile.focus,

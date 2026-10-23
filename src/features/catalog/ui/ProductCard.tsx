@@ -60,7 +60,8 @@ export async function ProductCard({
             alt={image.alt}
             fill
             sizes={CARD_IMAGE_SIZES}
-            priority={isPriority}
+            loading={isPriority ? 'eager' : 'lazy'}
+            fetchPriority={isPriority ? 'high' : 'auto'}
             className="object-cover"
           />
         ) : null}

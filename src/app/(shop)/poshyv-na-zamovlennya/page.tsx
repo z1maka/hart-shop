@@ -176,7 +176,8 @@ async function HeroImage({ alt }: { readonly alt: string }) {
         src={cover.url}
         alt={alt}
         fill
-        priority
+        loading="eager"
+        fetchPriority="high"
         sizes="(min-width: 1024px) 520px, 100vw"
         className="object-cover"
       />
