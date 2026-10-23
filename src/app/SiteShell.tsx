@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 import { Footer } from '@/components/layout/Footer'
-import { Header, HeaderPlaceholder } from '@/components/layout/Header'
+import { CartCountBadge, Header } from '@/components/layout/Header'
 import { ImageGuard } from '@/components/layout/ImageGuard'
 import { TopBar } from '@/components/layout/TopBar'
 import { getCartItemCount } from '@/features/cart'
@@ -14,13 +14,15 @@ import { getTranslations } from 'next-intl/server'
 
 // Header, footer, consent and analytics around any page: the shop and the
 // content segment share one shell and differ only in what they put inside.
+// Only the cart count waits on the visitor: the menus and the footer with the
+// seller's details are cached, so they sit in the prerendered HTML in reading
+// order instead of streaming in hidden at the end of it, where crawlers that
+// run no scripts lost them (AI audit, 22.10.2026).
 export function SiteShell({ children }: { readonly children: React.ReactNode }) {
   return (
     <div className="flex min-h-full flex-col bg-canvas">
       <TopBar />
-      <Suspense fallback={<HeaderPlaceholder />}>
-        <ShopHeader />
-      </Suspense>
+      <ShopHeader />
       <main className="flex-1">{children}</main>
       <ImageGuard />
       <MiniCart />
@@ -37,17 +39,14 @@ export function SiteShell({ children }: { readonly children: React.ReactNode }) 
           clarityProjectId: env.NEXT_PUBLIC_CLARITY_PROJECT_ID ?? null,
         }}
       />
-      <Suspense fallback={<div className="h-64 bg-footer" />}>
-        <ShopFooter />
-      </Suspense>
+      <ShopFooter />
     </div>
   )
 }
 
 async function ShopHeader() {
-  const [categories, cartCount, popular, searchT] = await Promise.all([
+  const [categories, popular, searchT] = await Promise.all([
     getCategories(),
-    getCartItemCount(),
     searchProducts(''),
     getTranslations('search'),
   ])
@@ -55,7 +54,11 @@ async function ShopHeader() {
   return (
     <Header
       categories={categories}
-      cartCount={cartCount}
+      cartCount={
+        <Suspense fallback={null}>
+          <CartCount />
+        </Suspense>
+      }
       search={
         <SearchDialog
           suggestions={searchT.raw('suggestions') as readonly string[]}
@@ -64,6 +67,10 @@ async function ShopHeader() {
       }
     />
   )
+}
+
+async function CartCount() {
+  return <CartCountBadge count={await getCartItemCount()} />
 }
 
 async function ShopFooter() {

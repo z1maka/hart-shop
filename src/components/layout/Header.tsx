@@ -16,7 +16,9 @@ export type HeaderCategory = {
 
 export type HeaderProps = {
   readonly categories: readonly HeaderCategory[]
-  readonly cartCount: number
+  // The count reads the visitor's cart cookie, so it streams in on its own and
+  // the menus stay in the prerendered HTML.
+  readonly cartCount: ReactNode
   readonly search: ReactNode
 }
 
@@ -68,8 +70,8 @@ const CUSTOM_ORDER_CTA_CLASS = cn(
 )
 
 // The bar's height at each width: the tallest control (the 44px menu button
-// below lg, the 42px cart above) plus its padding. Fixed, so the placeholder
-// shown while the header streams in takes exactly the same room.
+// below lg, the 42px cart above) plus its padding. Fixed, so the cart count
+// streaming in later never moves the page under it.
 const HEADER_ROW_HEIGHT = 'h-17 sm:h-18 lg:h-17.5'
 
 const NAV_GROUP_KEYS: Record<string, string> = {
@@ -165,11 +167,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
           >
             <CartIcon />
             <span className="hidden sm:inline">{t('cart')}</span>
-            {cartCount > 0 ? (
-              <span className="inline-block min-w-5 rounded-pill bg-ink px-1.5 py-0.5 text-center text-[11px] leading-[1.45] font-extrabold text-khaki">
-                {cartCount}
-              </span>
-            ) : null}
+            {cartCount}
           </Link>
           <MobileNav links={mobileLinks} />
         </div>
@@ -178,11 +176,13 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
   )
 }
 
-export function HeaderPlaceholder() {
+export function CartCountBadge({ count }: { readonly count: number }) {
+  if (count === 0) return null
+
   return (
-    <div className="border-b-[3px] border-header-line bg-header">
-      <div className={HEADER_ROW_HEIGHT} />
-    </div>
+    <span className="inline-block min-w-5 rounded-pill bg-ink px-1.5 py-0.5 text-center text-[11px] leading-[1.45] font-extrabold text-khaki">
+      {count}
+    </span>
   )
 }
 

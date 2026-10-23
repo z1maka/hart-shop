@@ -5,7 +5,6 @@ import { Suspense } from 'react'
 import { getTranslations } from 'next-intl/server'
 import { JsonLd } from '@/components/JsonLd'
 import { Button } from '@/components/ui/Button'
-import { Skeleton } from '@/components/ui/Skeleton'
 import { CUSTOM_ORDER_HREF } from '@/config/custom-order'
 import { FABRIC_LAYERS } from '@/config/fabric-layers'
 import { CONTACT_CHANNELS } from '@/config/contact'
@@ -72,9 +71,10 @@ export default async function HomePage() {
       <HideTiles />
       <section className="border-y border-subtle bg-surface px-7 py-12">
         <SectionHead title={t('starlink.title')} lead={t('starlink.lead')} />
-        <Suspense fallback={<Skeleton className="h-[260px] rounded-card" />}>
-          <StarlinkChooser />
-        </Suspense>
+        {/* Cached, so no boundary: a finished one this far down is moved to
+            the end of the HTML, where crawlers that run no scripts read the
+            terminal choice and the best-sellers' prices last, hidden. */}
+        <StarlinkChooser />
         <p className="mt-5">
           <Link href={HOME_STARLINK_GUIDE_HREF} className={TEXT_LINK}>
             {t('starlink.guide')}
@@ -89,9 +89,7 @@ export default async function HomePage() {
             {t('browseAll')}
           </Link>
         </div>
-        <Suspense fallback={<Skeleton className="h-[420px] rounded-card" />}>
-          <FeaturedProducts />
-        </Suspense>
+        <FeaturedProducts />
       </section>
       <UnitsBand />
       <GuidesSection />

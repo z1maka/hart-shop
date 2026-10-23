@@ -205,10 +205,12 @@ async function ProductDetail({
             </div>
 
             <div className="contents lg:block">
+              {/* No boundary of its own: React moves a finished boundary that
+                  comes after ~12.8 KB of HTML to the end of the document, so
+                  the name and price reached crawlers that run no scripts last,
+                  in a hidden div (AI audit, 22.10.2026). */}
               <div className="order-2 min-w-0 lg:order-none">
-                <Suspense fallback={<Skeleton className="h-[560px] w-full rounded-card" />}>
-                  <BuyPanel product={product} searchParams={searchParams} />
-                </Suspense>
+                <BuyPanel product={product} searchParams={searchParams} />
               </div>
 
               {product.description ? (
