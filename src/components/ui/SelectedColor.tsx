@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 
 export type SelectedColor = {
   readonly color: string | null
@@ -24,13 +24,13 @@ export function SelectedColorProvider({ children }: { readonly children: ReactNo
     color: null,
     isChosen: false,
   })
-  const value = useMemo(
-    () => ({
-      ...selected,
-      setColor: (color: string, isChosen: boolean) => setSelected({ color, isChosen }),
-    }),
-    [selected],
+  // Stable: the picker publishes from an effect that depends on it, so a new
+  // function after every change would publish again, without end.
+  const setColor = useCallback(
+    (color: string, isChosen: boolean) => setSelected({ color, isChosen }),
+    [],
   )
+  const value = useMemo(() => ({ ...selected, setColor }), [selected, setColor])
 
   return <SelectedColorContext.Provider value={value}>{children}</SelectedColorContext.Provider>
 }
