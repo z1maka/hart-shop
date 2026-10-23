@@ -53,7 +53,7 @@ export function ProductGallery({
   videos = NO_VIDEOS,
 }: ProductGalleryProps) {
   const t = useTranslations('gallery')
-  const { color } = useSelectedColor()
+  const { color, isChosen: isColorChosen } = useSelectedColor()
   const isHydrated = useIsHydrated()
   const [pick, setPick] = useState<GalleryPick | null>(null)
   const [isLightboxOpen, setIsLightboxOpen] = useState(false)
@@ -81,12 +81,14 @@ export function ProductGallery({
     setPick({ index: pick.index, color })
   }
 
-  // The colour on screen brings its own shot to the front; a thumbnail or
-  // arrow then takes over for as long as that colour stays.
+  // A colour the buyer chose brings its own shot to the front; a thumbnail or
+  // arrow then takes over for as long as that colour stays. The colour the
+  // panel opens with does not: the page starts on its first photo, while the
+  // colour's shot stays what Google is shown for it.
   const activeIndex = galleryIndexFor({
     pick,
     color,
-    coverIndex: isHydrated ? coverIndexFor(coverIndexByColor, color) : undefined,
+    coverIndex: isHydrated && isColorChosen ? coverIndexFor(coverIndexByColor, color) : undefined,
     count: slideCount,
   })
   const active = images[activeIndex]

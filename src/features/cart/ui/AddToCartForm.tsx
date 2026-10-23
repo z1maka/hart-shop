@@ -76,15 +76,17 @@ export function AddToCartForm({
   const [error, setError] = useState<string | null>(null)
 
   const colors = [...new Set(variants.map((variant) => variant.color))]
+  const isRequestedColor = Boolean(initialColor && colors.includes(initialColor))
   const [color, setColor] = useState(
-    initialColor && colors.includes(initialColor) ? initialColor : (colors[0] ?? ''),
+    isRequestedColor && initialColor ? initialColor : (colors[0] ?? ''),
   )
+  const [isColorChosen, setIsColorChosen] = useState(isRequestedColor)
 
   // The gallery follows the colour on screen, from the first paint on.
   const { setColor: showColor } = useSelectedColor()
   useEffect(() => {
-    showColor(color)
-  }, [color, showColor])
+    showColor(color, isColorChosen)
+  }, [color, isColorChosen, showColor])
 
   const sizes = variants
     .filter((variant) => variant.color === color && variant.size !== null)
@@ -99,6 +101,7 @@ export function AddToCartForm({
 
   function handleColorChange(next: string) {
     setColor(next)
+    setIsColorChosen(true)
     setSize(null)
     setError(null)
   }
