@@ -6,9 +6,10 @@ import { JsonLd } from '@/components/JsonLd'
 import { siteConfig } from '@/config/site'
 import { findGuide, GUIDES, type Guide, type GuideLink, type GuideSection } from '@/content/guides'
 import { getPublishedProductSlugs } from '@/features/catalog'
+import { FaqList } from '@/features/catalog/ui/FaqList'
 import { formatDateUk } from '@/lib/datetime'
 import { logger } from '@/lib/logger'
-import { articleJsonLd, breadcrumbJsonLd } from '@/lib/seo'
+import { articleJsonLd, breadcrumbJsonLd, faqJsonLd } from '@/lib/seo'
 
 export function generateStaticParams() {
   return GUIDES.map((guide) => ({ slug: guide.slug }))
@@ -54,6 +55,7 @@ export default async function GuidePage({ params }: PageProps<'/guides/[slug]'>)
             { name: t('title'), path: '/guides/' },
             { name: guide.title, path },
           ]),
+          ...(guide.faq.length > 0 ? [faqJsonLd(guide.faq)] : []),
         ]}
       />
       <p className="mb-4 text-[12.5px] font-semibold text-accent">
@@ -73,6 +75,13 @@ export default async function GuidePage({ params }: PageProps<'/guides/[slug]'>)
       {guide.sections.map((section) => (
         <GuideSectionView key={section.heading} section={section} />
       ))}
+
+      {guide.faq.length > 0 ? (
+        <section className="mt-10">
+          <h2 className="mb-4 font-display text-h3 font-bold text-ink">{t('faqTitle')}</h2>
+          <FaqList entries={guide.faq} />
+        </section>
+      ) : null}
 
       <aside className="mt-10 rounded-card border border-subtle bg-surface p-5">
         <h2 className="mb-3 font-display text-[17px] font-bold text-ink">{t('productsTitle')}</h2>
