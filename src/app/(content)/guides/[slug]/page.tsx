@@ -5,6 +5,7 @@ import { getTranslations } from 'next-intl/server'
 import { JsonLd } from '@/components/JsonLd'
 import { siteConfig } from '@/config/site'
 import { findGuide, GUIDES, type GuideSection } from '@/content/guides'
+import { formatDateUk } from '@/lib/datetime'
 import { articleJsonLd, breadcrumbJsonLd } from '@/lib/seo'
 
 export function generateStaticParams() {
@@ -55,6 +56,12 @@ export default async function GuidePage({ params }: PageProps<'/guides/[slug]'>)
         </Link>
       </p>
       <h1 className="mb-4 font-display text-h1 font-bold text-balance text-ink">{guide.title}</h1>
+      {/* On the page, not only in the markup: answer engines weigh a date a
+          reader can see when they pick a source. */}
+      <p className="mb-4 text-[12.5px] text-faint">
+        {t('updated')}{' '}
+        <time dateTime={guide.updatedAt}>{formatDateUk(new Date(guide.updatedAt))}</time>
+      </p>
       <p className="mb-8 text-[16px] leading-relaxed text-pretty text-muted">{guide.lead}</p>
 
       {guide.sections.map((section) => (
