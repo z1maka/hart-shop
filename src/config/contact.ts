@@ -17,8 +17,8 @@ export type ContactTopic = {
   readonly detail: string
 }
 
-// The handles are the workshop's existing support channels, shared with its
-// domestic shop — one team answers both.
+// The shop's own number (owner, 12.10.2026), not FOX's: phone, Telegram and
+// WhatsApp all answer on it.
 export const HEADER_CHANNELS: readonly HeaderChannel[] = [
   { key: 'phone', href: 'tel:+380965203325' },
   { key: 'telegram', href: 'https://t.me/+380965203325' },
