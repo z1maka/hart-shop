@@ -24,6 +24,7 @@
     "category:hide": "tsx scripts/set-category-visibility.ts hide",
     "category:show": "tsx scripts/set-category-visibility.ts show",
     "admin:create": "tsx scripts/create-admin.ts",
+    "indexnow:submit": "tsx scripts/indexnow-submit.ts",
     "admin:revoke": "tsx scripts/revoke-admin-sessions.ts",
     "import:catalog": "tsx scripts/import-wp-catalog.ts",
     "import:variant-covers": "tsx scripts/import-wp-variant-covers.ts",
