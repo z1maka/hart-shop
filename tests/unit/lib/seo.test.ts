@@ -6,7 +6,14 @@ vi.mock('@/lib/env', () => ({
 }))
 
 import { createMoney, Currency } from '@/lib/money'
-import { productJsonLd, videoJsonLd, type ProductJsonLdInput } from '@/lib/seo'
+import {
+  organizationJsonLd,
+  productJsonLd,
+  videoJsonLd,
+  webPageJsonLd,
+  websiteJsonLd,
+  type ProductJsonLdInput,
+} from '@/lib/seo'
 
 const PRODUCT_INPUT: ProductJsonLdInput = {
   slug: 'anty-teploviziyna-nakydka-poncho-a6286',
@@ -139,5 +146,45 @@ describe('videoJsonLd', () => {
       contentUrl: 'https://media.hart-shop.com/videos/starlink-test-1a2b3c4d.mp4',
     })
     expect(video).not.toHaveProperty('embedUrl')
+  })
+})
+
+describe('organizationJsonLd', () => {
+  it('ties the Latin domain spelling to the shop and names the seller', () => {
+    const organization = organizationJsonLd()
+
+    expect(organization).toMatchObject({
+      '@id': 'https://fox-armor.com.ua/#organization',
+      name: 'Гарт',
+      alternateName: ['Hart', 'hart-shop.com'],
+      legalName: 'ФОП Масний Олександр Сергійович',
+      taxID: '3172012013',
+    })
+  })
+})
+
+describe('websiteJsonLd', () => {
+  it('offers the same alternate names and points at the organization', () => {
+    expect(websiteJsonLd()).toMatchObject({
+      alternateName: ['Hart', 'hart-shop.com'],
+      publisher: { '@id': 'https://fox-armor.com.ua/#organization' },
+    })
+  })
+})
+
+describe('webPageJsonLd', () => {
+  it('describes the page at its canonical address and what it is about', () => {
+    const page = webPageJsonLd({
+      kind: 'ContactPage',
+      path: '/contact/',
+      name: 'Контакти',
+      description: 'Телефон і email',
+    })
+
+    expect(page).toMatchObject({
+      '@type': 'ContactPage',
+      url: 'https://fox-armor.com.ua/contact/',
+      about: { '@id': 'https://fox-armor.com.ua/#organization' },
+    })
   })
 })

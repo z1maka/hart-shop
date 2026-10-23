@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { organizationJsonLd, webPageJsonLd } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 import { getTranslations } from 'next-intl/server'
 import {
@@ -9,6 +10,7 @@ import {
   liveContactChannels,
   type ContactTopic,
 } from '@/config/contact'
+import { JsonLd } from '@/components/JsonLd'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { ContactForm } from '@/features/enquiries/ui/ContactForm'
 
@@ -33,7 +35,7 @@ const BEFORE_YOU_WRITE = [
 const HIGHLIGHTED_CHANNEL = 'telegram'
 
 export default async function ContactPage({ searchParams }: PageProps<'/contact'>) {
-  const t = await getTranslations('contact')
+  const [t, metaT] = await Promise.all([getTranslations('contact'), getTranslations('meta')])
 
   const topics: ContactTopic[] = CONTACT_TOPIC_IDS.map((id) => ({
     id,
@@ -43,6 +45,17 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
 
   return (
     <div className="px-7 pt-11 pb-16">
+      <JsonLd
+        data={[
+          organizationJsonLd(),
+          webPageJsonLd({
+            kind: 'ContactPage',
+            path: '/contact/',
+            name: metaT('contact.title'),
+            description: metaT('contact.description'),
+          }),
+        ]}
+      />
       <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
       <p className="mb-8 max-w-[64ch] text-[15px] leading-relaxed text-muted">{t('lead')}</p>
 

@@ -2,10 +2,12 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import { JsonLd } from '@/components/JsonLd'
 import { getActiveBankAccount } from '@/features/billing'
 import { getTranslations } from 'next-intl/server'
 import { ABOUT_COLLAGE } from '@/config/about'
 import { COMPANY } from '@/config/company'
+import { organizationJsonLd, webPageJsonLd } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
 // A quarter of the hero: half a column (two columns from 772px in the 1440px
@@ -32,10 +34,21 @@ const SHORT_FACT_KEYS: ReadonlySet<string> = new Set(['founded', 'production'])
 const BLOCK_KEYS = ['started', 'inHouse', 'designed', 'euRange'] as const
 
 export default async function AboutPage() {
-  const t = await getTranslations('about')
+  const [t, metaT] = await Promise.all([getTranslations('about'), getTranslations('meta')])
 
   return (
     <div>
+      <JsonLd
+        data={[
+          organizationJsonLd(),
+          webPageJsonLd({
+            kind: 'AboutPage',
+            path: '/about-us/',
+            name: metaT('about.title'),
+            description: metaT('about.description'),
+          }),
+        ]}
+      />
       <section className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-center gap-9 px-7 py-12">
         <div>
           <p className="mb-5 inline-block border-l-[3px] border-khaki-mark bg-sunken px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-accent">

@@ -20,14 +20,26 @@ export function absoluteUrl(path: string): string {
 const FOUNDING_YEAR = '2014'
 const WORKSHOP_CITY = 'Миколаїв'
 
+// The Latin spelling the domain uses: AI answers met «hart-shop.com» with no
+// tie to «Гарт» and mixed it up with other Harts (AI audit, 22.10.2026).
+const ALTERNATE_NAMES: readonly string[] = ['Hart', COMPANY.site]
+
+// One node id, so the about and contact pages point at the same entity.
+function organizationId(): string {
+  return absoluteUrl('/#organization')
+}
+
 export function organizationJsonLd(): JsonLdNode {
   const youtube = HEADER_CHANNELS.find((channel) => channel.key === 'youtube')
 
   return {
     '@context': SCHEMA_CONTEXT,
     '@type': 'Organization',
+    '@id': organizationId(),
     name: siteConfig.name,
+    alternateName: ALTERNATE_NAMES,
     legalName: COMPANY.legalName,
+    taxID: COMPANY.taxId,
     url: absoluteUrl('/'),
     description: siteConfig.description,
     logo: absoluteUrl('/icon.png'),
@@ -56,8 +68,30 @@ export function websiteJsonLd(): JsonLdNode {
     '@context': SCHEMA_CONTEXT,
     '@type': 'WebSite',
     name: siteConfig.name,
+    alternateName: ALTERNATE_NAMES,
     url: absoluteUrl('/'),
     inLanguage: siteConfig.locale,
+    publisher: { '@id': organizationId() },
+  }
+}
+
+export type WebPageJsonLdInput = {
+  readonly kind: 'AboutPage' | 'ContactPage'
+  readonly path: string
+  readonly name: string
+  readonly description: string
+}
+
+// Sits beside organizationJsonLd() on the page, which the id resolves to.
+export function webPageJsonLd(input: WebPageJsonLdInput): JsonLdNode {
+  return {
+    '@context': SCHEMA_CONTEXT,
+    '@type': input.kind,
+    url: absoluteUrl(input.path),
+    name: input.name,
+    description: input.description,
+    inLanguage: siteConfig.locale,
+    about: { '@id': organizationId() },
   }
 }
 
