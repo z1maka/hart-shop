@@ -1,20 +1,20 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { VideoKind, type ProductVideo } from '@/features/catalog/model/product-video'
+import { VideoKind, type VideoView } from '@/features/catalog/model/product-video'
 import { useOpenGalleryVideo } from '@/features/catalog/ui/GalleryVideoControl'
 import { PlayIcon } from '@/features/catalog/ui/PlayIcon'
 
 // A quiet shortcut beside the description heading: the video starts in the
 // gallery, where the photos are, instead of a player of its own.
-export function WatchVideoButton({ video }: { readonly video: ProductVideo }) {
+export function WatchVideoButton({ video }: { readonly video: VideoView }) {
   const t = useTranslations('gallery')
   const openVideo = useOpenGalleryVideo()
 
   return (
     <button
       type="button"
-      onClick={() => openVideo(video.youtubeId)}
+      onClick={() => openVideo(video.id)}
       className="inline-flex items-center gap-2 rounded-control border border-strong bg-raised py-1 pr-3.5 pl-1 text-[12.5px] font-semibold text-ink transition-colors hover:border-accent hover:text-ink"
     >
       <span className="flex size-6 items-center justify-center rounded-full bg-accent text-accent-fg">

@@ -11,12 +11,7 @@ import {
   type GalleryPick,
   type ProductImageView,
 } from '@/features/catalog/model/product-view'
-import {
-  clockDuration,
-  youtubePlayerUrl,
-  youtubeThumbnailUrl,
-  type ProductVideo,
-} from '@/features/catalog/model/product-video'
+import { clockDuration, VideoSource, type VideoView } from '@/features/catalog/model/product-video'
 import { useGalleryVideoOpener } from '@/features/catalog/ui/GalleryVideoControl'
 import { PlayIcon } from '@/features/catalog/ui/PlayIcon'
 import { useDragScroll } from '@/features/catalog/ui/use-drag-scroll'
@@ -29,11 +24,11 @@ type ProductGalleryProps = {
   // Which shot each colour brings to the front when it is picked.
   readonly coverIndexByColor?: Readonly<Record<string, number>>
   // Videos, as slides after the photos.
-  readonly videos?: readonly ProductVideo[]
+  readonly videos?: readonly VideoView[]
 }
 
 const NO_COVERS: Readonly<Record<string, number>> = {}
-const NO_VIDEOS: readonly ProductVideo[] = []
+const NO_VIDEOS: readonly VideoView[] = []
 
 // True only after hydration. The server rendered the first shot, and the
 // gallery has to hydrate as that same shot: a mismatch here would leave the
@@ -98,7 +93,7 @@ export function ProductGallery({
   const activeVideo = active ? undefined : videos[activeIndex - images.length]
   // A video in the square has no shot to wait for.
   const isStripLoading = !isCoverSettled && Boolean(active)
-  const isVideoPlaying = activeVideo !== undefined && activeVideo.youtubeId === playingId
+  const isVideoPlaying = activeVideo !== undefined && activeVideo.id === playingId
 
   // Whatever took the square away from a playing video — an arrow, a
   // thumbnail, a colour bringing its own shot — ended it. Coming back to that
@@ -111,12 +106,12 @@ export function ProductGallery({
 
   // The description's shortcut: straight to the video, already playing, with
   // the square brought back into view when the page has scrolled past it.
-  useGalleryVideoOpener((youtubeId) => {
-    const offset = videos.findIndex((video) => video.youtubeId === youtubeId)
+  useGalleryVideoOpener((videoId) => {
+    const offset = videos.findIndex((video) => video.id === videoId)
     if (offset < 0) return
 
     setPick({ index: images.length + offset, color })
-    setPlayingId(youtubeId)
+    setPlayingId(videoId)
     if (squareRef.current) revealUnderHeader(squareRef.current)
   })
 
@@ -169,7 +164,7 @@ export function ProductGallery({
           <GalleryVideo
             video={activeVideo}
             isPlaying={isVideoPlaying}
-            onPlay={() => setPlayingId(activeVideo.youtubeId)}
+            onPlay={() => setPlayingId(activeVideo.id)}
             onStop={stopVideo}
           />
         ) : null}
@@ -249,7 +244,7 @@ export function ProductGallery({
             const index = images.length + offset
             return (
               <button
-                key={video.youtubeId}
+                key={video.id}
                 type="button"
                 onClick={() => setActiveIndex(index)}
                 aria-label={t('showVideo', { caption: video.caption })}
@@ -261,7 +256,7 @@ export function ProductGallery({
               >
                 {isStripLoading ? null : (
                   <Image
-                    src={youtubeThumbnailUrl(video.youtubeId)}
+                    src={video.thumbnailUrl}
                     alt=""
                     fill
                     sizes="64px"
@@ -423,20 +418,17 @@ function LightboxStrip({
   )
 }
 
-// YouTube plays for as long as its iframe holds the video, and the App
-// Router keeps a page the visitor left mounted but hidden (React Activity)
-// so the way back is instant — the sound carried on under the next page.
-// Hiding runs effect cleanups, so the player gets and loses its source
-// through an effect: silence the moment the page is hidden or the slide
-// changes, and the cover again when the page comes back.
-function GalleryPlayer({
-  video,
-  onStop,
-}: {
-  readonly video: ProductVideo
-  readonly onStop: () => void
-}) {
-  const playerRef = useRef<HTMLIFrameElement>(null)
+// A player plays for as long as it holds its source, and the App Router
+// keeps a page the visitor left mounted but hidden (React Activity) so the
+// way back is instant — the sound carried on under the next page. Hiding
+// runs effect cleanups, so the player gets and loses its source through an
+// effect: silence the moment the page is hidden or the slide changes, and
+// the cover again when the page comes back.
+function usePlayerSource<T extends HTMLIFrameElement | HTMLVideoElement>(
+  source: string,
+  onStop: () => void,
+) {
+  const playerRef = useRef<T>(null)
   // Development runs every effect twice (cleanup, then again at once); the
   // stop is deferred a tick so that rehearsal cancels it, while a real hide
   // or unmount lets it through.
@@ -447,17 +439,49 @@ function GalleryPlayer({
     if (!player) return
 
     window.clearTimeout(stopTimerRef.current)
-    player.src = youtubePlayerUrl(video.youtubeId)
+    player.src = source
     // The player replaces the button that started it, and keyboard focus
     // would otherwise fall back to the top of the page. The page scrolls on
     // its own terms, so focusing must not jump it.
     player.focus({ preventScroll: true })
 
     return () => {
-      player.src = 'about:blank'
+      if (player instanceof HTMLVideoElement) {
+        player.pause()
+        player.removeAttribute('src')
+        player.load()
+      } else {
+        player.src = 'about:blank'
+      }
       stopTimerRef.current = window.setTimeout(onStop, 0)
     }
-  }, [video.youtubeId, onStop])
+  }, [source, onStop])
+
+  return playerRef
+}
+
+function GalleryPlayer({
+  video,
+  onStop,
+}: {
+  readonly video: VideoView
+  readonly onStop: () => void
+}) {
+  if (video.source === VideoSource.Hosted) {
+    return <HostedPlayer video={video} onStop={onStop} />
+  }
+
+  return <YouTubePlayer video={video} onStop={onStop} />
+}
+
+function YouTubePlayer({
+  video,
+  onStop,
+}: {
+  readonly video: VideoView
+  readonly onStop: () => void
+}) {
+  const playerRef = usePlayerSource<HTMLIFrameElement>(video.playerUrl, onStop)
 
   return (
     <iframe
@@ -470,16 +494,41 @@ function GalleryPlayer({
   )
 }
 
-// A video slide: its cover and a play button until pressed, then YouTube's
-// privacy-enhanced player in the same square. The player is never loaded for
-// a visit that does not ask for it.
+// The shop's own file in the browser's player. It starts on its own: the
+// buyer's press on the cover is what allows sound.
+function HostedPlayer({
+  video,
+  onStop,
+}: {
+  readonly video: VideoView
+  readonly onStop: () => void
+}) {
+  const playerRef = usePlayerSource<HTMLVideoElement>(video.playerUrl, onStop)
+
+  return (
+    <video
+      ref={playerRef}
+      title={video.caption}
+      poster={video.thumbnailUrl}
+      controls
+      autoPlay
+      playsInline
+      preload="metadata"
+      className="absolute inset-0 size-full bg-ink object-contain"
+    />
+  )
+}
+
+// A video slide: its cover and a play button until pressed, then the player
+// in the same square. The player is never loaded for a visit that does not
+// ask for it.
 function GalleryVideo({
   video,
   isPlaying,
   onPlay,
   onStop,
 }: {
-  readonly video: ProductVideo
+  readonly video: VideoView
   readonly isPlaying: boolean
   readonly onPlay: () => void
   readonly onStop: () => void
@@ -498,7 +547,7 @@ function GalleryVideo({
       className="absolute inset-0 bg-ink"
     >
       <Image
-        src={youtubeThumbnailUrl(video.youtubeId)}
+        src={video.thumbnailUrl}
         alt=""
         fill
         sizes={MAIN_IMAGE_SIZES}

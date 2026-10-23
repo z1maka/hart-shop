@@ -38,12 +38,7 @@ import { formatMoney } from '@/lib/money'
 import { getProductReviewsOrNone, ProductRatingLine, ReviewsSection } from '@/features/reviews'
 import { breadcrumbJsonLd, faqJsonLd, productJsonLd, videoJsonLd } from '@/lib/seo'
 import { siteConfig } from '@/config/site'
-import {
-  featuredVideoOf,
-  isoDuration,
-  youtubeEmbedUrl,
-  youtubeThumbnailUrl,
-} from '@/features/catalog/model/product-video'
+import { featuredVideoOf, isoDuration } from '@/features/catalog/model/product-video'
 import { requestedColorOf } from '@/features/catalog/model/requested-color'
 import { cn } from '@/lib/utils'
 import { decodeSlugParam } from '@/lib/slug'
@@ -157,10 +152,10 @@ async function ProductDetail({
             videoJsonLd({
               name: video.caption,
               description: `${video.caption}. ${product.title}, ${siteConfig.name}.`,
-              thumbnailUrl: youtubeThumbnailUrl(video.youtubeId),
+              thumbnailUrl: video.thumbnailUrl,
               uploadDate: video.uploadDate,
               duration: isoDuration(video.durationSeconds),
-              embedUrl: youtubeEmbedUrl(video.youtubeId),
+              ...video.markupUrl,
             }),
           ),
         ]}

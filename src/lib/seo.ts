@@ -124,7 +124,11 @@ export function productJsonLd(input: ProductJsonLdInput): JsonLdNode {
             author: { '@type': 'Person', name: review.author },
             datePublished: review.date,
             reviewBody: review.body,
-            reviewRating: { '@type': 'Rating', ratingValue: review.rating, bestRating: BEST_RATING },
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: review.rating,
+              bestRating: BEST_RATING,
+            },
           })),
         }
       : {}),
@@ -189,11 +193,11 @@ export type VideoJsonLdInput = {
   // ISO 8601 date-time and duration.
   readonly uploadDate: string
   readonly duration: string
-  readonly embedUrl: string
-}
+} & ({ readonly embedUrl: string } | { readonly contentUrl: string })
 
 // A video as Google's video results read it: name, thumbnail and upload date
-// are required, the length and the player are recommended.
+// are required, the length and the player — or, for a file of our own, the
+// file itself — are recommended.
 export function videoJsonLd(input: VideoJsonLdInput): JsonLdNode {
   return {
     '@context': SCHEMA_CONTEXT,
@@ -203,7 +207,7 @@ export function videoJsonLd(input: VideoJsonLdInput): JsonLdNode {
     thumbnailUrl: [input.thumbnailUrl],
     uploadDate: input.uploadDate,
     duration: input.duration,
-    embedUrl: input.embedUrl,
+    ...('embedUrl' in input ? { embedUrl: input.embedUrl } : { contentUrl: input.contentUrl }),
   }
 }
 

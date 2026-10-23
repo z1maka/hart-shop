@@ -124,4 +124,20 @@ describe('videoJsonLd', () => {
       embedUrl: 'https://www.youtube.com/embed/oj3HwvDkAyc',
     })
   })
+
+  it('points at the file itself for a video of our own', () => {
+    const video = videoJsonLd({
+      name: 'Тест чохла на Starlink з дрона',
+      description: 'Тест чохла на Starlink з дрона. Чохол на Starlink, Гарт.',
+      thumbnailUrl: 'https://media.hart-shop.com/videos/starlink-test-1a2b3c4d.webp',
+      uploadDate: '2026-10-23T12:00:00+03:00',
+      duration: 'PT28S',
+      contentUrl: 'https://media.hart-shop.com/videos/starlink-test-1a2b3c4d.mp4',
+    })
+
+    expect(video).toMatchObject({
+      contentUrl: 'https://media.hart-shop.com/videos/starlink-test-1a2b3c4d.mp4',
+    })
+    expect(video).not.toHaveProperty('embedUrl')
+  })
 })

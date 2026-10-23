@@ -4,7 +4,7 @@ import {
   type FaqEntry,
   type StoryBlock,
 } from '@/features/catalog/model/category-content'
-import type { ProductVideo } from '@/features/catalog/model/product-video'
+import { videoViewOf, type VideoView } from '@/features/catalog/model/product-video'
 import {
   colorOf,
   sizeOf,
@@ -60,7 +60,7 @@ export type ProductDetailView = {
   readonly images: readonly ProductImageView[]
   readonly variants: readonly ProductVariantView[]
   readonly specs: readonly SpecRowView[]
-  readonly videos: readonly ProductVideo[]
+  readonly videos: readonly VideoView[]
   readonly included: readonly string[]
   readonly careNotes: readonly string[]
   readonly stockTotal: number
@@ -142,7 +142,7 @@ export async function getProductBySlug(slug: string): Promise<ProductDetailView 
       isAvailable: isVariantAvailable(variant.stockQty),
       imageIndex: galleryIndexOf(images, variant.coverImageId),
     })),
-    videos: row.videos,
+    videos: row.videos.map((video) => videoViewOf(video, publicUrl)),
     specs: mergeSpecs(
       [
         ...(row.weightGrams > 0

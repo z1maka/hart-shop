@@ -52,7 +52,9 @@ const contentSecurityPolicy = [
   `img-src 'self' data: blob: ${mediaOrigin?.origin ?? ''} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${CLARITY_SYNC_HOSTS} ${TIKTOK_HOSTS}`,
   "font-src 'self' data:",
   `connect-src 'self' ${mediaOrigin?.origin ?? ''} ${GOOGLE_HOSTS} ${GOOGLE_ADS_HOSTS} ${META_HOSTS} ${CLARITY_HOSTS} ${TIKTOK_HOSTS}`,
-  // Product videos play in YouTube's privacy-enhanced player.
+  // The shop's own product videos stream from the media bucket.
+  `media-src 'self' ${mediaOrigin?.origin ?? ''}`,
+  // YouTube videos play in its privacy-enhanced player.
   `frame-src 'self' https://www.facebook.com https://www.youtube-nocookie.com ${GOOGLE_REVIEWS_FRAME_HOSTS}`,
   "object-src 'none'",
   "base-uri 'self'",

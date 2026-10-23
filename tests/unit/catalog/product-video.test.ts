@@ -4,10 +4,12 @@ import {
   featuredVideoOf,
   isoDuration,
   VideoKind,
-  type ProductVideo,
+  VideoSource,
+  videoViewOf,
+  type YouTubeVideo,
 } from '@/features/catalog/model/product-video'
 
-function video(youtubeId: string, kind: VideoKind): ProductVideo {
+function video(youtubeId: string, kind: VideoKind): YouTubeVideo {
   return {
     youtubeId,
     caption: youtubeId,
@@ -50,5 +52,45 @@ describe('featured video', () => {
 
   it('offers nothing on a page without videos', () => {
     expect(featuredVideoOf([])).toBeUndefined()
+  })
+})
+
+describe('video view', () => {
+  const mediaUrl = (key: string) => `https://media.hart-shop.com/${key}`
+
+  it('reads a row without a source as a YouTube video', () => {
+    const view = videoViewOf(video('oj3HwvDkAyc', VideoKind.Test), mediaUrl)
+
+    expect(view).toMatchObject({
+      id: 'oj3HwvDkAyc',
+      source: VideoSource.YouTube,
+      thumbnailUrl: 'https://i.ytimg.com/vi/oj3HwvDkAyc/hqdefault.jpg',
+      markupUrl: { embedUrl: 'https://www.youtube.com/embed/oj3HwvDkAyc' },
+    })
+    expect(view.playerUrl).toContain('youtube-nocookie.com/embed/oj3HwvDkAyc')
+  })
+
+  it('plays a hosted video from the media bucket, poster included', () => {
+    const view = videoViewOf(
+      {
+        source: VideoSource.Hosted,
+        fileKey: 'videos/starlink-test-1a2b3c4d.mp4',
+        posterKey: 'videos/starlink-test-1a2b3c4d.webp',
+        caption: 'Тест чохла на Starlink з дрона',
+        kind: VideoKind.Test,
+        durationSeconds: 28,
+        uploadDate: '2026-10-23T12:00:00+03:00',
+      },
+      mediaUrl,
+    )
+
+    expect(view).toMatchObject({
+      id: 'videos/starlink-test-1a2b3c4d.mp4',
+      source: VideoSource.Hosted,
+      thumbnailUrl: 'https://media.hart-shop.com/videos/starlink-test-1a2b3c4d.webp',
+      playerUrl: 'https://media.hart-shop.com/videos/starlink-test-1a2b3c4d.mp4',
+      markupUrl: { contentUrl: 'https://media.hart-shop.com/videos/starlink-test-1a2b3c4d.mp4' },
+      durationSeconds: 28,
+    })
   })
 })

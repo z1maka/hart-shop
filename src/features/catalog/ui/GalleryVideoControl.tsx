@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react'
 
-type VideoOpener = (youtubeId: string) => void
+type VideoOpener = (videoId: string) => void
 
 type GalleryVideoControl = {
   readonly openVideo: VideoOpener
@@ -21,7 +21,7 @@ export function GalleryVideoControlProvider({ children }: { readonly children: R
   const openerRef = useRef<VideoOpener | null>(null)
   const value = useMemo<GalleryVideoControl>(
     () => ({
-      openVideo: (youtubeId) => openerRef.current?.(youtubeId),
+      openVideo: (videoId) => openerRef.current?.(videoId),
       setOpener: (opener) => {
         openerRef.current = opener
       },
