@@ -95,9 +95,8 @@ export const GUIDES: readonly Guide[] = [
       },
     ],
     products: [
-      { slug: 'anty-teplovizorna-nakydka-poncho-zakhyst-vid-teplovizoriv-ta-droniv-multi-a6286-antydron-antyteplovizor', label: 'Легке антидронове пончо, 2 шари' },
       { slug: 'anty-teploviziyna-nakydka-poncho-multi-a-6286', label: 'Антитепловізійне пончо, 3 шари' },
-      { slug: 'plashch-nakidka-poncho-s-trekhsharovoy-tkanyu-antiteploviziyniy-zakhist', label: 'Посилене антидронове пончо' },
+      { slug: 'antyteploviziyne-poncho-z-kysheneiu-3-shary', label: 'Посилене антидронове пончо з кишенею' },
       { slug: 'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho', label: 'Антидронове пончо з MOLLE, 4 шари' },
       { slug: 'antydronova-nakydka-uv-em-z-rukavamy', label: 'Антидронова накидка UV+EM з рукавами' },
       { slug: 'maskuvalne-poncho-fx14-3d-lystya-class-d', label: 'Маскувальне пончо з 3D-листям' },
@@ -175,7 +174,7 @@ export const GUIDES: readonly Guide[] = [
       { slug: 'antyteploviziyne-poncho-3-shary-zymovyi-multykam', label: 'Антитепловізійне пончо, 3 шари, зимовий мультикам' },
       { slug: 'antyteploviziynyi-tent-250x150-zymovyi', label: 'Антитепловізійний тент, зимовий' },
       { slug: 'winter-cover-anti-thermal-vision-and-anti', label: 'Зимовий чохол на Starlink Gen 2, Gen 3, Gen 4' },
-      { slug: 'copyenhanced-anti-thermal-vision-h', label: 'Зимовий чохол на Starlink з вентиляцією' },
+      { slug: 'zymovyi-chokhol-na-starlink-z-3d-sitkoiu', label: 'Зимовий самоохолоджувальний чохол на Starlink' },
       { slug: 'anty-teploviziyna-nakydka-poncho-multi-a-6286', label: 'Антитепловізійне пончо, 3 шари, мультикам' },
     ],
   },
@@ -234,7 +233,6 @@ export const GUIDES: readonly Guide[] = [
       },
     ],
     products: [
-      { slug: 'anty-teplovizorna-nakydka-poncho-zakhyst-vid-teplovizoriv-ta-droniv-multi-a6286-antydron-antyteplovizor', label: 'Легке антидронове пончо, 2 шари' },
       { slug: 'anty-teploviziyna-nakydka-poncho-a6286', label: 'Антитепловізійне пончо, 3 шари, олива' },
       { slug: 'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho', label: 'Антидронове пончо з MOLLE, 4 шари' },
       { slug: 'antyteploviziyna-kovdra-z-molle', label: 'Антитепловізійна ковдра з MOLLE' },
@@ -311,8 +309,8 @@ export const GUIDES: readonly Guide[] = [
       { slug: 'antyteploviziynyi-chokhol-na-starlink-mini', label: 'Чохол на Starlink Mini' },
       { slug: 'winter-cover-anti-thermal-vision-and-anti', label: 'Зимовий чохол на Starlink Gen 2, Gen 3, Gen 4' },
       { slug: 'antyteplovizornyy-chokhol-na-starlink-iz-maskuvalnoyu-sitkoyu', label: 'Чохол на Starlink з маскувальною сіткою' },
-      { slug: 'polozheniya-antiteplovogo-rezhima-na-starlink-iz-sistemy-okhlazhdeniya-bud-yaka-model', label: 'Посилений чохол на Starlink з вентиляцією' },
-      { slug: 'посилений-самоохолоджуючий-антитепл', label: 'Самоохолоджувальний чохол на Starlink' },
+      { slug: 'samookholodzhuvalnyi-chokhol-na-starlink-z-3d-sitkoiu-osinnii', label: 'Самоохолоджувальний чохол на Starlink з 3D-сіткою' },
+      { slug: 'zymovyi-chokhol-na-starlink-z-3d-sitkoiu', label: 'Зимовий самоохолоджувальний чохол на Starlink' },
     ],
   },
   {
@@ -369,7 +367,6 @@ export const GUIDES: readonly Guide[] = [
       },
     ],
     products: [
-      { slug: 'anty-teplovizorna-nakydka-poncho-zakhyst-vid-teplovizoriv-ta-droniv-multi-a6286-antydron-antyteplovizor', label: 'Легке антидронове пончо, 2 шари' },
       { slug: 'anty-teploviziyna-nakydka-poncho-multi-a-6286', label: 'Антитепловізійне пончо, 3 шари' },
       { slug: 'antyteploviziynyi-tent-250x150-multykam', label: 'Антитепловізійний тент, мультикам' },
       { slug: 'antyteploviziynyi-tent-250x150-zymovyi', label: 'Антитепловізійний тент, зимовий' },
@@ -434,7 +431,7 @@ export const GUIDES: readonly Guide[] = [
     products: [
       { slug: 'anty-teploviziyna-nakydka-poncho-a6286', label: 'Антитепловізійне пончо, 3 шари, олива' },
       { slug: 'antyteploviziynyi-tent-250x150-olyva', label: 'Антитепловізійний тент, олива' },
-      { slug: 'polozheniya-antiteplovogo-rezhima-na-starlink-iz-sistemy-okhlazhdeniya-bud-yaka-model', label: 'Посилений чохол на Starlink з вентиляцією' },
+      { slug: 'samookholodzhuvalnyi-chokhol-na-starlink-z-3d-sitkoiu-osinnii', label: 'Самоохолоджувальний чохол на Starlink з 3D-сіткою' },
       { slug: 'futbolka-taktychna-coolmax-1', label: 'Тактична футболка Coolmax' },
     ],
   },

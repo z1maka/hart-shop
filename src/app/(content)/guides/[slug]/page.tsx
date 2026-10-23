@@ -4,8 +4,10 @@ import { notFound } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { JsonLd } from '@/components/JsonLd'
 import { siteConfig } from '@/config/site'
-import { findGuide, GUIDES, type GuideSection } from '@/content/guides'
+import { findGuide, GUIDES, type Guide, type GuideLink, type GuideSection } from '@/content/guides'
+import { getPublishedProductSlugs } from '@/features/catalog'
 import { formatDateUk } from '@/lib/datetime'
+import { logger } from '@/lib/logger'
 import { articleJsonLd, breadcrumbJsonLd } from '@/lib/seo'
 
 export function generateStaticParams() {
@@ -29,8 +31,12 @@ export default async function GuidePage({ params }: PageProps<'/guides/[slug]'>)
   const guide = findGuide(slug)
   if (!guide) notFound()
 
-  const t = await getTranslations('guides')
+  const [t, publishedSlugs] = await Promise.all([
+    getTranslations('guides'),
+    getPublishedProductSlugs(),
+  ])
   const path = `/guides/${guide.slug}/`
+  const products = linkedProducts(guide, new Set(publishedSlugs))
 
   return (
     <article className="mx-auto max-w-[76ch] px-7 py-12">
@@ -71,7 +77,7 @@ export default async function GuidePage({ params }: PageProps<'/guides/[slug]'>)
       <aside className="mt-10 rounded-card border border-subtle bg-surface p-5">
         <h2 className="mb-3 font-display text-[17px] font-bold text-ink">{t('productsTitle')}</h2>
         <ul className="grid gap-1.5 text-[14.5px]">
-          {guide.products.map((product) => (
+          {products.map((product) => (
             <li key={product.slug}>
               <Link
                 href={`/product/${product.slug}/`}
@@ -93,6 +99,20 @@ export default async function GuidePage({ params }: PageProps<'/guides/[slug]'>)
       </aside>
     </article>
   )
+}
+
+// A product archived after the guide was written answers with a redirect to
+// its shelf: the guide leaves it out, and the log names the link to update.
+function linkedProducts(guide: Guide, published: ReadonlySet<string>): readonly GuideLink[] {
+  const missing = guide.products.filter((product) => !published.has(product.slug))
+  if (missing.length > 0) {
+    logger.error('Guide links unpublished products', {
+      guide: guide.slug,
+      missing: missing.map((product) => product.slug),
+    })
+  }
+
+  return guide.products.filter((product) => published.has(product.slug))
 }
 
 function GuideSectionView({ section }: { readonly section: GuideSection }) {

@@ -70,10 +70,6 @@ export const HOME_STARLINK_CHOOSER = [
   {
     key: 'mode',
     options: [
-      {
-        key: 'ventilated',
-        slug: 'polozheniya-antiteplovogo-rezhima-na-starlink-iz-sistemy-okhlazhdeniya-bud-yaka-model',
-      },
       { key: 'selfCooling', slug: STARLINK_3D_AUTUMN_SLUG },
     ],
   },
