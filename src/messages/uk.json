@@ -62,6 +62,8 @@
     "showFilters": "Фільтри",
     "hideFilters": "Сховати фільтри",
     "showingOf": "Показано {shown} із {total}",
+    "introMore": "Детальніше",
+    "introLess": "Згорнути",
     "emptyCustom": "Пошиємо на замовлення за вашими розмірами →",
     "notFoundCustom": "Не знайшли потрібного? Пошиємо на замовлення за вашими розмірами →",
     "removeFilter": "Прибрати фільтр"
@@ -986,7 +988,7 @@
     "reject": "Лише необхідні",
     "accept": "Прийняти всі",
     "more": "Детальніше про cookies",
-    "bodyShort": "Cookies для роботи магазину, аналітики й реклами (Google, Meta).",
+    "bodyShort": "Cookies для аналітики й реклами.",
     "moreShort": "Детальніше"
   },
   "meta": {

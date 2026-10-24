@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { getTranslations } from 'next-intl/server'
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
 import { JsonLd } from '@/components/JsonLd'
+import { ExpandableText } from '@/components/ui/ExpandableText'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { decodeSlugParam } from '@/lib/slug'
 import { getCategories, type CategoryView } from '@/features/catalog'
@@ -71,10 +72,10 @@ export default async function CategoryPage({
 }
 
 async function CategoryHeader({ category: activeCategory }: { category: CategoryView }) {
-  const navT = await getTranslations('nav')
+  const [navT, filtersT] = await Promise.all([getTranslations('nav'), getTranslations('filters')])
 
   return (
-    <header className="mb-7">
+    <header className="mb-4 lg:mb-7">
       <Breadcrumbs
         className="mb-3.5"
         items={[
@@ -91,9 +92,12 @@ async function CategoryHeader({ category: activeCategory }: { category: Category
         ])}
       />
       <h1 className="mb-2.5 font-display text-h1 font-bold text-ink">{activeCategory.name}</h1>
-      <p className="max-w-[64ch] text-[14.5px] leading-relaxed text-muted">
-        {activeCategory.description}
-      </p>
+      <ExpandableText
+        text={activeCategory.description}
+        moreLabel={filtersT('introMore')}
+        lessLabel={filtersT('introLess')}
+        className="max-w-[64ch] text-[14.5px] leading-relaxed text-muted"
+      />
     </header>
   )
 }

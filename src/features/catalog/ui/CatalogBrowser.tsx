@@ -22,6 +22,7 @@ import { getTranslations } from 'next-intl/server'
 import { TrackEventOnce } from '@/features/analytics'
 import { JsonLd } from '@/components/JsonLd'
 import { itemListJsonLd } from '@/lib/seo'
+import { cn } from '@/lib/utils'
 
 const SORT_VALUES: readonly CatalogSort[] = [
   'recommended',
@@ -94,6 +95,7 @@ export async function CatalogBrowser({
   // The category is navigation, not a filter chip: counting it left "Clear"
   // unable to reach zero.
   const activeFilterCount = colors.length + (weightBand ? 1 : 0)
+  const activeColorOptions = colorOptions.filter((option) => option.isActive)
 
   const listName = categorySlug ?? 'shop'
 
@@ -118,11 +120,12 @@ export async function CatalogBrowser({
           })),
         }}
       />
-      <div className="flex flex-wrap items-start gap-7">
+      <div className="flex flex-wrap items-start gap-x-7 gap-y-3">
         <MobileFilterToggle
           showLabel={t('showFilters')}
           hideLabel={t('hideFilters')}
           activeFilterCount={activeFilterCount}
+          trailing={<SortSelect value={sort} isCompact className="min-w-0 flex-1" />}
         >
           <CatalogSidebar
             categories={categoryOptions}
@@ -134,23 +137,28 @@ export async function CatalogBrowser({
         </MobileFilterToggle>
 
         <div className="min-w-[min(100%,300px)] flex-[999_1_520px]">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-subtle pb-3.5">
+          {/* On a phone the sort sits beside the filter toggle and the count
+              goes, so this row is left only for the chips of chosen colours. */}
+          <div
+            className={cn(
+              'mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-subtle pb-3.5',
+              activeColorOptions.length === 0 && 'max-lg:hidden',
+            )}
+          >
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[13px] text-muted">
+              <span className="text-[13px] text-muted max-lg:hidden">
                 {t('showingOf', { shown: catalog.items.length, total: catalog.total })}
               </span>
-              {colorOptions
-                .filter((option) => option.isActive)
-                .map((option) => (
-                  <ActiveFilterChip
-                    key={option.href}
-                    href={option.href}
-                    label={colorsT.has(option.label) ? colorsT(option.label) : option.label}
-                    removeLabel={t('removeFilter')}
-                  />
-                ))}
+              {activeColorOptions.map((option) => (
+                <ActiveFilterChip
+                  key={option.href}
+                  href={option.href}
+                  label={colorsT.has(option.label) ? colorsT(option.label) : option.label}
+                  removeLabel={t('removeFilter')}
+                />
+              ))}
             </div>
-            <SortSelect value={sort} />
+            <SortSelect value={sort} className="max-lg:hidden" />
           </div>
 
           {catalog.items.length > 0 ? (

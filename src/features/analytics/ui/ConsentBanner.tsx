@@ -43,7 +43,7 @@ function ConsentCard({ onAccept, onReject }: ConsentCardProps) {
         // On a phone a short strip at the very bottom: one line of text and
         // the two buttons side by side, so it covers as little of the buy
         // area as it can. From sm up, the full card in the corner.
-        'fixed inset-x-2 bottom-2 z-50 rounded-card border border-on-dark/15 bg-ink p-3.5 text-on-dark shadow-float sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[400px] sm:p-6',
+        'fixed inset-x-2 bottom-2 z-50 rounded-card border border-on-dark/15 bg-ink p-2.5 text-on-dark shadow-float sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[400px] sm:p-6',
         'transition-transform duration-300 starting:translate-y-[120%] motion-reduce:transition-none',
         !isArmed && 'pointer-events-none',
       )}
@@ -53,7 +53,7 @@ function ConsentCard({ onAccept, onReject }: ConsentCardProps) {
         <p className="font-display text-[15.5px] font-bold">{t('title')}</p>
       </div>
 
-      <p className="mb-3 text-[12.5px] leading-snug text-on-dark/80 sm:hidden">
+      <p className="mb-2 text-[12px] leading-snug text-on-dark/80 sm:hidden">
         {t('bodyShort')}{' '}
         <Link href="/privacy-policy/" className="text-on-dark underline underline-offset-4">
           {t('moreShort')}
@@ -70,14 +70,14 @@ function ConsentCard({ onAccept, onReject }: ConsentCardProps) {
         <button
           type="button"
           onClick={onAccept}
-          className="min-h-11 flex-1 rounded-control bg-accent px-3 text-[13px] font-semibold text-accent-fg hover:bg-accent-hover sm:min-h-11.5 sm:px-4 sm:text-[13.5px]"
+          className="min-h-9 flex-1 rounded-control bg-accent px-3 text-[13px] font-semibold text-accent-fg hover:bg-accent-hover sm:min-h-11.5 sm:px-4 sm:text-[13.5px]"
         >
           {t('accept')}
         </button>
         <button
           type="button"
           onClick={onReject}
-          className="min-h-11 flex-1 rounded-control border border-on-dark/35 px-3 text-[13px] font-semibold text-on-dark hover:border-on-dark/70 sm:min-h-11.5 sm:px-4 sm:text-[13.5px]"
+          className="min-h-9 flex-1 rounded-control border border-on-dark/35 px-3 text-[13px] font-semibold text-on-dark hover:border-on-dark/70 sm:min-h-11.5 sm:px-4 sm:text-[13.5px]"
         >
           {t('reject')}
         </button>

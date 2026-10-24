@@ -7,6 +7,10 @@ import type { CatalogSort } from '@/features/catalog/repository/product-reposito
 
 type SortSelectProps = {
   readonly value: CatalogSort
+  // Beside the filter toggle on a phone: no «Сортування:» prefix, the toggle's
+  // height. The trigger keeps the label for screen readers.
+  readonly isCompact?: boolean
+  readonly className?: string
 }
 
 const SORT_KEYS = [
@@ -15,7 +19,7 @@ const SORT_KEYS = [
   { value: 'price-desc', key: 'priceDesc' },
 ] as const
 
-export function SortSelect({ value }: SortSelectProps) {
+export function SortSelect({ value, isCompact = false, className }: SortSelectProps) {
   const t = useTranslations('filters')
   const options: readonly SelectOption[] = SORT_KEYS.map((entry) => ({
     value: entry.value,
@@ -38,8 +42,9 @@ export function SortSelect({ value }: SortSelectProps) {
       onValueChange={handleChange}
       options={options}
       label={t('sortLabel')}
-      prefix={t('sortLabel')}
-      size="sm"
+      prefix={isCompact ? undefined : t('sortLabel')}
+      size={isCompact ? 'md' : 'sm'}
+      className={className}
     />
   )
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { Breadcrumbs } from '@/components/layout/Breadcrumbs'
+import { ExpandableText } from '@/components/ui/ExpandableText'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getCategories } from '@/features/catalog'
 import { CatalogBrowser, type ShopSearchParams } from '@/features/catalog/ui/CatalogBrowser'
@@ -20,9 +21,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ShopIndexPage({ searchParams }: PageProps<'/shop'>) {
-  const [pageT, navT] = await Promise.all([
+  const [pageT, navT, filtersT] = await Promise.all([
     getTranslations('shopPage'),
     getTranslations('nav'),
+    getTranslations('filters'),
   ])
 
   return (
@@ -31,9 +33,14 @@ export default async function ShopIndexPage({ searchParams }: PageProps<'/shop'>
         className="mb-3.5"
         items={[{ label: navT('home'), href: '/' }, { label: navT('allProducts') }]}
       />
-      <header className="mb-7">
+      <header className="mb-4 lg:mb-7">
         <h1 className="mb-2.5 font-display text-h1 font-bold text-ink">{pageT('title')}</h1>
-        <p className="max-w-[64ch] text-[14.5px] leading-relaxed text-muted">{pageT('lead')}</p>
+        <ExpandableText
+          text={pageT('lead')}
+          moreLabel={filtersT('introMore')}
+          lessLabel={filtersT('introLess')}
+          className="max-w-[64ch] text-[14.5px] leading-relaxed text-muted"
+        />
       </header>
 
       <Suspense fallback={<Skeleton className="h-[560px] w-full rounded-card" />}>
