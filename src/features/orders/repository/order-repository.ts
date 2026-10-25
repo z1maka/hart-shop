@@ -46,7 +46,25 @@ import { db } from '@/lib/db'
 import { escapeLikePattern } from '@/lib/sql'
 
 export type OrderRow = InferSelectModel<typeof orders>
-export type OrderItemRow = InferSelectModel<typeof orderItems>
+// A line without the shop's cost: lines go to the buyer's page, the mails
+// and the payment provider, and none of them may carry it.
+export type OrderItemRow = Omit<InferSelectModel<typeof orderItems>, 'unitCostCents'>
+
+const ORDER_ITEM_COLUMNS = {
+  id: orderItems.id,
+  orderId: orderItems.orderId,
+  variantId: orderItems.variantId,
+  sku: orderItems.sku,
+  productSlug: orderItems.productSlug,
+  productTitle: orderItems.productTitle,
+  variantLabel: orderItems.variantLabel,
+  quantity: orderItems.quantity,
+  unitPriceCents: orderItems.unitPriceCents,
+  currency: orderItems.currency,
+  weightGrams: orderItems.weightGrams,
+  imageStorageKey: orderItems.imageStorageKey,
+  createdAt: orderItems.createdAt,
+}
 
 export type OrderPageRow = {
   readonly id: string
@@ -268,6 +286,12 @@ export const orderRepository = {
           variantLabel: item.variantLabel,
           quantity: item.quantity,
           unitPriceCents: item.unitPriceCents,
+          // The cost stays inside the database: checkout never sees it.
+          unitCostCents: sql<number | null>`(
+            select ${products.costCents} from ${products}
+            inner join ${productVariants} on ${productVariants.productId} = ${products.id}
+            where ${productVariants.id} = ${item.variantId}
+          )`,
           weightGrams: item.weightGrams,
           imageStorageKey: item.imageStorageKey,
         })),
@@ -808,7 +832,7 @@ export const orderRepository = {
   },
 
   async findItems(orderId: string): Promise<OrderItemRow[]> {
-    return db.select().from(orderItems).where(eq(orderItems.orderId, orderId))
+    return db.select(ORDER_ITEM_COLUMNS).from(orderItems).where(eq(orderItems.orderId, orderId))
   },
 
   // The lines next to the product as it is now — the workshop's name and the

@@ -64,6 +64,13 @@ export {
 export { isMonthKey } from '@/features/orders/model/return-stats'
 export { isWeekKey } from '@/features/orders/model/traffic-weeks'
 export {
+  getEarnings,
+  type EarningsTotalsView,
+  type EarningsView,
+} from '@/features/orders/queries/get-earnings'
+export { EarningsPreset } from '@/features/orders/model/earnings-period'
+export type { EarningsDay } from '@/features/orders/model/earnings'
+export {
   getWeekTraffic,
   trafficWeeks,
   type TrafficChannelView,

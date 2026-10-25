@@ -427,6 +427,10 @@ export const orderItems = pgTable(
     variantLabel: text('variant_label').notNull(),
     quantity: integer('quantity').notNull(),
     unitPriceCents: integer('unit_price_cents').notNull(),
+    // What one unit cost the shop when it was ordered (the product's cost
+    // then), so a later workshop price leaves past earnings alone; null when
+    // the product had no cost entered. Admin only, like the product's cost.
+    unitCostCents: integer('unit_cost_cents'),
     currency: char('currency', { length: 3 }).notNull().default('UAH'),
     weightGrams: integer('weight_grams').notNull(),
     imageStorageKey: text('image_storage_key'),

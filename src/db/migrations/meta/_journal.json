@@ -435,6 +435,13 @@
       "when": 1792938392627,
       "tag": "0061_product_cost",
       "breakpoints": true
+    },
+    {
+      "idx": 62,
+      "version": "7",
+      "when": 1792939242343,
+      "tag": "0062_order_item_cost",
+      "breakpoints": true
     }
   ]
 }

@@ -12,16 +12,21 @@ export const ADMIN_TABS = [
   { href: '/admin/enquiries', label: 'Заявки' },
   { href: '/admin/reviews', label: 'Отзывы' },
   { href: '/admin/storefront', label: 'Витрина' },
+  { href: '/admin/stats', label: 'Статистика' },
   { href: '/admin/settings', label: 'Настройки' },
 ] as const
 
 export const NO_BADGES: TabBadges = {}
 
+const PHONE_COLUMNS = 3
+const HAS_LONE_LAST_TAB = ADMIN_TABS.length % PHONE_COLUMNS === 1
+
 export function TabList({ activeHref, badges }: { activeHref: string | null; badges: TabBadges }) {
   return (
-    // Three even columns on a phone: six wrapped pills leave a ragged edge.
+    // Three even columns on a phone, a lone last tab across its row: wrapped
+    // pills leave a ragged edge.
     <div className="grid grid-cols-3 gap-1 rounded-[10px] bg-hover p-1 sm:flex sm:max-w-fit sm:flex-wrap">
-      {ADMIN_TABS.map((tab) => {
+      {ADMIN_TABS.map((tab, index) => {
         const isActive = activeHref === tab.href || activeHref?.startsWith(`${tab.href}/`)
         const waiting = badges[tab.href]
 
@@ -33,6 +38,7 @@ export function TabList({ activeHref, badges }: { activeHref: string | null; bad
             className={cn(
               'inline-flex min-h-10.5 items-center justify-center gap-2 rounded-chip px-2 text-[12.5px] font-semibold transition-colors sm:justify-start sm:px-4',
               isActive ? 'bg-ink text-on-dark' : 'text-ink hover:bg-surface',
+              HAS_LONE_LAST_TAB && index === ADMIN_TABS.length - 1 && 'col-span-3',
             )}
           >
             {tab.label}
