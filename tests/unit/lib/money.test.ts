@@ -5,6 +5,7 @@ import {
   Currency,
   decimalAmount,
   formatMoney,
+  formatWholeMoney,
   multiplyMoney,
   subtractMoney,
   sumMoney,
@@ -74,6 +75,13 @@ describe('formatMoney', () => {
 
   it('always shows two decimals', () => {
     expect(formatMoney(createMoney(10_000, Currency.Uah))).toBe('100,00\u00a0₴')
+  })
+})
+
+describe('formatWholeMoney', () => {
+  it('rounds to whole hryvnias with grouping', () => {
+    expect(formatWholeMoney(createMoney(2_865_049, Currency.Uah))).toBe('28\u00a0650\u00a0₴')
+    expect(formatWholeMoney(createMoney(-1_061_108, Currency.Uah))).toBe('-10\u00a0611\u00a0₴')
   })
 })
 

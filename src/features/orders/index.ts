@@ -62,18 +62,14 @@ export {
   type StatusFilterCounts,
 } from '@/features/orders/model/status-filter'
 export { isMonthKey } from '@/features/orders/model/return-stats'
-export { isWeekKey } from '@/features/orders/model/traffic-weeks'
-export {
-  getEarnings,
-  type EarningsTotalsView,
-  type EarningsView,
-} from '@/features/orders/queries/get-earnings'
+export { isWeekKey, sharePercent } from '@/features/orders/model/traffic-weeks'
+export { getEarnings, type EarningsView } from '@/features/orders/queries/get-earnings'
 export {
   earningsPeriod,
   EarningsPreset,
   type EarningsPeriod,
 } from '@/features/orders/model/earnings-period'
-export type { EarningsDay } from '@/features/orders/model/earnings'
+export type { EarningsDay, EarningsTotals } from '@/features/orders/model/earnings'
 export {
   getWeekTraffic,
   trafficWeeks,

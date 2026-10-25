@@ -8,26 +8,12 @@ import {
 import type { EarningsPeriod } from '@/features/orders/model/earnings-period'
 import { earningsRepository } from '@/features/orders/repository/earnings-repository'
 import { DISPLAY_TIME_ZONE } from '@/lib/datetime'
-import { createMoney, Currency, formatMoney } from '@/lib/money'
-
-export type EarningsTotalsView = {
-  readonly orders: number
-  readonly units: number
-  readonly revenueLabel: string
-  readonly costLabel: string
-  readonly earningsLabel: string
-  // Kept as a number too: the admin takes the ad spend off it.
-  readonly earningsCents: number
-  // «38 %», or a dash when nothing sold had a cost.
-  readonly marginLabel: string
-  // «2 шт. на 3 890,00 ₴ без себестоимости», or null when every line had one.
-  readonly uncostedNote: string | null
-}
 
 export type EarningsView = {
-  readonly period: EarningsPeriod
-  readonly collected: EarningsTotalsView
-  readonly all: EarningsTotalsView
+  // The parcels the buyers collected, the ones still to collect, and both.
+  readonly collected: EarningsTotals
+  readonly pending: EarningsTotals
+  readonly all: EarningsTotals
   // Per day, in kopiykas, for the chart.
   readonly days: readonly EarningsDay[]
 }
@@ -37,29 +23,9 @@ export async function getEarnings(period: EarningsPeriod): Promise<EarningsView>
   const rows = await earningsRepository.findDays(period.from, period.to, DISPLAY_TIME_ZONE)
 
   return {
-    period,
-    collected: totalsView(earningsTotals(rows, EarningsScope.Collected)),
-    all: totalsView(earningsTotals(rows, EarningsScope.All)),
+    collected: earningsTotals(rows, EarningsScope.Collected),
+    pending: earningsTotals(rows, EarningsScope.Pending),
+    all: earningsTotals(rows, EarningsScope.All),
     days: earningsByDay(rows, period.from, period.to),
   }
-}
-
-function totalsView(totals: EarningsTotals): EarningsTotalsView {
-  return {
-    orders: totals.orders,
-    units: totals.units,
-    revenueLabel: money(totals.revenueCents),
-    costLabel: money(totals.costCents),
-    earningsLabel: money(totals.earningsCents),
-    earningsCents: totals.earningsCents,
-    marginLabel: totals.marginPercent === null ? '—' : `${totals.marginPercent} %`,
-    uncostedNote:
-      totals.uncostedUnits > 0
-        ? `${totals.uncostedUnits} шт. на ${money(totals.uncostedRevenueCents)} без себестоимости`
-        : null,
-  }
-}
-
-function money(cents: number): string {
-  return formatMoney(createMoney(cents, Currency.Uah))
 }

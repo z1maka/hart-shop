@@ -1,9 +1,10 @@
 import { connection } from 'next/server'
 import {
   adSpendByDay,
+  adSpendPerOrder,
   AdSpendState,
-  earningsAfterAds,
   totalAdSpend,
+  type AdSpendDay,
   type AdSpendReport,
 } from '@/features/admin/model/ad-spend'
 import { readAdSpend } from '@/features/admin/services/ad-spend-reader'
@@ -12,29 +13,32 @@ import { requireAdminSession } from '@/features/admin/session-cookie'
 import {
   earningsPeriod,
   getEarnings,
+  sharePercent,
   type EarningsDay,
   type EarningsPeriod,
-  type EarningsTotalsView,
+  type EarningsTotals,
+  type EarningsView,
 } from '@/features/orders'
 import { formatDateIsoKyiv } from '@/lib/datetime'
-import { createMoney, Currency, formatMoney } from '@/lib/money'
 
-export type AdminTotalsView = EarningsTotalsView & {
-  // Null while the ad spend is not known: not connected or Google failed.
-  readonly adSpendLabel: string | null
-  readonly afterAdsLabel: string | null
-}
+// Ads stay beside the earnings, never taken off them: the owner reads what
+// the workshop's goods earn and what the ads cost as two separate numbers.
+export type AdSpendView =
+  | { readonly state: typeof AdSpendState.NotConnected }
+  | { readonly state: typeof AdSpendState.Failed }
+  | {
+      readonly state: typeof AdSpendState.Connected
+      readonly totalCents: number
+      readonly perOrderCents: number | null
+      // Of all the period's revenue, in whole percent.
+      readonly shareOfRevenue: number | null
+      // Every day of the period, a day without ads at zero.
+      readonly days: readonly AdSpendDay[]
+    }
 
-export type AdminEarningsDay = EarningsDay & {
-  readonly adSpendCents: number | null
-}
-
-export type AdminEarningsView = {
+export type AdminEarningsView = EarningsView & {
   readonly period: EarningsPeriod
-  readonly collected: AdminTotalsView
-  readonly all: AdminTotalsView
-  readonly days: readonly AdminEarningsDay[]
-  readonly adSpendState: AdSpendState
+  readonly adSpend: AdSpendView
 }
 
 export async function getAdminEarnings(params: {
@@ -52,38 +56,24 @@ export async function getAdminEarnings(params: {
     getEarnings(period),
     readAdSpend(googleAnalyticsAdSpend, period.from, period.to),
   ])
-  const spendCents = adSpend.state === AdSpendState.Connected ? totalAdSpend(adSpend.days) : null
 
-  return {
-    period,
-    collected: withAdSpend(earnings.collected, spendCents),
-    all: withAdSpend(earnings.all, spendCents),
-    days: withDailyAdSpend(earnings.days, adSpend),
-    adSpendState: adSpend.state,
-  }
+  return { ...earnings, period, adSpend: adSpendView(adSpend, earnings.all, earnings.days) }
 }
 
-function withAdSpend(totals: EarningsTotalsView, spendCents: number | null): AdminTotalsView {
-  return {
-    ...totals,
-    adSpendLabel: spendCents === null ? null : money(spendCents),
-    afterAdsLabel:
-      spendCents === null ? null : money(earningsAfterAds(totals.earningsCents, spendCents)),
-  }
-}
-
-function withDailyAdSpend(
+function adSpendView(
+  report: AdSpendReport,
+  all: EarningsTotals,
   days: readonly EarningsDay[],
-  adSpend: AdSpendReport,
-): AdminEarningsDay[] {
-  if (adSpend.state !== AdSpendState.Connected) {
-    return days.map((day) => ({ ...day, adSpendCents: null }))
+): AdSpendView {
+  if (report.state !== AdSpendState.Connected) return { state: report.state }
+
+  const totalCents = totalAdSpend(report.days)
+  const byDay = adSpendByDay(report.days)
+  return {
+    state: AdSpendState.Connected,
+    totalCents,
+    perOrderCents: adSpendPerOrder(totalCents, all.orders),
+    shareOfRevenue: sharePercent(totalCents, all.revenueCents),
+    days: days.map((day) => ({ day: day.day, costCents: byDay.get(day.day) ?? 0 })),
   }
-
-  const byDay = adSpendByDay(adSpend.days)
-  return days.map((day) => ({ ...day, adSpendCents: byDay.get(day.day) ?? 0 }))
-}
-
-function money(cents: number): string {
-  return formatMoney(createMoney(cents, Currency.Uah))
 }

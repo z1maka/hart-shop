@@ -39,6 +39,7 @@ export function adSpendByDay(days: readonly AdSpendDay[]): ReadonlyMap<string, n
   return byDay
 }
 
-export function earningsAfterAds(earningsCents: number, adSpendCents: number): number {
-  return earningsCents - adSpendCents
+// What one order cost in ads over the period; none without orders.
+export function adSpendPerOrder(spendCents: number, orders: number): number | null {
+  return orders === 0 ? null : Math.round(spendCents / orders)
 }

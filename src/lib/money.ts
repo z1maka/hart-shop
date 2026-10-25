@@ -14,6 +14,7 @@ const MONEY_LOCALE = 'uk-UA'
 const CENTS_PER_UNIT = 100
 
 const formatters = new Map<Currency, Intl.NumberFormat>()
+const wholeFormatters = new Map<Currency, Intl.NumberFormat>()
 
 export function createMoney(amountCents: number, currency: Currency): Money {
   if (!Number.isInteger(amountCents)) {
@@ -51,6 +52,11 @@ export function formatMoney(money: Money): string {
   return getFormatter(money.currency).format(money.amountCents / CENTS_PER_UNIT)
 }
 
+// Whole hryvnias for dashboards, where kopiykas are noise: «28 650 ₴».
+export function formatWholeMoney(money: Money): string {
+  return getWholeFormatter(money.currency).format(Math.round(money.amountCents / CENTS_PER_UNIT))
+}
+
 // The amount as a bare decimal — what schema.org markup and a banking app's
 // amount field take: no grouping, no currency sign.
 export function decimalAmount(amountCents: number): string {
@@ -63,6 +69,22 @@ function getFormatter(currency: Currency): Intl.NumberFormat {
 
   const formatter = new Intl.NumberFormat(MONEY_LOCALE, { style: 'currency', currency })
   formatters.set(currency, formatter)
+  return formatter
+}
+
+function getWholeFormatter(currency: Currency): Intl.NumberFormat {
+  const cached = wholeFormatters.get(currency)
+  if (cached) return cached
+
+  const formatter = new Intl.NumberFormat(MONEY_LOCALE, {
+    style: 'currency',
+    currency,
+    // The browser's ICU writes «грн» where Node writes «₴»; the narrow symbol
+    // is «₴» in both, so a client chart reads like the server page around it.
+    currencyDisplay: 'narrowSymbol',
+    maximumFractionDigits: 0,
+  })
+  wholeFormatters.set(currency, formatter)
   return formatter
 }
 

@@ -63,6 +63,14 @@ describe('earningsTotals', () => {
     expect(totals.earningsCents).toBe(500_000)
   })
 
+  it('keeps the parcels still to be collected apart', () => {
+    const totals = earningsTotals([collected, onTheWay], EarningsScope.Pending)
+
+    expect(totals.orders).toBe(1)
+    expect(totals.revenueCents).toBe(500_000)
+    expect(totals.earningsCents).toBe(100_000)
+  })
+
   it('never counts a line without a cost as pure profit', () => {
     const totals = earningsTotals([onTheWay], EarningsScope.All)
 
@@ -83,9 +91,9 @@ describe('earningsTotals', () => {
 describe('earningsByDay', () => {
   it('lists every day of the period, a quiet day at zero', () => {
     expect(earningsByDay([collected, onTheWay], '2026-10-20', '2026-10-22')).toEqual([
-      { day: '2026-10-20', collectedCents: 400_000, allCents: 400_000 },
-      { day: '2026-10-21', collectedCents: 0, allCents: 0 },
-      { day: '2026-10-22', collectedCents: 0, allCents: 100_000 },
+      { day: '2026-10-20', collectedCents: 400_000, allCents: 400_000, orders: 2 },
+      { day: '2026-10-21', collectedCents: 0, allCents: 0, orders: 0 },
+      { day: '2026-10-22', collectedCents: 0, allCents: 100_000, orders: 1 },
     ])
   })
 
@@ -93,7 +101,7 @@ describe('earningsByDay', () => {
     const sameDay = { ...onTheWay, day: '2026-10-20' }
 
     expect(earningsByDay([collected, sameDay], '2026-10-20', '2026-10-20')).toEqual([
-      { day: '2026-10-20', collectedCents: 400_000, allCents: 500_000 },
+      { day: '2026-10-20', collectedCents: 400_000, allCents: 500_000, orders: 3 },
     ])
   })
 })

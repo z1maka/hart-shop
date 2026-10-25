@@ -20,6 +20,8 @@ export const COLLECTED_ORDER_STATUS = OrderStatus.Delivered
 
 export const EarningsScope = {
   Collected: 'collected',
+  // Placed and standing, the parcel not collected yet: in work or on its way.
+  Pending: 'pending',
   All: 'all',
 } as const
 
@@ -57,10 +59,12 @@ export type EarningsDay = {
   readonly day: string
   readonly collectedCents: number
   readonly allCents: number
+  readonly orders: number
 }
 
 function inScope(row: EarningsDayRow, scope: EarningsScope): boolean {
-  return scope === EarningsScope.All || row.isCollected
+  if (scope === EarningsScope.All) return true
+  return scope === EarningsScope.Collected ? row.isCollected : !row.isCollected
 }
 
 function rowEarnings(row: EarningsDayRow): number {
@@ -109,6 +113,7 @@ export function earningsByDay(
         .filter((row) => row.isCollected)
         .reduce((total, row) => total + rowEarnings(row), 0),
       allCents: ofDay.reduce((total, row) => total + rowEarnings(row), 0),
+      orders: ofDay.reduce((total, row) => total + row.orders, 0),
     }
   })
 }

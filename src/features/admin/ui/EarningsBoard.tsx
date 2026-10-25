@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { inputClassName } from '@/components/ui/Field'
-import { AdSpendState } from '@/features/admin/model/ad-spend'
 import {
   getAdminEarnings,
   type AdminEarningsView,
-  type AdminTotalsView,
 } from '@/features/admin/queries/get-admin-earnings'
-import { EarningsChart } from '@/features/admin/ui/EarningsChart'
+import { AdSpendPanel } from '@/features/admin/ui/AdSpendPanel'
+import { EarningsSummary } from '@/features/admin/ui/EarningsSummary'
+import { fullDay, shortDay } from '@/features/admin/ui/stats-format'
 import { EarningsPreset } from '@/features/orders'
 import { cn } from '@/lib/utils'
 
@@ -14,13 +14,9 @@ type EarningsBoardProps = {
   readonly searchParams: PageProps<'/admin/stats'>['searchParams']
 }
 
-const STATS_PATH = '/admin/stats/'
+type Period = AdminEarningsView['period']
 
-type TotalsRow = {
-  readonly label: string
-  readonly value: string | number
-  readonly isEmphasized?: boolean
-}
+const STATS_PATH = '/admin/stats/'
 
 const PRESET_LINKS: readonly { preset: EarningsPreset; label: string }[] = [
   { preset: EarningsPreset.Week, label: '7 дней' },
@@ -41,75 +37,45 @@ export async function EarningsBoard({ searchParams }: EarningsBoardProps) {
   const areDatesIgnored = Boolean(from || to) && view.period.preset !== null
 
   return (
-    <div className="grid gap-5">
-      <h1 className="font-display text-[19px] font-bold text-ink">Статистика</h1>
-      <PeriodPicker period={view.period} />
+    <div className="grid gap-7">
+      <header className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+        <div>
+          <h1 className="font-display text-[19px] font-bold text-ink">Статистика</h1>
+          <p className="mt-1 text-[13px] text-muted">
+            {fullDay(view.period.from)} — {fullDay(view.period.to)} · заказы по дате оформления
+          </p>
+        </div>
+        <PeriodPicker period={view.period} />
+      </header>
       {areDatesIgnored ? (
-        <p className="text-[12.5px] font-medium text-alert">
-          Эти даты не подошли: нужен период не длиннее 366 дней.
+        <p className="-mt-4 text-[12.5px] font-medium text-alert">
+          Эти даты не подошли: нужен период не длиннее 366 дней. Показаны последние 30 дней.
         </p>
       ) : null}
-      <p className="text-[13px] text-muted">
-        Заказы с {displayDate(view.period.from)} по {displayDate(view.period.to)}, по дате заказа.
-      </p>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <TotalsCard
-          title="Фактический"
-          subtitle="Посылки, которые покупатель уже забрал"
-          totals={view.collected}
-        />
-        <TotalsCard
-          title="Все заказы"
-          subtitle="Включая ещё не забранные: в обработке и в пути"
-          totals={view.all}
-        />
-      </div>
-      <AdSpendNote state={view.adSpendState} />
-
-      <section className="rounded-card border border-subtle bg-surface p-5.5">
-        <h2 className="mb-4 font-display text-[16px] font-bold text-ink">Заработок по дням</h2>
-        <EarningsChart days={view.days} />
-      </section>
-
-      <p className="text-[12px] leading-relaxed text-muted">
-        Заработок — цена продажи минус себестоимость товара на момент заказа. Отменённые заказы и
-        возвраты (отказ или посылку не забрали) не считаются. Позиции без себестоимости входят в
-        выручку, но не в заработок — впишите себестоимость в карточке товара.
+      <EarningsSummary view={view} />
+      <AdSpendPanel adSpend={view.adSpend} />
+      <p className="text-[12px] leading-relaxed text-faint">
+        Отменённые заказы и возвраты (отказ, посылку не забрали) не считаются. Цена цеха берётся на
+        момент заказа: если её потом поменять в товаре, прошлые заказы не пересчитаются.
       </p>
     </div>
   )
 }
 
-function AdSpendNote({ state }: { readonly state: AdSpendState }) {
-  if (state === AdSpendState.NotConnected) {
-    return (
-      <p className="text-[12.5px] text-muted">
-        Расходы на рекламу появятся после подключения Google Analytics.
-      </p>
-    )
-  }
-  if (state === AdSpendState.Failed) {
-    return (
-      <p className="text-[12.5px] font-medium text-alert">
-        Не удалось получить расходы из Google Analytics — заработок показан без рекламы.
-      </p>
-    )
-  }
-  return null
-}
-
-function PeriodPicker({ period }: { readonly period: AdminEarningsView['period'] }) {
+function PeriodPicker({ period }: { readonly period: Period }) {
   return (
-    <div className="flex flex-wrap items-end gap-3">
-      <nav className="grid grid-cols-2 gap-1 rounded-[10px] border border-subtle bg-surface p-1 sm:flex sm:rounded-pill">
+    <div className="grid w-full gap-2 sm:flex sm:w-auto sm:items-center">
+      <nav
+        aria-label="Период"
+        className="grid grid-cols-2 gap-1 rounded-[10px] border border-subtle bg-surface p-1 sm:flex sm:rounded-pill"
+      >
         {PRESET_LINKS.map((link) => (
           <Link
             key={link.preset}
             href={`${STATS_PATH}?period=${link.preset}`}
             aria-current={period.preset === link.preset ? 'page' : undefined}
             className={cn(
-              'rounded-pill px-3 py-1.5 text-center text-[13px] font-semibold text-muted transition-colors hover:text-ink',
+              'rounded-pill px-3.5 py-1.5 text-center text-[13px] font-semibold text-muted transition-colors hover:text-ink',
               period.preset === link.preset && 'bg-ink text-on-dark hover:text-on-dark',
             )}
           >
@@ -117,10 +83,36 @@ function PeriodPicker({ period }: { readonly period: AdminEarningsView['period']
           </Link>
         ))}
       </nav>
-      {/* A plain GET form: the chosen dates stay in the address. */}
-      <form action={STATS_PATH} className="flex flex-wrap items-end gap-2">
-        <DateInput label="С" name="from" value={period.from} />
-        <DateInput label="По" name="to" value={period.to} />
+      <CustomDates period={period} />
+    </div>
+  )
+}
+
+// The admin's own dates behind one button: a plain GET form, so the chosen
+// period stays in the address and survives a reload.
+function CustomDates({ period }: { readonly period: Period }) {
+  const isCustom = period.preset === null
+
+  return (
+    <details className="relative">
+      <summary
+        className={cn(
+          'flex min-h-10 cursor-pointer list-none items-center justify-center rounded-pill border px-4 text-[13px] font-semibold transition-colors [&::-webkit-details-marker]:hidden',
+          isCustom
+            ? 'border-ink bg-ink text-on-dark'
+            : 'border-subtle bg-surface text-muted hover:text-ink',
+        )}
+      >
+        {isCustom ? `${shortDay(period.from)} — ${shortDay(period.to)}` : 'Свои даты'}
+      </summary>
+      <form
+        action={STATS_PATH}
+        className="absolute left-0 z-20 mt-2 grid w-[min(300px,calc(100vw-32px))] gap-3 rounded-card border border-subtle bg-raised p-4 shadow-card sm:right-0 sm:left-auto"
+      >
+        <div className="grid grid-cols-2 gap-2">
+          <DateInput label="С" name="from" value={period.from} />
+          <DateInput label="По" name="to" value={period.to} />
+        </div>
         <button
           type="submit"
           className="min-h-11 rounded-control bg-ink px-4 text-[13px] font-semibold text-on-dark hover:bg-ink-hover"
@@ -128,7 +120,7 @@ function PeriodPicker({ period }: { readonly period: AdminEarningsView['period']
           Показать
         </button>
       </form>
-    </div>
+    </details>
   )
 }
 
@@ -144,65 +136,13 @@ function DateInput({
   return (
     <label className="grid gap-1 text-[12px] font-semibold text-muted">
       {label}
-      <input type="date" name={name} defaultValue={value} required className={inputClassName} />
+      <input
+        type="date"
+        name={name}
+        defaultValue={value}
+        required
+        className={cn(inputClassName, 'px-2')}
+      />
     </label>
   )
-}
-
-function TotalsCard({
-  title,
-  subtitle,
-  totals,
-}: {
-  readonly title: string
-  readonly subtitle: string
-  readonly totals: AdminTotalsView
-}) {
-  return (
-    <section className="rounded-card border border-subtle bg-surface p-5.5">
-      <h2 className="font-display text-[16px] font-bold text-ink">{title}</h2>
-      <p className="mb-3 text-[12.5px] text-muted">{subtitle}</p>
-      <p className="mb-3 font-display text-[26px] font-bold text-ink">{totals.earningsLabel}</p>
-      <dl className="grid gap-1.5 text-[13px]">
-        {totalsRows(totals).map((row) => (
-          <div
-            key={row.label}
-            className={cn(
-              'flex justify-between gap-3 border-t border-subtle pt-1.5',
-              row.isEmphasized && 'border-strong text-[14px]',
-            )}
-          >
-            <dt className={row.isEmphasized ? 'font-bold text-ink' : 'text-muted'}>{row.label}</dt>
-            <dd className={cn('text-ink', row.isEmphasized ? 'font-bold' : 'font-semibold')}>
-              {row.value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-      {totals.uncostedNote ? (
-        <p className="mt-3 text-[12px] font-medium text-alert">{totals.uncostedNote}</p>
-      ) : null}
-    </section>
-  )
-}
-
-function totalsRows(totals: AdminTotalsView): TotalsRow[] {
-  const rows: TotalsRow[] = [
-    { label: 'Заказов', value: totals.orders },
-    { label: 'Позиций, шт.', value: totals.units },
-    { label: 'Выручка', value: totals.revenueLabel },
-    { label: 'Себестоимость', value: totals.costLabel },
-    { label: 'Маржа', value: totals.marginLabel },
-  ]
-  if (totals.adSpendLabel === null || totals.afterAdsLabel === null) return rows
-
-  return [
-    ...rows,
-    { label: 'Реклама (Google Ads)', value: totals.adSpendLabel },
-    { label: 'После рекламы', value: totals.afterAdsLabel, isEmphasized: true },
-  ]
-}
-
-function displayDate(day: string): string {
-  return `${day.slice(8, 10)}.${day.slice(5, 7)}.${day.slice(0, 4)}`
 }

@@ -4,8 +4,8 @@ vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() } }))
 
 import {
   adSpendByDay,
+  adSpendPerOrder,
   AdSpendState,
-  earningsAfterAds,
   totalAdSpend,
   type AdSpendSource,
 } from '@/features/admin/model/ad-spend'
@@ -29,9 +29,9 @@ describe('ad spend sums', () => {
     expect(adSpendByDay(DAYS).get('2026-10-26')).toBeUndefined()
   })
 
-  it('takes the spend off the earnings, below zero when ads cost more', () => {
-    expect(earningsAfterAds(250_000, 60_137)).toBe(189_863)
-    expect(earningsAfterAds(40_000, 60_137)).toBe(-20_137)
+  it('spreads the spend over the orders, none without orders', () => {
+    expect(adSpendPerOrder(1_301_108, 9)).toBe(144_568)
+    expect(adSpendPerOrder(60_137, 0)).toBeNull()
   })
 })
 
