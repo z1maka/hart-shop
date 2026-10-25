@@ -3,6 +3,7 @@ import {
   escapeXml,
   feedItemOf,
   feedListedProducts,
+  feedListedVariants,
   materialOf,
   merchantFeedXml,
   metaCatalogItemOf,
@@ -51,6 +52,14 @@ const COLOURS_OF_A_SIMPLE_PRODUCT = [
   { sku: 'FOX-UA-35964-WINTER' },
   { sku: 'FOX-UA-35964-PIXEL' },
 ]
+
+describe('feedListedVariants', () => {
+  it('keeps the colours without photos of their own out of the feeds', () => {
+    const variants = [{ sku: '3600-2-MULTICAM' }, { sku: '3600-2-PIXEL' }, { sku: '3600-2-OLIVE' }]
+
+    expect(feedListedVariants(variants)).toEqual([{ sku: '3600-2-MULTICAM' }])
+  })
+})
 
 describe('feedListedProducts', () => {
   it('keeps the products the owner does not advertise out of the feeds', () => {

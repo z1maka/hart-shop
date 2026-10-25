@@ -9,6 +9,7 @@ import { effectiveGoogleCategory } from '@/features/catalog/model/google-categor
 import {
   feedItemOf,
   feedListedProducts,
+  feedListedVariants,
   materialOf,
   merchantFeedXml,
   metaCatalogItemOf,
@@ -74,7 +75,7 @@ async function feedItems(
     catalogReadRepository.findImagesByProductIds(productIds),
   ])
 
-  const variantsByProduct = groupByProduct(variants)
+  const variantsByProduct = groupByProduct(feedListedVariants(variants))
   const imagesByProduct = groupByProduct(images)
   return products.flatMap((product) =>
     itemsOf(

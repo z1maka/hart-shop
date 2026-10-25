@@ -4,6 +4,7 @@ import {
   FEED_APPAREL_GENDER,
   FEED_DESCRIPTION_MAX_LENGTH,
   FEED_EXCLUDED_SLUGS,
+  FEED_NO_PHOTO_VARIANT_SKUS,
   FEED_MATERIAL_MAX_LENGTH,
   FEED_MATERIAL_SPEC_LABEL,
   FEED_TITLE_MAX_LENGTH,
@@ -87,6 +88,12 @@ export function feedListedProducts<T extends { readonly slug: string }>(
   products: readonly T[],
 ): T[] {
   return products.filter((product) => !FEED_EXCLUDED_SLUGS.includes(product.slug))
+}
+
+export function feedListedVariants<T extends { readonly sku: string }>(
+  variants: readonly T[],
+): T[] {
+  return variants.filter((variant) => !FEED_NO_PHOTO_VARIANT_SKUS.includes(variant.sku))
 }
 
 // The plugin made one offer per simple WordPress product. Where the site now

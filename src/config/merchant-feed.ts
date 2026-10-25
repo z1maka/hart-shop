@@ -38,6 +38,11 @@ export const FEED_EXCLUDED_SLUGS: readonly string[] = [
   'komplekt-oryhinalnyy-aktyvni-navushnyky-walkers-razor-usa-z-povorotnymy-kriplennyamy',
 ]
 
+// Colours on sale with no photos of their own yet: choosing one keeps the
+// card's gallery, which shows another colour, so their offers stay out of
+// both feeds until they are shot (owner, 25.10.2026). Variant skus.
+export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = ['3600-2-PIXEL', '3600-2-OLIVE']
+
 // The Google feed carries what the workshop sews — ponchos, tents and Starlink
 // covers — and only the cards with the owner's own photos (owner, 21.10.2026):
 // Merchant Center suspended the account for misrepresentation on 20.10.2026,
