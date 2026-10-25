@@ -47,6 +47,9 @@ export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = [
   // Starlink Mini: reshot in multicam only (25.10.2026).
   'HART-38686-V38688',
   'HART-38686-V38689',
+  // Smooth Starlink Mini: shot in pixel only (25.10.2026).
+  'HART-SL-MINI-MULTICAM',
+  'HART-SL-MINI-OLIVE',
 ]
 
 // The Google feed carries what the workshop sews — ponchos, tents and Starlink
