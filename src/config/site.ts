@@ -12,6 +12,7 @@ export const siteConfig = {
 export const FEATURED_CATEGORY_SLUGS: readonly string[] = [
   'anti-dronovi-nakidki',
   'chokhly-dlya-starlink',
+  'antyteploviziyni-tenty',
   'noshi',
   'ryukzaki',
 ] as const

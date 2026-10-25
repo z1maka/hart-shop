@@ -1,4 +1,4 @@
-import { TENT_SLUG } from '@/config/home'
+import { TENTS_CATEGORY_HREF } from '@/config/home'
 
 const ANTENNA_COVER_SLUG = 'antyteploviziynyi-chokhol-na-acasom-roc-6'
 
@@ -20,7 +20,7 @@ export const ABOUT_COLLAGE = [
     key: 'tent',
     url: '/about/tent-multykam.webp',
     alt: 'Антитепловізійний тент у мультикамі над траншеєю в осінньому лісі',
-    href: `/product/${TENT_SLUG}/`,
+    href: TENTS_CATEGORY_HREF,
     focus: 'object-center',
   },
   {

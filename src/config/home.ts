@@ -23,6 +23,8 @@ export const BLANKET_SLUG = 'antyteploviziyna-kovdra-z-molle'
 // the tent over a quad bike in autumn brush.
 export const TENT_SLUG = 'antyteploviziynyi-tent-250x150-multykam'
 
+export const TENTS_CATEGORY_HREF = '/product-category/antyteploviziyni-tenty/'
+
 // Where a tile's picture comes from: the owner's own photo, one product's
 // cover, or the dearest product of a category.
 export type HomeTileImage =
@@ -31,14 +33,15 @@ export type HomeTileImage =
   | { readonly kind: 'category'; readonly slug: string }
 
 // «Маскування для…»: one photo tile per thing a buyer hides. The first tile
-// is the large one in the mosaic.
+// is the large one in the mosaic. Tiles open their category; the gear tile
+// opens the blanket itself, the one product of its kind (owner, 25.10.2026).
 export const HOME_TILES = [
   {
     key: 'person',
     href: '/product-category/anti-dronovi-nakidki/',
     image: { kind: 'photo', ...FIELD_PHOTO },
   },
-  { key: 'position', href: `/product/${TENT_SLUG}/`, image: { kind: 'product', slug: TENT_SLUG } },
+  { key: 'position', href: TENTS_CATEGORY_HREF, image: { kind: 'product', slug: TENT_SLUG } },
   {
     key: 'starlink',
     href: '/product-category/chokhly-dlya-starlink/',

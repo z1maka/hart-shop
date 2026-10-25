@@ -7,7 +7,7 @@ export type NavGroup = {
 export const NAV_GROUPS: readonly NavGroup[] = [
   {
     label: 'Concealment',
-    categorySlugs: ['anti-dronovi-nakidki', 'chokhly-dlya-starlink'],
+    categorySlugs: ['anti-dronovi-nakidki', 'chokhly-dlya-starlink', 'antyteploviziyni-tenty'],
   },
   {
     label: 'Equipment',

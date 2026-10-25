@@ -6,6 +6,7 @@ export const MAX_COMPARED_PRODUCTS = 4
 export const OWN_PRODUCTION_CATEGORY_SLUGS: readonly string[] = [
   'anti-dronovi-nakidki',
   'chokhly-dlya-starlink',
+  'antyteploviziyni-tenty',
 ]
 
 // WooCommerce's colour terms (pa_color) by slug, as the WordPress shop listed
@@ -49,9 +50,15 @@ export const COMPANIONS: Readonly<Record<string, CompanionRule>> = {
       'antyteploviziyni-chokhly-na-ruky-uv-em',
       'antyteploviziyni-chokhly-na-nohy-uv-em',
     ],
-    categorySlugs: ['chokhly-dlya-starlink', 'ryukzaki'],
+    categorySlugs: ['antyteploviziyni-tenty', 'chokhly-dlya-starlink', 'ryukzaki'],
   },
   'chokhly-dlya-starlink': { productSlugs: [], categorySlugs: ['anti-dronovi-nakidki'] },
+  // Tents left the cloaks' shelf on 25.10.2026; the blanket covers what the
+  // tent does not, and the ponchos are what the people under it wear.
+  'antyteploviziyni-tenty': {
+    productSlugs: ['antyteploviziyna-kovdra-z-molle'],
+    categorySlugs: ['anti-dronovi-nakidki', 'chokhly-dlya-starlink'],
+  },
   'sholomi-bronepliti': { productSlugs: [], categorySlugs: ['navushniki-taktichni-kreplenya'] },
   'navushniki-taktichni-kreplenya': { productSlugs: [], categorySlugs: ['sholomi-bronepliti'] },
   ryukzaki: { productSlugs: [], categorySlugs: ['noshi', 'taktichna-forma'] },
