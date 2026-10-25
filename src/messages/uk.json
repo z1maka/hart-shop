@@ -966,7 +966,11 @@
   "pagination": {
     "label": "Пагінація",
     "previous": "Попередня",
-    "next": "Наступна"
+    "next": "Наступна",
+    "loadMore": "Показати ще {count}",
+    "loading": "Завантажуємо…",
+    "shownOf": "Показано {shown} із {total}",
+    "allShown": "Це всі товари: {total}"
   },
   "gallery": {
     "showImage": "Показати зображення {index} — {title}",

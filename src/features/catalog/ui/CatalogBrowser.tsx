@@ -1,6 +1,11 @@
 import Link from 'next/link'
+import type { ComponentProps } from 'react'
 import { CUSTOM_ORDER_HREF } from '@/config/custom-order'
-import { getCatalogPage } from '@/features/catalog/queries/get-products'
+import {
+  CATALOG_PAGE_SIZE,
+  getCatalogPage,
+  type CatalogPage,
+} from '@/features/catalog/queries/get-products'
 import { getCategoryCounts } from '@/features/catalog/queries/get-category-counts'
 import { getColorFacets } from '@/features/catalog/queries/get-color-facets'
 import type {
@@ -14,6 +19,7 @@ import {
   type FilterOption,
 } from '@/features/catalog/ui/CatalogSidebar'
 import { MobileFilterToggle } from '@/features/catalog/ui/MobileFilterToggle'
+import { CatalogLoadMore } from '@/features/catalog/ui/CatalogLoadMore'
 import { CatalogPagination } from '@/features/catalog/ui/CatalogPagination'
 import { CompareBar } from '@/features/catalog/ui/CompareBar'
 import { ProductGrid } from '@/features/catalog/ui/ProductGrid'
@@ -32,6 +38,7 @@ const SORT_VALUES: readonly CatalogSort[] = [
 ]
 const DEFAULT_SORT: CatalogSort = 'recommended'
 const WEIGHT_BANDS: readonly CatalogWeightBand[] = ['light', 'heavy']
+const MAX_GROWN_PAGES = 20
 
 export type ShopSearchParams = Record<string, string | string[] | undefined>
 
@@ -55,10 +62,10 @@ export async function CatalogBrowser({
   const colors = parseColors(resolved.color)
   const weightBand = parseWeightBand(resolved.weight)
   const sort = parseSort(resolved.sort)
-  const page = parsePage(resolved.page)
+  const shownPages = shownPagesOf(resolved)
 
   const [catalog, colorFacets, categoryCounts] = await Promise.all([
-    getCatalogPage({ categorySlug, colors, weightBand, sort, page }),
+    getCatalogPage({ categorySlug, colors, weightBand, sort, ...shownPages }),
     getColorFacets(),
     getCategoryCounts(),
   ])
@@ -177,10 +184,19 @@ export async function CatalogBrowser({
             </div>
           )}
 
-          <CatalogPagination
-            page={catalog.page}
-            pageCount={catalog.pageCount}
-            hrefForPage={(nextPage) => buildHref(basePath, { colors, weightBand, sort }, nextPage)}
+          <div className="max-lg:hidden">
+            <CatalogPagination
+              page={catalog.page}
+              pageCount={catalog.pageCount}
+              hrefForPage={(nextPage) =>
+                buildHref(basePath, { colors, weightBand, sort }, { page: nextPage })
+              }
+            />
+          </div>
+          <CatalogLoadMore
+            {...loadMoreState(catalog, (pages) =>
+              buildHref(basePath, { colors, weightBand, sort }, { pages }),
+            )}
           />
 
           {catalog.items.length > 0 ? (
@@ -204,13 +220,18 @@ type HrefState = {
   readonly sort: CatalogSort
 }
 
-function buildHref(path: string, state: HrefState, page = 1): string {
+// `page` is one page of the numbered pagination; `pages` is the first N
+// pages at once, the list a phone has grown with «show more».
+type ListPosition = { readonly page?: number; readonly pages?: number }
+
+function buildHref(path: string, state: HrefState, position: ListPosition = {}): string {
   const params = new URLSearchParams()
 
   if (state.colors.length > 0) params.set('color', state.colors.join(','))
   if (state.weightBand) params.set('weight', state.weightBand)
   if (state.sort !== DEFAULT_SORT) params.set('sort', state.sort)
-  if (page > 1) params.set('page', String(page))
+  if (position.page && position.page > 1) params.set('page', String(position.page))
+  if (position.pages && position.pages > 1) params.set('pages', String(position.pages))
 
   const query = params.toString()
   return query ? `${path}?${query}` : path
@@ -248,6 +269,32 @@ function parseSort(value: string | string[] | undefined): CatalogSort {
 function parsePage(value: string | string[] | undefined): number {
   const parsed = Number(firstValue(value))
   return Number.isInteger(parsed) && parsed > 0 ? parsed : 1
+}
+
+// A grown list starts at the first page; a hand-typed huge `pages` stops at
+// a ceiling so one request never pulls the whole catalogue.
+function shownPagesOf(params: ShopSearchParams): { firstPage: number; lastPage: number } {
+  const pages = parsePage(params.pages)
+  if (pages > 1) return { firstPage: 1, lastPage: Math.min(pages, MAX_GROWN_PAGES) }
+
+  const page = parsePage(params.page)
+  return { firstPage: page, lastPage: page }
+}
+
+function loadMoreState(
+  catalog: CatalogPage,
+  hrefForPages: (pages: number) => string,
+): ComponentProps<typeof CatalogLoadMore> {
+  const shown = (catalog.firstPage - 1) * CATALOG_PAGE_SIZE + catalog.items.length
+  const hasMore = catalog.page < catalog.pageCount && catalog.page < MAX_GROWN_PAGES
+
+  return {
+    shown,
+    total: catalog.total,
+    pageCount: catalog.pageCount,
+    nextHref: hasMore ? hrefForPages(catalog.page + 1) : null,
+    nextCount: Math.min(CATALOG_PAGE_SIZE, catalog.total - shown),
+  }
 }
 
 function ActiveFilterChip({

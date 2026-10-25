@@ -40,17 +40,21 @@ export type CatalogQuery = {
   readonly colors: readonly string[]
   readonly weightBand: CatalogWeightBand | null
   readonly sort: CatalogSort
-  readonly page: number
+  // The pages shown, both included: one page under the numbered pagination,
+  // pages 1 to N after a phone's «show more».
+  readonly firstPage: number
+  readonly lastPage: number
 }
 
 export type CatalogPage = {
   readonly items: readonly ProductCardView[]
   readonly total: number
   readonly pageCount: number
+  readonly firstPage: number
   readonly page: number
 }
 
-export const CATALOG_PAGE_SIZE = 12
+export const CATALOG_PAGE_SIZE = 15
 
 export async function getCatalogPage(query: CatalogQuery): Promise<CatalogPage> {
   'use cache'
@@ -62,8 +66,8 @@ export async function getCatalogPage(query: CatalogQuery): Promise<CatalogPage> 
     colors: query.colors,
     weightBand: query.weightBand,
     sort: query.sort,
-    limit: CATALOG_PAGE_SIZE,
-    offset: (query.page - 1) * CATALOG_PAGE_SIZE,
+    limit: (query.lastPage - query.firstPage + 1) * CATALOG_PAGE_SIZE,
+    offset: (query.firstPage - 1) * CATALOG_PAGE_SIZE,
   }
 
   const [rows, total] = await Promise.all([
@@ -75,7 +79,8 @@ export async function getCatalogPage(query: CatalogQuery): Promise<CatalogPage> 
     items: await toCardViews(rows),
     total,
     pageCount: Math.max(1, Math.ceil(total / CATALOG_PAGE_SIZE)),
-    page: query.page,
+    firstPage: query.firstPage,
+    page: query.lastPage,
   }
 }
 
@@ -218,7 +223,9 @@ function wholesaleOf(row: CatalogProductRow): ProductCardView['wholesale'] {
     salePriceCents: row.salePriceCents,
     wholesale: wholesaleTierOf(row.wholesaleMinQty, row.wholesalePriceCents),
   })
-  return tier ? { minQuantity: tier.minQuantity, price: createMoney(tier.priceCents, Currency.Uah) } : null
+  return tier
+    ? { minQuantity: tier.minQuantity, price: createMoney(tier.priceCents, Currency.Uah) }
+    : null
 }
 
 function ratingOf(
