@@ -121,6 +121,11 @@ export const products = pgTable(
     // the product, whatever the variants, each costs this much. Both or none.
     wholesaleMinQty: integer('wholesale_min_qty'),
     wholesalePriceCents: integer('wholesale_price_cents'),
+    // What one unit costs the shop in kopiykas: the workshop's price for its
+    // own sewing, the purchase price for bought-in goods; null until entered.
+    // For the admin's margin and pay figures only — no storefront query,
+    // feed or offer selects it.
+    costCents: integer('cost_cents'),
     currency: char('currency', { length: 3 }).notNull().default('UAH'),
     weightGrams: integer('weight_grams').notNull(),
     layers: integer('layers').notNull().default(3),

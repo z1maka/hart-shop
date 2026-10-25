@@ -122,6 +122,8 @@ const SaveProductSchema = z
             .pipe(z.number().int().min(MIN_WHOLESALE_QUANTITY).max(9999)),
         ]),
       ),
+    // Absent from a form rendered before the field existed: leave it alone.
+    cost: optionalDecimalInput(100_000).optional(),
     weight: decimalInput(MAX_PRODUCT_WEIGHT_KG),
     // 1 = not a fabric product; above that, one described layer each.
     layers: z.coerce.number().int().min(1).max(FABRIC_LAYERS.length),
@@ -316,6 +318,7 @@ async function saveProduct(formData: FormData): Promise<SaveProductResult> {
       salePriceCents: nullableKopiykas(parsed.data.salePrice),
       wholesaleMinQty: parsed.data.wholesaleMinQty,
       wholesalePriceCents: nullableKopiykas(parsed.data.wholesalePrice),
+      costCents: parsed.data.cost === undefined ? undefined : nullableKopiykas(parsed.data.cost),
       weightGrams: Math.round(parsed.data.weight * GRAMS_PER_KILO),
       layers: parsed.data.layers,
       summary: parsed.data.summary,

@@ -42,6 +42,7 @@ export type ProductDraftRow = {
   readonly salePriceCents: number | null
   readonly wholesaleMinQty: number | null
   readonly wholesalePriceCents: number | null
+  readonly costCents: number | null
   readonly weightGrams: number
   readonly layers: number
   readonly summary: string | null
@@ -109,6 +110,8 @@ export type ProductUpdateInput = {
   readonly salePriceCents: number | null
   readonly wholesaleMinQty: number | null
   readonly wholesalePriceCents: number | null
+  // Undefined leaves the stored cost alone, as with the Google category.
+  readonly costCents?: number | null
   readonly weightGrams: number
   readonly layers: number
   readonly summary: string | null
@@ -347,6 +350,7 @@ export const adminProductRepository = {
         salePriceCents: products.salePriceCents,
         wholesaleMinQty: products.wholesaleMinQty,
         wholesalePriceCents: products.wholesalePriceCents,
+        costCents: products.costCents,
         weightGrams: products.weightGrams,
         layers: products.layers,
         summary: products.summary,
@@ -598,6 +602,7 @@ export const adminProductRepository = {
           salePriceCents: input.salePriceCents,
           wholesaleMinQty: input.wholesaleMinQty,
           wholesalePriceCents: input.wholesalePriceCents,
+          ...(input.costCents === undefined ? {} : { costCents: input.costCents }),
           weightGrams: input.weightGrams,
           layers: input.layers,
           summary: input.summary,

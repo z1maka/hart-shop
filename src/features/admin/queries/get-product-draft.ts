@@ -48,6 +48,8 @@ export type ProductEditorView = {
   // Both blank when the product has no wholesale tier.
   readonly wholesalePriceInput: string
   readonly wholesaleMinQtyInput: string
+  // Blank until the owner enters what a unit costs the shop.
+  readonly costInput: string
   readonly weightInput: string
   readonly layers: number
   readonly summary: string
@@ -93,6 +95,7 @@ export async function getProductEditorView(slug: string): Promise<ProductEditorV
         ? ''
         : (draft.wholesalePriceCents / KOPIYKAS_PER_HRYVNIA).toFixed(2),
     wholesaleMinQtyInput: draft.wholesaleMinQty === null ? '' : String(draft.wholesaleMinQty),
+    costInput: draft.costCents === null ? '' : (draft.costCents / KOPIYKAS_PER_HRYVNIA).toFixed(2),
     weightInput: (draft.weightGrams / GRAMS_PER_KILO).toFixed(2),
     layers: draft.layers,
     summary: draft.summary,

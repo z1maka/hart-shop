@@ -321,6 +321,15 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   className={inputClassName}
                 />
               </Field>
+              <Field error={fieldError('cost')} label="Себестоимость, грн">
+                <input
+                  name="cost"
+                  defaultValue={typed.cost ?? product.costInput}
+                  inputMode="decimal"
+                  placeholder="Не указана"
+                  className={inputClassName}
+                />
+              </Field>
               <Field error={fieldError('weight')} label="Вес, кг">
                 <input
                   name="weight"
