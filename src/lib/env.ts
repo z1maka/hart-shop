@@ -132,10 +132,10 @@ const envSchema = z.object({
 
   // Google Analytics Data API, for the ad spend on the admin's earnings page:
   // the service account's whole JSON key as Google downloads it, and the GA4
-  // property it reads. The key is parsed when used, so a bad paste costs the
-  // page its ads line instead of the deployment. Absent = earnings only.
+  // property it reads. Both are read when used, so a bad paste costs the
+  // page its ads line instead of the whole site. Absent = earnings only.
   GA4_SERVICE_ACCOUNT_JSON: optionalString,
-  GA4_PROPERTY_ID: optionalString.pipe(z.union([z.string().regex(/^\d+$/), z.undefined()])),
+  GA4_PROPERTY_ID: optionalString,
 })
 
 export type Env = z.infer<typeof envSchema>

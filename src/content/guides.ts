@@ -28,6 +28,8 @@ export type Guide = {
   readonly publishedAt: string
   readonly updatedAt: string
   readonly categorySlug: string
+  // Other category pages that list the guide under their grid.
+  readonly alsoInCategories?: readonly string[]
   readonly sections: readonly GuideSection[]
   readonly faq: readonly GuideQuestion[]
   readonly products: readonly GuideLink[]
@@ -410,6 +412,7 @@ export const GUIDES: readonly Guide[] = [
     publishedAt: '2026-10-13',
     updatedAt: '2026-10-23',
     categorySlug: 'anti-dronovi-nakidki',
+    alsoInCategories: ['antyteploviziyni-tenty'],
     sections: [
       {
         heading: 'Пончо: людина',
@@ -647,5 +650,8 @@ export function findGuide(slug: string): Guide | null {
 }
 
 export function guidesForCategory(categorySlug: string): readonly Guide[] {
-  return GUIDES.filter((guide) => guide.categorySlug === categorySlug)
+  return GUIDES.filter(
+    (guide) =>
+      guide.categorySlug === categorySlug || guide.alsoInCategories?.includes(categorySlug),
+  )
 }

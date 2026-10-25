@@ -21,6 +21,8 @@ const CAMPAIGN_DIMENSION = 'sessionCampaignName'
 const PROPERTY_CURRENCY = 'UAH'
 const KOPIYKAS_PER_HRYVNIA = 100
 const GA_DAY = /^(\d{4})(\d{2})(\d{2})$/
+// «558472171» as GA4 shows it, or «properties/558472171» as its API names it.
+const PROPERTY_ID = /^(?:properties\/)?(\d+)$/
 
 const ReportSchema = z.object({
   rows: z
@@ -50,8 +52,13 @@ export function isGoogleAnalyticsConfigured(): boolean {
 // Google Ads spend per day from `from` to `to`, both included. Days without
 // spend are simply missing from the answer.
 export async function fetchDailyAdCost(from: string, to: string): Promise<DailyAdCost[]> {
-  const { GA4_SERVICE_ACCOUNT_JSON: keyJson, GA4_PROPERTY_ID: propertyId } = env
-  if (!keyJson || !propertyId) throw new GoogleApiUnavailableError('Analytics is not configured')
+  const { GA4_SERVICE_ACCOUNT_JSON: keyJson, GA4_PROPERTY_ID: rawPropertyId } = env
+  if (!keyJson || !rawPropertyId) throw new GoogleApiUnavailableError('Analytics is not configured')
+  const propertyId = PROPERTY_ID.exec(rawPropertyId)?.[1]
+  if (!propertyId) {
+    logger.warn('GA4_PROPERTY_ID is not a GA4 property id')
+    throw new GoogleApiUnavailableError('GA4_PROPERTY_ID is not a property id')
+  }
 
   const token = await serviceAccountToken(parseServiceAccount(keyJson), READONLY_SCOPE)
   const answer = await postToGoogle(`${DATA_API}/properties/${propertyId}:runReport`, {

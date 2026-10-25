@@ -49,7 +49,7 @@ export async function EarningsBoard({ searchParams }: EarningsBoardProps) {
       </header>
       {areDatesIgnored ? (
         <p className="-mt-4 text-[12.5px] font-medium text-alert">
-          Эти даты не подошли: нужен период не длиннее 366 дней. Показаны последние 30 дней.
+          Эти даты не подошли: нужен период не длиннее 366 дней.
         </p>
       ) : null}
       <EarningsSummary view={view} />
@@ -94,7 +94,8 @@ function CustomDates({ period }: { readonly period: Period }) {
   const isCustom = period.preset === null
 
   return (
-    <details className="relative">
+    // Keyed by the period: a preset chosen while the form is open closes it.
+    <details key={`${period.from}-${period.to}`} className="relative">
       <summary
         className={cn(
           'flex min-h-10 cursor-pointer list-none items-center justify-center rounded-pill border px-4 text-[13px] font-semibold transition-colors [&::-webkit-details-marker]:hidden',
@@ -105,22 +106,28 @@ function CustomDates({ period }: { readonly period: Period }) {
       >
         {isCustom ? `${shortDay(period.from)} — ${shortDay(period.to)}` : 'Свои даты'}
       </summary>
-      <form
-        action={STATS_PATH}
-        className="absolute left-0 z-20 mt-2 grid w-[min(300px,calc(100vw-32px))] gap-3 rounded-card border border-subtle bg-raised p-4 shadow-card sm:right-0 sm:left-auto"
-      >
-        <div className="grid grid-cols-2 gap-2">
-          <DateInput label="С" name="from" value={period.from} />
-          <DateInput label="По" name="to" value={period.to} />
-        </div>
-        <button
-          type="submit"
-          className="min-h-11 rounded-control bg-ink px-4 text-[13px] font-semibold text-on-dark hover:bg-ink-hover"
-        >
-          Показать
-        </button>
-      </form>
+      <CustomDatesForm period={period} />
     </details>
+  )
+}
+
+function CustomDatesForm({ period }: { readonly period: Period }) {
+  return (
+    <form
+      action={STATS_PATH}
+      className="absolute left-0 z-20 mt-2 grid w-[min(300px,calc(100vw-32px))] gap-3 rounded-card border border-subtle bg-raised p-4 shadow-card sm:right-0 sm:left-auto"
+    >
+      <div className="grid grid-cols-2 gap-2">
+        <DateInput label="С" name="from" value={period.from} />
+        <DateInput label="По" name="to" value={period.to} />
+      </div>
+      <button
+        type="submit"
+        className="min-h-11 rounded-control bg-ink px-4 text-[13px] font-semibold text-on-dark hover:bg-ink-hover"
+      >
+        Показать
+      </button>
+    </form>
   )
 }
 

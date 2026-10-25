@@ -54,7 +54,9 @@ export function formatMoney(money: Money): string {
 
 // Whole hryvnias for dashboards, where kopiykas are noise: «28 650 ₴».
 export function formatWholeMoney(money: Money): string {
-  return getWholeFormatter(money.currency).format(Math.round(money.amountCents / CENTS_PER_UNIT))
+  // `|| 0` turns the -0 a small loss rounds to into 0: «0 ₴», never «-0 ₴».
+  const hryvnias = Math.round(money.amountCents / CENTS_PER_UNIT) || 0
+  return getWholeFormatter(money.currency).format(hryvnias)
 }
 
 // The amount as a bare decimal — what schema.org markup and a banking app's

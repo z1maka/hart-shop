@@ -19,6 +19,12 @@ import {
   type FilterOption,
 } from '@/features/catalog/ui/CatalogSidebar'
 import { MobileFilterToggle } from '@/features/catalog/ui/MobileFilterToggle'
+import {
+  catalogWindow,
+  loadMoreStep,
+  type CatalogWindow,
+  type ListPosition,
+} from '@/features/catalog/model/catalog-window'
 import { CatalogLoadMore } from '@/features/catalog/ui/CatalogLoadMore'
 import { CatalogPagination } from '@/features/catalog/ui/CatalogPagination'
 import { CompareBar } from '@/features/catalog/ui/CompareBar'
@@ -38,7 +44,6 @@ const SORT_VALUES: readonly CatalogSort[] = [
 ]
 const DEFAULT_SORT: CatalogSort = 'recommended'
 const WEIGHT_BANDS: readonly CatalogWeightBand[] = ['light', 'heavy']
-const MAX_GROWN_PAGES = 20
 
 export type ShopSearchParams = Record<string, string | string[] | undefined>
 
@@ -62,10 +67,10 @@ export async function CatalogBrowser({
   const colors = parseColors(resolved.color)
   const weightBand = parseWeightBand(resolved.weight)
   const sort = parseSort(resolved.sort)
-  const shownPages = shownPagesOf(resolved)
+  const listWindow = catalogWindow(firstValue(resolved.page), firstValue(resolved.pages))
 
   const [catalog, colorFacets, categoryCounts] = await Promise.all([
-    getCatalogPage({ categorySlug, colors, weightBand, sort, ...shownPages }),
+    getCatalogPage({ categorySlug, colors, weightBand, sort, ...listWindow }),
     getColorFacets(),
     getCategoryCounts(),
   ])
@@ -105,6 +110,7 @@ export async function CatalogBrowser({
   const activeColorOptions = colorOptions.filter((option) => option.isActive)
 
   const listName = categorySlug ?? 'shop'
+  const addedItems = catalog.items.slice((catalog.page - catalog.firstPage) * CATALOG_PAGE_SIZE)
 
   return (
     <div className="flex flex-col gap-6">
@@ -114,11 +120,14 @@ export async function CatalogBrowser({
           catalog.items.map((item) => ({ name: item.title, path: `/product/${item.slug}/` })),
         )}
       />
+      {/* Keyed by the last page shown: each «show more» reports the cards it
+          added, never the ones already counted. */}
       <TrackEventOnce
+        key={catalog.page}
         event={{
           name: 'view_item_list',
           listName,
-          items: catalog.items.map((item) => ({
+          items: addedItems.map((item) => ({
             sku: item.sku,
             title: item.title,
             priceCents: item.price.amountCents,
@@ -194,8 +203,8 @@ export async function CatalogBrowser({
             />
           </div>
           <CatalogLoadMore
-            {...loadMoreState(catalog, (pages) =>
-              buildHref(basePath, { colors, weightBand, sort }, { pages }),
+            {...loadMoreProps(listWindow, catalog, (position) =>
+              buildHref(basePath, { colors, weightBand, sort }, position),
             )}
           />
 
@@ -220,18 +229,15 @@ type HrefState = {
   readonly sort: CatalogSort
 }
 
-// `page` is one page of the numbered pagination; `pages` is the first N
-// pages at once, the list a phone has grown with «show more».
-type ListPosition = { readonly page?: number; readonly pages?: number }
-
 function buildHref(path: string, state: HrefState, position: ListPosition = {}): string {
   const params = new URLSearchParams()
 
   if (state.colors.length > 0) params.set('color', state.colors.join(','))
   if (state.weightBand) params.set('weight', state.weightBand)
   if (state.sort !== DEFAULT_SORT) params.set('sort', state.sort)
-  if (position.page && position.page > 1) params.set('page', String(position.page))
-  if (position.pages && position.pages > 1) params.set('pages', String(position.pages))
+  const page = position.page ?? 1
+  if (page > 1) params.set('page', String(page))
+  if (position.pages && position.pages > page) params.set('pages', String(position.pages))
 
   const query = params.toString()
   return query ? `${path}?${query}` : path
@@ -266,34 +272,24 @@ function parseSort(value: string | string[] | undefined): CatalogSort {
   return SORT_VALUES.find((entry) => entry === raw) ?? DEFAULT_SORT
 }
 
-function parsePage(value: string | string[] | undefined): number {
-  const parsed = Number(firstValue(value))
-  return Number.isInteger(parsed) && parsed > 0 ? parsed : 1
-}
-
-// A grown list starts at the first page; a hand-typed huge `pages` stops at
-// a ceiling so one request never pulls the whole catalogue.
-function shownPagesOf(params: ShopSearchParams): { firstPage: number; lastPage: number } {
-  const pages = parsePage(params.pages)
-  if (pages > 1) return { firstPage: 1, lastPage: Math.min(pages, MAX_GROWN_PAGES) }
-
-  const page = parsePage(params.page)
-  return { firstPage: page, lastPage: page }
-}
-
-function loadMoreState(
+function loadMoreProps(
+  listWindow: CatalogWindow,
   catalog: CatalogPage,
-  hrefForPages: (pages: number) => string,
+  hrefFor: (position: ListPosition) => string,
 ): ComponentProps<typeof CatalogLoadMore> {
-  const shown = (catalog.firstPage - 1) * CATALOG_PAGE_SIZE + catalog.items.length
-  const hasMore = catalog.page < catalog.pageCount && catalog.page < MAX_GROWN_PAGES
+  const step = loadMoreStep(
+    listWindow,
+    { shownCount: catalog.items.length, total: catalog.total, pageCount: catalog.pageCount },
+    CATALOG_PAGE_SIZE,
+  )
 
   return {
-    shown,
+    shownFrom: step.shownFrom,
+    shownTo: step.shownTo,
     total: catalog.total,
     pageCount: catalog.pageCount,
-    nextHref: hasMore ? hrefForPages(catalog.page + 1) : null,
-    nextCount: Math.min(CATALOG_PAGE_SIZE, catalog.total - shown),
+    nextHref: step.next ? hrefFor(step.next) : null,
+    nextCount: step.nextCount,
   }
 }
 

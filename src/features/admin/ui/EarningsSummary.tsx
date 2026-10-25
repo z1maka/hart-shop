@@ -57,7 +57,7 @@ function SummaryFacts({ totals }: { readonly totals: EarningsTotals }) {
       />
       <SummaryFact
         label="Цена цеха"
-        hint={`${percent(sharePercent(totals.costCents, totals.revenueCents))} от выручки`}
+        hint={`${percent(sharePercent(totals.costCents, costedRevenue(totals)))} от выручки`}
         value={wholeMoney(totals.costCents)}
       />
       <SummaryFact
@@ -97,7 +97,9 @@ function CollectionMeter({
   readonly collectedCents: number
   readonly pendingCents: number
 }) {
-  const share = sharePercent(Math.max(collectedCents, 0), collectedCents + pendingCents)
+  const totalCents = collectedCents + pendingCents
+  // A loss has no share to draw: the meter shows only while there is a gain.
+  const share = totalCents > 0 ? sharePercent(Math.max(collectedCents, 0), totalCents) : null
   const collectedShare = share === null ? null : Math.min(share, FULL_METER)
 
   return (
@@ -187,26 +189,38 @@ function BreakdownTable({ breakdown }: { readonly breakdown: Breakdown }) {
         </thead>
         <tbody>
           {BREAKDOWN_ROWS.map((row) => (
-            <tr key={row.label} className="border-t border-subtle">
-              <th scope="row" className="py-2.5 pr-2 pl-4 text-left font-normal text-muted">
-                {row.label}
-              </th>
-              {columns.map((totals, index) => (
-                <td
-                  key={index}
-                  className={cn(
-                    'px-2 py-2.5 text-right whitespace-nowrap text-ink last:pr-4',
-                    row.isStrong && 'font-semibold',
-                  )}
-                >
-                  {row.value(totals)}
-                </td>
-              ))}
-            </tr>
+            <BreakdownRow key={row.label} row={row} columns={columns} />
           ))}
         </tbody>
       </table>
     </div>
+  )
+}
+
+function BreakdownRow({
+  row,
+  columns,
+}: {
+  readonly row: (typeof BREAKDOWN_ROWS)[number]
+  readonly columns: readonly EarningsTotals[]
+}) {
+  return (
+    <tr className="border-t border-subtle">
+      <th scope="row" className="py-2.5 pr-2 pl-4 text-left font-normal text-muted">
+        {row.label}
+      </th>
+      {columns.map((totals, index) => (
+        <td
+          key={index}
+          className={cn(
+            'px-2 py-2.5 text-right whitespace-nowrap text-ink last:pr-4',
+            row.isStrong && 'font-semibold',
+          )}
+        >
+          {row.value(totals)}
+        </td>
+      ))}
+    </tr>
   )
 }
 
@@ -234,4 +248,10 @@ function chartDay(day: EarningsDay): EarningsChartDay {
 
 function averagePerOrder(totals: EarningsTotals): number {
   return totals.orders === 0 ? 0 : Math.round(totals.earningsCents / totals.orders)
+}
+
+// The revenue of the lines that have a workshop price: the cost's share is
+// read against it, as the earnings are.
+function costedRevenue(totals: EarningsTotals): number {
+  return totals.revenueCents - totals.uncostedRevenueCents
 }

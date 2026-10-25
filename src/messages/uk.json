@@ -970,6 +970,7 @@
     "loadMore": "Показати ще {count}",
     "loading": "Завантажуємо…",
     "shownOf": "Показано {shown} із {total}",
+    "shownRange": "Показано {from}–{to} із {total}",
     "allShown": "Це всі товари: {total}"
   },
   "gallery": {
