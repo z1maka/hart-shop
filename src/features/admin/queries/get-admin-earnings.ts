@@ -1,3 +1,4 @@
+import { connection } from 'next/server'
 import {
   adSpendByDay,
   AdSpendState,
@@ -42,6 +43,9 @@ export async function getAdminEarnings(params: {
   readonly to?: string
 }): Promise<AdminEarningsView> {
   await requireAdminSession()
+  // A link prefetch prerenders this page with the admin's cookies and aborts
+  // its requests when done: Google would be called for nothing on every hover.
+  await connection()
 
   const period = earningsPeriod(params, formatDateIsoKyiv(new Date()))
   const [earnings, adSpend] = await Promise.all([

@@ -6,8 +6,8 @@ vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn() } }))
 import { GoogleApiUnavailableError } from '@/lib/errors'
 import { isGoogleAnalyticsConfigured, parseAdCostReport } from '@/lib/google-analytics'
 
-function row(day: string, cost: string) {
-  return { dimensionValues: [{ value: day }], metricValues: [{ value: cost }] }
+function row(day: string, cost: string, campaign = 'Пончо — пошук') {
+  return { dimensionValues: [{ value: day }, { value: campaign }], metricValues: [{ value: cost }] }
 }
 
 describe('parseAdCostReport', () => {
@@ -21,6 +21,22 @@ describe('parseAdCostReport', () => {
       { day: '2026-10-24', costCents: 41_237 },
       { day: '2026-10-25', costCents: 1 },
       { day: '2026-10-26', costCents: 150_000 },
+    ])
+  })
+
+  it('adds up the campaigns of one day', () => {
+    const report = {
+      rows: [
+        row('20261024', '100.10', 'Пончо — пошук'),
+        row('20261024', '50.05', 'Shopping'),
+        row('20261025', '20', 'Shopping'),
+      ],
+      metadata: { currencyCode: 'UAH' },
+    }
+
+    expect(parseAdCostReport(report)).toEqual([
+      { day: '2026-10-24', costCents: 15_015 },
+      { day: '2026-10-25', costCents: 2_000 },
     ])
   })
 

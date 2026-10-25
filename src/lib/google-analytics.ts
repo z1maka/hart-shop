@@ -13,6 +13,10 @@ const DATA_API = 'https://analyticsdata.googleapis.com/v1beta'
 const READONLY_SCOPE = 'https://www.googleapis.com/auth/analytics.readonly'
 const AD_COST_METRIC = 'advertiserAdCost'
 const DAY_DIMENSION = 'date'
+// GA refuses advertiser cost by date alone («dimensions & metrics are
+// incompatible»): it wants a campaign beside it, so the report comes per day
+// and campaign and the campaigns of a day are added up.
+const CAMPAIGN_DIMENSION = 'sessionCampaignName'
 // The property reports money in its own currency; the shop's is the hryvnia.
 const PROPERTY_CURRENCY = 'UAH'
 const KOPIYKAS_PER_HRYVNIA = 100
@@ -24,6 +28,7 @@ const ReportSchema = z.object({
       z.object({
         dimensionValues: z.tuple([
           z.object({ value: z.string().regex(GA_DAY).transform(isoDayOfGaDay) }),
+          z.object({ value: z.string() }),
         ]),
         metricValues: z.tuple([z.object({ value: z.coerce.number().min(0) })]),
       }),
@@ -53,7 +58,7 @@ export async function fetchDailyAdCost(from: string, to: string): Promise<DailyA
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       dateRanges: [{ startDate: from, endDate: to }],
-      dimensions: [{ name: DAY_DIMENSION }],
+      dimensions: [{ name: DAY_DIMENSION }, { name: CAMPAIGN_DIMENSION }],
       metrics: [{ name: AD_COST_METRIC }],
     }),
   })
@@ -73,9 +78,15 @@ export function parseAdCostReport(answer: unknown): DailyAdCost[] {
     throw new GoogleApiUnavailableError(`the property reports money in ${currency}`)
   }
 
-  return parsed.data.rows.map((row) => ({
-    day: row.dimensionValues[0].value,
-    costCents: Math.round(row.metricValues[0].value * KOPIYKAS_PER_HRYVNIA),
+  const byDay = new Map<string, number>()
+  parsed.data.rows.forEach((row) => {
+    const day = row.dimensionValues[0].value
+    byDay.set(day, (byDay.get(day) ?? 0) + row.metricValues[0].value)
+  })
+
+  return [...byDay].map(([day, cost]) => ({
+    day,
+    costCents: Math.round(cost * KOPIYKAS_PER_HRYVNIA),
   }))
 }
 
