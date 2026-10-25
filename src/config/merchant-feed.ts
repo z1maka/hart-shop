@@ -50,6 +50,8 @@ export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = [
   // Smooth Starlink Mini: shot in pixel only (25.10.2026).
   'HART-SL-MINI-MULTICAM',
   'HART-SL-MINI-OLIVE',
+  // Acasom ROC-6 olive: multicam and pixel have photos (25.10.2026).
+  'HART-39064-V39066',
 ]
 
 // The Google feed carries what the workshop sews — ponchos, tents and Starlink
