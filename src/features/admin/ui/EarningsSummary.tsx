@@ -1,4 +1,5 @@
-import type { AdminEarningsView } from '@/features/admin/queries/get-admin-earnings'
+import { AdSpendState } from '@/features/admin/model/ad-spend'
+import type { AdminEarningsView, AdSpendView } from '@/features/admin/queries/get-admin-earnings'
 import { EarningsDailyChart, type EarningsChartDay } from '@/features/admin/ui/EarningsDailyChart'
 import { percent, wholeMoney } from '@/features/admin/ui/stats-format'
 import { sharePercent, type EarningsDay, type EarningsTotals } from '@/features/orders'
@@ -22,7 +23,7 @@ export function EarningsSummary({ view }: { readonly view: AdminEarningsView }) 
         <SummaryFacts totals={view.all} />
       </div>
       <DailyEarningsCard days={view.days} />
-      <BreakdownTable breakdown={view} />
+      <BreakdownTable breakdown={view} adSpendCents={knownAdSpend(view.adSpend)} />
     </section>
   )
 }
@@ -173,7 +174,13 @@ function LegendKey({ label, swatch }: { readonly label: string; readonly swatch:
   )
 }
 
-function BreakdownTable({ breakdown }: { readonly breakdown: Breakdown }) {
+function BreakdownTable({
+  breakdown,
+  adSpendCents,
+}: {
+  readonly breakdown: Breakdown
+  readonly adSpendCents: number | null
+}) {
   const columns = [breakdown.collected, breakdown.pending, breakdown.all]
 
   return (
@@ -191,6 +198,9 @@ function BreakdownTable({ breakdown }: { readonly breakdown: Breakdown }) {
           {BREAKDOWN_ROWS.map((row) => (
             <BreakdownRow key={row.label} row={row} columns={columns} />
           ))}
+          {adSpendCents === null ? null : (
+            <AfterAdsRow profitCents={breakdown.all.earningsCents - adSpendCents} />
+          )}
         </tbody>
       </table>
     </div>
@@ -220,6 +230,28 @@ function BreakdownRow({
           {row.value(totals)}
         </td>
       ))}
+    </tr>
+  )
+}
+
+// The period's earnings less the period's Google Ads spend. Only the total
+// has it: the ads are paid for the whole period, not per collected parcel.
+function AfterAdsRow({ profitCents }: { readonly profitCents: number }) {
+  return (
+    <tr className="border-t-2 border-strong">
+      <th scope="row" className="py-2.5 pr-2 pl-4 text-left font-semibold text-ink">
+        После рекламы
+      </th>
+      <td className="px-2 py-2.5 text-right text-faint">—</td>
+      <td className="px-2 py-2.5 text-right text-faint">—</td>
+      <td
+        className={cn(
+          'py-2.5 pr-4 pl-2 text-right font-semibold whitespace-nowrap',
+          profitCents < 0 ? 'text-alert' : 'text-ink',
+        )}
+      >
+        {wholeMoney(profitCents)}
+      </td>
     </tr>
   )
 }
@@ -254,4 +286,8 @@ function averagePerOrder(totals: EarningsTotals): number {
 // read against it, as the earnings are.
 function costedRevenue(totals: EarningsTotals): number {
   return totals.revenueCents - totals.uncostedRevenueCents
+}
+
+function knownAdSpend(adSpend: AdSpendView): number | null {
+  return adSpend.state === AdSpendState.Connected ? adSpend.totalCents : null
 }
