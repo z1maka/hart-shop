@@ -130,6 +130,12 @@ const envSchema = z.object({
   // crons). Absent = the cron routes refuse every call.
   CRON_SECRET: optionalString,
 
+  // Google Analytics Data API, for the ad spend on the admin's earnings page:
+  // the service account's whole JSON key as Google downloads it, and the GA4
+  // property it reads. The key is parsed when used, so a bad paste costs the
+  // page its ads line instead of the deployment. Absent = earnings only.
+  GA4_SERVICE_ACCOUNT_JSON: optionalString,
+  GA4_PROPERTY_ID: optionalString.pipe(z.union([z.string().regex(/^\d+$/), z.undefined()])),
 })
 
 export type Env = z.infer<typeof envSchema>

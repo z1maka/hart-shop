@@ -68,7 +68,11 @@ export {
   type EarningsTotalsView,
   type EarningsView,
 } from '@/features/orders/queries/get-earnings'
-export { EarningsPreset } from '@/features/orders/model/earnings-period'
+export {
+  earningsPeriod,
+  EarningsPreset,
+  type EarningsPeriod,
+} from '@/features/orders/model/earnings-period'
 export type { EarningsDay } from '@/features/orders/model/earnings'
 export {
   getWeekTraffic,

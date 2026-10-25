@@ -1,8 +1,13 @@
 import Link from 'next/link'
 import { inputClassName } from '@/components/ui/Field'
-import { getAdminEarnings } from '@/features/admin/queries/get-admin-earnings'
+import { AdSpendState } from '@/features/admin/model/ad-spend'
+import {
+  getAdminEarnings,
+  type AdminEarningsView,
+  type AdminTotalsView,
+} from '@/features/admin/queries/get-admin-earnings'
 import { EarningsChart } from '@/features/admin/ui/EarningsChart'
-import { EarningsPreset, type EarningsTotalsView, type EarningsView } from '@/features/orders'
+import { EarningsPreset } from '@/features/orders'
 import { cn } from '@/lib/utils'
 
 type EarningsBoardProps = {
@@ -10,6 +15,12 @@ type EarningsBoardProps = {
 }
 
 const STATS_PATH = '/admin/stats/'
+
+type TotalsRow = {
+  readonly label: string
+  readonly value: string | number
+  readonly isEmphasized?: boolean
+}
 
 const PRESET_LINKS: readonly { preset: EarningsPreset; label: string }[] = [
   { preset: EarningsPreset.Week, label: '7 дней' },
@@ -54,6 +65,7 @@ export async function EarningsBoard({ searchParams }: EarningsBoardProps) {
           totals={view.all}
         />
       </div>
+      <AdSpendNote state={view.adSpendState} />
 
       <section className="rounded-card border border-subtle bg-surface p-5.5">
         <h2 className="mb-4 font-display text-[16px] font-bold text-ink">Заработок по дням</h2>
@@ -69,7 +81,25 @@ export async function EarningsBoard({ searchParams }: EarningsBoardProps) {
   )
 }
 
-function PeriodPicker({ period }: { readonly period: EarningsView['period'] }) {
+function AdSpendNote({ state }: { readonly state: AdSpendState }) {
+  if (state === AdSpendState.NotConnected) {
+    return (
+      <p className="text-[12.5px] text-muted">
+        Расходы на рекламу появятся после подключения Google Analytics.
+      </p>
+    )
+  }
+  if (state === AdSpendState.Failed) {
+    return (
+      <p className="text-[12.5px] font-medium text-alert">
+        Не удалось получить расходы из Google Analytics — заработок показан без рекламы.
+      </p>
+    )
+  }
+  return null
+}
+
+function PeriodPicker({ period }: { readonly period: AdminEarningsView['period'] }) {
   return (
     <div className="flex flex-wrap items-end gap-3">
       <nav className="grid grid-cols-2 gap-1 rounded-[10px] border border-subtle bg-surface p-1 sm:flex sm:rounded-pill">
@@ -126,26 +156,26 @@ function TotalsCard({
 }: {
   readonly title: string
   readonly subtitle: string
-  readonly totals: EarningsTotalsView
+  readonly totals: AdminTotalsView
 }) {
-  const rows: readonly [string, string | number][] = [
-    ['Заказов', totals.orders],
-    ['Позиций, шт.', totals.units],
-    ['Выручка', totals.revenueLabel],
-    ['Себестоимость', totals.costLabel],
-    ['Маржа', totals.marginLabel],
-  ]
-
   return (
     <section className="rounded-card border border-subtle bg-surface p-5.5">
       <h2 className="font-display text-[16px] font-bold text-ink">{title}</h2>
       <p className="mb-3 text-[12.5px] text-muted">{subtitle}</p>
       <p className="mb-3 font-display text-[26px] font-bold text-ink">{totals.earningsLabel}</p>
       <dl className="grid gap-1.5 text-[13px]">
-        {rows.map(([label, value]) => (
-          <div key={label} className="flex justify-between gap-3 border-t border-subtle pt-1.5">
-            <dt className="text-muted">{label}</dt>
-            <dd className="font-semibold text-ink">{value}</dd>
+        {totalsRows(totals).map((row) => (
+          <div
+            key={row.label}
+            className={cn(
+              'flex justify-between gap-3 border-t border-subtle pt-1.5',
+              row.isEmphasized && 'border-strong text-[14px]',
+            )}
+          >
+            <dt className={row.isEmphasized ? 'font-bold text-ink' : 'text-muted'}>{row.label}</dt>
+            <dd className={cn('text-ink', row.isEmphasized ? 'font-bold' : 'font-semibold')}>
+              {row.value}
+            </dd>
           </div>
         ))}
       </dl>
@@ -154,6 +184,23 @@ function TotalsCard({
       ) : null}
     </section>
   )
+}
+
+function totalsRows(totals: AdminTotalsView): TotalsRow[] {
+  const rows: TotalsRow[] = [
+    { label: 'Заказов', value: totals.orders },
+    { label: 'Позиций, шт.', value: totals.units },
+    { label: 'Выручка', value: totals.revenueLabel },
+    { label: 'Себестоимость', value: totals.costLabel },
+    { label: 'Маржа', value: totals.marginLabel },
+  ]
+  if (totals.adSpendLabel === null || totals.afterAdsLabel === null) return rows
+
+  return [
+    ...rows,
+    { label: 'Реклама (Google Ads)', value: totals.adSpendLabel },
+    { label: 'После рекламы', value: totals.afterAdsLabel, isEmphasized: true },
+  ]
 }
 
 function displayDate(day: string): string {

@@ -306,3 +306,14 @@ export class ReviewNotFoundError extends AppError {
     super(`Review "${reviewId}" was not found`)
   }
 }
+
+// A Google API (sign-in or Analytics) did not answer, refused the service
+// account, or sent what we cannot read. The admin stats show earnings
+// without the ad spend then.
+export class GoogleApiUnavailableError extends AppError {
+  readonly code = 'GOOGLE_API_UNAVAILABLE'
+
+  constructor(reason: string) {
+    super(`Google API: ${reason}`)
+  }
+}
