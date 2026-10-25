@@ -41,7 +41,13 @@ export const FEED_EXCLUDED_SLUGS: readonly string[] = [
 // Colours on sale with no photos of their own yet: choosing one keeps the
 // card's gallery, which shows another colour, so their offers stay out of
 // both feeds until they are shot (owner, 25.10.2026). Variant skus.
-export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = ['3600-2-PIXEL', '3600-2-OLIVE']
+export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = [
+  '3600-2-PIXEL',
+  '3600-2-OLIVE',
+  // Starlink Mini: reshot in multicam only (25.10.2026).
+  'HART-38686-V38688',
+  'HART-38686-V38689',
+]
 
 // The Google feed carries what the workshop sews — ponchos, tents and Starlink
 // covers — and only the cards with the owner's own photos (owner, 21.10.2026):
@@ -60,6 +66,5 @@ export const MERCHANT_FEED_FOX_PHOTO_SLUGS: readonly string[] = [
   'antyteploviziyni-chokhly-na-nohy-uv-em',
   'plashch-nakidka-poncho-s-trekhsharovoy-tkanyu-antiteploviziyniy-zakhist',
   'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho',
-  'antyteploviziynyi-chokhol-na-starlink-mini',
   'antyteploviziynyi-chokhol-na-antenu-adaptis',
 ]
