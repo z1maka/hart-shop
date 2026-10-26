@@ -24,6 +24,7 @@ import {
   type Street,
 } from '@/features/shipping'
 import { readAdminSession } from '@/features/admin/session-cookie'
+import { hryvniasToKopiykas } from '@/features/admin/model/product-form'
 import { actionError, actionOk, toActionError, type ActionResult } from '@/lib/action-result'
 
 const OrderStatusSchema = z.object({
@@ -48,8 +49,16 @@ const TrackingSchema = z.object({
   trackingUrl: emptyToNull(600).pipe(z.union([z.url(), z.null()])),
 })
 
+// Whole hryvnias: a prepayment is agreed over the phone as a round sum. The
+// order's total is the real bound, checked against the order itself.
+const PREPAYMENT_MAX_HRYVNIAS = 1_000_000
+
+const prepaidHryvnias = z.number().int().min(0).max(PREPAYMENT_MAX_HRYVNIAS)
+
 const WaybillSchema = z.object({
   orderId: z.uuid(),
+  // Typed on the form of a cash-on-delivery order; absent keeps the saved one.
+  prepaidHryvnias: prepaidHryvnias.optional(),
   weightGrams: z.number().int().min(WAYBILL_PARCEL_GRAMS.min).max(WAYBILL_PARCEL_GRAMS.max),
   cargoDescription: z.string().trim().min(1).max(WAYBILL_DESCRIPTION_MAX_LENGTH),
   // The cabinet picked on the form; absent while the shop runs on the single
@@ -186,11 +195,15 @@ export async function issueWaybillAction(input: unknown): Promise<ActionResult<I
   }
 
   try {
+    const { orderId, weightGrams, cargoDescription, carrierAccountId } = parsed.data
     const issued = await orderShipmentService.issueWaybill(
-      parsed.data.orderId,
-      { weightGrams: parsed.data.weightGrams, description: parsed.data.cargoDescription },
-      session.email,
-      parsed.data.carrierAccountId ?? null,
+      orderId,
+      { weightGrams, description: cargoDescription },
+      {
+        issuedBy: session.email,
+        accountId: carrierAccountId ?? null,
+        prepaidCents: optionalKopiykas(parsed.data.prepaidHryvnias),
+      },
     )
     return actionOk(issued)
   } catch (error) {
@@ -207,6 +220,30 @@ export async function removeWaybillAction(input: unknown): Promise<ActionResult<
 
   try {
     await orderShipmentService.removeWaybill(parsed.data.orderId)
+    return actionOk(null)
+  } catch (error) {
+    return toActionError(error)
+  }
+}
+
+const PrepaymentSchema = z.object({ orderId: z.uuid(), prepaidHryvnias })
+
+function optionalKopiykas(hryvnias: number | undefined): number | undefined {
+  return hryvnias === undefined ? undefined : hryvniasToKopiykas(hryvnias)
+}
+
+export async function setOrderPrepaymentAction(input: unknown): Promise<ActionResult<null>> {
+  const session = await readAdminSession()
+  if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
+
+  const parsed = PrepaymentSchema.safeParse(input)
+  if (!parsed.success) {
+    return actionError('VALIDATION_FAILED', 'prepaidHryvnias', 'целое число гривен')
+  }
+
+  try {
+    const { orderId, prepaidHryvnias } = parsed.data
+    await orderShipmentService.setPrepayment(orderId, hryvniasToKopiykas(prepaidHryvnias))
     return actionOk(null)
   } catch (error) {
     return toActionError(error)
@@ -360,11 +397,17 @@ export async function issueCourierWaybillAction(
   }
 
   try {
-    const { orderId, weightGrams, cargoDescription, carrierAccountId, ...door } = parsed.data
+    const { orderId, weightGrams, cargoDescription, carrierAccountId, prepaidHryvnias, ...door } =
+      parsed.data
     const issued = await orderShipmentService.issueCourierWaybill(
       orderId,
       { weightGrams, description: cargoDescription },
-      { door, issuedBy: session.email, accountId: carrierAccountId ?? null },
+      {
+        door,
+        issuedBy: session.email,
+        accountId: carrierAccountId ?? null,
+        prepaidCents: optionalKopiykas(prepaidHryvnias),
+      },
     )
     return actionOk(issued)
   } catch (error) {

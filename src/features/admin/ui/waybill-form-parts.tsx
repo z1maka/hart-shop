@@ -1,8 +1,11 @@
 'use client'
 
 import { WAYBILL_DESCRIPTION_MAX_LENGTH } from '@/config/delivery'
-import type { AdminWaybillView, IssuedWaybill } from '@/features/orders'
+import { typedPrepaidCents } from '@/features/admin/model/prepayment-input'
+import type { IssuedWaybill, WaybillPaymentView } from '@/features/orders'
+import { codCents } from '@/features/orders/model/shipment'
 import { inputClassName } from '@/components/ui/Field'
+import { createMoney, Currency, formatWholeMoney } from '@/lib/money'
 import { cn } from '@/lib/utils'
 
 const GRAMS_PER_KILO = 1000
@@ -66,13 +69,54 @@ export function ParcelFields(props: ParcelFieldsProps) {
   )
 }
 
-export function MoneyRows({ waybill }: { readonly waybill: AdminWaybillView }) {
+// Whole hryvnias with the narrow sign: the server and the browser write the
+// same text, where a full currency format differs between them.
+export function moneyText(cents: number): string {
+  return formatWholeMoney(createMoney(cents, Currency.Uah))
+}
+
+type MoneyRowsProps = {
+  readonly payment: WaybillPaymentView
+  // As typed on the form, so the amount follows the field.
+  readonly prepaidCents: number
+}
+
+export function MoneyRows({ payment, prepaidCents }: MoneyRowsProps) {
+  const cod = codCents({ ...payment, prepaidCents })
   return (
     <>
-      <Row label="Объявленная стоимость" value={waybill.declaredValueLabel} />
-      <Row label="Контроль оплаты" value={waybill.codLabel ?? 'нет — заказ оплачен'} />
+      <Row label="Объявленная стоимость" value={moneyText(payment.totalCents)} />
+      {prepaidCents > 0 ? <Row label="Предоплата" value={moneyText(prepaidCents)} /> : null}
+      <Row label="Контроль оплаты" value={cod > 0 ? moneyText(cod) : 'нет — заказ оплачен'} />
       <Row label="Доставку оплачивает" value="получатель" />
     </>
+  )
+}
+
+type PrepaymentFieldProps = {
+  readonly value: string
+  readonly totalCents: number
+  readonly onChange: (value: string) => void
+}
+
+export function PrepaymentField({ value, totalCents, onChange }: PrepaymentFieldProps) {
+  const isValid = typedPrepaidCents(value, totalCents) !== null
+  return (
+    <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
+      Предоплата, грн
+      <input
+        inputMode="numeric"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        aria-invalid={!isValid}
+        className={cn(inputClassName, 'font-normal')}
+      />
+      {isValid ? null : (
+        <span className="font-normal text-alert">
+          Целое число гривен, меньше суммы заказа. 0 — без предоплаты.
+        </span>
+      )}
+    </label>
   )
 }
 

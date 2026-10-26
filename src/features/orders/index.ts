@@ -30,6 +30,7 @@ export {
   type IssuedWaybill,
   type RecipientSettlement,
   type WaybillBatchOutcome,
+  type WaybillIssueRequest,
 } from '@/features/orders/services/order-shipment-service'
 export { WaybillBlocker, WaybillReadiness } from '@/features/orders/model/shipment'
 export type {
@@ -37,6 +38,7 @@ export type {
   AdminWaybillView,
   PreviousRecipient,
   TransferAccountView,
+  WaybillPaymentView,
   WaybillSenderView,
 } from '@/features/orders/queries/get-admin-order'
 export type { RecipientDraft } from '@/features/orders/model/shipment'

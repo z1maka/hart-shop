@@ -5,12 +5,15 @@ import { useState, useTransition } from 'react'
 import { issueWaybillAction, removeWaybillAction } from '@/features/admin/actions/order-actions'
 import { CourierWaybillForm } from '@/features/admin/ui/CourierWaybillForm'
 import { errorText } from '@/features/admin/ui/messages'
+import { PrepaymentEditor } from '@/features/admin/ui/PrepaymentEditor'
 import { RecipientEditor } from '@/features/admin/ui/RecipientEditor'
 import {
   defaultSenderId,
   issueButtonLabel,
   senderLine,
 } from '@/features/admin/model/waybill-sender'
+import { prepaidInput, typedPrepaidCents } from '@/features/admin/model/prepayment-input'
+import { kopiykasToHryvnias } from '@/features/admin/model/product-form'
 import { WaybillSenderPicker } from '@/features/admin/ui/WaybillSenderPicker'
 import {
   initialWeightKg,
@@ -19,6 +22,7 @@ import {
   NO_ANSWER_TEXT,
   NoticeLine,
   ParcelFields,
+  PrepaymentField,
   Row,
   weightKgToGrams,
   type Notice,
@@ -50,6 +54,9 @@ export function WaybillPanel(props: WaybillPanelProps) {
     <section className="rounded-card border border-subtle bg-surface p-5">
       <h2 className="mb-3 text-[14px] font-semibold text-ink">Накладная Новой Почты</h2>
       <WaybillBody {...props} />
+      {props.waybill.documentRef && props.waybill.payment.isPrepaymentOpen ? (
+        <PrepaymentEditor orderId={props.orderId} payment={props.waybill.payment} />
+      ) : null}
     </section>
   )
 }
@@ -182,11 +189,15 @@ function IssueForm({
   const [weightKg, setWeightKg] = useState(initialWeightKg(waybill.weightGrams))
   const [description, setDescription] = useState(waybill.description)
   const [senderId, setSenderId] = useState(defaultSenderId(waybill.senders))
+  const [prepaid, setPrepaid] = useState(prepaidInput(waybill.payment.prepaidCents))
   const [isEditingRecipient, setIsEditingRecipient] = useState(false)
   const [notice, setNotice] = useState<Notice | null>(null)
   const [isPending, startTransition] = useTransition()
 
-  const isComplete = weightKg.trim() !== '' && description.trim() !== ''
+  const { isPrepaymentOpen, totalCents } = waybill.payment
+  const prepaidCents = isPrepaymentOpen ? typedPrepaidCents(prepaid, totalCents) : null
+  const isPrepaidValid = !isPrepaymentOpen || prepaidCents !== null
+  const isComplete = weightKg.trim() !== '' && description.trim() !== '' && isPrepaidValid
 
   function issue() {
     setNotice(null)
@@ -196,6 +207,7 @@ function IssueForm({
         weightGrams: weightKgToGrams(weightKg),
         cargoDescription: description,
         carrierAccountId: senderId,
+        prepaidHryvnias: prepaidCents === null ? undefined : kopiykasToHryvnias(prepaidCents),
       }).catch(() => null)
       if (!result) {
         setNotice({ text: NO_ANSWER_TEXT, isError: true })
@@ -225,7 +237,10 @@ function IssueForm({
         onWeightKg={setWeightKg}
         onDescription={setDescription}
       />
-      <IssueSummary waybill={waybill} />
+      {isPrepaymentOpen ? (
+        <PrepaymentField value={prepaid} totalCents={totalCents} onChange={setPrepaid} />
+      ) : null}
+      <IssueSummary waybill={waybill} prepaidCents={prepaidCents ?? waybill.payment.prepaidCents} />
       {isEditingRecipient ? (
         // No waybill for the old recipient while the new one is being typed.
         <RecipientEditor
@@ -252,7 +267,13 @@ function IssueForm({
 }
 
 // Where the parcel goes from and to, and what the branch collects.
-function IssueSummary({ waybill }: { readonly waybill: AdminWaybillView }) {
+function IssueSummary({
+  waybill,
+  prepaidCents,
+}: {
+  readonly waybill: AdminWaybillView
+  readonly prepaidCents: number
+}) {
   return (
     <dl className="grid gap-1 text-[13px]">
       {waybill.senderBranchLabel ? <Row label="Откуда" value={waybill.senderBranchLabel} /> : null}
@@ -261,7 +282,7 @@ function IssueSummary({ waybill }: { readonly waybill: AdminWaybillView }) {
         value={`${waybill.recipient.firstName} ${waybill.recipient.lastName}`}
       />
       {waybill.buyerPointLabel ? <Row label="Куда" value={waybill.buyerPointLabel} /> : null}
-      <MoneyRows waybill={waybill} />
+      <MoneyRows payment={waybill.payment} prepaidCents={prepaidCents} />
     </dl>
   )
 }

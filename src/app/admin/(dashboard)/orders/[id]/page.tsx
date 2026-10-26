@@ -137,6 +137,8 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
               <Row label="Товары" value={order.subtotalLabel} />
               <Row label="Доставка" value={order.shippingLabel} />
               <Row label="Итого" value={order.totalLabel} isStrong />
+              {order.prepaidLabel ? <Row label="Предоплата" value={order.prepaidLabel} /> : null}
+              {order.codLabel ? <Row label="Контроль оплаты" value={order.codLabel} /> : null}
             </dl>
           </section>
 

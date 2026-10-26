@@ -17,6 +17,8 @@ import {
 import { errorText } from '@/features/admin/ui/messages'
 import { useLatestRequest } from '@/features/admin/ui/use-latest-request'
 import { defaultSenderId, issueButtonLabel } from '@/features/admin/model/waybill-sender'
+import { prepaidInput, typedPrepaidCents } from '@/features/admin/model/prepayment-input'
+import { kopiykasToHryvnias } from '@/features/admin/model/product-form'
 import { WaybillSenderPicker } from '@/features/admin/ui/WaybillSenderPicker'
 import {
   initialWeightKg,
@@ -25,6 +27,7 @@ import {
   NO_ANSWER_TEXT,
   NoticeLine,
   ParcelFields,
+  PrepaymentField,
   Row,
   weightKgToGrams,
   type Notice,
@@ -60,14 +63,18 @@ export function CourierWaybillForm({ orderId, waybill }: CourierWaybillFormProps
   const [weightKg, setWeightKg] = useState(initialWeightKg(waybill.weightGrams))
   const [description, setDescription] = useState(waybill.description)
   const [senderId, setSenderId] = useState(defaultSenderId(waybill.senders))
+  const [prepaid, setPrepaid] = useState(prepaidInput(waybill.payment.prepaidCents))
   const [notice, setNotice] = useState<Notice | null>(null)
   const [isPending, startTransition] = useTransition()
 
+  const { isPrepaymentOpen, totalCents } = waybill.payment
+  const prepaidCents = isPrepaymentOpen ? typedPrepaidCents(prepaid, totalCents) : null
   const isComplete =
     [firstName, lastName, house, weightKg, description].every((value) => value.trim() !== '') &&
     isUaPhoneComplete(phone) &&
     settlement !== null &&
-    street !== null
+    street !== null &&
+    (!isPrepaymentOpen || prepaidCents !== null)
 
   function issue() {
     if (!settlement || !street) return
@@ -87,6 +94,7 @@ export function CourierWaybillForm({ orderId, waybill }: CourierWaybillFormProps
         house,
         flat,
         carrierAccountId: senderId,
+        prepaidHryvnias: prepaidCents === null ? undefined : kopiykasToHryvnias(prepaidCents),
       }).catch(() => null)
       if (!result) {
         setNotice({ text: NO_ANSWER_TEXT, isError: true })
@@ -153,12 +161,18 @@ export function CourierWaybillForm({ orderId, waybill }: CourierWaybillFormProps
         onWeightKg={setWeightKg}
         onDescription={setDescription}
       />
+      {isPrepaymentOpen ? (
+        <PrepaymentField value={prepaid} totalCents={totalCents} onChange={setPrepaid} />
+      ) : null}
       <dl className="grid gap-1 text-[13px]">
         {waybill.senderBranchLabel ? (
           <Row label="Откуда" value={waybill.senderBranchLabel} />
         ) : null}
         <Row label="Доставка" value="курьером до двери" />
-        <MoneyRows waybill={waybill} />
+        <MoneyRows
+          payment={waybill.payment}
+          prepaidCents={prepaidCents ?? waybill.payment.prepaidCents}
+        />
       </dl>
       <Button disabled={isPending || !isComplete} onClick={issue}>
         {isPending ? 'Создаём…' : issueButtonLabel(waybill.senders, senderId)}

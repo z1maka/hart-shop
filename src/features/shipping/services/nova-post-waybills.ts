@@ -11,11 +11,15 @@ import type {
 import type { ParcelStatus } from '@/features/shipping/model/parcel-tracking'
 import { pickupPointRepository } from '@/features/shipping/repository/pickup-point-repository'
 import { trackNovaPostParcels } from '@/features/shipping/services/nova-post-tracking'
+import { daysAgo, formatDateIsoKyiv } from '@/lib/datetime'
 import { env } from '@/lib/env'
 import {
   CarrierAnswerMalformedError,
   CarrierUnavailableError,
   PickupPointNotFoundError,
+  WaybillEditedInCabinetError,
+  WaybillNotAtCarrierError,
+  WaybillNotEditableError,
 } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 import {
@@ -30,6 +34,11 @@ const GRAMS_PER_KILO = 1000
 const KOPIYKAS_PER_HRYVNIA = 100
 const CUBIC_CM_PER_CUBIC_M = 1_000_000
 const KYIV_TIME_ZONE = 'Europe/Kyiv'
+// The days searched for a waybill to update: one still not handed over a
+// month after the order is not worth listing the whole cabinet for, and a
+// sending date can be moved forward in the cabinet.
+const UPDATE_SEARCH_DAYS_BACK = 30
+const UPDATE_SEARCH_DAYS_AHEAD = 14
 // "No document changed DeletionMark": the waybill is no longer in the
 // cabinet — deleted there by hand, or by an earlier attempt of ours.
 const ALREADY_DELETED_CODE = '20000201173'
@@ -58,6 +67,66 @@ const SavedDocumentSchema = z.array(
 const DeletedDocumentSchema = z.array(z.object({ Ref: z.string() }))
 
 const SavedAddressSchema = z.array(z.object({ Ref: z.string().min(1) }))
+
+// A field the update sends back as it was: a string or a number in their
+// list, never a missing or null one turned into the word «null».
+const cabinetText = z.union([z.string(), z.number()]).transform(String)
+
+// The seat as the cabinet keeps it. Packaging and special cargo are set
+// only in the cabinet, and a save from here would drop them.
+const SeatSchema = z.object({
+  volumetricVolume: cabinetText,
+  volumetricWidth: cabinetText,
+  volumetricLength: cabinetText,
+  volumetricHeight: cabinetText,
+  weight: cabinetText,
+  packRef: z.string().nullish(),
+  specialCargo: z.union([z.boolean(), z.string(), z.number()]).nullish(),
+})
+
+type Seat = z.infer<typeof SeatSchema>
+
+// A waybill as the cabinet lists it, with what an update must send back:
+// they take the whole document again, not just the field that changes.
+export const ListedDocumentSchema = z.object({
+  Ref: z.string().min(1),
+  IntDocNumber: z.string().min(1),
+  Edit: z.boolean(),
+  // «2026-10-26 11:26:14», kept as the day «2026-10-26».
+  DateTime: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}[ T]/)
+    .transform((listed) => listed.replace(/[ T].*$/, '')),
+  PayerType: cabinetText,
+  PaymentMethod: cabinetText,
+  CargoType: cabinetText,
+  Weight: cabinetText,
+  ServiceType: cabinetText,
+  SeatsAmount: cabinetText,
+  Description: cabinetText,
+  Cost: cabinetText,
+  CitySender: cabinetText,
+  Sender: cabinetText,
+  SenderAddress: cabinetText,
+  ContactSender: cabinetText,
+  SendersPhone: cabinetText,
+  CityRecipient: cabinetText,
+  Recipient: cabinetText,
+  RecipientAddress: cabinetText,
+  ContactRecipient: cabinetText,
+  RecipientsPhone: cabinetText,
+  InfoRegClientBarcodes: cabinetText,
+  OptionsSeat: z
+    .array(SeatSchema)
+    .nullish()
+    .transform((seats) => seats ?? []),
+})
+
+export type ListedDocument = z.infer<typeof ListedDocumentSchema>
+
+const UpdatedDocumentSchema = z.array(
+  z.object({ Ref: z.string().min(1), IntDocNumber: z.string().min(1) }),
+)
 
 export type Sender = {
   readonly ref: string
@@ -129,6 +198,33 @@ export function novaPostWaybillsFor(cabinet: NovaPostCabinet | null): WaybillSer
     } catch (error) {
       if (!isNovaPoshtaErrorCode(error, ALREADY_DELETED_CODE)) throw error
       logger.info('Waybill was already gone from the cabinet', { ref })
+    }
+  },
+
+  async updateCod(ref: string, codCents: number, issuedSince: Date): Promise<void> {
+    const document = await findDocument(ref, issuedSince, apiKey)
+    if (!document.Edit) throw new WaybillNotEditableError(ref)
+    if (document.OptionsSeat.some(hasCabinetOnlyOptions)) {
+      throw new WaybillEditedInCabinetError(ref)
+    }
+
+    const data = await novaPoshtaCall(
+      'InternetDocument',
+      'update',
+      codUpdateProperties(document, codCents, formatDateIsoKyiv(new Date())),
+      apiKey,
+    )
+    const [updated] = parseAnswer(UpdatedDocumentSchema, data, 'InternetDocument.update')
+    if (updated.Ref !== ref) {
+      logger.error('Nova Poshta updated another document', { ref, updated: updated.Ref })
+      throw new CarrierAnswerMalformedError(Carrier.NovaPost, 'InternetDocument.update')
+    }
+    if (updated.IntDocNumber !== document.IntDocNumber) {
+      logger.error('Nova Poshta renumbered the waybill on update', {
+        ref,
+        was: document.IntDocNumber,
+        now: updated.IntDocNumber,
+      })
     }
   },
 
@@ -268,6 +364,102 @@ function senderProperties(sender: Sender): NovaPoshtaProperties {
   }
 }
 
+// Their API finds a waybill by listing the cabinet's documents for dates;
+// the order's own date bounds the list from below.
+async function findDocument(
+  ref: string,
+  issuedSince: Date,
+  apiKey: string | undefined,
+): Promise<ListedDocument> {
+  const now = new Date()
+  const oldest = daysAgo(now, UPDATE_SEARCH_DAYS_BACK)
+  const data = await novaPoshtaCall(
+    'InternetDocument',
+    'getDocumentList',
+    {
+      DateTimeFrom: kyivDate(issuedSince > oldest ? issuedSince : oldest),
+      DateTimeTo: kyivDate(daysAgo(now, -UPDATE_SEARCH_DAYS_AHEAD)),
+      GetFullList: '1',
+    },
+    apiKey,
+  )
+  const listed = data.find(
+    (entry): entry is { Ref: string } =>
+      typeof entry === 'object' && entry !== null && 'Ref' in entry && entry.Ref === ref,
+  )
+  if (listed === undefined) throw new WaybillNotAtCarrierError(ref)
+
+  const parsed = ListedDocumentSchema.safeParse(listed)
+  if (!parsed.success) {
+    logger.error('Nova Poshta listed the waybill in an unexpected shape', {
+      ref,
+      issues: parsed.error.issues,
+    })
+    throw new CarrierAnswerMalformedError(Carrier.NovaPost, 'InternetDocument.getDocumentList')
+  }
+  return parsed.data
+}
+
+// How their list marks a seat as special cargo; false, '0' and null do not.
+const SPECIAL_CARGO_MARKS: readonly unknown[] = [true, '1', 1]
+
+function hasCabinetOnlyOptions(seat: Seat): boolean {
+  return Boolean(seat.packRef) || SPECIAL_CARGO_MARKS.includes(seat.specialCargo)
+}
+
+// The document as it stands, with only the payment-control amount new. A
+// waybill written on an earlier day moves to today: they refuse a sending
+// date in the past. Days are Kyiv ISO keys, which compare as strings.
+export function codUpdateProperties(
+  document: ListedDocument,
+  codCents: number,
+  todayIso: string,
+): NovaPoshtaProperties {
+  const sendingDay = document.DateTime < todayIso ? todayIso : document.DateTime
+  return {
+    Ref: document.Ref,
+    PayerType: document.PayerType,
+    PaymentMethod: document.PaymentMethod,
+    DateTime: cabinetDate(sendingDay),
+    CargoType: document.CargoType,
+    Weight: document.Weight,
+    ServiceType: document.ServiceType,
+    SeatsAmount: document.SeatsAmount,
+    Description: document.Description,
+    Cost: document.Cost,
+    CitySender: document.CitySender,
+    Sender: document.Sender,
+    SenderAddress: document.SenderAddress,
+    ContactSender: document.ContactSender,
+    SendersPhone: document.SendersPhone,
+    CityRecipient: document.CityRecipient,
+    Recipient: document.Recipient,
+    RecipientAddress: document.RecipientAddress,
+    ContactRecipient: document.ContactRecipient,
+    RecipientsPhone: document.RecipientsPhone,
+    InfoRegClientBarcodes: document.InfoRegClientBarcodes,
+    ...(document.OptionsSeat.length > 0
+      ? { OptionsSeat: document.OptionsSeat.map(savedSeat) }
+      : {}),
+    AfterpaymentOnGoodsCost: hryvnias(codCents),
+  }
+}
+
+function savedSeat(seat: Seat): Record<string, string> {
+  return {
+    volumetricVolume: seat.volumetricVolume,
+    volumetricWidth: seat.volumetricWidth,
+    volumetricLength: seat.volumetricLength,
+    volumetricHeight: seat.volumetricHeight,
+    weight: seat.weight,
+  }
+}
+
+// «2026-10-26» → «26.10.2026», the date as save takes it.
+function cabinetDate(isoDay: string): string {
+  return isoDay.split('-').reverse().join('.')
+}
+
 // Success with an answer we cannot read is logged with the raw data: for a
 // saved waybill it holds the ref of a document that may now exist.
 function parseAnswer<T extends readonly unknown[]>(
@@ -298,10 +490,14 @@ function hryvnias(cents: number): string {
 
 // The shipping date they expect as dd.mm.yyyy, on the sender's calendar.
 function todayInKyiv(): string {
+  return kyivDate(new Date())
+}
+
+function kyivDate(moment: Date): string {
   return new Intl.DateTimeFormat('uk-UA', {
     timeZone: KYIV_TIME_ZONE,
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
-  }).format(new Date())
+  }).format(moment)
 }

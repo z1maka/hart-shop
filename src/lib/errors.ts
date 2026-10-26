@@ -245,6 +245,56 @@ export class TrackingFromWaybillError extends AppError {
   }
 }
 
+// The carrier has taken the parcel (or its cabinet no longer offers the
+// waybill for editing): changing it now is a paid request in their cabinet.
+export class WaybillNotEditableError extends AppError {
+  readonly code = 'WAYBILL_NOT_EDITABLE'
+
+  constructor(ref: string) {
+    super(`Waybill ${ref} can no longer be edited at the carrier`)
+  }
+}
+
+// A prepayment that does not fit the order: one paid another way, or one
+// that would leave the carrier nothing to collect.
+export class PrepaymentNotAllowedError extends AppError {
+  readonly code: string
+
+  constructor(orderId: string, reason: 'not_cod' | 'covers_total') {
+    super(`Order ${orderId} cannot take this prepayment: ${reason}`)
+    this.code = reason === 'not_cod' ? 'PREPAYMENT_NOT_COD' : 'PREPAYMENT_COVERS_TOTAL'
+  }
+}
+
+// Their list of the cabinet's documents does not hold the waybill: deleted
+// there by hand, or its sending date moved beyond the days searched.
+export class WaybillNotAtCarrierError extends AppError {
+  readonly code = 'WAYBILL_NOT_AT_CARRIER'
+
+  constructor(ref: string) {
+    super(`Waybill ${ref} is not in the carrier's cabinet list`)
+  }
+}
+
+// Packaging or special cargo added to the waybill in the cabinet: an update
+// from here would send the document back without them.
+export class WaybillEditedInCabinetError extends AppError {
+  readonly code = 'WAYBILL_EDITED_IN_CABINET'
+
+  constructor(ref: string) {
+    super(`Waybill ${ref} carries cabinet-only seat options`)
+  }
+}
+
+// Another save changed the prepayment while the carrier was being asked.
+export class PrepaymentChangedError extends AppError {
+  readonly code = 'PREPAYMENT_CHANGED'
+
+  constructor(orderId: string) {
+    super(`Order ${orderId} prepayment changed during the update`)
+  }
+}
+
 export class WaybillMissingError extends AppError {
   readonly code = 'WAYBILL_MISSING'
 

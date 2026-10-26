@@ -66,6 +66,7 @@ export type ShippableOrder = {
   readonly pickupPointRef: string | null
   readonly paymentRoute: string
   readonly totalCents: number
+  readonly prepaidCents: number
   readonly shippingAddress: { readonly fullName: string; readonly phone?: string }
 }
 
@@ -214,10 +215,31 @@ export function suggestedCargoDescription(items: readonly ShippableItem[]): stri
   return title.slice(0, WAYBILL_DESCRIPTION_MAX_LENGTH).trim()
 }
 
-// Cash on delivery is collected by the carrier and passed to the shop; a
-// prepaid order carries no amount.
-export function codCents(order: ShippableOrder): number {
-  return order.paymentRoute === PaymentRoute.CashOnDelivery ? order.totalCents : 0
+// Cash on delivery is collected by the carrier and passed to the shop, less
+// whatever the buyer sent ahead; a prepaid order carries no amount.
+export function codCents(
+  order: Pick<ShippableOrder, 'paymentRoute' | 'totalCents' | 'prepaidCents'>,
+): number {
+  if (order.paymentRoute !== PaymentRoute.CashOnDelivery) return 0
+  return Math.max(0, order.totalCents - order.prepaidCents)
+}
+
+export const PrepaymentProblem = {
+  NotCashOnDelivery: 'not_cod',
+  // The carrier needs something left to collect: a buyer who pays it all
+  // ahead is a prepaid order, not a cash-on-delivery one.
+  CoversTotal: 'covers_total',
+} as const
+
+export type PrepaymentProblem = (typeof PrepaymentProblem)[keyof typeof PrepaymentProblem]
+
+export function prepaymentProblem(
+  order: Pick<ShippableOrder, 'paymentRoute' | 'totalCents'>,
+  prepaidCents: number,
+): PrepaymentProblem | null {
+  if (order.paymentRoute !== PaymentRoute.CashOnDelivery) return PrepaymentProblem.NotCashOnDelivery
+  if (prepaidCents >= order.totalCents) return PrepaymentProblem.CoversTotal
+  return null
 }
 
 export function buildWaybillRequest(

@@ -61,7 +61,10 @@ describe('issuing a waybill from a picked cabinet', () => {
     mocks.cabinetServiceFor.mockResolvedValue(cabinet({ isActive: false }))
 
     await expect(
-      orderShipmentService.issueWaybill('order-1', PARCEL, 'admin@fox', 'cabinet-2'),
+      orderShipmentService.issueWaybill('order-1', PARCEL, {
+        issuedBy: 'admin@fox',
+        accountId: 'cabinet-2',
+      }),
     ).rejects.toMatchObject({ code: 'CARRIER_ACCOUNT_UNAVAILABLE' })
     expect(mocks.create).not.toHaveBeenCalled()
   })
@@ -71,7 +74,10 @@ describe('issuing a waybill from a picked cabinet', () => {
     mocks.cabinetServiceFor.mockResolvedValue(cabinet({ id: 'cabinet-1' }))
 
     await expect(
-      orderShipmentService.issueWaybill('order-1', PARCEL, 'admin@fox', 'cabinet-2'),
+      orderShipmentService.issueWaybill('order-1', PARCEL, {
+        issuedBy: 'admin@fox',
+        accountId: 'cabinet-2',
+      }),
     ).rejects.toMatchObject({ code: 'CARRIER_ACCOUNT_UNAVAILABLE' })
     expect(mocks.create).not.toHaveBeenCalled()
   })

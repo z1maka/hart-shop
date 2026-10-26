@@ -103,6 +103,17 @@ type SenderChoices = {
   readonly issuedFrom: WaybillSenderView | null
 }
 
+// The money on the waybill: the order total is declared, and a
+// cash-on-delivery order has the carrier collect it less the prepayment.
+export type WaybillPaymentView = {
+  readonly paymentRoute: PaymentRoute
+  readonly totalCents: number
+  readonly prepaidCents: number
+  // A cash-on-delivery order not yet sent or cancelled: its prepayment can
+  // still change, on the issue form or under the written waybill.
+  readonly isPrepaymentOpen: boolean
+}
+
 export type AdminWaybillView = SenderChoices & {
   readonly documentRef: string | null
   readonly blocker: WaybillBlocker | null
@@ -125,8 +136,7 @@ export type AdminWaybillView = SenderChoices & {
   // The lines' total; zero when the products carry no weight yet.
   readonly weightGrams: number
   readonly description: string
-  readonly declaredValueLabel: string
-  readonly codLabel: string | null
+  readonly payment: WaybillPaymentView
 }
 
 export type TransferAccountView = {
@@ -181,6 +191,10 @@ export type AdminOrderView = {
   readonly subtotalLabel: string
   readonly shippingLabel: string
   readonly totalLabel: string
+  // Shown only when the buyer sent part of a cash-on-delivery order ahead:
+  // what came in and what the carrier collects.
+  readonly prepaidLabel: string | null
+  readonly codLabel: string | null
   readonly lines: readonly AdminOrderLine[]
   // Newest first: what the shop sent about this order and how it went.
   readonly notifications: readonly AdminNotificationView[]
@@ -231,6 +245,8 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrderView | n
     shippingLabel:
       order.shippingCents === 0 ? 'за тарифами перевізника' : moneyLabel(order.shippingCents),
     totalLabel: moneyLabel(order.totalCents),
+    prepaidLabel: order.prepaidCents > 0 ? moneyLabel(order.prepaidCents) : null,
+    codLabel: order.prepaidCents > 0 ? moneyLabel(codCents(order)) : null,
     lines: items.map(lineView),
     notifications: notifications.map((row) => ({
       id: row.id,
@@ -254,7 +270,6 @@ async function waybillViewOf(
     order.carrierDocumentRef ? null : currentPointOf(order, carrier),
   ])
   const mustSettleRecipient = isSettledByRecipient(blocker)
-  const cod = codCents(order)
 
   return {
     ...senderChoices,
@@ -263,8 +278,13 @@ async function waybillViewOf(
     canRemove: order.carrierDocumentRef !== null && canRemoveWaybill(order.status),
     weightGrams: parcelWeightGrams(items),
     description: suggestedCargoDescription(items),
-    declaredValueLabel: moneyLabel(order.totalCents),
-    codLabel: cod > 0 ? moneyLabel(cod) : null,
+    payment: {
+      paymentRoute: order.paymentRoute as PaymentRoute,
+      totalCents: order.totalCents,
+      prepaidCents: order.prepaidCents,
+      isPrepaymentOpen:
+        order.paymentRoute === PaymentRoute.CashOnDelivery && canIssueWaybill(order.status),
+    },
     mustSettleRecipient,
     recipient: recipientDraft(order),
     previousRecipient: mustSettleRecipient ? await previousRecipientOf(order, carrier) : null,

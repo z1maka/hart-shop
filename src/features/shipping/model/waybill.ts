@@ -47,6 +47,9 @@ export type WaybillService = {
   isConfigured(): boolean
   create(request: WaybillRequest): Promise<Waybill>
   remove(ref: string): Promise<void>
+  // A new cash-on-delivery amount on a waybill the carrier has not taken
+  // yet; the number stays. `issuedSince` bounds the search for it.
+  updateCod(ref: string, codCents: number, issuedSince: Date): Promise<void>
   labelPdf(number: string): Promise<ArrayBuffer>
   // The carrier's public tracking page for a number made anywhere.
   trackingUrl(number: string): string

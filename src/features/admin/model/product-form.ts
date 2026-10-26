@@ -89,6 +89,10 @@ export function hryvniasToKopiykas(hryvnias: number): number {
   return Math.round(hryvnias * KOPIYKAS_PER_HRYVNIA)
 }
 
+export function kopiykasToHryvnias(kopiykas: number): number {
+  return kopiykas / KOPIYKAS_PER_HRYVNIA
+}
+
 const GRAMS_PER_KILO = 1000
 
 // The heaviest parcel the shop sends in one box.

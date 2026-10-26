@@ -321,6 +321,9 @@ export const orders = pgTable(
     // column so a shop-paid tariff later is data, not a schema change.
     shippingCents: integer('shipping_cents').notNull(),
     totalCents: integer('total_cents').notNull(),
+    // What a cash-on-delivery buyer already sent ahead (a prepayment agreed
+    // over the phone); the carrier collects the rest. Zero for the others.
+    prepaidCents: integer('prepaid_cents').notNull().default(0),
     currency: char('currency', { length: 3 }).notNull().default('UAH'),
     shippingAddress: jsonb('shipping_address').$type<ShippingAddress>().notNull(),
     // The phone as digits only: checkout and the quick order format it

@@ -4,7 +4,9 @@ import {
   buildDoorWaybillRequest,
   buildWaybillRequest,
   canIssueWaybill,
+  codCents,
   parcelWeightGrams,
+  prepaymentProblem,
   suggestedCargoDescription,
   waybillReadiness,
   WaybillReadiness,
@@ -25,6 +27,7 @@ import { canTransition } from '@/features/orders/model/status-flow'
 import {
   orderRepository,
   type OrderRow,
+  type PrepaidChange,
   type ShippingAddress,
 } from '@/features/orders/repository/order-repository'
 import {
@@ -41,6 +44,8 @@ import {
   CarrierAccountUnavailableError,
   OrderNotFoundError,
   PickupPointNotFoundError,
+  PrepaymentChangedError,
+  PrepaymentNotAllowedError,
   WaybillAlreadyIssuedError,
   WaybillLockedError,
   WaybillMissingError,
@@ -68,6 +73,15 @@ export type RecipientSettlement = {
 // A courier order's door as picked in the admin, with the names to show.
 export type CourierDoor = DoorDelivery & DoorNames
 
+// Who issues, from which cabinet (none takes the default one) and, for a
+// cash-on-delivery order, the prepayment typed on the form; none typed keeps
+// the saved one.
+export type WaybillIssueRequest = {
+  readonly issuedBy: string
+  readonly accountId?: string | null
+  readonly prepaidCents?: number
+}
+
 // One order's share of the daily round. The three endings are told apart by
 // `kind`, so the panel never has to guess whether a code names a gap in the
 // order or a refusal from the carrier.
@@ -89,24 +103,24 @@ export const orderShipmentService = {
   async issueWaybill(
     orderId: string,
     parcel: ParcelInput,
-    issuedBy: string,
-    accountId: string | null = null,
+    issuing: WaybillIssueRequest,
   ): Promise<IssuedWaybill> {
-    const order = await findOrder(orderId)
+    const order = withPrepayment(await findOrder(orderId), issuing.prepaidCents)
     const request = buildWaybillRequest(order, parcel)
-    return issue(order, { request, issuedBy, accountId, shippingAddress: null })
+    return issue(order, {
+      request,
+      issuedBy: issuing.issuedBy,
+      accountId: issuing.accountId ?? null,
+      shippingAddress: null,
+    })
   },
 
   async issueCourierWaybill(
     orderId: string,
     parcel: ParcelInput,
-    delivery: {
-      readonly door: CourierDoor
-      readonly issuedBy: string
-      readonly accountId?: string | null
-    },
+    delivery: WaybillIssueRequest & { readonly door: CourierDoor },
   ): Promise<IssuedWaybill> {
-    const order = await findOrder(orderId)
+    const order = withPrepayment(await findOrder(orderId), delivery.prepaidCents)
     const request = buildDoorWaybillRequest(order, parcel, delivery.door)
     const shippingAddress = { ...order.shippingAddress, ...doorAddressLines(delivery.door) }
     return issue(order, {
@@ -185,6 +199,28 @@ export const orderShipmentService = {
     }
   },
 
+  // Money a cash-on-delivery buyer sent ahead after the waybill was written:
+  // the carrier collects only the rest, so the waybill takes the new amount
+  // first. Before the waybill the prepayment is typed on the issue form.
+  async setPrepayment(orderId: string, prepaidCents: number): Promise<void> {
+    const order = await findOrder(orderId)
+    const ref = order.carrierDocumentRef
+    if (!order.carrier || !ref) throw new WaybillMissingError(orderId)
+    const problem = prepaymentProblem(order, prepaidCents)
+    if (problem) throw new PrepaymentNotAllowedError(orderId, problem)
+    if (!canIssueWaybill(order.status)) throw new WaybillOrderClosedError(orderId, order.status)
+    if (prepaidCents === order.prepaidCents) return
+
+    const { service } = await cabinetServiceFor(order.carrier, order.carrierAccountId)
+    await service.updateCod(ref, codCents({ ...order, prepaidCents }), order.createdAt)
+    await savePrepaidAfterCarrier(orderId, {
+      prepaidCents,
+      previousPrepaidCents: order.prepaidCents,
+      carrierDocumentRef: ref,
+    })
+    logger.info('Order prepayment saved', { orderId, prepaidCents, ref })
+  },
+
   async labelPdf(orderId: string): Promise<WaybillLabel> {
     const order = await findOrder(orderId)
     if (!order.carrier || !order.carrierDocumentRef || !order.trackingNumber) {
@@ -210,7 +246,7 @@ async function issueOne(orderId: string, issuedBy: string): Promise<WaybillBatch
   }
 
   try {
-    const issued = await orderShipmentService.issueWaybill(orderId, parcel, issuedBy)
+    const issued = await orderShipmentService.issueWaybill(orderId, parcel, { issuedBy })
     return { orderNumber: order.orderNumber, kind: 'issued', waybillNumber: issued.number }
   } catch (error) {
     logger.error('Waybill in the daily round failed', { orderId, error })
@@ -234,6 +270,40 @@ async function refusalOf(orderId: string): Promise<Error> {
   const current = await findOrder(orderId)
   if (current.carrierDocumentRef) return new WaybillAlreadyIssuedError(orderId)
   return new WaybillOrderClosedError(orderId, current.status)
+}
+
+// The prepayment typed on the issue form goes into the waybill's cash on
+// delivery and is saved with the waybill; none typed keeps the saved one.
+function withPrepayment(order: OrderRow, prepaidCents: number | undefined): OrderRow {
+  if (prepaidCents === undefined || prepaidCents === order.prepaidCents) return order
+  const problem = prepaymentProblem(order, prepaidCents)
+  if (problem) throw new PrepaymentNotAllowedError(order.id, problem)
+  return { ...order, prepaidCents }
+}
+
+// The carrier already holds the new amount, so an order that did not take
+// it is logged as the mismatch it is, for the admin to settle.
+async function savePrepaidAfterCarrier(orderId: string, change: PrepaidChange): Promise<void> {
+  try {
+    if (await orderRepository.setPrepaid(orderId, change)) return
+    throw await prepaymentRefusalOf(orderId, change.carrierDocumentRef)
+  } catch (error) {
+    logger.error('Waybill took the new cash-on-delivery amount, the order did not', {
+      orderId,
+      ...change,
+      error,
+    })
+    throw error
+  }
+}
+
+// Why the order did not take the change: its waybill is another one or
+// gone, or another save changed the prepayment first.
+async function prepaymentRefusalOf(orderId: string, ref: string): Promise<Error> {
+  const current = await findOrder(orderId)
+  if (current.carrierDocumentRef === ref) return new PrepaymentChangedError(orderId)
+  if (current.carrierDocumentRef) return new WaybillAlreadyIssuedError(orderId)
+  return new WaybillMissingError(orderId)
 }
 
 type Issue = {
@@ -313,6 +383,7 @@ async function attachOrUndo(order: OrderRow, attachment: Attachment): Promise<vo
         trackingNumber: waybill.number,
         trackingUrl: waybill.trackingUrl,
         carrierDocumentRef: waybill.ref,
+        prepaidCents: order.prepaidCents,
         status: packed ? OrderStatus.Packed : null,
         shippingAddress,
       },

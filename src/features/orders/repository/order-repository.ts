@@ -77,6 +77,7 @@ export type OrderPageRow = {
   readonly traffic: OrderTraffic | null
   readonly paymentRoute: PaymentRoute
   readonly totalCents: number
+  readonly prepaidCents: number
   readonly status: OrderStatus
   readonly trackingNumber: string | null
   readonly trackingUrl: string | null
@@ -171,10 +172,23 @@ export type WaybillAttachment = {
   readonly trackingNumber: string
   readonly trackingUrl: string
   readonly carrierDocumentRef: string
+  // The prepayment the waybill's cash on delivery was reduced by; saved
+  // with it, so the two never disagree.
+  readonly prepaidCents: number
   // Packed when the waybill closes the box; null leaves the status alone.
   readonly status: OrderStatus | null
   // A courier order's door as the carrier spells it; null keeps the address.
   readonly shippingAddress: ShippingAddress | null
+}
+
+// A prepayment changed under an issued waybill, matched only while the
+// order still has that waybill and the prepayment this change started from:
+// a waybill issued or removed meanwhile, or another save in between, carries
+// an amount the carrier was not just told about.
+export type PrepaidChange = {
+  readonly prepaidCents: number
+  readonly previousPrepaidCents: number
+  readonly carrierDocumentRef: string
 }
 
 export type SettledRecipient = {
@@ -599,6 +613,21 @@ export const orderRepository = {
       .where(and(eq(orders.id, orderId), eq(orders.carrierDocumentRef, carrierDocumentRef)))
   },
 
+  async setPrepaid(orderId: string, change: PrepaidChange): Promise<boolean> {
+    const updated = await db
+      .update(orders)
+      .set({ prepaidCents: change.prepaidCents, updatedAt: new Date() })
+      .where(
+        and(
+          eq(orders.id, orderId),
+          eq(orders.carrierDocumentRef, change.carrierDocumentRef),
+          eq(orders.prepaidCents, change.previousPrepaidCents),
+        ),
+      )
+      .returning({ id: orders.id })
+    return updated.length > 0
+  },
+
   async setInvoiceNumber(orderId: string, invoiceNumber: string | null): Promise<void> {
     await db
       .update(orders)
@@ -640,6 +669,7 @@ export const orderRepository = {
         shippingAddress: orders.shippingAddress,
         paymentRoute: orders.paymentRoute,
         totalCents: orders.totalCents,
+        prepaidCents: orders.prepaidCents,
         status: orders.status,
         trackingNumber: orders.trackingNumber,
         trackingUrl: orders.trackingUrl,

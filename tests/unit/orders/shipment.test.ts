@@ -7,6 +7,8 @@ import {
   canRemoveWaybill,
   codCents,
   doorAddressLines,
+  prepaymentProblem,
+  PrepaymentProblem,
   isSettledByRecipient,
   parcelWeightGrams,
   pickupPointLabel,
@@ -27,6 +29,7 @@ const branchOrder: ShippableOrder = {
   pickupPointRef: '1ae9ab67-f1b3-11ea-b49b-b8830365bd14',
   paymentRoute: 'cod',
   totalCents: 790_000,
+  prepaidCents: 0,
   shippingAddress: { fullName: 'Микола Косенко', phone: '+380 63 063 06 77' },
 }
 
@@ -309,5 +312,39 @@ describe('isChosenCabinetUsable', () => {
 
   it('refuses a cabinet switched off since the page loaded', () => {
     expect(isChosenCabinetUsable('cabinet-2', { ...cabinet, isActive: false })).toBe(false)
+  })
+})
+
+describe('codCents with a prepayment', () => {
+  it('leaves the carrier the rest of the total', () => {
+    expect(codCents({ ...branchOrder, prepaidCents: 100_000 })).toBe(690_000)
+  })
+
+  it('never asks the carrier for less than nothing', () => {
+    expect(codCents({ ...branchOrder, prepaidCents: 900_000 })).toBe(0)
+  })
+
+  it('takes the prepayment into the waybill request', () => {
+    expect(buildWaybillRequest({ ...branchOrder, prepaidCents: 100_000 }, parcel)).toMatchObject({
+      declaredValueCents: 790_000,
+      codCents: 690_000,
+    })
+  })
+})
+
+describe('prepaymentProblem', () => {
+  it('takes a prepayment below the total of a cash-on-delivery order', () => {
+    expect(prepaymentProblem(branchOrder, 0)).toBeNull()
+    expect(prepaymentProblem(branchOrder, 789_999)).toBeNull()
+  })
+
+  it('refuses one that covers the whole order', () => {
+    expect(prepaymentProblem(branchOrder, 790_000)).toBe(PrepaymentProblem.CoversTotal)
+  })
+
+  it('refuses one on an order paid another way', () => {
+    expect(prepaymentProblem({ ...branchOrder, paymentRoute: 'card' }, 100_000)).toBe(
+      PrepaymentProblem.NotCashOnDelivery,
+    )
   })
 })
