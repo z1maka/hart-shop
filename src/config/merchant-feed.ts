@@ -35,7 +35,7 @@ export const FEED_APPAREL_AGE_GROUP = 'adult'
 // in the headset kit.
 export const FEED_EXCLUDED_SLUGS: readonly string[] = [
   'kriplennya-povorotni-na-reytsi-arc-na-sholom',
-  'komplekt-oryhinalnyy-aktyvni-navushnyky-walkers-razor-usa-z-povorotnymy-kriplennyamy',
+  'komplekt-walkers-razor-z-kriplenniamy-arc',
 ]
 
 // Colours on sale with no photos of their own yet: choosing one keeps the
@@ -70,6 +70,6 @@ export const MERCHANT_FEED_FOX_PHOTO_SLUGS: readonly string[] = [
   'antyteploviziyni-chokhly-na-ruky-uv-em',
   'antyteploviziyni-chokhly-na-nohy-uv-em',
   'plashch-nakidka-poncho-s-trekhsharovoy-tkanyu-antiteploviziyniy-zakhist',
-  'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho',
+  'antydronove-poncho-z-molle-4-shary',
   'antyteploviziynyi-chokhol-na-antenu-adaptis',
 ]

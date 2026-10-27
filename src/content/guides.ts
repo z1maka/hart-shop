@@ -129,7 +129,7 @@ export const GUIDES: readonly Guide[] = [
     products: [
       { slug: 'anty-teploviziyna-nakydka-poncho-multi-a-6286', label: 'Антитепловізійне пончо, 3 шари' },
       { slug: 'antyteploviziyne-poncho-z-kysheneiu-3-shary', label: 'Посилене антидронове пончо з кишенею' },
-      { slug: 'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho', label: 'Антидронове пончо з MOLLE, 4 шари' },
+      { slug: 'antydronove-poncho-z-molle-4-shary', label: 'Антидронове пончо з MOLLE, 4 шари' },
       { slug: 'antydronova-nakydka-uv-em-z-rukavamy', label: 'Антидронова накидка UV+EM з рукавами' },
       { slug: 'maskuvalne-poncho-fx14-3d-lystya-class-d', label: 'Маскувальне пончо з 3D-листям' },
       { slug: 'antyteploviziyni-chokhly-na-ruky-uv-em', label: 'Чохли на руки UV+EM' },
@@ -300,7 +300,7 @@ export const GUIDES: readonly Guide[] = [
     ],
     products: [
       { slug: 'anty-teploviziyna-nakydka-poncho-a6286', label: 'Антитепловізійне пончо, 3 шари, олива' },
-      { slug: 'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho', label: 'Антидронове пончо з MOLLE, 4 шари' },
+      { slug: 'antydronove-poncho-z-molle-4-shary', label: 'Антидронове пончо з MOLLE, 4 шари' },
       { slug: 'antyteploviziyna-kovdra-z-molle', label: 'Антитепловізійна ковдра з MOLLE' },
     ],
   },
@@ -555,7 +555,7 @@ export const GUIDES: readonly Guide[] = [
       { slug: 'anty-teploviziyna-nakydka-poncho-a6286', label: 'Антитепловізійне пончо, 3 шари, олива' },
       { slug: 'antyteploviziynyi-tent-250x150-olyva', label: 'Антитепловізійний тент, олива' },
       { slug: 'samookholodzhuvalnyi-chokhol-na-starlink-z-3d-sitkoiu-osinnii', label: 'Самоохолоджувальний чохол на Starlink з 3D-сіткою' },
-      { slug: 'futbolka-taktychna-coolmax-1', label: 'Тактична футболка Coolmax' },
+      { slug: 'futbolka-coolmax-odnotonna', label: 'Тактична футболка Coolmax' },
     ],
   },
   {
@@ -638,7 +638,7 @@ export const GUIDES: readonly Guide[] = [
     ],
     products: [
       { slug: 'anty-teploviziyna-nakydka-poncho-multi-a-6286', label: 'Антитепловізійне пончо, 3 шари' },
-      { slug: 'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho', label: 'Антидронове пончо з MOLLE, 4 шари' },
+      { slug: 'antydronove-poncho-z-molle-4-shary', label: 'Антидронове пончо з MOLLE, 4 шари' },
       { slug: 'antyteploviziyna-kovdra-z-molle', label: 'Антитепловізійна ковдра з MOLLE' },
       { slug: 'chekhol-antiteplovizor-i-antidron-dlya-starlink', label: 'Чохол на Starlink Gen 2, Gen 3, Gen 4' },
     ],

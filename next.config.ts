@@ -92,21 +92,21 @@ const CLOSED_SITE_HEADERS = isIndexable ? [] : [{ key: 'X-Robots-Tag', value: 'n
 // (seen 03–04.10.2026), and the new site would answer 404. Old → current.
 const RENAMED_WORDPRESS_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
   'оригінал-usa-активні-навушники-walkers-razor-tacti-grip-electronic-muff':
-    'oryhinal-usa-aktyvni-navushnyky-walkers-razor-tacti-grip-electronic-muff',
+    'aktyvni-navushnyky-walkers-razor-tacti-grip',
   'sholom-kaska-kevlarova-3a-sestan-busch-bk-ach-hc-oryhinal-nato-chokhol':
-    'sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-chokhol',
+    'sholom-sestan-busch-bk-ach-hc-multykam',
   'sholom-kaska-kevlarova-3a-sestan-busch-bk-ach-hc-oryhinal-nato-chokhol-1':
-    'sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-chokhol-1',
+    'sholom-sestan-busch-bk-ach-hc-olyva',
   'sholom-kaska-kevlarova-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-nato-z-chokhlom':
-    'sholom-kevlar-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-z-chokhlom',
+    'sholom-sestan-busch-bk-ach-gen-ii-koiot',
   'sholom-kaska-kevlarova-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-nato-z-chokhlom-1':
-    'sholom-kevlar-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-z-chokhlom-1',
+    'sholom-sestan-busch-bk-ach-gen-ii-olyva',
   'komplekt-sholom-kaska-kevlarova-3a-sestan-busch-bk-ach-hc-oryhinal-nato-navushnyky-walkers-razor':
     'komplekt-sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-navushnyky-walkers-razor',
   'komplekt-sholom-kaska-kevlarova-3a-sestan-busch-bk-ach-hc-oryhinal-nato-aktyvni-navushnyky-walkers-razor':
-    'komplekt-sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-aktyvni-navushnyky-walkers-razor',
+    'komplekt-sholom-sestan-busch-bk-ach-hc-i-navushnyky-walkers-razor',
   'komplekt-sholom-kaska-kevlarova-3a-fast-nij0106-01-iiia-3a-oryhinal-aktyvni-navushnyky-walkers-razor':
-    'komplekt-sholom-kevlar-3a-fast-nij0106-01-iiia-3a-oryhinal-aktyvni-navushnyky-walkers-razor',
+    'komplekt-sholom-fast-iiia-i-navushnyky-walkers-razor',
 }
 
 // Slugs this shop changed after launch, Cyrillic ones moved to Latin on the
@@ -116,7 +116,10 @@ const RENAMED_WORDPRESS_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
 // Slugs that named FOX Armor's «Predator» model, read in English or named
 // the wrong colour or antenna now say what the card sells (owner, 22.10.2026);
 // cards in the Google feed kept theirs. The same day the pixel tent became the
-// multicam one and the khaki tent the olive one. Old → current.
+// multicam one and the khaki tent the olive one. Bought-in gear, the
+// stretchers, T-shirts and the MOLLE poncho lost their «-1», «oryhinal-usa»
+// and «molle-molle» tails on 27.10.2026; cards in the Google feed or in ads
+// again kept theirs. Old → current.
 const RENAMED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
   'чохол-антитепловізор-та-антидрон-для-2': 'antyteploviziynyi-chokhol-na-acasom-roc-6',
   'antyteploviziynyi-chokhol-na-antenu-avenger': 'antyteploviziynyi-chokhol-na-acasom-roc-6',
@@ -132,6 +135,40 @@ const RENAMED_PRODUCT_SLUGS: Readonly<Record<string, string>> = {
   'antyteploviziynyi-tent-250x150-khaki': 'antyteploviziynyi-tent-250x150-olyva',
   'anty-teploviziyne-odeyalo-zakhysna-nakydka-vid-droniv-zakhyshchaye-vid-teploviziynoho-sposterezhennya':
     'antyteploviziyna-kovdra-z-molle',
+  'aktyvni-navushnyky-walkers-razor-oryhinal-usa-oryhinal':
+    'aktyvni-navushnyky-walkers-razor-siryi-kamufliazh',
+  'aktyvni-navushnyky-walkers-razor-oryhinal-usa-oryhinal-1':
+    'aktyvni-navushnyky-walkers-razor-pisochnyi-kamufliazh',
+  'aktyvni-navushnyky-walkers-razor-oryhinal-usa-oryhinal-2':
+    'aktyvni-navushnyky-walkers-razor-zelenyi-kamufliazh',
+  'oryhinal-usa-aktyvni-navushnyky-walkers-razor-tacti-grip-electronic-muff':
+    'aktyvni-navushnyky-walkers-razor-tacti-grip',
+  'komplekt-aktyvnykh-navushnykiv-walkers-razor-z-balistychnymy-okulyaramy-glasses-combo-kit-oryhinal-usa-oryhinal':
+    'komplekt-walkers-razor-z-balistychnymy-okuliaramy',
+  'komplekt-oryhinalnyy-aktyvni-navushnyky-walkers-razor-usa-z-povorotnymy-kriplennyamy':
+    'komplekt-walkers-razor-z-kriplenniamy-arc',
+  'komplekt-sholom-kevlar-3a-fast-nij0106-01-iiia-3a-oryhinal-aktyvni-navushnyky-walkers-razor':
+    'komplekt-sholom-fast-iiia-i-navushnyky-walkers-razor',
+  'komplekt-sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-aktyvni-navushnyky-walkers-razor':
+    'komplekt-sholom-sestan-busch-bk-ach-hc-i-navushnyky-walkers-razor',
+  'sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-chokhol':
+    'sholom-sestan-busch-bk-ach-hc-multykam',
+  'sholom-kevlar-3a-sestan-busch-bk-ach-hc-oryhinal-chokhol-1':
+    'sholom-sestan-busch-bk-ach-hc-olyva',
+  'sholom-kevlar-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-z-chokhlom':
+    'sholom-sestan-busch-bk-ach-gen-ii-koiot',
+  'sholom-kevlar-3a-sestan-busch-helmet-bk-ach-gen-ii-oryhinal-z-chokhlom-1':
+    'sholom-sestan-busch-bk-ach-gen-ii-olyva',
+  'taktychnyy-ryukzak-mil-tec-40l-oryhinal-nimechchyna': 'ryukzak-mil-tec-40-l-multykam',
+  'taktychnyy-ryukzak-mil-tec-40l-oryhinal-nimechchyna-1': 'ryukzak-mil-tec-40-l-koiot',
+  'taktychnyy-ryukzak-mil-tec-40l-oryhinal-nimechchyna-2': 'ryukzak-mil-tec-40-l-siryi-piksel',
+  'noshi-taktychni-medychni-evakuatsiyni-savior-z-hnuchkym-armovanym-karkasom': 'noshi-savior-siri',
+  'noshi-taktychni-medychni-evakuatsiyni-savior-z-hnuchkym-armovanym-karkasom-2':
+    'noshi-savior-olyva',
+  'futbolka-taktychna-coolmax': 'futbolka-coolmax-piksel-i-olyva',
+  'futbolka-taktychna-coolmax-1': 'futbolka-coolmax-odnotonna',
+  'poncho-z-posylenym-zakhystom-vid-teplovizoriv-ta-droniv-model-fx-2-iz-dodatkovymy-kriplennyamy-elementiv-maskuvannya-molle-molle-anty-teplovizor-poncho':
+    'antydronove-poncho-z-molle-4-shary',
 }
 
 // Products folded into another card: the old page moves to where its variants
