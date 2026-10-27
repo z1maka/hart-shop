@@ -52,6 +52,8 @@ export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = [
   'HART-SL-MINI-OLIVE',
   // Acasom ROC-6 olive: multicam and pixel have photos (25.10.2026).
   'HART-39064-V39066',
+  // Self-cooling Starlink Mini 3D-net: winter blot not shot yet (27.10.2026).
+  'HART-SL-MINI-3D-WINTER',
 ]
 
 // The Google feed carries what the workshop sews — ponchos, tents and Starlink
