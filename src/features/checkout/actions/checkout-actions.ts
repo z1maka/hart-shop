@@ -1,7 +1,7 @@
 'use server'
 
 import { Carrier, ContactPreference, DeliveryKind, PaymentRoute } from '@/db/enums'
-import { readTrafficTouch } from '@/features/analytics/session'
+import { readGoogleClickId, readTrafficTouch } from '@/features/analytics/session'
 import { clearCartId, readCartId } from '@/features/cart/session'
 import { normalizeOrderNote } from '@/features/checkout/model/order-note'
 import { checkoutService } from '@/features/checkout/services/create-session'
@@ -32,6 +32,7 @@ export async function startCheckoutAction(input: unknown): Promise<ActionResult<
       contactPreference: parsed.data.contactPreference,
       callbackOrigin: await requestOrigin(),
       traffic: await readTrafficTouch(),
+      googleClickId: await readGoogleClickId(),
     })
 
     // A card checkout keeps its cart until the acquirer confirms; an offline
@@ -80,6 +81,7 @@ export async function quickOrderAction(input: unknown): Promise<ActionResult<str
       contactPreference: ContactPreference.Call,
       callbackOrigin: await requestOrigin(),
       traffic: await readTrafficTouch(),
+      googleClickId: await readGoogleClickId(),
     })
 
     await clearCartId()

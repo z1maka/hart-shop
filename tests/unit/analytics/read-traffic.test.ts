@@ -9,7 +9,7 @@ vi.mock('next/headers', () => ({
 }))
 
 import { serializeTouch } from '@/features/analytics/model/traffic-source'
-import { readTrafficTouch } from '@/features/analytics/session'
+import { readGoogleClickId, readTrafficTouch } from '@/features/analytics/session'
 
 const TOUCH = { source: 'google_ads', detail: 'PMax' } as const
 
@@ -33,5 +33,22 @@ describe('readTrafficTouch at checkout', () => {
 
   it('is null without a recorded visit', async () => {
     await expect(readTrafficTouch()).resolves.toBeNull()
+  })
+})
+
+describe('readGoogleClickId at checkout', () => {
+  const GCLID = 'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk'
+
+  it('hands the ad click to the order', async () => {
+    jar.set('hart_gclid', GCLID)
+
+    await expect(readGoogleClickId()).resolves.toBe(GCLID)
+  })
+
+  it('drops it once the shopper has refused tracking', async () => {
+    jar.set('hart_gclid', GCLID)
+    jar.set('hart_consent', 'denied')
+
+    await expect(readGoogleClickId()).resolves.toBeNull()
   })
 })

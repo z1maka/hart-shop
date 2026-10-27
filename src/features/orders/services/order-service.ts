@@ -39,6 +39,8 @@ export type OrderDraftInput = {
   readonly bankRequisites: BankAccountDraft | null
   // The channel the shopper came from; null when unknown.
   readonly traffic: OrderTraffic | null
+  // The Google Ads click behind the order; null without one.
+  readonly googleClickId: string | null
 }
 
 const COUNTRY = 'UA'
@@ -78,6 +80,7 @@ export const orderService = {
       carrier: input.carrier,
       bankRequisites: input.bankRequisites,
       traffic: input.traffic,
+      googleClickId: input.googleClickId,
       items: items.map((item) => ({
         variantId: item.variantId,
         sku: item.sku,

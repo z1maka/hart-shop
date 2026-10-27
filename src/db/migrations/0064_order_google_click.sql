@@ -1,0 +1,2 @@
+ALTER TABLE "orders" ADD COLUMN "google_click_id" text;--> statement-breakpoint
+CREATE INDEX "orders_google_click_created_at_idx" ON "orders" USING btree ("created_at") WHERE "orders"."google_click_id" is not null;

@@ -46,6 +46,8 @@ export type PlaceOrderInput = {
   readonly callbackOrigin: string
   // The channel the shopper came from; null when unknown.
   readonly traffic: OrderTraffic | null
+  // The Google Ads click behind the order; null without one.
+  readonly googleClickId: string | null
 }
 
 // Delivery is billed by the carrier on receipt, so the order itself carries no
@@ -79,6 +81,7 @@ export const checkoutService = {
         contactPreference: input.contactPreference,
         bankRequisites,
         traffic: input.traffic,
+        googleClickId: input.googleClickId,
       })
       orderNumber = order.orderNumber
 

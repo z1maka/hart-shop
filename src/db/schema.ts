@@ -367,6 +367,10 @@ export const orders = pgTable(
     // the buyer refused tracking.
     trafficSource: text('traffic_source').$type<TrafficSource>(),
     trafficDetail: text('traffic_detail'),
+    // The Google Ads click (gclid) the buyer arrived on: the shop reports the
+    // sale to Google Ads by it. Null without an ad click or with tracking
+    // refused.
+    googleClickId: text('google_click_id'),
     createdAt,
     updatedAt,
   },
@@ -377,6 +381,10 @@ export const orders = pgTable(
     index('orders_status_created_at_idx').on(table.status, table.createdAt),
     index('orders_created_at_idx').on(table.createdAt),
     index('orders_paid_at_idx').on(table.paidAt),
+    // The Google Ads upload reads only the last days' orders with a click.
+    index('orders_google_click_created_at_idx')
+      .on(table.createdAt)
+      .where(sql`${table.googleClickId} is not null`),
     index('orders_recipient_phone_created_at_idx').on(table.recipientPhone, table.createdAt),
     // The admin searches by a fragment — part of a number, a phone or a
     // surname — and a b-tree cannot serve `%fragment%`.

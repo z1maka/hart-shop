@@ -35,6 +35,7 @@ import {
   OrderShelf,
   RETURN_ORDER_STATUS,
 } from '@/features/orders/model/order-shelves'
+import type { GoogleAdsSaleCandidate } from '@/features/orders/model/google-ads-conversions'
 import type { PackingSource } from '@/features/orders/model/notification-format'
 import { QUICK_ORDER_POINT_REF } from '@/features/orders/model/quick-order'
 import { type OrderStatusFilter, statusMatchOf } from '@/features/orders/model/status-filter'
@@ -231,6 +232,7 @@ export type OrderDraft = {
   readonly carrier: Carrier
   readonly bankRequisites: BankAccountDraft | null
   readonly traffic: OrderTraffic | null
+  readonly googleClickId: string | null
   readonly items: readonly OrderDraftItem[]
 }
 
@@ -256,6 +258,8 @@ export type TrafficWeekRow = {
 
 // Below this a number is more likely an order number than a phone.
 const PHONE_SEARCH_MIN_DIGITS = 3
+// A few days of ad sales fit many times over; the cap only bounds the read.
+const GOOGLE_ADS_UPLOAD_MAX_ROWS = 1000
 
 export const orderRepository = {
   // Order and lines land together: a header without its items is worse than no
@@ -285,6 +289,7 @@ export const orderRepository = {
           bankRequisites: draft.bankRequisites,
           trafficSource: draft.traffic?.source ?? null,
           trafficDetail: draft.traffic?.detail ?? null,
+          googleClickId: draft.googleClickId,
         })
         .returning()
 
@@ -906,6 +911,30 @@ export const orderRepository = {
         ),
       )
       .groupBy(orders.trafficSource)
+  },
+
+  // Orders with a Google Ads click placed since `from`, oldest first, for the
+  // sale upload; whether each one counts as a sale is the model's call.
+  async listGoogleAdsSaleCandidates(from: Date): Promise<GoogleAdsSaleCandidate[]> {
+    const rows = await db
+      .select({
+        orderNumber: orders.orderNumber,
+        googleClickId: orders.googleClickId,
+        createdAt: orders.createdAt,
+        totalCents: orders.totalCents,
+        currency: orders.currency,
+        status: orders.status,
+        paymentRoute: orders.paymentRoute,
+        paidAt: orders.paidAt,
+      })
+      .from(orders)
+      .where(and(isNotNull(orders.googleClickId), gte(orders.createdAt, from)))
+      .orderBy(asc(orders.createdAt))
+      .limit(GOOGLE_ADS_UPLOAD_MAX_ROWS)
+
+    return rows.flatMap(({ googleClickId, ...row }) =>
+      googleClickId ? [{ ...row, googleClickId }] : [],
+    )
   },
 }
 

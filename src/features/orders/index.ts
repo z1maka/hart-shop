@@ -70,6 +70,7 @@ export {
 export { isMonthKey } from '@/features/orders/model/return-stats'
 export { isWeekKey, sharePercent } from '@/features/orders/model/traffic-weeks'
 export { getEarnings, type EarningsView } from '@/features/orders/queries/get-earnings'
+export { googleAdsConversionsCsv } from '@/features/orders/queries/get-google-ads-conversions'
 export {
   earningsPeriod,
   EarningsPreset,

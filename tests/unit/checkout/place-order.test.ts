@@ -82,6 +82,7 @@ function placeOrder(paymentRoute: PaymentRoute) {
     contactPreference: ContactPreference.Viber,
     callbackOrigin: 'https://fox-armor-ua.vercel.app',
     traffic: { source: 'google_ads', detail: null },
+    googleClickId: 'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk',
   })
 }
 
@@ -124,6 +125,14 @@ describe('checkoutService.placeOrder — paying by transfer', () => {
 
     expect(mocks.createPendingOrder).toHaveBeenCalledWith(
       expect.objectContaining({ traffic: { source: 'google_ads', detail: null } }),
+    )
+  })
+
+  it('keeps the Google Ads click on the order for the sale upload', async () => {
+    await placeOrder(PaymentRoute.CashOnDelivery)
+
+    expect(mocks.createPendingOrder).toHaveBeenCalledWith(
+      expect.objectContaining({ googleClickId: 'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk' }),
     )
   })
 

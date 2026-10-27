@@ -30,6 +30,7 @@ const COOKIE_KEYS = [
   'cart',
   'consent',
   'trafficSource',
+  'googleClick',
   'analytics',
   'googleAds',
   'metaPixel',

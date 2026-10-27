@@ -136,6 +136,11 @@ const envSchema = z.object({
   // page its ads line instead of the whole site. Absent = earnings only.
   GA4_SERVICE_ACCOUNT_JSON: optionalString,
   GA4_PROPERTY_ID: optionalString,
+
+  // The password of Google Ads' scheduled sale upload from
+  // /api/google-ads/conversions (config/google-ads-import.ts). Absent = the
+  // route refuses every call.
+  GOOGLE_ADS_IMPORT_PASSWORD: optionalString,
 })
 
 export type Env = z.infer<typeof envSchema>
