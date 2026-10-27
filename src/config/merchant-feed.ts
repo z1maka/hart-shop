@@ -54,6 +54,10 @@ export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = [
   'HART-39064-V39066',
   // Self-cooling Starlink Mini 3D-net: winter blot not shot yet (27.10.2026).
   'HART-SL-MINI-3D-WINTER',
+  // UV+EM cloak with sleeves: reshot in multicam only (27.10.2026).
+  'HART-37688-WINTER',
+  'HART-37688-PIXEL',
+  'HART-37688-OLIVE',
 ]
 
 // The Google feed carries what the workshop sews — ponchos, tents and Starlink
@@ -68,7 +72,6 @@ export const MERCHANT_FEED_CATEGORY_SLUGS: readonly string[] = OWN_PRODUCTION_CA
 export const MERCHANT_FEED_FOX_PHOTO_SLUGS: readonly string[] = [
   'anty-teploviziynyy-tent-multi-vt-6370-nakydka-vid-droniv-zakhyst-vid-teplovizora-anty-teplovizor',
   'antydronove-poncho-uv-em',
-  'antydronova-nakydka-uv-em-z-rukavamy',
   'antyteploviziyni-chokhly-na-ruky-uv-em',
   'antyteploviziyni-chokhly-na-nohy-uv-em',
   'plashch-nakidka-poncho-s-trekhsharovoy-tkanyu-antiteploviziyniy-zakhist',
