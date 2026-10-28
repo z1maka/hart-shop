@@ -3,8 +3,13 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getTranslations } from 'next-intl/server'
-import { GoogleReviewsOptIn, TrackEventOnce } from '@/features/analytics'
-import { BankTransferDetails, getOrderByToken } from '@/features/orders'
+import { GoogleReviewsOptIn, TrackEventOnce, type AdsCart } from '@/features/analytics'
+import {
+  BankTransferDetails,
+  getAdsCartLines,
+  getOrderByToken,
+  type OrderView,
+} from '@/features/orders'
 import { OrderTimeline } from '@/features/orders/ui/OrderTimeline'
 import { env } from '@/lib/env'
 
@@ -29,7 +34,7 @@ async function OrderDetail({ params }: { params: PageProps<'/order/[token]'>['pa
 
   if (!order) notFound()
 
-  const t = await getTranslations('orderPage')
+  const [t, adsCart] = await Promise.all([getTranslations('orderPage'), adsCartOf(order)])
 
   return (
     <article className="max-w-5xl">
@@ -50,6 +55,7 @@ async function OrderDetail({ params }: { params: PageProps<'/order/[token]'>['pa
           taxCents: 0,
           customer: order.customer,
           orderToken: token,
+          adsCart,
         }}
       />
       {order.reviewSurvey && env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID ? (
@@ -157,6 +163,14 @@ async function OrderDetail({ params }: { params: PageProps<'/order/[token]'>['pa
       </div>
     </article>
   )
+}
+
+async function adsCartOf(order: OrderView): Promise<AdsCart | undefined> {
+  const merchantId = env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID
+  if (!merchantId) return undefined
+
+  const lines = await getAdsCartLines(order)
+  return lines ? { merchantId, lines } : undefined
 }
 
 function paymentLabel(

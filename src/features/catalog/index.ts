@@ -55,4 +55,8 @@ export { WatchVideoButton } from '@/features/catalog/ui/WatchVideoButton'
 export { ProductRail } from './ui/ProductRail'
 export { FaqList } from '@/features/catalog/ui/FaqList'
 export { getProductCover } from './queries/get-category-covers'
-export { getMerchantFeedXml, getMetaCatalogXml } from '@/features/catalog/queries/get-merchant-feed'
+export {
+  getMerchantFeedXml,
+  getMerchantOfferIdLookup,
+  getMetaCatalogXml,
+} from '@/features/catalog/queries/get-merchant-feed'

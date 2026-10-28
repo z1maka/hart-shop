@@ -2,6 +2,7 @@
 
 import {
   CURRENCY,
+  toAdsCartData,
   toGa4Items,
   toGoogleUserData,
   toMajorUnits,
@@ -152,13 +153,16 @@ function sendToGoogle(scope: TrackingWindow, event: AnalyticsEvent): void {
   // Google Ads counts a sale only when it is addressed explicitly; the GA4
   // purchase above never reaches the Ads conversion on its own. The value is
   // the order total, as the WordPress site reported it (seen in the Ads
-  // account on 25.09.2026: the action takes each sale's own value).
+  // account on 25.09.2026: the action takes each sale's own value). Ads reads
+  // cart data only from an event named purchase; send_to keeps this copy
+  // away from GA4.
   if (scope.__googleAdsConversionSendTo) {
-    gtag('event', 'conversion', {
+    gtag('event', 'purchase', {
       send_to: scope.__googleAdsConversionSendTo,
       transaction_id: event.orderNumber,
       currency: CURRENCY,
       value: toMajorUnits(event.valueCents),
+      ...(event.adsCart ? toAdsCartData(event.adsCart) : {}),
     })
   }
 }

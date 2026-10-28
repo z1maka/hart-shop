@@ -15,6 +15,12 @@ export const NEW_OFFER_ID_PREFIX = 'hart_'
 
 export const FEED_PATH = '/feeds/merchant-center.xml'
 
+// The country and language the feed's data source is registered under in
+// Merchant Center; a sale reported with cart data names them to find the
+// offers.
+export const FEED_TARGET_COUNTRY = 'UA'
+export const FEED_CONTENT_LANGUAGE = 'uk'
+
 // Merchant Center reads up to this many characters of a description and ten
 // additional images; the rest would only be cut.
 export const FEED_DESCRIPTION_MAX_LENGTH = 5000

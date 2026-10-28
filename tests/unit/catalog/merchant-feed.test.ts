@@ -7,6 +7,7 @@ import {
   materialOf,
   merchantFeedXml,
   metaCatalogItemOf,
+  offerIdLookupOf,
   offerIdOf,
   productIdCarrierOf,
   type FeedProduct,
@@ -110,6 +111,46 @@ describe('offerIdOf', () => {
     )
     expect(offerIdOf('FOX-UA-35635-RED', 35635, null)).toBe('hart_FOX-UA-35635-RED')
     expect(offerIdOf('NEW-1-STD', null, 'NEW-1-STD')).toBe('hart_NEW-1-STD')
+  })
+})
+
+describe('offerIdLookupOf', () => {
+  const owners = [
+    { sku: 'FOX-UA-35635-V35640', productId: 'poncho', sourceId: 35635 },
+    { sku: 'FOX-UA-35964-MULTICAM', productId: 'tent', sourceId: 35964 },
+    { sku: 'FOX-UA-35964-WINTER', productId: 'tent', sourceId: 35964 },
+    { sku: 'FOX-UA-35964-PIXEL', productId: 'tent', sourceId: 35964 },
+  ]
+
+  it('gives each bought variant the id its offer has in the feed', () => {
+    const offerIdOfSku = offerIdLookupOf(
+      owners,
+      new Map([
+        ['poncho', [{ sku: 'FOX-UA-35635-V35640' }]],
+        ['tent', [{ sku: 'FOX-UA-35964-MULTICAM' }, { sku: 'FOX-UA-35964-WINTER' }]],
+      ]),
+    )
+
+    expect(offerIdOfSku('FOX-UA-35635-V35640')).toBe('gla_35640')
+    expect(offerIdOfSku('FOX-UA-35964-MULTICAM')).toBe('gla_35964')
+    expect(offerIdOfSku('FOX-UA-35964-WINTER')).toBe('hart_FOX-UA-35964-WINTER')
+  })
+
+  it('picks the carrier among the listed variants only, as the feed does', () => {
+    const offerIdOfSku = offerIdLookupOf(
+      owners,
+      new Map([['tent', [{ sku: 'FOX-UA-35964-WINTER' }, { sku: 'FOX-UA-35964-PIXEL' }]]]),
+    )
+
+    expect(offerIdOfSku('FOX-UA-35964-WINTER')).toBe('gla_35964')
+    expect(offerIdOfSku('FOX-UA-35964-MULTICAM')).toBe('hart_FOX-UA-35964-MULTICAM')
+  })
+
+  it('falls back to the id the sku alone gives for a variant no longer in the catalogue', () => {
+    const offerIdOfSku = offerIdLookupOf([], new Map())
+
+    expect(offerIdOfSku('FOX-UA-36001-V36002')).toBe('gla_36002')
+    expect(offerIdOfSku('GONE-1-STD')).toBe('hart_GONE-1-STD')
   })
 })
 

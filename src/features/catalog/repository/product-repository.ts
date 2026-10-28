@@ -1,6 +1,7 @@
 import type { ProductVideo } from '@/features/catalog/model/product-video'
 import type { FaqEntry } from '@/features/catalog/model/category-content'
 import type { ColorSiblingRow } from '@/features/catalog/model/color-siblings'
+import type { VariantOwner } from '@/features/catalog/model/merchant-feed'
 import {
   and,
   asc,
@@ -623,6 +624,8 @@ export const catalogReadRepository = {
   async findVariantsByProductIds(productIds: readonly string[]): Promise<ProductVariantRow[]> {
     if (productIds.length === 0) return []
 
+    // The sku breaks a tie in position, so every read lists a product's
+    // variants alike: the feed's first-colour offer id rests on that order.
     return db
       .select({
         id: productVariants.id,
@@ -641,7 +644,23 @@ export const catalogReadRepository = {
           eq(productVariants.isActive, true),
         ),
       )
-      .orderBy(asc(productVariants.position))
+      .orderBy(asc(productVariants.position), asc(productVariants.sku))
+  },
+
+  // The products these skus belong to: a variant's feed offer id depends on
+  // its product's import id and on the product's other variants.
+  async findVariantOwnersBySkus(skus: readonly string[]): Promise<VariantOwner[]> {
+    if (skus.length === 0) return []
+
+    return db
+      .select({
+        sku: productVariants.sku,
+        productId: productVariants.productId,
+        sourceId: products.sourceId,
+      })
+      .from(productVariants)
+      .innerJoin(products, eq(products.id, productVariants.productId))
+      .where(inArray(productVariants.sku, [...skus]))
   },
 
   async findImagesByProductIds(productIds: readonly string[]): Promise<ProductImageRow[]> {

@@ -123,6 +123,32 @@ export function offerIdOf(
   return `${NEW_OFFER_ID_PREFIX}${variantSku}`
 }
 
+export type VariantOwner = {
+  readonly sku: string
+  readonly productId: string
+  readonly sourceId: number | null
+}
+
+// Offer ids for the variants of a sale, by the feed's own rules, so Google
+// Ads can match the sale's products to the feed. The owners say whose each
+// sku is; the product's listed variants say which one carries its WordPress
+// id. A sku without an owner (its variant is gone) gets the id its sku alone
+// gives.
+export function offerIdLookupOf(
+  owners: readonly VariantOwner[],
+  listedVariantsByProduct: ReadonlyMap<string, readonly Pick<FeedVariant, 'sku'>[]>,
+): (variantSku: string) => string {
+  const ownerBySku = new Map(owners.map((owner) => [owner.sku, owner]))
+
+  return (variantSku) => {
+    const owner = ownerBySku.get(variantSku)
+    if (!owner) return offerIdOf(variantSku, null, null)
+
+    const carrierSku = productIdCarrierOf(listedVariantsByProduct.get(owner.productId) ?? [])
+    return offerIdOf(variantSku, owner.sourceId, carrierSku)
+  }
+}
+
 export type FeedItemContext = FeedChoices & {
   readonly siteUrl: string
   readonly brand: string

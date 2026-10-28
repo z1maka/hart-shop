@@ -1,8 +1,5 @@
 import { cacheLife, cacheTag } from 'next/cache'
-import {
-  MERCHANT_FEED_CATEGORY_SLUGS,
-  MERCHANT_FEED_FOX_PHOTO_SLUGS,
-} from '@/config/merchant-feed'
+import { MERCHANT_FEED_CATEGORY_SLUGS, MERCHANT_FEED_FOX_PHOTO_SLUGS } from '@/config/merchant-feed'
 import { META_CATALOG_CATEGORY_SLUGS } from '@/config/meta-catalog'
 import { siteConfig } from '@/config/site'
 import { effectiveGoogleCategory } from '@/features/catalog/model/google-category'
@@ -13,6 +10,7 @@ import {
   materialOf,
   merchantFeedXml,
   metaCatalogItemOf,
+  offerIdLookupOf,
   productIdCarrierOf,
   type FeedChoices,
   type FeedItem,
@@ -53,6 +51,18 @@ export async function getMetaCatalogXml(): Promise<string> {
   return feedXml(
     await feedItems(await listedProductsIn(META_CATALOG_CATEGORY_SLUGS), metaCatalogItemOf),
   )
+}
+
+// The feed's offer id for each of these variants (model/merchant-feed.ts,
+// offerIdLookupOf).
+export async function getMerchantOfferIdLookup(
+  skus: readonly string[],
+): Promise<(variantSku: string) => string> {
+  const owners = await catalogReadRepository.findVariantOwnersBySkus(skus)
+  const variants = await catalogReadRepository.findVariantsByProductIds([
+    ...new Set(owners.map((owner) => owner.productId)),
+  ])
+  return offerIdLookupOf(owners, groupByProduct(feedListedVariants(variants)))
 }
 
 async function listedProductsIn(categorySlugs: readonly string[]): Promise<FeedProductRow[]> {

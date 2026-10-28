@@ -1,3 +1,5 @@
+import { FEED_CONTENT_LANGUAGE, FEED_TARGET_COUNTRY } from '@/config/merchant-feed'
+
 export type AnalyticsItem = {
   readonly sku: string
   readonly title: string
@@ -40,7 +42,22 @@ export type AnalyticsEvent =
       // Lets the server look the sale up for the Conversions API instead of
       // trusting a value posted from the browser.
       readonly orderToken?: string
+      readonly adsCart?: AdsCart
     }
+
+// Google Ads conversions with cart data: the bought lines under the ids the
+// Merchant Center feed gives the products, so Ads can tell which products
+// its clicks sold.
+export type AdsCart = {
+  readonly merchantId: number
+  readonly lines: readonly AdsCartLine[]
+}
+
+export type AdsCartLine = {
+  readonly offerId: string
+  readonly quantity: number
+  readonly priceCents: number
+}
 
 // What Google Ads enhanced conversions match a sale on. Only the two strong
 // identifiers: a name split from one free-form field and a Nova Poshta branch
@@ -79,6 +96,31 @@ export function toTikTokContents(items: readonly AnalyticsItem[]) {
     price: toMajorUnits(item.priceCents),
     quantity: item.quantity,
   }))
+}
+
+export type AdsCartData = {
+  readonly aw_merchant_id: number
+  readonly aw_feed_country: string
+  readonly aw_feed_language: string
+  readonly items: readonly {
+    readonly id: string
+    readonly quantity: number
+    readonly price: number
+  }[]
+}
+
+// The cart data parameters of a Google Ads purchase conversion.
+export function toAdsCartData(cart: AdsCart): AdsCartData {
+  return {
+    aw_merchant_id: cart.merchantId,
+    aw_feed_country: FEED_TARGET_COUNTRY,
+    aw_feed_language: FEED_CONTENT_LANGUAGE,
+    items: cart.lines.map((line) => ({
+      id: line.offerId,
+      quantity: line.quantity,
+      price: toMajorUnits(line.priceCents),
+    })),
+  }
 }
 
 // The shape gtag('set', 'user_data', …) expects; null when there is nothing

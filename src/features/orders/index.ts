@@ -1,4 +1,8 @@
-export { getOrderByToken, type OrderView } from '@/features/orders/queries/get-order'
+export {
+  getAdsCartLines,
+  getOrderByToken,
+  type OrderView,
+} from '@/features/orders/queries/get-order'
 export { buildOrderTimeline, type TimelineStep } from '@/features/orders/model/timeline'
 export { OrderTimeline } from '@/features/orders/ui/OrderTimeline'
 export { BankTransferDetails } from '@/features/orders/ui/BankTransferDetails'

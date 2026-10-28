@@ -3,6 +3,8 @@ import { parseRequisitesSnapshot, paymentPurpose } from '@/config/requisites'
 import { REVIEW_SURVEY_AFTER_BUSINESS_DAYS } from '@/config/reviews'
 import { OrderStatus, PaymentRoute } from '@/db/enums'
 import { requisitesView, type BankRequisitesView } from '@/features/billing'
+import type { AdsCartLine } from '@/features/analytics'
+import { getMerchantOfferIdLookup } from '@/features/catalog'
 import { ParcelStage } from '@/features/shipping'
 import { toUkrainianMsisdn } from '@/features/orders/model/phone'
 import { reviewSurveyOf, type ReviewSurvey } from '@/features/orders/model/review-survey'
@@ -13,6 +15,7 @@ import {
   type ShippingAddress,
 } from '@/features/orders/repository/order-repository'
 import { formatDateIsoKyiv } from '@/lib/datetime'
+import { logger } from '@/lib/logger'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
 import { publicUrl } from '@/lib/storage'
 
@@ -74,6 +77,27 @@ export type OrderView = {
 export async function getOrderByToken(accessToken: string): Promise<OrderView | null> {
   const order = await orderRepository.findByAccessToken(accessToken)
   return order ? toOrderView(order) : null
+}
+
+// The order's lines under their Merchant Center offer ids, for Google Ads
+// cart data. Only the thank-you page's tag reads them, so they are looked up
+// apart from the order, and a failed lookup costs the sale its cart data
+// rather than the buyer the page.
+export async function getAdsCartLines(order: OrderView): Promise<readonly AdsCartLine[] | null> {
+  try {
+    const offerIdOf = await getMerchantOfferIdLookup(order.analyticsItems.map((item) => item.sku))
+    return order.analyticsItems.map((item) => ({
+      offerId: offerIdOf(item.sku),
+      quantity: item.quantity,
+      priceCents: item.priceCents,
+    }))
+  } catch (error) {
+    logger.error('Offer ids for Google Ads cart data could not be read', {
+      orderNumber: order.orderNumber,
+      error,
+    })
+    return null
+  }
 }
 
 async function toOrderView(order: OrderRow): Promise<OrderView> {

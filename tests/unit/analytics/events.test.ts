@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { toGoogleUserData } from '@/features/analytics/model/events'
+import { toAdsCartData, toGoogleUserData } from '@/features/analytics/model/events'
 
 describe('toGoogleUserData', () => {
   it('maps the email and the phone to the keys the Google tag expects', () => {
@@ -20,5 +20,27 @@ describe('toGoogleUserData', () => {
 
   it('returns null when there is nothing to match on', () => {
     expect(toGoogleUserData({ email: null, phone: null })).toBeNull()
+  })
+})
+
+describe('toAdsCartData', () => {
+  it('names the feed and lists each bought line by its offer id, in hryvnias', () => {
+    expect(
+      toAdsCartData({
+        merchantId: 5873814429,
+        lines: [
+          { offerId: 'gla_38680', quantity: 2, priceCents: 185_000 },
+          { offerId: 'hart_HART-SL-MINI-PIXEL', quantity: 1, priceCents: 129_950 },
+        ],
+      }),
+    ).toEqual({
+      aw_merchant_id: 5873814429,
+      aw_feed_country: 'UA',
+      aw_feed_language: 'uk',
+      items: [
+        { id: 'gla_38680', quantity: 2, price: 1850 },
+        { id: 'hart_HART-SL-MINI-PIXEL', quantity: 1, price: 1299.5 },
+      ],
+    })
   })
 })
