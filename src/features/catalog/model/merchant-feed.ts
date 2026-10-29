@@ -239,7 +239,11 @@ function feedDescription(description: string, title: string): string {
 // page's «## » headings and «- » bullets would print as literal marks. A
 // heading or a bullet becomes a sentence of its own; paragraphs stay as typed.
 function plainTextOf(description: string): string {
-  return parseStory(description).map(blockText).join(' ')
+  return storyText(parseStory(description))
+}
+
+export function storyText(blocks: readonly StoryBlock[]): string {
+  return blocks.map(blockText).join(' ')
 }
 
 function blockText(block: StoryBlock): string {

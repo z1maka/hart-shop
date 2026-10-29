@@ -1,6 +1,8 @@
 import { cacheLife, cacheTag } from 'next/cache'
 import { MERCHANT_FEED_CATEGORY_SLUGS, MERCHANT_FEED_FOX_PHOTO_SLUGS } from '@/config/merchant-feed'
+import { COMPANY } from '@/config/company'
 import { META_CATALOG_CATEGORY_SLUGS } from '@/config/meta-catalog'
+import { PARTNER_FEED_CATEGORY_SLUGS } from '@/config/partner-feed'
 import { siteConfig } from '@/config/site'
 import { effectiveGoogleCategory } from '@/features/catalog/model/google-category'
 import {
@@ -15,6 +17,13 @@ import {
   type FeedChoices,
   type FeedItem,
 } from '@/features/catalog/model/merchant-feed'
+import {
+  partnerCategoriesOf,
+  partnerCategoryIdOf,
+  partnerFeedYml,
+  partnerOfferOf,
+} from '@/features/catalog/model/partner-feed'
+import { singleUnitPriceCents } from '@/features/catalog/model/pricing'
 import { colorOf, sizeOf } from '@/features/catalog/model/product-view'
 import {
   catalogReadRepository,
@@ -22,6 +31,7 @@ import {
   type ProductImageRow,
   type ProductVariantRow,
 } from '@/features/catalog/repository/product-repository'
+import { formatDateTimeIsoKyiv } from '@/lib/datetime'
 import { env } from '@/lib/env'
 import { publicUrl } from '@/lib/storage'
 
@@ -37,6 +47,7 @@ export async function getMerchantFeedXml(): Promise<string> {
   return feedXml(
     await feedItems(
       products.filter((product) => !MERCHANT_FEED_FOX_PHOTO_SLUGS.includes(product.slug)),
+      AS_IS,
     ),
   )
 }
@@ -49,8 +60,41 @@ export async function getMetaCatalogXml(): Promise<string> {
   cacheLife('hours')
 
   return feedXml(
-    await feedItems(await listedProductsIn(META_CATALOG_CATEGORY_SLUGS), metaCatalogItemOf),
+    await feedItems(await listedProductsIn(META_CATALOG_CATEGORY_SLUGS), (item, variant) =>
+      metaCatalogItemOf(item, variant.sku),
+    ),
   )
+}
+
+// The YML file dropshipping partners import into their shops
+// (model/partner-feed.ts says what it leaves out).
+export async function getPartnerFeedYml(): Promise<string> {
+  'use cache'
+  cacheTag('catalog')
+  cacheLife('hours')
+
+  const products = await listedProductsIn(PARTNER_FEED_CATEGORY_SLUGS)
+  const offers = await feedItems(products, (item, variant, product) =>
+    partnerOfferOf(item, {
+      sku: variant.sku,
+      categoryId: partnerCategoryIdOf(PARTNER_FEED_CATEGORY_SLUGS, product.categorySlug),
+      minimumPriceCents: singleUnitPriceCents(product) + variant.priceDeltaCents,
+      currency: product.currency,
+      description: product.description,
+      weightGrams: product.weightGrams,
+    }),
+  )
+
+  return partnerFeedYml({
+    shop: {
+      name: siteConfig.name,
+      company: COMPANY.legalName,
+      url: `${env.NEXT_PUBLIC_SITE_URL}/`,
+    },
+    generatedAt: formatDateTimeIsoKyiv(new Date()),
+    categories: partnerCategoriesOf(PARTNER_FEED_CATEGORY_SLUGS, products),
+    offers,
+  })
 }
 
 // The feed's offer id for each of these variants (model/merchant-feed.ts,
@@ -71,14 +115,16 @@ async function listedProductsIn(categorySlugs: readonly string[]): Promise<FeedP
   )
 }
 
-type ItemIdRule = (item: FeedItem, variantSku: string) => FeedItem
+// What one listed variant becomes in a feed: Merchant Center's item as built,
+// Meta's keyed by sku, a partner's offer.
+type EntryRule<T> = (item: FeedItem, variant: ProductVariantRow, product: FeedProductRow) => T
 
-const KEEP_ITEM_ID: ItemIdRule = (item) => item
+const AS_IS: EntryRule<FeedItem> = (item) => item
 
-async function feedItems(
+async function feedItems<T>(
   products: readonly FeedProductRow[],
-  rekey: ItemIdRule = KEEP_ITEM_ID,
-): Promise<FeedItem[]> {
+  toEntry: EntryRule<T>,
+): Promise<T[]> {
   const productIds = products.map((product) => product.id)
   const [variants, images] = await Promise.all([
     catalogReadRepository.findVariantsByProductIds(productIds),
@@ -92,7 +138,7 @@ async function feedItems(
       product,
       variantsByProduct.get(product.id) ?? [],
       imagesByProduct.get(product.id) ?? [],
-      rekey,
+      toEntry,
     ),
   )
 }
@@ -108,12 +154,12 @@ function feedXml(items: readonly FeedItem[]): string {
   )
 }
 
-function itemsOf(
+function itemsOf<T>(
   product: FeedProductRow,
   variants: readonly ProductVariantRow[],
   images: readonly ProductImageRow[],
-  rekey: ItemIdRule,
-): FeedItem[] {
+  toEntry: EntryRule<T>,
+): T[] {
   const context = {
     ...choicesOf(variants),
     siteUrl: env.NEXT_PUBLIC_SITE_URL,
@@ -132,7 +178,7 @@ function itemsOf(
   const imageUrlById = new Map(images.map((image) => [image.id, publicUrl(image.storageKey)]))
 
   return variants.map((variant) =>
-    rekey(
+    toEntry(
       feedItemOf(
         feedProduct,
         {
@@ -145,7 +191,8 @@ function itemsOf(
         },
         context,
       ),
-      variant.sku,
+      variant,
+      product,
     ),
   )
 }

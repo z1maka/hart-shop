@@ -25,7 +25,9 @@ export function wholesaleTierOf(
   return minQuantity !== null && priceCents !== null ? { minQuantity, priceCents } : null
 }
 
-export function singleUnitPriceCents(product: PricedProduct): number {
+export function singleUnitPriceCents(
+  product: Pick<PricedProduct, 'priceCents' | 'salePriceCents'>,
+): number {
   return product.salePriceCents ?? product.priceCents
 }
 

@@ -59,4 +59,5 @@ export {
   getMerchantFeedXml,
   getMerchantOfferIdLookup,
   getMetaCatalogXml,
+  getPartnerFeedYml,
 } from '@/features/catalog/queries/get-merchant-feed'

@@ -48,6 +48,21 @@ export function formatDateIsoKyiv(value: Date): string {
   return KYIV_ISO_DATE_FORMATTER.format(value)
 }
 
+// Kyiv time as YYYY-MM-DD HH:mm, the stamp a YML product file carries. The
+// Swedish locale writes exactly that shape.
+const KYIV_ISO_DATE_TIME_FORMATTER = new Intl.DateTimeFormat('sv-SE', {
+  timeZone: DISPLAY_TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
+export function formatDateTimeIsoKyiv(value: Date): string {
+  return KYIV_ISO_DATE_TIME_FORMATTER.format(value)
+}
+
 // The calendar day before a YYYY-MM-DD key, by the calendar and not by 24
 // hours: the day the clocks go back is 25 hours long.
 export function previousIsoDay(dayKey: string): string {
