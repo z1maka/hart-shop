@@ -147,37 +147,26 @@ async function Hero() {
         </p>
       </div>
 
-      <HeroImage cardTitle={t('heroCardTitle')} cardSub={t('heroCardSub')} />
+      <HeroImage />
     </section>
   )
 }
 
-type HeroImageProps = {
-  readonly cardTitle: string
-  readonly cardSub: string
-}
-
-function HeroImage({ cardTitle, cardSub }: HeroImageProps) {
+function HeroImage() {
   return (
-    <div className="relative">
-      <div className="relative aspect-5/4 overflow-hidden rounded-card bg-sunken shadow-hero">
-        <Image
-          src={HERO_PHOTO.url}
-          alt={HERO_PHOTO.alt}
-          fill
-          sizes={HERO_IMAGE_SIZES}
-          // The page's LCP. `priority` is deprecated in Next 16 and only adds a
-          // preload link without a fetch priority; the <img> is already in the
-          // HTML, so a high fetch priority is all it needs.
-          loading="eager"
-          fetchPriority="high"
-          className="object-cover object-[center_40%]"
-        />
-      </div>
-      <div className="absolute bottom-4.5 left-4.5 rounded-control border-l-[3px] border-khaki bg-header px-4 py-3 shadow-float">
-        <p className="text-[13px] font-bold text-on-dark">{cardTitle}</p>
-        <p className="mt-0.5 text-[12px] text-on-dark-muted">{cardSub}</p>
-      </div>
+    <div className="relative aspect-5/4 overflow-hidden rounded-card bg-sunken shadow-hero">
+      <Image
+        src={HERO_PHOTO.url}
+        alt={HERO_PHOTO.alt}
+        fill
+        sizes={HERO_IMAGE_SIZES}
+        // The page's LCP. `priority` is deprecated in Next 16 and only adds a
+        // preload link without a fetch priority; the <img> is already in the
+        // HTML, so a high fetch priority is all it needs.
+        loading="eager"
+        fetchPriority="high"
+        className="object-cover object-[center_40%]"
+      />
     </div>
   )
 }
