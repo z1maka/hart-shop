@@ -2,12 +2,13 @@
 // longer published drops out of its block (and is logged), so a stale entry
 // never turns into a dead link. Each key names its words in uk.json `home`.
 
-// The first screen's photo, chosen by the owner (17.10.2026) and shown as
-// taken: a person in the 3D-leaf poncho. A file of its own, not a product
-// cover, so a product's gallery and the hero never move together.
+// The first screen's photo, chosen by the owner (29.10.2026): the autumn
+// pixel self-cooling Starlink cover on its tripod in the forest, cut from
+// that card's first photo without the white side bars. A file of its own,
+// not a product cover, so a product's gallery and the hero never move together.
 export const HERO_PHOTO = {
-  url: '/home/hero-poncho-3d.webp',
-  alt: 'Маскувальне пончо з 3D-листям у осінній посадці',
+  url: '/home/hero-starlink-3d-autumn-pixel.webp',
+  alt: 'Самоохолоджувальний чохол на Starlink з 3D-сіткою, осінній піксель, у лісі',
 } as const
 
 // The owner's photo for the home page: the range blending into terrain says

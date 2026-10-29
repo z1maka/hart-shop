@@ -171,7 +171,7 @@ function HeroImage({ cardTitle, cardSub }: HeroImageProps) {
           // HTML, so a high fetch priority is all it needs.
           loading="eager"
           fetchPriority="high"
-          className="object-cover object-[center_22%]"
+          className="object-cover object-[center_40%]"
         />
       </div>
       <div className="absolute bottom-4.5 left-4.5 rounded-control border-l-[3px] border-khaki bg-header px-4 py-3 shadow-float">
