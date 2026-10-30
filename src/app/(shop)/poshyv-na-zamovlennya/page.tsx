@@ -9,6 +9,7 @@ import { COMPANY } from '@/config/company'
 import { HEADER_CHANNELS } from '@/config/contact'
 import {
   CUSTOM_ORDER_FAQ_KEYS,
+  CUSTOM_ORDER_HERO_PHOTO,
   CUSTOM_ORDER_ITEM_COVERS,
   CUSTOM_ORDER_ITEM_IDS,
   CUSTOM_ORDER_STEP_KEYS,
@@ -75,9 +76,7 @@ export default async function CustomOrderPage({
           </div>
         </div>
 
-        <Suspense fallback={<Skeleton className="aspect-5/4 w-full rounded-card" />}>
-          <HeroImage alt={t('title')} />
-        </Suspense>
+        <HeroImage />
       </section>
 
       <section className="border-t border-subtle bg-surface px-7 py-12">
@@ -165,20 +164,16 @@ export default async function CustomOrderPage({
   )
 }
 
-async function HeroImage({ alt }: { readonly alt: string }) {
-  const cover = await getProductCover(CUSTOM_ORDER_ITEM_COVERS[HERO_ITEM])
-
-  if (!cover) return null
-
+function HeroImage() {
   return (
-    <div className="relative aspect-5/4 overflow-hidden rounded-card bg-sunken">
+    <div className="relative aspect-square overflow-hidden rounded-card bg-sunken">
       <Image
-        src={cover.url}
-        alt={alt}
+        src={CUSTOM_ORDER_HERO_PHOTO.url}
+        alt={CUSTOM_ORDER_HERO_PHOTO.alt}
         fill
         loading="eager"
         fetchPriority="high"
-        sizes="(min-width: 1024px) 520px, 100vw"
+        sizes="(min-width: 768px) 50vw, 100vw"
         className="object-cover"
       />
     </div>

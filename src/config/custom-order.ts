@@ -32,6 +32,14 @@ export const CUSTOM_ORDER_ITEM_COVERS: Record<CustomOrderItemId, string> = {
   other: 'antyteploviziyni-chokhly-na-ruky-uv-em',
 }
 
+// The page's first photo, the owner's own banner (30.10.2026): the workshop
+// table with fabrics and the words «Пошиємо маскування під вашу задачу». Its
+// lettering is part of the picture, so the page shows it whole, never cropped.
+export const CUSTOM_ORDER_HERO_PHOTO = {
+  url: '/custom-order/hero-poshyiemo-maskuvannya.webp',
+  alt: 'Пошиємо маскування під вашу задачу за вашими кресленнями: якісно, швидко, акуратно. Тканини в пікселі, мультикамі й оливі на столі цеху',
+} as const
+
 export const CUSTOM_ORDER_STEP_KEYS: readonly string[] = ['request', 'quote', 'payment', 'sewing']
 
 export const CUSTOM_ORDER_FAQ_KEYS: readonly string[] = [
