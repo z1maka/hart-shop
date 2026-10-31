@@ -39,15 +39,16 @@ describe('the upload file', () => {
   it('names the click, the action, the UTC time, the value and the order', () => {
     expect(toGoogleAdsConversionsCsv([SALE], 'Server purchase')).toBe(
       [
-        'Parameters:TimeZone=+0000',
-        'Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency,Order ID,Ad User Data,Ad Personalization',
-        'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk,Server purchase,2026-10-27 13:11:22,14500.00,UAH,HART-2026-000023,Granted,Granted',
+        'Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency,Order ID,Ad User Data,Ad Personalization,Event Source',
+        'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk,Server purchase,2026-10-27 13:11:22+00:00,14500.00,UAH,HART-2026-000023,Granted,Granted,WEB',
         '',
       ].join('\n'),
     )
   })
 
-  it('keeps the header when there is nothing to upload', () => {
-    expect(toGoogleAdsConversionsCsv([], 'Server purchase').split('\n')).toHaveLength(3)
+  it('starts with the header, which Data Manager maps the columns by', () => {
+    expect(toGoogleAdsConversionsCsv([], 'Server purchase').split('\n')[0]).toMatch(
+      /^Google Click ID,/,
+    )
   })
 })
