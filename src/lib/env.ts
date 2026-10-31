@@ -138,7 +138,7 @@ const envSchema = z.object({
   GA4_PROPERTY_ID: optionalString,
 
   // The password of Google Ads' scheduled sale upload from
-  // /api/google-ads/conversions (config/google-ads-import.ts). Absent = the
+  // /api/google-ads/conversions.csv (config/google-ads-import.ts). Absent = the
   // route refuses every call.
   GOOGLE_ADS_IMPORT_PASSWORD: optionalString,
 })
