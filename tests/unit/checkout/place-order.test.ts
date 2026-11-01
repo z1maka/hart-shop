@@ -102,7 +102,7 @@ describe('checkoutService.placeOrder — paying by transfer', () => {
     mocks.activeAccount.mockResolvedValue(ACCOUNT)
 
     await expect(placeOrder(PaymentRoute.BankTransfer)).resolves.toEqual({
-      redirectUrl: '/order/token-1/',
+      redirectUrl: '/order/token-1/?placed=1',
     })
     const { id: _id, isActive: _isActive, ...snapshot } = ACCOUNT
     expect(mocks.createPendingOrder).toHaveBeenCalledWith(

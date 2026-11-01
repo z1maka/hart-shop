@@ -4,6 +4,7 @@ import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getTranslations } from 'next-intl/server'
 import { GoogleReviewsOptIn, TrackEventOnce, type AdsCart } from '@/features/analytics'
+import { ForgetJustPlaced, isJustPlaced } from '@/features/checkout'
 import {
   BankTransferDetails,
   getAdsCartLines,
@@ -18,23 +19,30 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 }
 
-export default function OrderPage({ params }: PageProps<'/order/[token]'>) {
+export default function OrderPage({ params, searchParams }: PageProps<'/order/[token]'>) {
   return (
     <div className="px-7 py-12">
       <Suspense fallback={<Skeleton className="h-96 w-full max-w-5xl rounded-card" />}>
-        <OrderDetail params={params} />
+        <OrderDetail params={params} searchParams={searchParams} />
       </Suspense>
     </div>
   )
 }
 
-async function OrderDetail({ params }: { params: PageProps<'/order/[token]'>['params'] }) {
-  const { token } = await params
+async function OrderDetail({
+  params,
+  searchParams,
+}: Pick<PageProps<'/order/[token]'>, 'params' | 'searchParams'>) {
+  const [{ token }, query] = await Promise.all([params, searchParams])
   const order = await getOrderByToken(token)
 
   if (!order) notFound()
 
-  const [t, adsCart] = await Promise.all([getTranslations('orderPage'), adsCartOf(order)])
+  const isFromCheckout = isJustPlaced(query)
+  const [t, adsCart] = await Promise.all([
+    getTranslations('orderPage'),
+    isFromCheckout ? adsCartOf(order) : undefined,
+  ])
 
   return (
     <article className="max-w-5xl">
@@ -44,20 +52,25 @@ async function OrderDetail({ params }: { params: PageProps<'/order/[token]'>['pa
       <h1 className="mb-2.5 font-display text-h1 font-bold text-ink">{t('title')}</h1>
       <ContactNote email={order.email} phone={order.address.phone ?? null} />
 
-      <TrackEventOnce
-        dedupeKey={`hart_purchase_${order.orderNumber}`}
-        event={{
-          name: 'purchase',
-          orderNumber: order.orderNumber,
-          items: order.analyticsItems,
-          valueCents: order.totalCents,
-          shippingCents: order.shippingCents,
-          taxCents: 0,
-          customer: order.customer,
-          orderToken: token,
-          adsCart,
-        }}
-      />
+      {isFromCheckout ? (
+        <>
+          <TrackEventOnce
+            dedupeKey={`hart_purchase_${order.orderNumber}`}
+            event={{
+              name: 'purchase',
+              orderNumber: order.orderNumber,
+              items: order.analyticsItems,
+              valueCents: order.totalCents,
+              shippingCents: order.shippingCents,
+              taxCents: 0,
+              customer: order.customer,
+              orderToken: token,
+              adsCart,
+            }}
+          />
+          <ForgetJustPlaced />
+        </>
+      ) : null}
       {order.reviewSurvey && env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID ? (
         <GoogleReviewsOptIn
           merchantId={env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID}

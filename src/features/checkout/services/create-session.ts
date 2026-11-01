@@ -3,6 +3,7 @@ import type { BankAccountDraft } from '@/config/requisites'
 import { bankAccountService, requisitesSnapshot } from '@/features/billing'
 import { cartService } from '@/features/cart/services/cart-service'
 import { paymentReturnPath } from '@/features/checkout/model/payment-return'
+import { placedOrderPath } from '@/features/checkout/model/placed-order'
 import {
   activePaymentProvider,
   paymentProviderById,
@@ -92,7 +93,7 @@ export const checkoutService = {
         // The order snapshots every line, so the working cart is done for.
         await cartService.clearCart(input.cartId)
         await notifyOrderPlaced(order)
-        return { redirectUrl: `/order/${order.accessToken}/` }
+        return { redirectUrl: placedOrderPath(order.accessToken) }
       }
 
       // Every amount is recomputed from the cart snapshot in our database; the

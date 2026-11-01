@@ -4,6 +4,7 @@ import {
   ReturnOutcome,
 } from '@/features/checkout/model/payment-return'
 import { PaymentStatus } from '@/features/checkout/model/payment'
+import { placedOrderPath } from '@/features/checkout/model/placed-order'
 import { processPaymentEvent } from '@/features/checkout/services/payment-events'
 import { paymentProviderById } from '@/features/checkout/services/payment-provider'
 import { orderRepository, type OrderRow } from '@/features/orders'
@@ -68,7 +69,7 @@ export const paymentReturnService = {
       if ((await outcomeOf(order)) !== ReturnOutcome.Paid) return fallback
 
       await settle(order)
-      return { path: `/order/${order.accessToken}/`, isPaid: true }
+      return { path: placedOrderPath(order.accessToken), isPaid: true }
     } catch (error) {
       logger.error('Payment return could not be resolved', {
         reason: error instanceof Error ? error.message : String(error),

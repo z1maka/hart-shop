@@ -44,7 +44,7 @@ describe('paymentReturnService.complete', () => {
     mocks.getStatus.mockResolvedValue(PaymentStatus.Success)
 
     await expect(paymentReturnService.complete(TOKEN, 0)).resolves.toEqual({
-      path: `/order/${TOKEN}/`,
+      path: `/order/${TOKEN}/?placed=1`,
       isPaid: true,
     })
     expect(mocks.processPaymentEvent).toHaveBeenCalledWith('mono', {
