@@ -23,6 +23,7 @@ export const HEADER_CHANNELS: readonly HeaderChannel[] = [
   { key: 'phone', href: 'tel:+380965203325' },
   { key: 'telegram', href: 'https://t.me/+380965203325' },
   { key: 'whatsapp', href: 'https://wa.me/380965203325' },
+  { key: 'youtube', href: 'https://www.youtube.com/@gartshop2408' },
 ]
 
 // A channel without a real handle is hidden rather than shown as a promise
