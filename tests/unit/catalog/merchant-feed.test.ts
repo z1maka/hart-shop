@@ -233,6 +233,19 @@ describe('feedItemOf', () => {
     expect(item.color).toBe('Олива')
   })
 
+  it('opens the page on the size the item stands for', () => {
+    const gen3 = { ...OLIVE, sku: 'HART-37555-OLIVE-GEN3', size: 'Gen 3 / Gen 4' }
+
+    expect(feedItemOf(PRODUCT, gen3, { ...CONTEXT, hasSizeChoice: true }).link).toBe(
+      'https://fox-armor.com.ua/product/anty-teploviziyna-nakydka-poncho-a6286/?color=%D0%9E%D0%BB%D0%B8%D0%B2%D0%B0&size=Gen%203%20%2F%20Gen%204',
+    )
+    expect(
+      feedItemOf(PRODUCT, gen3, { ...CONTEXT, hasColorChoice: false, hasSizeChoice: true }).link,
+    ).toBe(
+      'https://fox-armor.com.ua/product/anty-teploviziyna-nakydka-poncho-a6286/?size=Gen%203%20%2F%20Gen%204',
+    )
+  })
+
   it('percent-encodes a Cyrillic slug in the link', () => {
     const item = feedItemOf(
       { ...PRODUCT, slug: 'маскувальне-пончо-fx13' },

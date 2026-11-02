@@ -14,6 +14,7 @@ import {
 import { parseStory, type StoryBlock } from '@/features/catalog/model/category-content'
 import type { GoogleCategory } from '@/features/catalog/model/google-category'
 import { COLOR_PARAM } from '@/features/catalog/model/requested-color'
+import { SIZE_PARAM } from '@/features/catalog/model/requested-size'
 import { decimalAmount } from '@/lib/money'
 
 export type FeedProduct = {
@@ -174,7 +175,10 @@ export function feedItemOf(
     itemGroupId: product.colorGroup ?? product.sku,
     title: feedTitle(product.title, distinguishing),
     description: feedDescription(product.description, product.title),
-    link: productLink(context.siteUrl, product.slug, context.hasColorChoice ? variant.color : null),
+    link: productLink(context.siteUrl, product.slug, {
+      color: context.hasColorChoice ? variant.color : null,
+      size: context.hasSizeChoice ? variant.size : null,
+    }),
     imageLink,
     additionalImageLinks: moreImages.slice(0, FEED_ADDITIONAL_IMAGES_MAX),
     availability: variant.stockQty > 0 ? 'in_stock' : 'out_of_stock',
@@ -211,12 +215,25 @@ export function feedPrice(cents: number, currency: string): string {
   return `${decimalAmount(cents)} ${currency}`
 }
 
-// The page opens on the colour the item stands for, so the photo and the
-// choice a shopper lands on match the ad they clicked. Cyrillic slugs are
-// percent-encoded by URL: Merchant Center wants RFC 3986 links.
-function productLink(siteUrl: string, slug: string, color: string | null): string {
+type LinkedChoice = {
+  readonly color: string | null
+  readonly size: string | null
+}
+
+// The page opens on the colour and size the item stands for, so the photo and
+// the choice a shopper lands on match the ad they clicked: a «Gen 3 / Gen 4»
+// ad used to land on Gen 2. Cyrillic slugs are percent-encoded by URL:
+// Merchant Center wants RFC 3986 links.
+function productLink(siteUrl: string, slug: string, choice: LinkedChoice): string {
   const base = new URL(`/product/${slug}/`, siteUrl).href
-  return color ? `${base}?${COLOR_PARAM}=${encodeURIComponent(color)}` : base
+  const query = [
+    choice.color ? `${COLOR_PARAM}=${encodeURIComponent(choice.color)}` : null,
+    choice.size ? `${SIZE_PARAM}=${encodeURIComponent(choice.size)}` : null,
+  ]
+    .filter((part): part is string => part !== null)
+    .join('&')
+
+  return query ? `${base}?${query}` : base
 }
 
 function feedTitle(title: string, distinguishing: readonly (string | null)[]): string {

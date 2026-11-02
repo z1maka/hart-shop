@@ -40,6 +40,8 @@ type AddToCartFormProps = {
   // product as a whole, so the counter starts from them.
   readonly inCartQuantity: number
   readonly initialColor: string | null
+  // The size a feed link names; a colour without it falls back to its first.
+  readonly initialSize: string | null
   // The model's other colours, each sold on a page of its own: their tiles
   // lead there instead of switching this page's variant.
   readonly colorLinks?: readonly { readonly color: string; readonly href: string }[]
@@ -65,6 +67,7 @@ export function AddToCartForm({
   wholesale,
   inCartQuantity,
   initialColor,
+  initialSize,
   colorLinks = [],
   analyticsItem,
 }: AddToCartFormProps) {
@@ -91,7 +94,7 @@ export function AddToCartForm({
   const sizes = variants
     .filter((variant) => variant.color === color && variant.size !== null)
     .map((variant) => variant.size as string)
-  const [size, setSize] = useState<string | null>(sizes[0] ?? null)
+  const [size, setSize] = useState<string | null>(initialSize ?? sizes[0] ?? null)
   const [quantity, setQuantity] = useState(1)
 
   const activeSize = size && sizes.includes(size) ? size : (sizes[0] ?? null)

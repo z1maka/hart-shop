@@ -40,6 +40,7 @@ import { breadcrumbJsonLd, faqJsonLd, productJsonLd, videoJsonLd } from '@/lib/s
 import { siteConfig } from '@/config/site'
 import { featuredVideoOf, isoDuration } from '@/features/catalog/model/product-video'
 import { requestedColorOf } from '@/features/catalog/model/requested-color'
+import { requestedSizeOf } from '@/features/catalog/model/requested-size'
 import { cn } from '@/lib/utils'
 import { decodeSlugParam } from '@/lib/slug'
 import { getTranslations } from 'next-intl/server'
@@ -425,6 +426,7 @@ async function VariantPicker({
   searchParams: PageProps<'/product/[slug]'>['searchParams']
 }) {
   const ownColors = [...new Set(product.variants.map((variant) => variant.color))]
+  const ownSizes = product.variants.flatMap((variant) => (variant.size ? [variant.size] : []))
   const [requested, inCartQuantity, colorLinks] = await Promise.all([
     searchParams,
     getProductQuantityInCart(product.slug),
@@ -445,6 +447,7 @@ async function VariantPicker({
           : null
       }
       initialColor={requestedColorOf(requested, ownColors)}
+      initialSize={requestedSizeOf(requested, ownSizes)}
       colorLinks={colorLinks}
       analyticsItem={toAnalyticsItem(product)}
     />
