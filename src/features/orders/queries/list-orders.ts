@@ -43,6 +43,7 @@ export type OrderListRow = {
   // The channel the buyer came from; null when unknown.
   readonly traffic: OrderTraffic | null
   readonly paymentRoute: PaymentRoute
+  readonly paymentProvider: string | null
   readonly totalLabel: string
   readonly status: OrderStatus
   readonly trackingNumber: string | null
@@ -123,6 +124,7 @@ function toListRow(entry: ResolvedRow, knownPoints: ReadonlySet<string>): OrderL
     contact: contactView(row.contactPreference, row.phone),
     traffic: row.traffic,
     paymentRoute: row.paymentRoute,
+    paymentProvider: row.paymentProvider,
     totalLabel: formatMoney(createMoney(row.totalCents, Currency.Uah)),
     status: row.status,
     readiness: readinessWithPoint(entry.readiness, isPointKnown),

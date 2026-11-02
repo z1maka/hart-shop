@@ -15,6 +15,7 @@ import {
   quickOrderReminderTelegramText,
   REVIEW_REQUEST_MAIL,
   PAYMENT_ROUTE_RU,
+  paymentMethodRu,
   toPackingItem,
   waybillIssuedTelegramText,
   waybillLabelCaption,
@@ -62,6 +63,20 @@ describe('PAYMENT_ROUTE_RU', () => {
     for (const route of Object.values(PaymentRoute)) {
       expect(PAYMENT_ROUTE_RU[route]).toBeTruthy()
     }
+  })
+})
+
+describe('paymentMethodRu', () => {
+  it('names the acquirer that took a card payment', () => {
+    expect(paymentMethodRu(PaymentRoute.Card, 'mono')).toBe('оплачено картой через plata by mono')
+  })
+
+  it('tells a transfer to the account apart from a card payment', () => {
+    expect(paymentMethodRu(PaymentRoute.BankTransfer, null)).toContain('IBAN')
+  })
+
+  it('falls back to the route when a card order has no acquirer recorded', () => {
+    expect(paymentMethodRu(PaymentRoute.Card, null)).toBe(PAYMENT_ROUTE_RU[PaymentRoute.Card])
   })
 })
 
@@ -195,9 +210,7 @@ describe('toPackingItem', () => {
   })
 
   it('keeps the bought colour once the variant is gone', () => {
-    const item = toPackingItem(
-      packingSource({ packingTitle: null, shortTitle: null, color: null }),
-    )
+    const item = toPackingItem(packingSource({ packingTitle: null, shortTitle: null, color: null }))
     expect(item.color).toBe('Білий')
   })
 

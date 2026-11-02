@@ -1,6 +1,7 @@
 import { bankMfo, paymentPurpose, type BankRequisites } from '@/config/requisites'
 import { SizeAxis, sizeAxisOf } from '@/config/variant-size'
 import { Carrier, PaymentRoute } from '@/db/enums'
+import { cardProviderName } from '@/features/orders/model/payment-method'
 import type { OrderItemRow } from '@/features/orders/repository/order-repository'
 import { escapeHtml } from '@/lib/html'
 import { groupIban } from '@/lib/iban'
@@ -11,7 +12,15 @@ import { createMoney, Currency, formatMoney } from '@/lib/money'
 export const PAYMENT_ROUTE_RU: Record<PaymentRoute, string> = {
   [PaymentRoute.CashOnDelivery]: 'наложенный платеж',
   [PaymentRoute.Card]: 'оплата картой',
-  [PaymentRoute.BankTransfer]: 'банковский перевод',
+  [PaymentRoute.BankTransfer]: 'на IBAN по реквизитам — ждём перевод на счёт',
+}
+
+// A card order is announced once the acquirer has confirmed it, so its line
+// names the acquirer; a transfer is announced unpaid and must be checked in
+// the account statement by hand.
+export function paymentMethodRu(route: PaymentRoute, providerId: string | null): string {
+  const provider = route === PaymentRoute.Card ? cardProviderName(providerId) : null
+  return provider ? `оплачено картой через ${provider}` : PAYMENT_ROUTE_RU[route]
 }
 
 export function itemLines(items: readonly OrderItemRow[]): string[] {

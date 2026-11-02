@@ -77,6 +77,8 @@ export type OrderPageRow = {
   readonly contactPreference: ContactPreference
   readonly traffic: OrderTraffic | null
   readonly paymentRoute: PaymentRoute
+  // The acquirer that took a card payment; null for the other routes.
+  readonly paymentProvider: string | null
   readonly totalCents: number
   readonly prepaidCents: number
   readonly status: OrderStatus
@@ -673,6 +675,7 @@ export const orderRepository = {
         createdAt: orders.createdAt,
         shippingAddress: orders.shippingAddress,
         paymentRoute: orders.paymentRoute,
+        paymentProvider: orders.paymentProvider,
         totalCents: orders.totalCents,
         prepaidCents: orders.prepaidCents,
         status: orders.status,

@@ -3,7 +3,7 @@ import {
   itemLines,
   money,
   parcelRefusedTelegramText,
-  PAYMENT_ROUTE_RU,
+  paymentMethodRu,
   quickOrderReminderTelegramText,
   waybillIssuedTelegramText,
   waybillLabelCaption,
@@ -45,7 +45,7 @@ export const orderTelegram = {
       ...(order.email ? [`Email: ${escapeHtml(order.email)}`] : []),
       `Доставка: ${escapeHtml([address.line1, address.city].filter(Boolean).join(', '))}`,
       `Перевозчик: ${escapeHtml(input.carrierName)}`,
-      `Оплата: ${PAYMENT_ROUTE_RU[order.paymentRoute]}`,
+      `Оплата: ${paymentMethodRu(order.paymentRoute, order.paymentProvider)}`,
       ...(order.customerNote ? ['', `Комментарий: ${escapeHtml(order.customerNote)}`] : []),
       '',
       'Товары:',
@@ -69,7 +69,11 @@ export const orderTelegram = {
 
   async sendQuickOrderReminder(notice: QuickOrderReminderNotice): Promise<boolean | null> {
     if (!isTelegramConfigured(env.TELEGRAM_CHAT_ID)) {
-      return skipNotification(notice.orderId, NotificationKind.QuickOrderReminderTelegram, NOT_CONFIGURED)
+      return skipNotification(
+        notice.orderId,
+        NotificationKind.QuickOrderReminderTelegram,
+        NOT_CONFIGURED,
+      )
     }
 
     return deliverNotification(notice.orderId, NotificationKind.QuickOrderReminderTelegram, () =>

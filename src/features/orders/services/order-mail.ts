@@ -4,10 +4,7 @@ import { parseRequisitesSnapshot } from '@/config/requisites'
 import { NotificationKind, PaymentRoute } from '@/db/enums'
 import { bankAccountService } from '@/features/billing'
 import { CONTACT_PREFERENCE_RU, isSpecialContact } from '@/features/orders/model/contact-preference'
-import {
-  deliverNotification,
-  skipNotification,
-} from '@/features/orders/services/notification-log'
+import { deliverNotification, skipNotification } from '@/features/orders/services/notification-log'
 import {
   bankTransferLines,
   buyerShippingLine,
@@ -18,7 +15,7 @@ import {
   escapeHtml,
   itemLines,
   money,
-  PAYMENT_ROUTE_RU,
+  paymentMethodRu,
 } from '@/features/orders/model/notification-format'
 import type { OrderItemRow, OrderRow } from '@/features/orders/repository/order-repository'
 import { enquiryRecipient, env } from '@/lib/env'
@@ -84,10 +81,10 @@ export const orderMail = {
 
     return deliverNotification(order.id, NotificationKind.OrderPlacedMail, () =>
       sendMail({
-      to: email,
-      subject: c.confirmedSubject(order.orderNumber),
-      text,
-      html,
+        to: email,
+        subject: c.confirmedSubject(order.orderNumber),
+        text,
+        html,
       }),
     )
   },
@@ -127,10 +124,10 @@ export const orderMail = {
 
     return deliverNotification(order.id, NotificationKind.ShippedMail, () =>
       sendMail({
-      to: email,
-      subject: c.shippedSubject(order.orderNumber),
-      text,
-      html,
+        to: email,
+        subject: c.shippedSubject(order.orderNumber),
+        text,
+        html,
       }),
     )
   },
@@ -171,7 +168,7 @@ export const orderMail = {
       ['Телефон', address.phone ?? '—'],
       ['Доставка', [address.line1, address.city].filter(Boolean).join(', ')],
       ['Перевозчик', input.carrierName],
-      ['Оплата', PAYMENT_ROUTE_RU[order.paymentRoute]],
+      ['Оплата', paymentMethodRu(order.paymentRoute, order.paymentProvider)],
       ...(isSpecialContact(order.contactPreference)
         ? [['Связь', CONTACT_PREFERENCE_RU[order.contactPreference]] as const]
         : []),
@@ -181,16 +178,16 @@ export const orderMail = {
 
     return deliverNotification(order.id, NotificationKind.OrderPlacedShopMail, () =>
       sendMail({
-      to: enquiryRecipient,
-      replyTo: order.email ?? undefined,
-      subject: `Новый заказ ${order.orderNumber} — ${money(order.totalCents)}`,
-      text: rows.map(([label, value]) => `${label}: ${value}`).join('\n'),
-      html: `<table>${rows
-        .map(
-          ([label, value]) =>
-            `<tr><th align="left">${label}</th><td style="white-space:pre-line">${escapeHtml(value)}</td></tr>`,
-        )
-        .join('')}</table>`,
+        to: enquiryRecipient,
+        replyTo: order.email ?? undefined,
+        subject: `Новый заказ ${order.orderNumber} — ${money(order.totalCents)}`,
+        text: rows.map(([label, value]) => `${label}: ${value}`).join('\n'),
+        html: `<table>${rows
+          .map(
+            ([label, value]) =>
+              `<tr><th align="left">${label}</th><td style="white-space:pre-line">${escapeHtml(value)}</td></tr>`,
+          )
+          .join('')}</table>`,
       }),
     )
   },

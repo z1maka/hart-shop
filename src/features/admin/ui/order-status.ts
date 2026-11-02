@@ -1,5 +1,6 @@
 import { OrderStatus, PaymentRoute } from '@/db/enums'
 import { DayMark, OrderGroup } from '@/features/orders/model/order-groups'
+import { cardProviderName } from '@/features/orders/model/payment-method'
 import { OrderStatusFilter, statusMatchOf } from '@/features/orders/model/status-filter'
 import type { ParcelStage } from '@/features/shipping'
 
@@ -23,10 +24,17 @@ const STATUS_CLASSES: Record<OrderStatus, string> = {
   [OrderStatus.Refunded]: 'bg-sunken text-muted',
 }
 
-export const PAYMENT_ROUTE_LABELS: Record<PaymentRoute, string> = {
+const PAYMENT_ROUTE_LABELS: Record<PaymentRoute, string> = {
   [PaymentRoute.CashOnDelivery]: 'Наложенный платёж',
   [PaymentRoute.Card]: 'Картой онлайн',
-  [PaymentRoute.BankTransfer]: 'По счёту',
+  [PaymentRoute.BankTransfer]: 'На IBAN по реквизитам',
+}
+
+// Where to look for the money: a card payment in the acquirer's cabinet, a
+// transfer in the shop's account statement (owner, 02.11.2026).
+export function paymentMethodLabel(route: PaymentRoute, providerId: string | null): string {
+  const provider = route === PaymentRoute.Card ? cardProviderName(providerId) : null
+  return provider ? `Картой · ${provider}` : PAYMENT_ROUTE_LABELS[route]
 }
 
 // A fresh COD order is not waiting for money — the carrier collects it at

@@ -16,7 +16,7 @@ import {
   orderGroupLabel,
   orderStatusClass,
   orderStatusLabel,
-  PAYMENT_ROUTE_LABELS,
+  paymentMethodLabel,
 } from '@/features/admin/ui/order-status'
 import { BATCH_MAX } from '@/features/admin/ui/WaybillBatchBar'
 import {
@@ -206,7 +206,7 @@ function CardFacts({ order }: { readonly order: OrderListRow }) {
     <dl className="grid grid-cols-2 gap-3 text-[12.5px] text-muted">
       <div>
         <dt className="text-[11.5px] text-faint">Оплата</dt>
-        <dd>{PAYMENT_ROUTE_LABELS[order.paymentRoute]}</dd>
+        <dd>{paymentMethodLabel(order.paymentRoute, order.paymentProvider)}</dd>
       </div>
       <div>
         <dt className="text-[11.5px] text-faint">Источник</dt>

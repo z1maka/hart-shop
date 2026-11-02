@@ -7,7 +7,7 @@ import {
   orderGroupLabel,
   orderStatusClass,
   orderStatusLabel,
-  PAYMENT_ROUTE_LABELS,
+  paymentMethodLabel,
 } from '@/features/admin/ui/order-status'
 import { ContactLine } from '@/features/admin/ui/ContactLine'
 import { OrderCardList } from '@/features/admin/ui/OrderCardList'
@@ -251,7 +251,7 @@ function OrderRow({ order, isPicking, isSettled, isSelected, onToggle }: OrderRo
         <DestinationCell destination={order.destination} />
       </td>
       <td className="p-3 whitespace-nowrap text-muted">
-        {PAYMENT_ROUTE_LABELS[order.paymentRoute]}
+        {paymentMethodLabel(order.paymentRoute, order.paymentProvider)}
       </td>
       <td className="p-3 text-muted">
         <TrafficCell traffic={order.traffic} />

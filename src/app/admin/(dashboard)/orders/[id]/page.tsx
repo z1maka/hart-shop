@@ -21,7 +21,7 @@ import {
   orderStatusClass,
   orderStatusLabel,
   parcelStageLabel,
-  PAYMENT_ROUTE_LABELS,
+  paymentMethodLabel,
 } from '@/features/admin/ui/order-status'
 import type { AdminParcelView } from '@/features/orders'
 import { cn } from '@/lib/utils'
@@ -160,7 +160,10 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
                     : (order.pickupPointLabel ?? '—')
                 }
               />
-              <Row label="Оплата" value={PAYMENT_ROUTE_LABELS[order.paymentRoute]} />
+              <Row
+                label="Оплата"
+                value={paymentMethodLabel(order.paymentRoute, order.paymentProvider)}
+              />
               <Row label="Источник" value={trafficLabel(order.traffic)} />
               {order.paidAt ? <Row label="Оплачен" value={order.paidAt} /> : null}
               {order.paymentRef ? <Row label="Платёжная ссылка" value={order.paymentRef} /> : null}
