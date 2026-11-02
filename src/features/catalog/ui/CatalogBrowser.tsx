@@ -232,7 +232,9 @@ type HrefState = {
 function buildHref(path: string, state: HrefState, position: ListPosition = {}): string {
   const params = new URLSearchParams()
 
-  if (state.colors.length > 0) params.set('color', state.colors.join(','))
+  // One order whatever the clicks: toggling appends, and «A,B» beside «B,A»
+  // made every set of colours many addresses (config/catalog-filters.ts).
+  if (state.colors.length > 0) params.set('color', [...state.colors].sort().join(','))
   if (state.weightBand) params.set('weight', state.weightBand)
   if (state.sort !== DEFAULT_SORT) params.set('sort', state.sort)
   const page = position.page ?? 1
@@ -305,6 +307,7 @@ function ActiveFilterChip({
   return (
     <Link
       href={href}
+      rel="nofollow"
       aria-label={`${removeLabel}: ${label}`}
       className="inline-flex min-h-[30px] items-center gap-1.5 rounded-chip bg-ink px-2.5 text-[12px] font-bold text-on-dark transition-colors hover:bg-ink-hover"
     >

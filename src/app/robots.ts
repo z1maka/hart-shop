@@ -1,4 +1,5 @@
 import type { MetadataRoute } from 'next'
+import { CATALOG_FILTER_PARAMS, CATALOG_LIST_PATHS } from '@/config/catalog-filters'
 import { FEED_PATH } from '@/config/merchant-feed'
 import { META_CATALOG_PATH } from '@/config/meta-catalog'
 import { env } from '@/lib/env'
@@ -9,6 +10,10 @@ const SITEMAP_URL = `${env.NEXT_PUBLIC_SITE_URL}/sitemap.xml`
 // Storebot-Google reads them to check the buying flow Merchant Center
 // advertises, as it could on WordPress.
 const PRIVATE_PATHS = ['/admin', '/api']
+
+const FILTERED_LIST_PATHS = CATALOG_LIST_PATHS.flatMap((path) =>
+  CATALOG_FILTER_PARAMS.map((param) => `${path}*${param}=`),
+)
 
 export default function robots(): MetadataRoute.Robots {
   // While the shop is closed only the product feeds are reachable, so they
@@ -22,7 +27,7 @@ export default function robots(): MetadataRoute.Robots {
   }
 
   return {
-    rules: [{ userAgent: '*', allow: '/', disallow: PRIVATE_PATHS }],
+    rules: [{ userAgent: '*', allow: '/', disallow: [...PRIVATE_PATHS, ...FILTERED_LIST_PATHS] }],
     sitemap: SITEMAP_URL,
     host: env.NEXT_PUBLIC_SITE_URL,
   }

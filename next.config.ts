@@ -1,6 +1,7 @@
 import createNextIntlPlugin from 'next-intl/plugin'
 import type { NextConfig } from 'next'
 import { z } from 'zod'
+import { CATALOG_FILTER_PARAMS, CATALOG_LIST_PATHS } from './src/config/catalog-filters'
 
 const PRIVATE_HOST_PATTERN = /^(localhost|127\.\d+\.\d+\.\d+|0\.0\.0\.0|\[::1\]|10\.|192\.168\.)/
 
@@ -86,6 +87,18 @@ const SECURITY_HEADERS = [
 // Parsed the way src/lib/env.ts reads the same variable.
 const isIndexable = z.stringbool().default(false).parse(process.env.SITE_INDEXABLE)
 const CLOSED_SITE_HEADERS = isIndexable ? [] : [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }]
+
+// A filtered or re-sorted list repeats the plain one (config/catalog-filters.ts):
+// a crawler that skips robots.txt still learns it is not for the index, and
+// its product links still count. Listed before the site-wide headers, so a
+// closed site's «noindex, nofollow» overrides it.
+const FILTERED_LIST_HEADERS = CATALOG_LIST_PATHS.flatMap((path) =>
+  CATALOG_FILTER_PARAMS.map((param) => ({
+    source: `${path}:path*`,
+    has: [{ type: 'query' as const, key: param }],
+    headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
+  })),
+)
 
 // Product slugs WordPress renamed before the migration. WordPress kept
 // answering the old ones with a redirect, Search Console still crawls them
@@ -214,7 +227,10 @@ const nextConfig: NextConfig = {
   // survives the migration only if the new site keeps that shape (AGENTS.md §1).
   trailingSlash: true,
   async headers() {
-    return [{ source: '/:path*', headers: [...SECURITY_HEADERS, ...CLOSED_SITE_HEADERS] }]
+    return [
+      ...FILTERED_LIST_HEADERS,
+      { source: '/:path*', headers: [...SECURITY_HEADERS, ...CLOSED_SITE_HEADERS] },
+    ]
   },
   async redirects() {
     // WordPress service pages that are deliberately not reproduced. Targets are

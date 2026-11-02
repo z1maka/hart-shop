@@ -71,10 +71,13 @@ export async function CatalogSidebar({
       <section>
         <h2 className={HEADING_CLASS}>{t('pattern')}</h2>
         <div className="flex flex-wrap gap-2">
+          {/* Filter links open noindex lists crawlers are kept out of
+              (config/catalog-filters.ts), so they pass nothing on. */}
           {colors.map((color) => (
             <Link
               key={color.href}
               href={color.href}
+              rel="nofollow"
               aria-current={color.isActive ? 'true' : undefined}
               className={cn(
                 'inline-flex min-h-9 items-center gap-2 rounded-chip px-3 text-[12.5px] text-ink transition-colors',
@@ -98,6 +101,7 @@ export async function CatalogSidebar({
               <Link
                 key={band.href}
                 href={band.href}
+                rel="nofollow"
                 className={cn(
                   'flex min-h-[34px] flex-1 items-center justify-center rounded-chip px-1.5 text-center text-[12.5px]',
                   band.isActive ? 'bg-raised font-bold text-ink' : 'font-semibold text-muted',
