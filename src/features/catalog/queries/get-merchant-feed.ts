@@ -7,6 +7,7 @@ import { siteConfig } from '@/config/site'
 import { effectiveGoogleCategory } from '@/features/catalog/model/google-category'
 import {
   feedItemOf,
+  feedListedImages,
   feedListedProducts,
   feedListedVariants,
   materialOf,
@@ -132,7 +133,7 @@ async function feedItems<T>(
   ])
 
   const variantsByProduct = groupByProduct(feedListedVariants(variants))
-  const imagesByProduct = groupByProduct(images)
+  const imagesByProduct = groupByProduct(feedListedImages(images))
   return products.flatMap((product) =>
     itemsOf(
       product,

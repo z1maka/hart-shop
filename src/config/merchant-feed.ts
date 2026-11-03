@@ -44,6 +44,16 @@ export const FEED_EXCLUDED_SLUGS: readonly string[] = [
   'komplekt-walkers-razor-z-kriplenniamy-arc',
 ]
 
+// Gallery shots kept out of the feeds while they stay on the site: Google
+// Shopping and Meta reject product images that show weapons (owner,
+// 3.11.2026). Storage keys.
+export const FEED_EXCLUDED_IMAGE_KEYS: readonly string[] = [
+  // MOLLE blanket: a soldier lies under it with a rifle.
+  'products/antyteploviziyna-kovdra-z-molle/5-a530d2ef.webp',
+  // Winter tent: a machine gunner lies under it.
+  'products/antyteploviziynyi-tent-250x150-zymovyi/8-80b32f51.webp',
+]
+
 // Colours on sale with no photos of their own yet: choosing one keeps the
 // card's gallery, which shows another colour, so their offers stay out of
 // both feeds until they are shot (owner, 25.10.2026). Variant skus.

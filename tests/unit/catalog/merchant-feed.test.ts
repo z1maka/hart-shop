@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   escapeXml,
   feedItemOf,
+  feedListedImages,
   feedListedProducts,
   feedListedVariants,
   materialOf,
@@ -59,6 +60,19 @@ describe('feedListedVariants', () => {
     const variants = [{ sku: '3600-2-MULTICAM' }, { sku: '3600-2-PIXEL' }, { sku: '3600-2-OLIVE' }]
 
     expect(feedListedVariants(variants)).toEqual([{ sku: '3600-2-MULTICAM' }])
+  })
+})
+
+describe('feedListedImages', () => {
+  it('keeps the shots that show weapons out of the feeds', () => {
+    const images = [
+      { storageKey: 'products/antyteploviziyna-kovdra-z-molle/4-f04eac5f.webp' },
+      { storageKey: 'products/antyteploviziyna-kovdra-z-molle/5-a530d2ef.webp' },
+    ]
+
+    expect(feedListedImages(images)).toEqual([
+      { storageKey: 'products/antyteploviziyna-kovdra-z-molle/4-f04eac5f.webp' },
+    ])
   })
 })
 

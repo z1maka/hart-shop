@@ -3,6 +3,7 @@ import {
   FEED_APPAREL_AGE_GROUP,
   FEED_APPAREL_GENDER,
   FEED_DESCRIPTION_MAX_LENGTH,
+  FEED_EXCLUDED_IMAGE_KEYS,
   FEED_EXCLUDED_SLUGS,
   FEED_NO_PHOTO_VARIANT_SKUS,
   FEED_MATERIAL_MAX_LENGTH,
@@ -94,6 +95,12 @@ export function feedListedVariants<T extends { readonly sku: string }>(
   variants: readonly T[],
 ): T[] {
   return variants.filter((variant) => !FEED_NO_PHOTO_VARIANT_SKUS.includes(variant.sku))
+}
+
+export function feedListedImages<T extends { readonly storageKey: string }>(
+  images: readonly T[],
+): T[] {
+  return images.filter((image) => !FEED_EXCLUDED_IMAGE_KEYS.includes(image.storageKey))
 }
 
 // The plugin made one offer per simple WordPress product. Where the site now
