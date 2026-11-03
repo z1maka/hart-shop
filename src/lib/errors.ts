@@ -141,6 +141,26 @@ export class OrderTransitionError extends AppError {
   }
 }
 
+// The lines of an order stay as they are: why is the reason (an
+// OrderEditBlock), which the panel tells apart by code.
+export class OrderNotEditableError extends AppError {
+  readonly code: string
+
+  constructor(orderId: string, reason: string) {
+    super(`Order ${orderId} lines cannot be edited: ${reason}`)
+    this.code = `ORDER_EDIT_${reason.toUpperCase()}`
+  }
+}
+
+// An order left with no lines is a cancellation, which has its own status.
+export class OrderEmptyError extends AppError {
+  readonly code = 'ORDER_EDIT_EMPTY'
+
+  constructor(orderId: string) {
+    super(`Order ${orderId} would have no lines left`)
+  }
+}
+
 export class EnquiryNotFoundError extends AppError {
   readonly code = 'ENQUIRY_NOT_FOUND'
 

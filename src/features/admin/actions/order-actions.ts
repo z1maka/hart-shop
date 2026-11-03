@@ -8,9 +8,13 @@ import {
   getWeekTraffic,
   isMonthKey,
   isWeekKey,
+  ORDER_LINE_MAX_QUANTITY,
+  VARIANT_SEARCH_MIN_LENGTH,
   orderAdminService,
+  orderEditService,
   orderShipmentService,
   toUkrainianMsisdn,
+  type AddableVariant,
   type IssuedWaybill,
   type MonthReturnsView,
   type TrafficWeekView,
@@ -425,6 +429,68 @@ export async function findAdminStreetsAction(input: unknown): Promise<ActionResu
   try {
     const directory = pickupDirectoryFor(DIRECTORY_CARRIER)
     return actionOk(await directory.findStreets(parsed.data.settlementRef, parsed.data.search))
+  } catch (error) {
+    return toActionError(error)
+  }
+}
+
+// More lines than an order of the shop ever had; the cap only bounds the form.
+const ORDER_EDIT_MAX_LINES = 50
+const OrderLinesSchema = z.object({
+  orderId: z.uuid(),
+  lines: z
+    .array(
+      z.object({
+        variantId: z.uuid(),
+        quantity: z.number().int().min(0).max(ORDER_LINE_MAX_QUANTITY),
+      }),
+    )
+    .min(1)
+    .max(ORDER_EDIT_MAX_LINES)
+    .refine((lines) => new Set(lines.map((line) => line.variantId)).size === lines.length),
+})
+
+const VariantSearchSchema = z.object({
+  search: z.string().trim().min(VARIANT_SEARCH_MIN_LENGTH).max(SEARCH_MAX_LENGTH),
+})
+
+export type OrderLinesEditOutcome = {
+  readonly previousTotalCents: number
+  readonly totalCents: number
+}
+
+export async function editOrderLinesAction(
+  input: unknown,
+): Promise<ActionResult<OrderLinesEditOutcome>> {
+  const session = await readAdminSession()
+  if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
+
+  const parsed = OrderLinesSchema.safeParse(input)
+  if (!parsed.success) return actionError('VALIDATION_FAILED', 'quantity', 'целое число от 0')
+
+  try {
+    const { orderId, lines } = parsed.data
+    const totals = await orderEditService.editLines(orderId, lines, session.email)
+    return actionOk({
+      previousTotalCents: totals.previousTotalCents,
+      totalCents: totals.totalCents,
+    })
+  } catch (error) {
+    return toActionError(error)
+  }
+}
+
+export async function findOrderVariantsAction(
+  input: unknown,
+): Promise<ActionResult<AddableVariant[]>> {
+  const session = await readAdminSession()
+  if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
+
+  const parsed = VariantSearchSchema.safeParse(input)
+  if (!parsed.success) return actionError('VALIDATION_FAILED', 'search')
+
+  try {
+    return actionOk(await orderEditService.findAddableVariants(parsed.data.search))
   } catch (error) {
     return toActionError(error)
   }

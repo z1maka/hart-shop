@@ -27,6 +27,15 @@ export {
   type AdminOrderLine,
 } from '@/features/orders/queries/get-admin-order'
 export { orderAdminService } from '@/features/orders/services/order-admin-service'
+export {
+  orderEditService,
+  type AddableVariant,
+} from '@/features/orders/services/order-edit-service'
+export {
+  ORDER_LINE_MAX_QUANTITY,
+  OrderEditBlock,
+  VARIANT_SEARCH_MIN_LENGTH,
+} from '@/features/orders/model/order-edit'
 export { allowedNextStatuses, canTransition } from '@/features/orders/model/status-flow'
 export {
   orderShipmentService,

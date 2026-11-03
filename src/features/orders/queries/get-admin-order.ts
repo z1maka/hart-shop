@@ -27,6 +27,7 @@ import {
 } from '@/features/orders/model/shipment'
 import { TRACKED_ORDER_STATUSES } from '@/features/orders/model/parcel-progress'
 import { allowedNextStatuses } from '@/features/orders/model/status-flow'
+import { orderEditBlockOf, type OrderEditBlock } from '@/features/orders/model/order-edit'
 import {
   orderRepository,
   type OrderItemRow,
@@ -52,6 +53,8 @@ import { createMoney, Currency, formatMoney } from '@/lib/money'
 
 export type AdminOrderLine = {
   readonly id: string
+  // Null once the variant is deleted: the line then stays as it was bought.
+  readonly variantId: string | null
   readonly title: string
   readonly variantLabel: string
   readonly sku: string
@@ -160,6 +163,8 @@ export type AdminOrderView = {
   readonly placedAt: string
   readonly status: OrderStatus
   readonly allowedNextStatuses: readonly OrderStatus[]
+  // Why the lines can no longer change; null while they can.
+  readonly editBlock: OrderEditBlock | null
   readonly email: string | null
   readonly paymentRoute: PaymentRoute
   readonly paymentProvider: string | null
@@ -219,6 +224,7 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrderView | n
     placedAt: formatDateTime(order.createdAt),
     status: order.status,
     allowedNextStatuses: allowedNextStatuses(order.status, paymentRoute),
+    editBlock: orderEditBlockOf(order),
     email: order.email,
     paymentRoute,
     paymentProvider: order.paymentProvider,
@@ -311,6 +317,7 @@ async function transferAccountOf(order: OrderRow): Promise<TransferAccountView |
 function lineView(item: OrderItemRow): AdminOrderLine {
   return {
     id: item.id,
+    variantId: item.variantId,
     title: item.productTitle,
     variantLabel: item.variantLabel,
     sku: item.sku,

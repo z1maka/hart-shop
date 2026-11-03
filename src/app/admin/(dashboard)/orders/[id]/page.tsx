@@ -13,6 +13,7 @@ import type {
   AdminOrderLine,
 } from '@/features/orders/queries/get-admin-order'
 import { OrderActionsPanel } from '@/features/admin/ui/OrderActionsPanel'
+import { OrderLinesEditor } from '@/features/admin/ui/OrderLinesEditor'
 import { PhoneLink } from '@/features/admin/ui/order-cells'
 import { WaybillPanel } from '@/features/admin/ui/WaybillPanel'
 import { trafficLabel } from '@/features/admin/ui/traffic-labels'
@@ -140,6 +141,12 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
               {order.prepaidLabel ? <Row label="Предоплата" value={order.prepaidLabel} /> : null}
               {order.codLabel ? <Row label="Контроль оплаты" value={order.codLabel} /> : null}
             </dl>
+
+            <OrderLinesEditor
+              orderId={order.id}
+              lines={order.lines}
+              editBlock={order.editBlock}
+            />
           </section>
 
           <section className="rounded-card border border-subtle bg-surface p-5">
@@ -178,6 +185,8 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
 
         <aside className="grid min-w-[min(100%,300px)] flex-[1_1_320px] grid-cols-1 gap-4">
           <WaybillPanel
+            // A new composition brings a new weight and cargo description.
+            key={order.lines.map((line) => `${line.id}:${line.quantity}`).join(',')}
             orderId={order.id}
             waybill={order.waybill}
             trackingNumber={order.trackingNumber}

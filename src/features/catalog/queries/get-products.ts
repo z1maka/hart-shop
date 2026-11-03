@@ -19,6 +19,7 @@ import {
   isVariantAvailable,
   sizeOf,
   struckPrice,
+  variantLabelOf,
   type ProductCardView,
   type ProductImageView,
 } from '@/features/catalog/model/product-view'
@@ -232,10 +233,6 @@ function ratingOf(
   rating: { readonly average: number; readonly count: number } | undefined,
 ): ProductCardView['rating'] {
   return rating && rating.count > 0 ? { average: rating.average, count: rating.count } : null
-}
-
-function variantLabelOf(options: Record<string, string>): string {
-  return Object.values(options).join(' · ')
 }
 
 // The square crop: every card in a grid shares one shape.

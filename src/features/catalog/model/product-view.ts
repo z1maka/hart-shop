@@ -100,6 +100,11 @@ export function struckPrice(priceCents: number, salePriceCents: number | null): 
   return salePriceCents === null ? null : toPrice(priceCents)
 }
 
+// How a cart or order line names its variant: «Мультикам · Gen 3 / Gen 4».
+export function variantLabelOf(options: Record<string, string>): string {
+  return Object.values(options).join(' · ')
+}
+
 export function colorOf(options: Record<string, string>): string | null {
   return options[COLOR_OPTION_KEY] ?? null
 }

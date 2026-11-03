@@ -8,6 +8,7 @@ import {
   products,
 } from '@/db/schema'
 import { unitPriceCentsFor, wholesaleTierOf } from '@/features/catalog/model/pricing'
+import { variantLabelOf } from '@/features/catalog/model/product-view'
 import { db } from '@/lib/db'
 
 export type CartRow = InferSelectModel<typeof carts>
@@ -434,8 +435,4 @@ function expiryDate(): Date {
   const expires = new Date()
   expires.setDate(expires.getDate() + CART_TTL_DAYS)
   return expires
-}
-
-function variantLabelOf(options: Record<string, string>): string {
-  return Object.values(options).join(' · ')
 }
