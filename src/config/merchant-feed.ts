@@ -60,6 +60,10 @@ export const FEED_EXCLUDED_IMAGE_KEYS: readonly string[] = [
 export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = [
   '3600-2-PIXEL',
   '3600-2-OLIVE',
+  // FX14 winter multicam: the gallery is multicam only (3.11.2026).
+  '3600-2-WINTER',
+  // MOLLE blanket khaki: multicam, winter blot and pixel have photos (3.11.2026).
+  'HART-37564-KHAKI',
   // Starlink Mini: reshot in multicam only (25.10.2026).
   'HART-38686-V38688',
   'HART-38686-V38689',
