@@ -7,7 +7,7 @@ import {
 import { AdSpendPanel } from '@/features/admin/ui/AdSpendPanel'
 import { EarningsSummary } from '@/features/admin/ui/EarningsSummary'
 import { fullDay, shortDay } from '@/features/admin/ui/stats-format'
-import { EarningsPreset } from '@/features/orders'
+import { ChannelFilter, EarningsPreset } from '@/features/orders'
 import { cn } from '@/lib/utils'
 
 type EarningsBoardProps = {
@@ -33,7 +33,12 @@ export async function EarningsBoard({ searchParams }: EarningsBoardProps) {
   const params = await searchParams
   const from = textParam(params.from)
   const to = textParam(params.to)
-  const view = await getAdminEarnings({ period: textParam(params.period), from, to })
+  const view = await getAdminEarnings({
+    period: textParam(params.period),
+    from,
+    to,
+    channel: textParam(params.channel),
+  })
   const areDatesIgnored = Boolean(from || to) && view.period.preset !== null
 
   return (
@@ -45,7 +50,10 @@ export async function EarningsBoard({ searchParams }: EarningsBoardProps) {
             {fullDay(view.period.from)} — {fullDay(view.period.to)} · заказы по дате оформления
           </p>
         </div>
-        <PeriodPicker period={view.period} />
+        <div className="grid w-full gap-2 sm:w-auto sm:justify-items-end">
+          <ChannelPicker view={view} />
+          <PeriodPicker period={view.period} channel={view.channel} />
+        </div>
       </header>
       {areDatesIgnored ? (
         <p className="-mt-4 text-[12.5px] font-medium text-alert">
@@ -53,7 +61,14 @@ export async function EarningsBoard({ searchParams }: EarningsBoardProps) {
         </p>
       ) : null}
       <EarningsSummary view={view} />
-      <AdSpendPanel adSpend={view.adSpend} />
+      {view.adSpend ? (
+        <AdSpendPanel adSpend={view.adSpend} />
+      ) : (
+        <p className="rounded-card border border-subtle bg-surface p-5 text-[13px] leading-relaxed text-muted">
+          Реклама к дропшиппингу не относится: эти заказы приходят от партнёров, а не из Google и
+          Meta. Её расход делится только на заказы с сайта.
+        </p>
+      )}
       <p className="text-[12px] leading-relaxed text-faint">
         Отменённые заказы и возвраты (отказ, посылку не забрали) не считаются. Цена цеха берётся на
         момент заказа: если её потом поменять в товаре, прошлые заказы не пересчитаются.
@@ -62,7 +77,52 @@ export async function EarningsBoard({ searchParams }: EarningsBoardProps) {
   )
 }
 
-function PeriodPicker({ period }: { readonly period: Period }) {
+const CHANNEL_LINKS: readonly { channel: ChannelFilter; label: string }[] = [
+  { channel: ChannelFilter.All, label: 'Все' },
+  { channel: ChannelFilter.Site, label: 'Сайт' },
+  { channel: ChannelFilter.Dropship, label: 'Дропшиппинг' },
+]
+
+// The period stays as it is when the channel changes, and the other way
+// round: both live in the address.
+function periodQuery(period: Period): string {
+  return period.preset === null ? `from=${period.from}&to=${period.to}` : `period=${period.preset}`
+}
+
+function channelQuery(channel: ChannelFilter): string {
+  return channel === ChannelFilter.All ? '' : `&channel=${channel}`
+}
+
+function ChannelPicker({ view }: { readonly view: AdminEarningsView }) {
+  return (
+    <nav
+      aria-label="Канал продаж"
+      className="grid grid-cols-3 gap-1 rounded-[10px] border border-subtle bg-surface p-1 sm:flex sm:rounded-pill"
+    >
+      {CHANNEL_LINKS.map((link) => (
+        <Link
+          key={link.channel}
+          href={`${STATS_PATH}?${periodQuery(view.period)}${channelQuery(link.channel)}`}
+          aria-current={view.channel === link.channel ? 'page' : undefined}
+          className={cn(
+            'rounded-pill px-3.5 py-1.5 text-center text-[13px] font-semibold text-muted transition-colors hover:text-ink',
+            view.channel === link.channel && 'bg-ink text-on-dark hover:text-on-dark',
+          )}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </nav>
+  )
+}
+
+function PeriodPicker({
+  period,
+  channel,
+}: {
+  readonly period: Period
+  readonly channel: ChannelFilter
+}) {
   return (
     <div className="grid w-full gap-2 sm:flex sm:w-auto sm:items-center">
       <nav
@@ -72,7 +132,7 @@ function PeriodPicker({ period }: { readonly period: Period }) {
         {PRESET_LINKS.map((link) => (
           <Link
             key={link.preset}
-            href={`${STATS_PATH}?period=${link.preset}`}
+            href={`${STATS_PATH}?period=${link.preset}${channelQuery(channel)}`}
             aria-current={period.preset === link.preset ? 'page' : undefined}
             className={cn(
               'rounded-pill px-3.5 py-1.5 text-center text-[13px] font-semibold text-muted transition-colors hover:text-ink',
@@ -83,14 +143,20 @@ function PeriodPicker({ period }: { readonly period: Period }) {
           </Link>
         ))}
       </nav>
-      <CustomDates period={period} />
+      <CustomDates period={period} channel={channel} />
     </div>
   )
 }
 
 // The admin's own dates behind one button: a plain GET form, so the chosen
 // period stays in the address and survives a reload.
-function CustomDates({ period }: { readonly period: Period }) {
+function CustomDates({
+  period,
+  channel,
+}: {
+  readonly period: Period
+  readonly channel: ChannelFilter
+}) {
   const isCustom = period.preset === null
 
   return (
@@ -106,17 +172,26 @@ function CustomDates({ period }: { readonly period: Period }) {
       >
         {isCustom ? `${shortDay(period.from)} — ${shortDay(period.to)}` : 'Свои даты'}
       </summary>
-      <CustomDatesForm period={period} />
+      <CustomDatesForm period={period} channel={channel} />
     </details>
   )
 }
 
-function CustomDatesForm({ period }: { readonly period: Period }) {
+function CustomDatesForm({
+  period,
+  channel,
+}: {
+  readonly period: Period
+  readonly channel: ChannelFilter
+}) {
   return (
     <form
       action={STATS_PATH}
       className="absolute left-0 z-20 mt-2 grid w-[min(300px,calc(100vw-32px))] gap-3 rounded-card border border-subtle bg-raised p-4 shadow-card sm:right-0 sm:left-auto"
     >
+      {channel === ChannelFilter.All ? null : (
+        <input type="hidden" name="channel" value={channel} />
+      )}
       <div className="grid grid-cols-2 gap-2">
         <DateInput label="С" name="from" value={period.from} />
         <DateInput label="По" name="to" value={period.to} />

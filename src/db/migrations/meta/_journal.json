@@ -456,6 +456,20 @@
       "when": 1793123950076,
       "tag": "0064_order_google_click",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1793889165564,
+      "tag": "0065_dropship_invoices",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1793889167777,
+      "tag": "0066_drop_order_invoice_fields",
+      "breakpoints": true
     }
   ]
 }

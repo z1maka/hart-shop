@@ -151,11 +151,12 @@ function OrderCard({ order, isSettled, selection }: OrderCardProps) {
       </div>
       <CardStatus order={order} isSettled={isSettled} isPicking={selection.isPicking} />
       <div>
+        <PartnerLine partner={order.partner} />
         {order.buyerName}
         {order.phone ? (
           <PhoneLink phone={order.phone} className="block w-fit text-[12.5px] text-muted" />
         ) : null}
-        <ContactLine contact={order.contact} />
+        {order.partner ? null : <ContactLine contact={order.contact} />}
       </div>
       <DestinationCell destination={order.destination} />
       <CardFacts order={order} />
@@ -210,10 +211,23 @@ function CardFacts({ order }: { readonly order: OrderListRow }) {
       </div>
       <div>
         <dt className="text-[11.5px] text-faint">Источник</dt>
-        <dd>
-          <TrafficCell traffic={order.traffic} />
-        </dd>
+        <dd>{order.partner ? 'Партнёр' : <TrafficCell traffic={order.traffic} />}</dd>
       </div>
     </dl>
+  )
+}
+
+// A partner order names the partner first; the buyer below is their customer.
+function PartnerLine({ partner }: { readonly partner: OrderListRow['partner'] }) {
+  if (!partner) return null
+
+  return (
+    <span className="mb-1 block text-[12px] leading-snug">
+      <span className="mr-1.5 inline-block rounded-pill bg-accent-tint px-2 py-0.5 text-[11px] font-semibold text-accent-hover">
+        Дроп
+      </span>
+      <span className="font-semibold text-ink">{partner.name}</span>
+      {partner.orderRef ? <span className="text-faint"> · заказ {partner.orderRef}</span> : null}
+    </span>
   )
 }

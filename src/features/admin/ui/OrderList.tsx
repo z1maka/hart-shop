@@ -243,9 +243,10 @@ function OrderRow({ order, isPicking, isSettled, isSelected, onToggle }: OrderRo
       </td>
       <td className="p-3 whitespace-nowrap text-muted">{order.placedAt}</td>
       <td className="p-3">
+        <PartnerLine partner={order.partner} />
         {order.buyerName}
         <span className="block text-[12px] whitespace-nowrap text-faint">{order.phone ?? '—'}</span>
-        <ContactLine contact={order.contact} />
+        {order.partner ? null : <ContactLine contact={order.contact} />}
       </td>
       <td className="w-[270px] max-w-[270px] min-w-[270px] p-3">
         <DestinationCell destination={order.destination} />
@@ -254,7 +255,7 @@ function OrderRow({ order, isPicking, isSettled, isSelected, onToggle }: OrderRo
         {paymentMethodLabel(order.paymentRoute, order.paymentProvider)}
       </td>
       <td className="p-3 text-muted">
-        <TrafficCell traffic={order.traffic} />
+        {order.partner ? 'Партнёр' : <TrafficCell traffic={order.traffic} />}
       </td>
       <td className="p-3 text-right font-semibold whitespace-nowrap">{order.totalLabel}</td>
       <td className="p-3 pr-4">
@@ -267,5 +268,20 @@ function OrderRow({ order, isPicking, isSettled, isSelected, onToggle }: OrderRo
         ) : null}
       </td>
     </tr>
+  )
+}
+
+// A partner order names the partner first; the buyer below is their customer.
+function PartnerLine({ partner }: { readonly partner: OrderListRow['partner'] }) {
+  if (!partner) return null
+
+  return (
+    <span className="mb-1 block text-[12px] leading-snug">
+      <span className="mr-1.5 inline-block rounded-pill bg-accent-tint px-2 py-0.5 text-[11px] font-semibold text-accent-hover">
+        Дроп
+      </span>
+      <span className="font-semibold text-ink">{partner.name}</span>
+      {partner.orderRef ? <span className="text-faint"> · заказ {partner.orderRef}</span> : null}
+    </span>
   )
 }

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
+import { SalesChannel } from '@/db/enums'
 import {
+  ChannelFilter,
+  countsAdSpend,
+  earningsPerUnit,
+  parseChannelFilter,
+  rowsOfChannel,
   daysBetween,
   earningsByDay,
   earningsTotals,
@@ -12,6 +18,7 @@ function row(overrides: Partial<EarningsDayRow>): EarningsDayRow {
   return {
     day: '2026-10-20',
     isCollected: false,
+    channel: SalesChannel.Site,
     orders: 1,
     units: 1,
     revenueCents: 0,
@@ -130,5 +137,57 @@ describe('shiftDays', () => {
   it('moves across a year', () => {
     expect(shiftDays('2026-01-01', -1)).toBe('2025-12-31')
     expect(shiftDays('2026-02-28', 1)).toBe('2026-03-01')
+  })
+})
+
+describe('sales channels', () => {
+  // The first partner order (05.11.2026): 2 × FX14 multicam at the drop
+  // price 3 550 ₴, the workshop's 2 300 ₴.
+  const partnerSale = row({
+    channel: SalesChannel.Dropship,
+    units: 2,
+    revenueCents: 710_000,
+    costedRevenueCents: 710_000,
+    costCents: 460_000,
+  })
+  const siteSale = row({
+    units: 1,
+    revenueCents: 440_000,
+    costedRevenueCents: 440_000,
+    costCents: 230_000,
+  })
+
+  it('counts a partner order at the drop price, not the retail one', () => {
+    const totals = earningsTotals(
+      rowsOfChannel([siteSale, partnerSale], ChannelFilter.Dropship),
+      EarningsScope.All,
+    )
+
+    expect(totals.revenueCents).toBe(710_000)
+    expect(totals.earningsCents).toBe(250_000)
+    expect(earningsPerUnit(totals)).toBe(125_000)
+  })
+
+  it('keeps every row for «all» and only the site for «site»', () => {
+    expect(rowsOfChannel([siteSale, partnerSale], ChannelFilter.All)).toHaveLength(2)
+    expect(rowsOfChannel([siteSale, partnerSale], ChannelFilter.Site)).toEqual([siteSale])
+  })
+
+  it('reads the filter from the address, falling back to all', () => {
+    expect(parseChannelFilter('dropship')).toBe(ChannelFilter.Dropship)
+    expect(parseChannelFilter('site')).toBe(ChannelFilter.Site)
+    expect(parseChannelFilter('partners')).toBe(ChannelFilter.All)
+    expect(parseChannelFilter(undefined)).toBe(ChannelFilter.All)
+  })
+
+  it('counts the ads wherever the site is on the board, never for the partners alone', () => {
+    expect(countsAdSpend(ChannelFilter.All)).toBe(true)
+    expect(countsAdSpend(ChannelFilter.Site)).toBe(true)
+    expect(countsAdSpend(ChannelFilter.Dropship)).toBe(false)
+  })
+
+  it('has no earnings per unit without a costed unit', () => {
+    const uncosted = row({ units: 2, uncostedUnits: 2, revenueCents: 100 })
+    expect(earningsPerUnit(earningsTotals([uncosted], EarningsScope.All))).toBeNull()
   })
 })

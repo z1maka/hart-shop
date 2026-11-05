@@ -86,3 +86,31 @@ export function wholesaleUnitPriceAt(product: PricedProduct, quantity: number): 
   const tier = announcedWholesale(product)
   return tier && quantity >= tier.minQuantity ? tier.priceCents : null
 }
+
+// A partner's unit price (dropshipping) for a variant: the product's drop
+// price plus the variant's surcharge, the same rule the cart and the partner
+// feed follow for the retail price.
+export function dropUnitPriceCents(dropPriceCents: number, priceDeltaCents: number): number {
+  return dropPriceCents + priceDeltaCents
+}
+
+// A drop price has to undercut what one unit costs on the site, sale
+// included: a partner paying retail is no partner price.
+export function isValidDropPrice(
+  dropPriceCents: number | null,
+  product: Pick<PricedProduct, 'priceCents' | 'salePriceCents'>,
+): boolean {
+  if (dropPriceCents === null) return true
+
+  return (
+    Number.isInteger(dropPriceCents) &&
+    dropPriceCents > 0 &&
+    dropPriceCents < singleUnitPriceCents(product)
+  )
+}
+
+// A price at or under the workshop's leaves nothing on the sale. Allowed —
+// a deal may be agreed so — but the admin is told.
+export function earnsNothingOver(priceCents: number, costCents: number | null): boolean {
+  return costCents !== null && priceCents <= costCents
+}

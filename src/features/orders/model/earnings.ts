@@ -1,4 +1,4 @@
-import { OrderStatus } from '@/db/enums'
+import { OrderStatus, SalesChannel } from '@/db/enums'
 import { sharePercent } from '@/features/orders/model/traffic-weeks'
 
 // What the shop earns on its sales: the price a line sold at less what the
@@ -27,11 +27,52 @@ export const EarningsScope = {
 
 export type EarningsScope = (typeof EarningsScope)[keyof typeof EarningsScope]
 
-// The sales of one day, split by whether their parcels were collected.
+// Which sales the board counts: all of them, the site's, or the partners'.
+// A partner pays the drop price, so a unit earns less there; the board
+// shows the two apart (owner, 05.11.2026).
+export const ChannelFilter = {
+  All: 'all',
+  Site: SalesChannel.Site,
+  Dropship: SalesChannel.Dropship,
+} as const
+
+export type ChannelFilter = (typeof ChannelFilter)[keyof typeof ChannelFilter]
+
+function isChannelFilter(value: string | undefined): value is ChannelFilter {
+  return Object.values<string | undefined>(ChannelFilter).includes(value)
+}
+
+export function parseChannelFilter(value: string | undefined): ChannelFilter {
+  return isChannelFilter(value) ? value : ChannelFilter.All
+}
+
+// The ads bring buyers to the site only: partners' orders come from no ad.
+// Their cost is counted against the site's orders and shown wherever the
+// site's sales are on the board.
+export function countsAdSpend(filter: ChannelFilter): boolean {
+  return filter !== ChannelFilter.Dropship
+}
+
+export function rowsOfChannel<Row extends { readonly channel: SalesChannel }>(
+  rows: readonly Row[],
+  filter: ChannelFilter,
+): Row[] {
+  return rows.filter((row) => filter === ChannelFilter.All || row.channel === filter)
+}
+
+// What one unit sold earned on average; none without costed units.
+export function earningsPerUnit(totals: EarningsTotals): number | null {
+  const costedUnits = totals.units - totals.uncostedUnits
+  return costedUnits > 0 ? Math.round(totals.earningsCents / costedUnits) : null
+}
+
+// The sales of one day, split by whether their parcels were collected and
+// by who bought them.
 export type EarningsDayRow = {
   // «2026-10-25» on the shop's clock.
   readonly day: string
   readonly isCollected: boolean
+  readonly channel: SalesChannel
   readonly orders: number
   readonly units: number
   readonly revenueCents: number

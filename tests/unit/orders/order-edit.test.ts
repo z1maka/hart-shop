@@ -8,6 +8,7 @@ import {
   stockChanges,
   type EditLine,
 } from '@/features/orders/model/order-edit'
+import { unitPriceCentsFor } from '@/features/catalog/model/pricing'
 
 const OPEN_COD_ORDER = {
   status: OrderStatus.Pending,
@@ -26,6 +27,8 @@ const COVER_PRICING = {
 const PONCHO_PRICING = { priceCents: 220000, salePriceCents: null, wholesale: null }
 
 const pricingOf = (productId: string) => (productId === 'cover' ? COVER_PRICING : PONCHO_PRICING)
+const unitPriceOf = (productId: string, quantity: number) =>
+  unitPriceCentsFor(pricingOf(productId), quantity)
 
 function line(overrides: Partial<EditLine> & Pick<EditLine, 'variantId'>): EditLine {
   return {
@@ -88,7 +91,7 @@ describe('repricedLines', () => {
       line({ variantId: 'pixel', quantity: 3 }),
     ]
 
-    expect(repricedLines(before, after, pricingOf).map((entry) => entry.unitPriceCents)).toEqual([
+    expect(repricedLines(before, after, unitPriceOf).map((entry) => entry.unitPriceCents)).toEqual([
       270000, 270000,
     ])
   })
@@ -97,7 +100,7 @@ describe('repricedLines', () => {
     const before = [line({ variantId: 'multicam', quantity: 10, unitPriceCents: 270000 })]
     const after = [line({ variantId: 'multicam', quantity: 8, unitPriceCents: 270000 })]
 
-    expect(repricedLines(before, after, pricingOf)[0]?.unitPriceCents).toBe(290000)
+    expect(repricedLines(before, after, unitPriceOf)[0]?.unitPriceCents).toBe(290000)
   })
 
   it('keeps the agreed price of a product whose quantity did not change', () => {
@@ -110,7 +113,7 @@ describe('repricedLines', () => {
       line({ variantId: 'olive', productId: 'poncho', quantity: 1, unitPriceCents: 210000 }),
     ]
 
-    expect(repricedLines(before, after, pricingOf)[1]?.unitPriceCents).toBe(210000)
+    expect(repricedLines(before, after, unitPriceOf)[1]?.unitPriceCents).toBe(210000)
   })
 
   it('prices a new line with its variant surcharge and drops removed ones', () => {
@@ -120,7 +123,7 @@ describe('repricedLines', () => {
       line({ variantId: 'gen3', quantity: 2, priceDeltaCents: 10000, unitPriceCents: 0 }),
     ]
 
-    expect(repricedLines(before, after, pricingOf)).toEqual([
+    expect(repricedLines(before, after, unitPriceOf)).toEqual([
       line({ variantId: 'gen3', quantity: 2, priceDeltaCents: 10000, unitPriceCents: 300000 }),
     ])
   })
@@ -158,5 +161,26 @@ describe('linesSubtotalCents', () => {
         { quantity: 1, unitPriceCents: 220000 },
       ]),
     ).toBe(1380000)
+  })
+})
+
+describe('repricedLines on a partner order', () => {
+  // A partner pays the drop price, whatever the quantity: 3 550 ₴.
+  const dropPrice = () => 355_000
+
+  it('prices a changed product at the drop price, never the retail or wholesale one', () => {
+    const before = [line({ variantId: 'cover-olive', quantity: 2, unitPriceCents: 355_000 })]
+    const after = [line({ variantId: 'cover-olive', quantity: 12, unitPriceCents: 355_000 })]
+
+    expect(repricedLines(before, after, dropPrice)[0]?.unitPriceCents).toBe(355_000)
+  })
+
+  it('keeps an agreed price on a product whose quantity did not change', () => {
+    const agreed = line({ variantId: 'cover-olive', quantity: 2, unitPriceCents: 300_000 })
+    const added = line({ variantId: 'poncho', productId: 'poncho', quantity: 1, unitPriceCents: 0 })
+
+    expect(
+      repricedLines([agreed], [agreed, added], dropPrice).map((entry) => entry.unitPriceCents),
+    ).toEqual([300_000, 355_000])
   })
 })

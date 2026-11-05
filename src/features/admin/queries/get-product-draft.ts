@@ -50,6 +50,7 @@ export type ProductEditorView = {
   readonly wholesaleMinQtyInput: string
   // Blank until the owner enters what a unit costs the shop.
   readonly costInput: string
+  readonly dropPriceInput: string
   readonly weightInput: string
   readonly layers: number
   readonly summary: string
@@ -96,6 +97,8 @@ export async function getProductEditorView(slug: string): Promise<ProductEditorV
         : (draft.wholesalePriceCents / KOPIYKAS_PER_HRYVNIA).toFixed(2),
     wholesaleMinQtyInput: draft.wholesaleMinQty === null ? '' : String(draft.wholesaleMinQty),
     costInput: draft.costCents === null ? '' : (draft.costCents / KOPIYKAS_PER_HRYVNIA).toFixed(2),
+    dropPriceInput:
+      draft.dropPriceCents === null ? '' : (draft.dropPriceCents / KOPIYKAS_PER_HRYVNIA).toFixed(2),
     weightInput: (draft.weightGrams / GRAMS_PER_KILO).toFixed(2),
     layers: draft.layers,
     summary: draft.summary,

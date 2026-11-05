@@ -5,11 +5,13 @@ import {
   Carrier,
   DeliveryKind,
   PaymentRoute,
+  type SalesChannel,
   type NotificationKind,
   type NotificationStatus,
   type OrderStatus,
 } from '@/db/enums'
 import { accountShortLabel, bankAccountService } from '@/features/billing'
+import { resellerService } from '@/features/resellers'
 import {
   canIssueWaybill,
   canRemoveWaybill,
@@ -157,9 +159,19 @@ export type AdminNotificationView = {
   readonly at: string
 }
 
+// Who bought a partner order: the partner, and the number in their system.
+export type AdminPartnerView = {
+  readonly name: string
+  readonly taxId: string
+  readonly orderRef: string | null
+}
+
 export type AdminOrderView = {
   readonly id: string
   readonly orderNumber: string
+  readonly channel: SalesChannel
+  // Null on a site order.
+  readonly partner: AdminPartnerView | null
   readonly placedAt: string
   readonly status: OrderStatus
   readonly allowedNextStatuses: readonly OrderStatus[]
@@ -170,8 +182,6 @@ export type AdminOrderView = {
   readonly paymentProvider: string | null
   readonly paymentRef: string | null
   readonly paidAt: string | null
-  readonly buyerCompany: string | null
-  readonly invoiceNumber: string | null
   readonly customerNote: string | null
   // How the buyer wants the order confirmed, in the team's words, and a chat
   // with them when they asked for a messenger.
@@ -211,16 +221,19 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrderView | n
   if (!order) return null
 
   const items = await orderRepository.findItems(order.id)
-  const [transferAccount, waybill, notifications] = await Promise.all([
+  const [transferAccount, waybill, notifications, partner] = await Promise.all([
     transferAccountOf(order),
     waybillViewOf(order, items),
     notificationRepository.listForOrder(order.id),
+    partnerOf(order),
   ])
   const paymentRoute = order.paymentRoute as PaymentRoute
 
   return {
     id: order.id,
     orderNumber: order.orderNumber,
+    channel: order.channel,
+    partner,
     placedAt: formatDateTime(order.createdAt),
     status: order.status,
     allowedNextStatuses: allowedNextStatuses(order.status, paymentRoute),
@@ -230,8 +243,6 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrderView | n
     paymentProvider: order.paymentProvider,
     paymentRef: order.paymentRef,
     paidAt: order.paidAt ? formatDateTime(order.paidAt) : null,
-    buyerCompany: order.buyerCompany,
-    invoiceNumber: order.invoiceNumber,
     customerNote: order.customerNote,
     contact: contactView(order.contactPreference, order.shippingAddress.phone),
     traffic: order.trafficSource
@@ -304,6 +315,15 @@ async function waybillViewOf(
 // The account the buyer was told to pay to. An order placed before accounts
 // were kept on it shows the active one — the same account the buyer's page
 // falls back to — marked as such.
+async function partnerOf(order: OrderRow): Promise<AdminPartnerView | null> {
+  if (!order.resellerId) return null
+
+  const reseller = await resellerService.find(order.resellerId)
+  return reseller
+    ? { name: reseller.name, taxId: reseller.taxId, orderRef: order.resellerOrderRef }
+    : null
+}
+
 async function transferAccountOf(order: OrderRow): Promise<TransferAccountView | null> {
   if (order.paymentRoute !== PaymentRoute.BankTransfer) return null
 

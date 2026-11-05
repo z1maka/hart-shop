@@ -14,6 +14,7 @@ import { isKnownGoogleCategory } from '@/features/catalog/model/google-category'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import {
+  isValidDropPrice,
   isValidWholesale,
   MIN_WHOLESALE_QUANTITY,
   wholesaleTierOf,
@@ -124,6 +125,8 @@ const SaveProductSchema = z
       ),
     // Absent from a form rendered before the field existed: leave it alone.
     cost: optionalDecimalInput(100_000).optional(),
+    // The partner's price; absent from an older form, leave it alone.
+    dropPrice: optionalDecimalInput(100_000).optional(),
     weight: decimalInput(MAX_PRODUCT_WEIGHT_KG),
     // 1 = not a fabric product; above that, one described layer each.
     layers: z.coerce.number().int().min(1).max(FABRIC_LAYERS.length),
@@ -159,6 +162,15 @@ const SaveProductSchema = z
         wholesaleTierOf(data.wholesaleMinQty, nullableKopiykas(data.wholesalePrice)),
       ),
     { path: ['wholesalePrice'], message: 'ниже обычной цены и цены со скидкой, количество от 2' },
+  )
+  .refine(
+    (data) =>
+      data.dropPrice === undefined ||
+      isValidDropPrice(nullableKopiykas(data.dropPrice), {
+        priceCents: hryvniasToKopiykas(data.price),
+        salePriceCents: nullableKopiykas(data.salePrice),
+      }),
+    { path: ['dropPrice'], message: 'ниже обычной цены и цены со скидкой' },
   )
 
 // Undefined (the form had no such field) stays undefined; blank clears it.
@@ -299,7 +311,11 @@ async function saveProduct(formData: FormData): Promise<SaveProductResult> {
 
   const faq = parseFaq(formData)
   if (faq === null) {
-    return actionError('VALIDATION_FAILED', 'faq', `у каждого вопроса нужен ответ, не больше ${FAQ_MAX_ENTRIES} пар`)
+    return actionError(
+      'VALIDATION_FAILED',
+      'faq',
+      `у каждого вопроса нужен ответ, не больше ${FAQ_MAX_ENTRIES} пар`,
+    )
   }
 
   let savedSlug = currentSlug
@@ -319,6 +335,8 @@ async function saveProduct(formData: FormData): Promise<SaveProductResult> {
       wholesaleMinQty: parsed.data.wholesaleMinQty,
       wholesalePriceCents: nullableKopiykas(parsed.data.wholesalePrice),
       costCents: parsed.data.cost === undefined ? undefined : nullableKopiykas(parsed.data.cost),
+      dropPriceCents:
+        parsed.data.dropPrice === undefined ? undefined : nullableKopiykas(parsed.data.dropPrice),
       weightGrams: Math.round(parsed.data.weight * GRAMS_PER_KILO),
       layers: parsed.data.layers,
       summary: parsed.data.summary,

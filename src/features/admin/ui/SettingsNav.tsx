@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils'
 const SETTINGS_PAGES = [
   { href: '/admin/settings/nova-post', label: 'Новая Почта' },
   { href: '/admin/settings/requisites', label: 'Реквизиты' },
+  { href: '/admin/settings/resellers', label: 'Партнёры' },
 ] as const
 
 export type SettingsPage = (typeof SETTINGS_PAGES)[number]['href']

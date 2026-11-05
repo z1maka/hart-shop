@@ -1,5 +1,4 @@
 import { OrderStatus, PaymentRoute } from '@/db/enums'
-import { unitPriceCentsFor, type PricedProduct } from '@/features/catalog/model/pricing'
 
 // A buyer on the phone changes their mind about how many they want (owner,
 // 03.11.2026): the admin edits the lines until the parcel is made up.
@@ -53,14 +52,18 @@ export type EditLine = {
   readonly unitPriceCents: number
 }
 
+// The product's unit price, before the variant's surcharge, for `quantity`
+// units of it: the order's channel decides how (model/channel-pricing.ts).
+export type ProductUnitPrice = (productId: string, quantity: number) => number
+
 // The lines after the edit, zero quantities gone. A product whose total
-// quantity changed is priced again as the cart prices it — the wholesale tier
-// is earned by the product across its colours; every other line keeps the
-// price the buyer agreed to.
+// quantity changed is priced again by the order's channel — the wholesale
+// tier is earned by the product across its colours; every other line keeps
+// the price the buyer agreed to.
 export function repricedLines(
   before: readonly EditLine[],
   after: readonly EditLine[],
-  pricingOf: (productId: string) => PricedProduct,
+  unitPriceOf: ProductUnitPrice,
 ): EditLine[] {
   const quantityBefore = quantitiesByProduct(before)
   const quantityAfter = quantitiesByProduct(after)
@@ -71,8 +74,7 @@ export function repricedLines(
       const productQuantity = quantityAfter.get(line.productId) ?? 0
       if (productQuantity === quantityBefore.get(line.productId)) return line
 
-      const unitPriceCents =
-        unitPriceCentsFor(pricingOf(line.productId), productQuantity) + line.priceDeltaCents
+      const unitPriceCents = unitPriceOf(line.productId, productQuantity) + line.priceDeltaCents
       return { ...line, unitPriceCents }
     })
 }

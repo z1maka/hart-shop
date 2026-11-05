@@ -19,7 +19,14 @@ import {
   type SQL,
   notExists,
 } from 'drizzle-orm'
-import { orderItems, orderNotifications, orders, products, productVariants } from '@/db/schema'
+import {
+  orderItems,
+  orderNotifications,
+  orders,
+  products,
+  productVariants,
+  resellers,
+} from '@/db/schema'
 import {
   type Locale,
   type NotificationKind,
@@ -28,6 +35,7 @@ import {
   type ContactPreference,
   DeliveryKind,
   PaymentRoute,
+  SalesChannel,
   type TrafficSource,
 } from '@/db/enums'
 import {
@@ -93,6 +101,8 @@ export type OrderPageRow = {
   readonly carrierDocumentRef: string | null
   readonly shippingAddress: ShippingAddress
   readonly parcelWeightGrams: number
+  // A partner order: who bought it and their number for it; null otherwise.
+  readonly partner: { readonly name: string; readonly orderRef: string | null } | null
 }
 
 // One shelf, narrowed by what the admin typed (an order number, a phone or
@@ -405,6 +415,8 @@ export const orderRepository = {
       .where(
         and(
           eq(orders.status, OrderStatus.Delivered),
+          // A partner's customer bought from the partner, not from us.
+          eq(orders.channel, SalesChannel.Site),
           gte(deliveredAt, deliveredFrom),
           lte(deliveredAt, deliveredTo),
           notExists(
@@ -635,13 +647,6 @@ export const orderRepository = {
     return updated.length > 0
   },
 
-  async setInvoiceNumber(orderId: string, invoiceNumber: string | null): Promise<void> {
-    await db
-      .update(orders)
-      .set({ invoiceNumber, updatedAt: new Date() })
-      .where(eq(orders.id, orderId))
-  },
-
   // Reported by the payment date: IOSS declares the month the money moved,
   // not the month the order was placed. Legacy rows without paidAt fall back
   // to createdAt so they are not silently dropped from the report.
@@ -690,8 +695,11 @@ export const orderRepository = {
         trafficSource: orders.trafficSource,
         trafficDetail: orders.trafficDetail,
         contactPreference: orders.contactPreference,
+        partnerName: resellers.name,
+        resellerOrderRef: orders.resellerOrderRef,
       })
       .from(orders)
+      .leftJoin(resellers, eq(resellers.id, orders.resellerId))
       .where(listCondition(query))
       .orderBy(desc(orders.createdAt), desc(orders.id))
       .limit(page.limit)
@@ -701,8 +709,9 @@ export const orderRepository = {
     // row — and one whose column names are unambiguous.
     const weights = await parcelWeights(rows.map((row) => row.id))
 
-    return rows.map(({ trafficSource, trafficDetail, ...row }) => ({
+    return rows.map(({ trafficSource, trafficDetail, partnerName, resellerOrderRef, ...row }) => ({
       ...row,
+      partner: partnerName ? { name: partnerName, orderRef: resellerOrderRef } : null,
       buyerName: row.shippingAddress.fullName,
       phone: row.shippingAddress.phone ?? null,
       traffic: trafficSource ? { source: trafficSource, detail: trafficDetail } : null,
@@ -911,6 +920,9 @@ export const orderRepository = {
           sql`${orders.createdAt} >= (${weekStart}::timestamp at time zone ${timeZone})`,
           sql`${orders.createdAt} < ((${weekStart}::timestamp + interval '7 days') at time zone ${timeZone})`,
           ne(orders.status, OrderStatus.Cancelled),
+          // Partners' orders come from no ad and no visit: they would read as
+          // «unknown» traffic and thin every channel's share.
+          eq(orders.channel, SalesChannel.Site),
         ),
       )
       .groupBy(orders.trafficSource)
@@ -929,6 +941,7 @@ export const orderRepository = {
         status: orders.status,
         paymentRoute: orders.paymentRoute,
         paidAt: orders.paidAt,
+        channel: orders.channel,
       })
       .from(orders)
       .where(and(isNotNull(orders.googleClickId), gte(orders.createdAt, from)))

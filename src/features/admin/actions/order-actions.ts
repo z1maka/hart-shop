@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 import { WAYBILL_DESCRIPTION_MAX_LENGTH, WAYBILL_PARCEL_GRAMS } from '@/config/delivery'
-import { Carrier, DeliveryKind, OrderStatus } from '@/db/enums'
+import { Carrier, DeliveryKind, OrderStatus, SalesChannel } from '@/db/enums'
 import {
   getMonthReturns,
   getWeekTraffic,
@@ -133,11 +133,6 @@ const PointSearchSchema = z.object({
 const DIRECTORY_CARRIER = Carrier.NovaPost
 const DIRECTORY_COUNTRY = 'UA'
 
-const InvoiceSchema = z.object({
-  orderId: z.uuid(),
-  invoiceNumber: emptyToNull(80),
-})
-
 export async function updateOrderStatusAction(
   input: unknown,
 ): Promise<ActionResult<StatusChangeOutcome>> {
@@ -168,21 +163,6 @@ export async function saveOrderTrackingAction(input: unknown): Promise<ActionRes
       trackingNumber: parsed.data.trackingNumber,
       trackingUrl: parsed.data.trackingUrl,
     })
-    return actionOk(null)
-  } catch (error) {
-    return toActionError(error)
-  }
-}
-
-export async function saveOrderInvoiceAction(input: unknown): Promise<ActionResult<null>> {
-  const session = await readAdminSession()
-  if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
-
-  const parsed = InvoiceSchema.safeParse(input)
-  if (!parsed.success) return actionError('VALIDATION_FAILED', 'invoiceNumber')
-
-  try {
-    await orderAdminService.saveInvoiceNumber(parsed.data.orderId, parsed.data.invoiceNumber)
     return actionOk(null)
   } catch (error) {
     return toActionError(error)
@@ -452,11 +432,17 @@ const OrderLinesSchema = z.object({
 
 const VariantSearchSchema = z.object({
   search: z.string().trim().min(VARIANT_SEARCH_MIN_LENGTH).max(SEARCH_MAX_LENGTH),
+  // Prices the matches as the order will: retail on a site order, the drop
+  // price on a partner's.
+  channel: z
+    .enum(Object.values(SalesChannel) as [SalesChannel, ...SalesChannel[]])
+    .default(SalesChannel.Site),
 })
 
 export type OrderLinesEditOutcome = {
   readonly previousTotalCents: number
   readonly totalCents: number
+  readonly voidedInvoiceNumber: number | null
 }
 
 export async function editOrderLinesAction(
@@ -474,6 +460,7 @@ export async function editOrderLinesAction(
     return actionOk({
       previousTotalCents: totals.previousTotalCents,
       totalCents: totals.totalCents,
+      voidedInvoiceNumber: totals.voidedInvoiceNumber,
     })
   } catch (error) {
     return toActionError(error)
@@ -490,7 +477,9 @@ export async function findOrderVariantsAction(
   if (!parsed.success) return actionError('VALIDATION_FAILED', 'search')
 
   try {
-    return actionOk(await orderEditService.findAddableVariants(parsed.data.search))
+    return actionOk(
+      await orderEditService.findAddableVariants(parsed.data.search, parsed.data.channel),
+    )
   } catch (error) {
     return toActionError(error)
   }

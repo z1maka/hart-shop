@@ -162,3 +162,22 @@ export const ContactPreference = {
 } as const
 
 export type ContactPreference = (typeof ContactPreference)[keyof typeof ContactPreference]
+
+// Who the order was sold to: a buyer on the site, or a partner who resells
+// under their own name at the drop price (owner, 05.11.2026). A phone order
+// is placed through the site flow and stays a site sale.
+export const SalesChannel = {
+  Site: 'site',
+  Dropship: 'dropship',
+} as const
+
+export type SalesChannel = (typeof SalesChannel)[keyof typeof SalesChannel]
+
+// An invoice stays on record once issued; voiding burns its number, and a
+// new invoice for the same order takes the next one.
+export const InvoiceStatus = {
+  Issued: 'issued',
+  Void: 'void',
+} as const
+
+export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus]

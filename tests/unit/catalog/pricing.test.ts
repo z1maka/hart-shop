@@ -5,6 +5,9 @@ import {
   unitPriceCentsFor,
   wholesaleTierOf,
   wholesaleUnitPriceAt,
+  dropUnitPriceCents,
+  earnsNothingOver,
+  isValidDropPrice,
 } from '@/features/catalog/model/pricing'
 
 const PONCHO = { priceCents: 235000, salePriceCents: null, wholesale: { minQuantity: 10, priceCents: 220000 } }
@@ -72,5 +75,29 @@ describe('wholesaleUnitPriceAt', () => {
   it('is the tier price from the quantity up and null below it', () => {
     expect(wholesaleUnitPriceAt(PONCHO, 9)).toBeNull()
     expect(wholesaleUnitPriceAt(PONCHO, 10)).toBe(220000)
+  })
+})
+
+describe('drop price', () => {
+  const retail = { priceCents: 440_000, salePriceCents: null }
+
+  it('adds the variant’s surcharge as the cart does', () => {
+    expect(dropUnitPriceCents(355_000, 10_000)).toBe(365_000)
+  })
+
+  it('has to undercut one unit on the site, sale included', () => {
+    expect(isValidDropPrice(null, retail)).toBe(true)
+    expect(isValidDropPrice(355_000, retail)).toBe(true)
+    expect(isValidDropPrice(440_000, retail)).toBe(false)
+    expect(isValidDropPrice(355_000, { priceCents: 440_000, salePriceCents: 350_000 })).toBe(false)
+    expect(isValidDropPrice(0, retail)).toBe(false)
+    expect(isValidDropPrice(355_000.5, retail)).toBe(false)
+  })
+
+  it('warns when a price leaves nothing over the workshop’s', () => {
+    expect(earnsNothingOver(230_000, 230_000)).toBe(true)
+    expect(earnsNothingOver(220_000, 230_000)).toBe(true)
+    expect(earnsNothingOver(355_000, 230_000)).toBe(false)
+    expect(earnsNothingOver(355_000, null)).toBe(false)
   })
 })

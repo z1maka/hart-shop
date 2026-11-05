@@ -387,3 +387,42 @@ export class GoogleApiUnavailableError extends AppError {
     super(`Google API: ${reason}`)
   }
 }
+
+// A partner order names a product the shop has no drop price for: the
+// partner price is set on the product card first.
+export class DropPriceMissingError extends AppError {
+  readonly code = 'DROP_PRICE_MISSING'
+
+  constructor(readonly productId: string) {
+    super(`Product "${productId}" has no drop price`)
+  }
+}
+
+export class ResellerNotFoundError extends AppError {
+  readonly code = 'RESELLER_NOT_FOUND'
+
+  constructor(resellerId: string) {
+    super(`Reseller "${resellerId}" was not found or is switched off`)
+  }
+}
+
+export class InvoiceNotFoundError extends AppError {
+  readonly code = 'INVOICE_NOT_FOUND'
+
+  constructor(reference: string) {
+    super(`Invoice "${reference}" was not found`)
+  }
+}
+
+// An invoice is for an order paid by transfer, and only one at a time is
+// live: the issued one is voided before another is made out.
+export class InvoiceNotIssuableError extends AppError {
+  readonly code = 'INVOICE_NOT_ISSUABLE'
+
+  constructor(
+    orderId: string,
+    readonly reason: 'not_transfer' | 'already_issued' | 'closed',
+  ) {
+    super(`Order "${orderId}" cannot get an invoice: ${reason}`)
+  }
+}

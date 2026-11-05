@@ -18,6 +18,7 @@ import { createMoney, Currency, formatMoney } from '@/lib/money'
 import { cn } from '@/lib/utils'
 import { GoogleCategorySelect } from '@/features/admin/ui/GoogleCategorySelect'
 import { findGoogleCategory } from '@/features/catalog/model/google-category'
+import { earnsNothingOver } from '@/features/catalog/model/pricing'
 import type {
   ProductEditorCategory,
   ProductEditorView,
@@ -37,6 +38,8 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
   const [price, setPrice] = useState(product.priceInput)
   const [salePrice, setSalePrice] = useState(product.salePriceInput)
   const [weight, setWeight] = useState(product.weightInput)
+  const [dropPrice, setDropPrice] = useState(product.dropPriceInput)
+  const [cost, setCost] = useState(product.costInput)
   const [slug, setSlug] = useState(product.slug)
   const [categoryId, setCategoryId] = useState(product.categoryId)
   const [isDirty, setIsDirty] = useState(false)
@@ -321,10 +324,21 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   className={inputClassName}
                 />
               </Field>
+              <Field error={fieldError('dropPrice')} label="Цена дропшиппера, грн">
+                <input
+                  name="dropPrice"
+                  value={dropPrice}
+                  onChange={(event) => setDropPrice(event.target.value)}
+                  inputMode="decimal"
+                  placeholder="Не продаём партнёрам"
+                  className={inputClassName}
+                />
+              </Field>
               <Field error={fieldError('cost')} label="Себестоимость, грн">
                 <input
                   name="cost"
-                  defaultValue={typed.cost ?? product.costInput}
+                  value={cost}
+                  onChange={(event) => setCost(event.target.value)}
                   inputMode="decimal"
                   placeholder="Не указана"
                   className={inputClassName}
@@ -341,6 +355,7 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                 />
               </Field>
             </div>
+            <DropPriceNote price={salePrice || price} dropPrice={dropPrice} cost={cost} />
 
             <div className="mt-4.5 grid gap-2.5">
               <p className="text-[12.5px] font-semibold text-muted">Варианты: остаток и фото</p>
@@ -563,4 +578,48 @@ function StorefrontPrice({ price, salePrice }: { price: string; salePrice: strin
 // without opening the category.
 function categoryGoogleLabel(category: ProductEditorCategory | undefined): string {
   return findGoogleCategory(category?.googleProductCategory ?? null)?.label ?? 'не указана'
+}
+
+// What a partner sale leaves the shop against a retail one, and a warning
+// when the drop price leaves nothing over the workshop's. The price itself
+// never reaches a buyer: it is as confidential as the cost.
+function DropPriceNote({
+  price,
+  dropPrice,
+  cost,
+}: {
+  readonly price: string
+  readonly dropPrice: string
+  readonly cost: string
+}) {
+  const drop = parseHryvnias(dropPrice)
+  if (drop === null) return null
+
+  const workshop = parseHryvnias(cost)
+  const retail = parseHryvnias(price)
+  if (workshop !== null && earnsNothingOver(drop, workshop)) {
+    return (
+      <p className="mt-3 rounded-control bg-alert-soft px-3 py-2 text-[12.5px] font-medium text-alert">
+        Цена дропшиппера не выше себестоимости — с партнёра заработка не будет. Сохранить можно.
+      </p>
+    )
+  }
+
+  return (
+    <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
+      {workshop !== null && retail !== null
+        ? `С партнёра ${formatHryvnias(drop - workshop)} с единицы, в рознице ${formatHryvnias(retail - workshop)}. `
+        : ''}
+      Цена дропшиппера видна только в админке: ни на сайте, ни в фидах её нет.
+    </p>
+  )
+}
+
+function parseHryvnias(typed: string): number | null {
+  const value = Number.parseFloat(typed.replace(',', '.').replace(/\s/g, ''))
+  return Number.isFinite(value) && value > 0 ? value : null
+}
+
+function formatHryvnias(value: number): string {
+  return `${Math.round(value).toLocaleString('uk-UA')} ₴`
 }

@@ -11,16 +11,22 @@ import { readAdSpend } from '@/features/admin/services/ad-spend-reader'
 import { googleAnalyticsAdSpend } from '@/features/admin/services/google-analytics-ad-spend'
 import { requireAdminSession } from '@/features/admin/session-cookie'
 import {
+  countsAdSpend,
   earningsPeriod,
   getEarnings,
+  parseChannelFilter,
   sharePercent,
   type EarningsDay,
   type EarningsPeriod,
   type EarningsTotals,
   type EarningsView,
 } from '@/features/orders'
+import { SalesChannel } from '@/db/enums'
 import { formatDateIsoKyiv } from '@/lib/datetime'
 
+// The cost per order and the share of revenue are the site's alone: the
+// partners' orders came from no ad, and counting them would make the ads
+// look cheaper than they are.
 // Ads stay beside the earnings, never taken off them: the owner reads what
 // the workshop's goods earn and what the ads cost as two separate numbers.
 export type AdSpendView =
@@ -30,7 +36,7 @@ export type AdSpendView =
       readonly state: typeof AdSpendState.Connected
       readonly totalCents: number
       readonly perOrderCents: number | null
-      // Of all the period's revenue, in whole percent.
+      // Of the site's revenue in the period, in whole percent.
       readonly shareOfRevenue: number | null
       // Every day of the period, a day without ads at zero.
       readonly days: readonly AdSpendDay[]
@@ -38,13 +44,15 @@ export type AdSpendView =
 
 export type AdminEarningsView = EarningsView & {
   readonly period: EarningsPeriod
-  readonly adSpend: AdSpendView
+  // Null on the partners' board: no ad brought those orders.
+  readonly adSpend: AdSpendView | null
 }
 
 export async function getAdminEarnings(params: {
   readonly period?: string
   readonly from?: string
   readonly to?: string
+  readonly channel?: string
 }): Promise<AdminEarningsView> {
   await requireAdminSession()
   // A link prefetch prerenders this page with the admin's cookies and aborts
@@ -52,17 +60,22 @@ export async function getAdminEarnings(params: {
   await connection()
 
   const period = earningsPeriod(params, formatDateIsoKyiv(new Date()))
+  const channel = parseChannelFilter(params.channel)
+  if (!countsAdSpend(channel)) {
+    return { ...(await getEarnings(period, channel)), period, adSpend: null }
+  }
+
   const [earnings, adSpend] = await Promise.all([
-    getEarnings(period),
+    getEarnings(period, channel),
     readAdSpend(googleAnalyticsAdSpend, period.from, period.to),
   ])
-
-  return { ...earnings, period, adSpend: adSpendView(adSpend, earnings.all, earnings.days) }
+  const siteSales = earnings.byChannel[SalesChannel.Site]
+  return { ...earnings, period, adSpend: adSpendView(adSpend, siteSales, earnings.days) }
 }
 
 function adSpendView(
   report: AdSpendReport,
-  all: EarningsTotals,
+  siteSales: EarningsTotals,
   days: readonly EarningsDay[],
 ): AdSpendView {
   if (report.state !== AdSpendState.Connected) return { state: report.state }
@@ -72,8 +85,8 @@ function adSpendView(
   return {
     state: AdSpendState.Connected,
     totalCents,
-    perOrderCents: adSpendPerOrder(totalCents, all.orders),
-    shareOfRevenue: sharePercent(totalCents, all.revenueCents),
+    perOrderCents: adSpendPerOrder(totalCents, siteSales.orders),
+    shareOfRevenue: sharePercent(totalCents, siteSales.revenueCents),
     days: days.map((day) => ({ day: day.day, costCents: byDay.get(day.day) ?? 0 })),
   }
 }

@@ -1,4 +1,5 @@
-import { OrderStatus, PaymentRoute } from '@/db/enums'
+import { OrderStatus, PaymentRoute, type SalesChannel } from '@/db/enums'
+import { writesToRecipient } from '@/features/orders/model/channel-pricing'
 import {
   GoogleClickKind,
   parseGoogleClick,
@@ -20,6 +21,7 @@ export type GoogleAdsSaleCandidate = GoogleAdsSale & {
   readonly status: OrderStatus
   readonly paymentRoute: PaymentRoute
   readonly paidAt: Date | null
+  readonly channel: SalesChannel
 }
 
 const NOT_A_SALE: ReadonlySet<OrderStatus> = new Set([OrderStatus.Cancelled, OrderStatus.Refunded])
@@ -53,8 +55,10 @@ const HEADER = [
 const UTC_OFFSET = '+00:00'
 
 // A card order is a sale once paid; cash on delivery and a transfer are sales
-// when placed, until cancelled.
+// when placed, until cancelled. A partner's order came from no ad click: it
+// is placed in the admin and carries none, and is kept out here as well.
 export function isGoogleAdsSale(candidate: GoogleAdsSaleCandidate): boolean {
+  if (!writesToRecipient(candidate.channel)) return false
   if (NOT_A_SALE.has(candidate.status)) return false
   return candidate.paymentRoute !== PaymentRoute.Card || candidate.paidAt !== null
 }

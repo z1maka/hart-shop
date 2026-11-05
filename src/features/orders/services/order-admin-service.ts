@@ -1,4 +1,12 @@
-import { OrderStatus, type Carrier, type PaymentRoute } from '@/db/enums'
+import { randomBytes } from 'node:crypto'
+import { OrderStatus, PaymentRoute, type Carrier, type DeliveryKind } from '@/db/enums'
+import { bankAccountService, requisitesSnapshot } from '@/features/billing'
+import { formatOrderNumber } from '@/features/orders/model/order-number'
+import {
+  dropshipOrderRepository,
+  type PartnerLineRequest,
+  type PlacedDropshipOrder,
+} from '@/features/orders/repository/dropship-order-repository'
 import {
   orderShippedNotice,
   type ShippedNoticeOutcome,
@@ -7,6 +15,7 @@ import { canTransition, recordsPayment } from '@/features/orders/model/status-fl
 import { orderRepository } from '@/features/orders/repository/order-repository'
 import {
   OrderNotFoundError,
+  PaymentRouteUnavailableError,
   OrderTransitionError,
   ReturnNotOpenError,
   TrackingFromWaybillError,
@@ -16,6 +25,30 @@ import { logger } from '@/lib/logger'
 
 // Both null when no message applies to the transition.
 export type StatusChangeOutcome = ShippedNoticeOutcome
+
+// A partner's order as the admin fills it in: who buys, who receives and
+// where, and the lines.
+export type DropshipOrderInput = {
+  readonly resellerId: string
+  readonly resellerOrderRef: string | null
+  readonly recipient: { readonly fullName: string; readonly phone: string }
+  readonly deliveryKind: DeliveryKind
+  // A branch or locker; null for a courier, who goes by the address.
+  readonly pickupPoint: {
+    readonly ref: string
+    readonly label: string
+    readonly settlementName: string
+  } | null
+  readonly courierAddress: {
+    readonly city: string
+    readonly line1: string
+    readonly line2: string | null
+  } | null
+  readonly lines: readonly PartnerLineRequest[]
+}
+
+const ACCESS_TOKEN_BYTES = 24
+const COUNTRY = 'UA'
 
 export const orderAdminService = {
   async changeStatus(orderId: string, next: OrderStatus): Promise<StatusChangeOutcome> {
@@ -38,6 +71,47 @@ export const orderAdminService = {
     if (next !== OrderStatus.Shipped) return { mailSent: null, smsSent: null }
 
     return orderShippedNotice.send({ ...order, status: next })
+  },
+
+  // Placed by the admin for a partner: paid by transfer against the active
+  // account, numbered with the site's orders, and silent — the recipient is
+  // the partner's customer, so no mail, SMS or ad conversion follows.
+  async createDropshipOrder(
+    input: DropshipOrderInput,
+    createdBy: string,
+  ): Promise<PlacedDropshipOrder> {
+    const account = await bankAccountService.active()
+    if (!account) throw new PaymentRouteUnavailableError(PaymentRoute.BankTransfer)
+
+    const order = await dropshipOrderRepository.create({
+      orderNumber: formatOrderNumber(
+        new Date().getUTCFullYear(),
+        await orderRepository.nextOrderSequence(),
+      ),
+      accessToken: randomBytes(ACCESS_TOKEN_BYTES).toString('base64url'),
+      resellerId: input.resellerId,
+      resellerOrderRef: input.resellerOrderRef,
+      bankRequisites: requisitesSnapshot(account),
+      shippingAddress: {
+        fullName: input.recipient.fullName,
+        phone: input.recipient.phone,
+        country: COUNTRY,
+        line1: input.courierAddress?.line1 ?? '',
+        ...(input.courierAddress?.line2 ? { line2: input.courierAddress.line2 } : {}),
+        city: input.courierAddress?.city ?? input.pickupPoint?.settlementName ?? '',
+      },
+      deliveryKind: input.deliveryKind,
+      pickupPoint: input.pickupPoint
+        ? { ref: input.pickupPoint.ref, label: input.pickupPoint.label }
+        : null,
+      lines: input.lines,
+    })
+    logger.info('Partner order placed by admin', {
+      orderNumber: order.orderNumber,
+      resellerId: input.resellerId,
+      createdBy,
+    })
+    return order
   },
 
   // The parcel is back and the return handled: it leaves the returns tab.
@@ -63,14 +137,6 @@ export const orderAdminService = {
 
     await orderRepository.setTracking(orderId, withTrackingUrl(withCompactNumber(tracking)))
     logger.info('Order tracking saved', { orderId, carrier: tracking.carrier })
-  },
-
-  async saveInvoiceNumber(orderId: string, invoiceNumber: string | null): Promise<void> {
-    const order = await orderRepository.findById(orderId)
-    if (!order) throw new OrderNotFoundError(orderId)
-
-    await orderRepository.setInvoiceNumber(orderId, invoiceNumber)
-    logger.info('Order invoice number saved', { orderId })
   },
 }
 

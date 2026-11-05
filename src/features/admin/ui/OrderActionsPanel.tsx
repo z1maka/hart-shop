@@ -5,13 +5,11 @@ import { useState, useTransition, type ReactNode } from 'react'
 import { Carrier, OrderStatus, PaymentRoute } from '@/db/enums'
 import { CARRIER_NAMES } from '@/config/delivery'
 import {
-  saveOrderInvoiceAction,
   saveOrderTrackingAction,
   updateOrderStatusAction,
 } from '@/features/admin/actions/order-actions'
 import type { StatusChangeOutcome } from '@/features/orders/services/order-admin-service'
 import { orderStatusLabel } from '@/features/admin/ui/order-status'
-import type { TransferAccountView } from '@/features/orders'
 import { errorText } from '@/features/admin/ui/messages'
 import { Button } from '@/components/ui/Button'
 import { inputClassName } from '@/components/ui/Field'
@@ -23,8 +21,6 @@ type OrderActionsPanelProps = {
   readonly allowedNextStatuses: readonly OrderStatus[]
   readonly carrier: Carrier | null
   readonly trackingNumber: string | null
-  readonly invoiceNumber: string | null
-  readonly transferAccount: TransferAccountView | null
   readonly paymentRoute: PaymentRoute
   // The number came with a waybill issued here and is managed by it.
   readonly isTrackingFromWaybill: boolean
@@ -38,8 +34,6 @@ export function OrderActionsPanel({
   allowedNextStatuses,
   carrier,
   trackingNumber,
-  invoiceNumber,
-  transferAccount,
   paymentRoute,
   isTrackingFromWaybill,
 }: OrderActionsPanelProps) {
@@ -51,7 +45,6 @@ export function OrderActionsPanel({
   // A number typed in earlier keeps the form open; otherwise it stays folded,
   // since waybills are normally issued from the panel above.
   const [isManualTrackingOpen, setIsManualTrackingOpen] = useState(trackingNumber !== null)
-  const [invoiceValue, setInvoiceValue] = useState(invoiceNumber ?? '')
   const [notice, setNotice] = useState<{ text: string; isError: boolean } | null>(null)
   const [isPending, startTransition] = useTransition()
 
@@ -181,34 +174,6 @@ export function OrderActionsPanel({
         </ManualTracking>
       )}
 
-      {paymentRoute === PaymentRoute.BankTransfer ? (
-        <section className="rounded-card border border-subtle bg-surface p-5">
-          <h2 className="mb-3 text-[14px] font-semibold text-ink">Счёт</h2>
-          {transferAccount ? <TransferAccountLine account={transferAccount} /> : null}
-          <div className="grid gap-3">
-            <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
-              Номер счёта, выставленного покупателю
-              <input
-                value={invoiceValue}
-                onChange={(event) => setInvoiceValue(event.target.value)}
-                maxLength={80}
-                placeholder="INV-2026-001"
-                className={selectClass}
-              />
-            </label>
-            <Button
-              variant="secondary"
-              disabled={isPending}
-              onClick={() =>
-                run(() => saveOrderInvoiceAction({ orderId, invoiceNumber: invoiceValue }))
-              }
-            >
-              {isPending ? 'Сохраняем…' : 'Сохранить номер счёта'}
-            </Button>
-          </div>
-        </section>
-      ) : null}
-
       {notice ? (
         <p
           className={cn(
@@ -266,19 +231,6 @@ function ManualTracking({ isOpen, onOpen, children }: ManualTrackingProps) {
       </p>
       {children}
     </section>
-  )
-}
-
-// The account to watch for the money. An order placed before accounts were
-// kept on it follows whichever account is active, and says so.
-function TransferAccountLine({ account }: { readonly account: TransferAccountView }) {
-  return (
-    <p className="mb-3 text-[12.5px] leading-relaxed text-muted">
-      {account.isFixed
-        ? 'Покупателю показан счёт: '
-        : 'Заказ оформлен до того, как счёт стали сохранять в заказе, — покупатель видит активный: '}
-      <span className="font-semibold text-ink">{account.label}</span>
-    </p>
   )
 }
 

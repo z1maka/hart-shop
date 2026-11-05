@@ -25,8 +25,12 @@ export {
   getAdminOrder,
   type AdminOrderView,
   type AdminOrderLine,
+  type AdminPartnerView,
 } from '@/features/orders/queries/get-admin-order'
-export { orderAdminService } from '@/features/orders/services/order-admin-service'
+export {
+  orderAdminService,
+  type DropshipOrderInput,
+} from '@/features/orders/services/order-admin-service'
 export {
   orderEditService,
   type AddableVariant,
@@ -86,6 +90,12 @@ export {
   type EarningsPeriod,
 } from '@/features/orders/model/earnings-period'
 export type { EarningsDay, EarningsTotals } from '@/features/orders/model/earnings'
+export {
+  ChannelFilter,
+  countsAdSpend,
+  earningsPerUnit,
+  parseChannelFilter,
+} from '@/features/orders/model/earnings'
 export {
   getWeekTraffic,
   trafficWeeks,

@@ -24,6 +24,7 @@ export type ProductDraft = {
   readonly wholesaleMinQty: number | null
   readonly wholesalePriceCents: number | null
   readonly costCents: number | null
+  readonly dropPriceCents: number | null
   readonly weightGrams: number
   readonly layers: number
   readonly summary: string
@@ -67,6 +68,7 @@ export type ProductSaveInput = {
   readonly wholesalePriceCents: number | null
   // Undefined: the form did not carry the field, keep what is stored.
   readonly costCents?: number | null
+  readonly dropPriceCents?: number | null
   readonly weightGrams: number
   readonly layers: number
   readonly summary: string
@@ -119,6 +121,7 @@ export const productAdminService = {
       wholesaleMinQty: found.product.wholesaleMinQty,
       wholesalePriceCents: found.product.wholesalePriceCents,
       costCents: found.product.costCents,
+      dropPriceCents: found.product.dropPriceCents,
       weightGrams: found.product.weightGrams,
       layers: found.product.layers,
       summary: found.product.summary ?? '',

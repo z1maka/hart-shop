@@ -2,7 +2,13 @@ import { AdSpendState } from '@/features/admin/model/ad-spend'
 import type { AdminEarningsView, AdSpendView } from '@/features/admin/queries/get-admin-earnings'
 import { EarningsDailyChart, type EarningsChartDay } from '@/features/admin/ui/EarningsDailyChart'
 import { percent, wholeMoney } from '@/features/admin/ui/stats-format'
-import { sharePercent, type EarningsDay, type EarningsTotals } from '@/features/orders'
+import {
+  earningsPerUnit,
+  sharePercent,
+  type EarningsDay,
+  type EarningsTotals,
+} from '@/features/orders'
+import { SalesChannel } from '@/db/enums'
 import { cn } from '@/lib/utils'
 
 // What the workshop's goods earned: the sale price less the workshop's
@@ -24,6 +30,7 @@ export function EarningsSummary({ view }: { readonly view: AdminEarningsView }) 
       </div>
       <DailyEarningsCard days={view.days} />
       <BreakdownTable breakdown={view} adSpendCents={knownAdSpend(view.adSpend)} />
+      <ChannelTable view={view} />
     </section>
   )
 }
@@ -288,6 +295,83 @@ function costedRevenue(totals: EarningsTotals): number {
   return totals.revenueCents - totals.uncostedRevenueCents
 }
 
-function knownAdSpend(adSpend: AdSpendView): number | null {
-  return adSpend.state === AdSpendState.Connected ? adSpend.totalCents : null
+function knownAdSpend(adSpend: AdSpendView | null): number | null {
+  return adSpend?.state === AdSpendState.Connected ? adSpend.totalCents : null
+}
+
+const CHANNEL_NAMES: Record<SalesChannel, string> = {
+  [SalesChannel.Site]: 'Сайт',
+  [SalesChannel.Dropship]: 'Дропшиппинг',
+}
+
+// The site and the partners side by side, whichever is picked above: a
+// partner pays the drop price, so a unit there earns less, and the owner
+// sees by how much.
+function ChannelTable({ view }: { readonly view: AdminEarningsView }) {
+  const rows = [
+    ...Object.values(SalesChannel).map((channel) => ({
+      label: CHANNEL_NAMES[channel],
+      totals: view.byChannel[channel],
+      isTotal: false,
+    })),
+    { label: 'Всего', totals: view.total, isTotal: true },
+  ]
+
+  return (
+    <div className="overflow-x-auto rounded-card border border-subtle bg-surface">
+      <table className="w-full min-w-[640px] text-[12.5px] tabular-nums sm:text-[13px]">
+        <caption className="px-4 pt-3.5 pb-1 text-left text-[14px] font-semibold text-ink">
+          По каналам
+        </caption>
+        <thead>
+          <tr className="text-right text-[12px] text-muted">
+            <th className="py-3 pr-2 pl-4 text-left font-medium">Канал</th>
+            <th className="px-2 py-3 font-medium">Заказов</th>
+            <th className="px-2 py-3 font-medium">Шт.</th>
+            <th className="px-2 py-3 font-medium">Выручка</th>
+            <th className="px-2 py-3 font-medium">Цена цеха</th>
+            <th className="px-2 py-3 font-semibold text-ink">Заработок</th>
+            <th className="px-2 py-3 font-medium">Маржа</th>
+            <th className="py-3 pr-4 pl-2 font-medium">С единицы</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <ChannelRow key={row.label} {...row} />
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function ChannelRow({
+  label,
+  totals,
+  isTotal,
+}: {
+  readonly label: string
+  readonly totals: EarningsTotals
+  readonly isTotal: boolean
+}) {
+  const perUnit = earningsPerUnit(totals)
+
+  return (
+    <tr className={cn('border-t border-subtle text-right text-ink', isTotal && 'bg-hover')}>
+      <th scope="row" className="py-2.5 pr-2 pl-4 text-left font-semibold">
+        {label}
+      </th>
+      <td className="px-2 py-2.5">{totals.orders}</td>
+      <td className="px-2 py-2.5">{totals.units}</td>
+      <td className="px-2 py-2.5 whitespace-nowrap">{wholeMoney(totals.revenueCents)}</td>
+      <td className="px-2 py-2.5 whitespace-nowrap">{wholeMoney(totals.costCents)}</td>
+      <td className="px-2 py-2.5 font-semibold whitespace-nowrap">
+        {wholeMoney(totals.earningsCents)}
+      </td>
+      <td className="px-2 py-2.5">{percent(totals.marginPercent)}</td>
+      <td className="py-2.5 pr-4 pl-2 whitespace-nowrap">
+        {perUnit === null ? '—' : wholeMoney(perUnit)}
+      </td>
+    </tr>
+  )
 }

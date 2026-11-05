@@ -9,7 +9,8 @@ import { db } from '@/lib/db'
 
 export const earningsRepository = {
   // The lines of the orders sold from `from` to `to` (both included, on
-  // `timeZone`'s clock), added up per day and per collected or not.
+  // `timeZone`'s clock), added up per day, per collected or not and per
+  // channel; the board picks the channel it shows.
   async findDays(from: string, to: string, timeZone: string): Promise<EarningsDayRow[]> {
     const day = sql<string>`to_char(${orders.createdAt} at time zone ${timeZone}, 'YYYY-MM-DD')`
     const isCollected = sql<boolean>`${orders.status} = ${COLLECTED_ORDER_STATUS}`
@@ -22,6 +23,7 @@ export const earningsRepository = {
       .select({
         day,
         isCollected,
+        channel: orders.channel,
         orders: sql<number>`count(distinct ${orders.id})::int`,
         units: sql<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,
         revenueCents: sql<number>`coalesce(sum(${lineCents}), 0)::int`,
@@ -38,7 +40,7 @@ export const earningsRepository = {
           inArray(orders.status, [...SOLD_ORDER_STATUSES]),
         ),
       )
-      .groupBy(sql`1`, sql`2`)
+      .groupBy(sql`1`, sql`2`, sql`3`)
       .orderBy(sql`1`)
   },
 }

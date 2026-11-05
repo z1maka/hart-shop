@@ -49,6 +49,9 @@ export type OrderListRow = {
   readonly trackingNumber: string | null
   readonly trackingUrl: string | null
   readonly parcelStage: ParcelStage | null
+  // A partner order: the partner and their number; the buyer name is then
+  // their customer's.
+  readonly partner: { readonly name: string; readonly orderRef: string | null } | null
 }
 
 export type OrderListPage = {
@@ -132,6 +135,7 @@ function toListRow(entry: ResolvedRow, knownPoints: ReadonlySet<string>): OrderL
     trackingNumber: row.trackingNumber,
     trackingUrl: row.trackingUrl,
     parcelStage: isParcelStage(row.parcelStage) ? row.parcelStage : null,
+    partner: row.partner,
   }
 }
 

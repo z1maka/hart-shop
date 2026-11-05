@@ -3,6 +3,7 @@ import {
   boolean,
   char,
   check,
+  date,
   index,
   integer,
   jsonb,
@@ -31,9 +32,16 @@ import {
   type NotificationChannel,
   type NotificationKind,
   type NotificationStatus,
+  SalesChannel,
+  type InvoiceStatus,
   type TrafficSource,
 } from '@/db/enums'
 import type { BankAccountDraft } from '@/config/requisites'
+import type {
+  InvoiceLineSnapshot,
+  InvoiceParty,
+  InvoiceSeller,
+} from '@/features/invoices/model/invoice'
 import type { FaqEntry } from '@/features/catalog/model/category-content'
 import type { ProductVideo } from '@/features/catalog/model/product-video'
 
@@ -126,6 +134,12 @@ export const products = pgTable(
     // For the admin's margin and pay figures only — no storefront query,
     // feed or offer selects it.
     costCents: integer('cost_cents'),
+    // What a partner pays for one unit when reselling under their own name
+    // (dropshipping), in kopiykas; a variant adds its surcharge on top, as in
+    // the cart. Null keeps the product out of partner orders. Confidential
+    // like the cost: no storefront query, feed (Merchant, Meta,
+    // partners.yml), JSON-LD or llms.txt selects it.
+    dropPriceCents: integer('drop_price_cents'),
     currency: char('currency', { length: 3 }).notNull().default('UAH'),
     weightGrams: integer('weight_grams').notNull(),
     layers: integer('layers').notNull().default(3),
@@ -185,6 +199,7 @@ export const products = pgTable(
       'products_wholesale_pair_check',
       sql`(${table.wholesaleMinQty} is null) = (${table.wholesalePriceCents} is null)`,
     ),
+    check('products_drop_price_positive_check', sql`${table.dropPriceCents} > 0`),
     index('products_status_weight_idx').on(table.status, table.weightGrams),
     index('products_featured_order_idx')
       .on(table.featuredOrder)
@@ -287,6 +302,33 @@ export const cartItems = pgTable(
   ],
 )
 
+// The partners who buy from the shop to resell under their own name
+// (dropshippers, shops). Not the makers the shop sells for (/spivpratsia/):
+// these buy, those supply.
+export const resellers = pgTable(
+  'resellers',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // As it goes on the invoice: «ФОП Додончук Вікторія Володимирівна».
+    name: text('name').notNull(),
+    // ЄДРПОУ of a company (8 digits) or РНОКПП of a ФОП (10 digits).
+    taxId: text('tax_id').notNull(),
+    contactName: text('contact_name'),
+    phone: text('phone'),
+    email: text('email'),
+    legalAddress: text('legal_address'),
+    // Where their share goes once the shop collects cash on delivery for them.
+    payoutIban: text('payout_iban'),
+    contractRef: text('contract_ref'),
+    note: text('note'),
+    // Switched off rather than deleted: their orders keep pointing at them.
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt,
+    updatedAt,
+  },
+  (table) => [index('resellers_active_name_idx').on(table.isActive, table.name)],
+)
+
 export const orders = pgTable(
   'orders',
   {
@@ -308,9 +350,12 @@ export const orders = pgTable(
       .default(PaymentRoute.CashOnDelivery),
     paymentProvider: text('payment_provider'),
     paymentRef: text('payment_ref'),
-    // Filled for a transfer: who the invoice is made out to.
-    buyerCompany: text('buyer_company'),
-    invoiceNumber: text('invoice_number'),
+    // A partner's order is placed by the admin at the drop price; the
+    // partner is who buys, the recipient is usually their own customer.
+    channel: text('channel').$type<SalesChannel>().notNull().default(SalesChannel.Site),
+    resellerId: uuid('reseller_id').references(() => resellers.id, { onDelete: 'restrict' }),
+    // The number the partner's own system gave the order («31805»).
+    resellerOrderRef: text('reseller_order_ref'),
     // The account a transfer order was told to pay to, copied when it is
     // placed: switching the active account later must not change what the
     // buyer already has in their letter. Null for every other route.
@@ -381,6 +426,11 @@ export const orders = pgTable(
     uniqueIndex('orders_payment_ref_key').on(table.paymentRef),
     index('orders_status_created_at_idx').on(table.status, table.createdAt),
     index('orders_created_at_idx').on(table.createdAt),
+    index('orders_channel_created_at_idx').on(table.channel, table.createdAt),
+    check(
+      'orders_reseller_channel_check',
+      sql`(${table.channel} = 'dropship') = (${table.resellerId} is not null)`,
+    ),
     index('orders_paid_at_idx').on(table.paidAt),
     // The Google Ads upload reads only the last days' orders with a click.
     index('orders_google_click_created_at_idx')
@@ -680,5 +730,40 @@ export const productReviews = pgTable(
       sql`${table.authorName} gin_trgm_ops`,
     ),
     index('product_reviews_body_trgm_idx').using('gin', sql`${table.body} gin_trgm_ops`),
+  ],
+)
+
+// An invoice («рахунок на оплату») for an order paid by transfer. It is a
+// snapshot: prices, requisites and names changed after it was issued leave it
+// as the buyer received it. Numbers run through all invoices and are never
+// reused; a voided one burns its number.
+export const invoices = pgTable(
+  'invoices',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    number: integer('number')
+      .notNull()
+      .default(sql`nextval('invoice_number_seq')`),
+    orderId: uuid('order_id')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'restrict' }),
+    status: text('status').$type<InvoiceStatus>().notNull(),
+    // On the shop's clock (Kyiv).
+    issuedOn: date('issued_on').notNull(),
+    validUntil: date('valid_until').notNull(),
+    buyer: jsonb('buyer').$type<InvoiceParty>().notNull(),
+    seller: jsonb('seller').$type<InvoiceSeller>().notNull(),
+    lines: jsonb('lines').$type<readonly InvoiceLineSnapshot[]>().notNull(),
+    totalCents: integer('total_cents').notNull(),
+    paymentPurpose: text('payment_purpose').notNull(),
+    createdAt,
+  },
+  (table) => [
+    uniqueIndex('invoices_number_key').on(table.number),
+    // One live invoice per order; the voided ones stay beside it.
+    uniqueIndex('invoices_order_issued_key')
+      .on(table.orderId)
+      .where(sql`${table.status} = 'issued'`),
+    index('invoices_order_created_at_idx').on(table.orderId, table.createdAt),
   ],
 )

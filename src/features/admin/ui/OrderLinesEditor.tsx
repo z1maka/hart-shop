@@ -14,6 +14,7 @@ import {
   OrderEditBlock,
   VARIANT_SEARCH_MIN_LENGTH,
 } from '@/features/orders/model/order-edit'
+import { SalesChannel } from '@/db/enums'
 import { Button } from '@/components/ui/Button'
 import { inputClassName } from '@/components/ui/Field'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
@@ -21,8 +22,11 @@ import { cn } from '@/lib/utils'
 
 type OrderLinesEditorProps = {
   readonly orderId: string
+  readonly channel: SalesChannel
   readonly lines: readonly AdminOrderLine[]
   readonly editBlock: OrderEditBlock | null
+  // The live invoice the edit would void; null when there is none.
+  readonly liveInvoiceNumber: number | null
 }
 
 type DraftLine = {
@@ -43,7 +47,21 @@ const EDIT_BLOCK_HINTS: Record<OrderEditBlock, string> = {
   [OrderEditBlock.Paid]: 'Перевод уже получен — добавку оформите отдельным заказом.',
 }
 
-export function OrderLinesEditor({ orderId, lines, editBlock }: OrderLinesEditorProps) {
+// How a changed line is priced again, in the order's channel.
+const REPRICING_HINTS: Record<SalesChannel, string> = {
+  [SalesChannel.Site]:
+    'У товаров, чьё количество меняется, цена пересчитается по каталогу — с оптом, как в корзине.',
+  [SalesChannel.Dropship]:
+    'У товаров, чьё количество меняется, цена пересчитается по цене дропшиппера из карточки.',
+}
+
+export function OrderLinesEditor({
+  orderId,
+  channel,
+  lines,
+  editBlock,
+  liveInvoiceNumber,
+}: OrderLinesEditorProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -53,8 +71,11 @@ export function OrderLinesEditor({ orderId, lines, editBlock }: OrderLinesEditor
 
   function saved(outcome: OrderLinesEditOutcome) {
     setIsOpen(false)
+    const voided = outcome.voidedInvoiceNumber
+      ? ` Счёт № ${outcome.voidedInvoiceNumber} аннулирован — выставьте новый.`
+      : ''
     setNotice(
-      `Состав сохранён. Итого: ${moneyLabel(outcome.previousTotalCents)} → ${moneyLabel(outcome.totalCents)}.`,
+      `Состав сохранён. Итого: ${moneyLabel(outcome.previousTotalCents)} → ${moneyLabel(outcome.totalCents)}.${voided}`,
     )
   }
 
@@ -64,7 +85,9 @@ export function OrderLinesEditor({ orderId, lines, editBlock }: OrderLinesEditor
       {isOpen ? (
         <LinesForm
           orderId={orderId}
+          channel={channel}
           lines={lines}
+          liveInvoiceNumber={liveInvoiceNumber}
           onSaved={saved}
           onCancel={() => setIsOpen(false)}
         />
@@ -86,12 +109,21 @@ export function OrderLinesEditor({ orderId, lines, editBlock }: OrderLinesEditor
 
 type LinesFormProps = {
   readonly orderId: string
+  readonly channel: SalesChannel
   readonly lines: readonly AdminOrderLine[]
+  readonly liveInvoiceNumber: number | null
   readonly onSaved: (outcome: OrderLinesEditOutcome) => void
   readonly onCancel: () => void
 }
 
-function LinesForm({ orderId, lines, onSaved, onCancel }: LinesFormProps) {
+function LinesForm({
+  orderId,
+  channel,
+  lines,
+  liveInvoiceNumber,
+  onSaved,
+  onCancel,
+}: LinesFormProps) {
   const router = useRouter()
   const [draft, setDraft] = useState<readonly DraftLine[]>(() => lines.flatMap(draftLineOf))
   const [error, setError] = useState<string | null>(null)
@@ -107,12 +139,14 @@ function LinesForm({ orderId, lines, onSaved, onCancel }: LinesFormProps) {
   }
 
   function add(variant: AddableVariant) {
+    const unitPriceCents = variant.unitPriceCents
+    if (unitPriceCents === null) return
     setDraft((current) =>
       current.some((line) => line.variantId === variant.variantId)
         ? current.map((line) =>
             line.variantId === variant.variantId ? { ...line, quantity: line.quantity + 1 } : line,
           )
-        : [...current, addedLineOf(variant)],
+        : [...current, addedLineOf(variant, unitPriceCents)],
     )
   }
 
@@ -145,11 +179,16 @@ function LinesForm({ orderId, lines, onSaved, onCancel }: LinesFormProps) {
           </li>
         ))}
       </ul>
-      <VariantPicker onPick={add} />
+      <VariantPicker channel={channel} onPick={add} />
       <p className="text-[12px] leading-relaxed text-muted">
-        У товаров, чьё количество меняется, цена пересчитается по каталогу — с оптом, как в корзине.
-        Остаток на складе обновится. Покупателю ничего не отправляется.
+        {REPRICING_HINTS[channel]} Остаток на складе обновится. Покупателю ничего не отправляется.
       </p>
+      {liveInvoiceNumber ? (
+        <p className="rounded-control border border-alert-edge bg-alert-soft px-3 py-2 text-[12.5px] leading-relaxed text-alert">
+          По заказу выставлен счёт № {liveInvoiceNumber}. Если сохранить новый состав, счёт будет
+          аннулирован, а новый получит следующий номер — его нужно будет отправить заново.
+        </p>
+      ) : null}
       {error ? <p className="text-[13px] text-alert">{error}</p> : null}
       <div className="flex flex-wrap gap-2.5">
         <Button disabled={isPending || draft.length === 0} onClick={save}>
@@ -197,7 +236,13 @@ function DraftRow({ line, onQuantity }: DraftRowProps) {
   )
 }
 
-function VariantPicker({ onPick }: { readonly onPick: (variant: AddableVariant) => void }) {
+function VariantPicker({
+  channel,
+  onPick,
+}: {
+  readonly channel: SalesChannel
+  readonly onPick: (variant: AddableVariant) => void
+}) {
   const [search, setSearch] = useState('')
   const [found, setFound] = useState<readonly AddableVariant[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -206,7 +251,7 @@ function VariantPicker({ onPick }: { readonly onPick: (variant: AddableVariant) 
   function find() {
     setError(null)
     startTransition(async () => {
-      const result = await findOrderVariantsAction({ search })
+      const result = await findOrderVariantsAction({ search, channel })
       if (!result.ok) {
         setError(errorText(result.error))
         return
@@ -253,14 +298,21 @@ function VariantPicker({ onPick }: { readonly onPick: (variant: AddableVariant) 
                   {[
                     variant.variantLabel,
                     variant.sku,
-                    moneyLabel(variant.unitPriceCents),
+                    variant.unitPriceCents === null
+                      ? 'нет цены дропшиппера'
+                      : moneyLabel(variant.unitPriceCents),
                     `остаток ${variant.stockQty}`,
                   ]
                     .filter(Boolean)
                     .join(' · ')}
                 </span>
               </span>
-              <Button variant="quiet" size="sm" onClick={() => onPick(variant)}>
+              <Button
+                variant="quiet"
+                size="sm"
+                disabled={variant.unitPriceCents === null}
+                onClick={() => onPick(variant)}
+              >
                 Добавить
               </Button>
             </li>
@@ -287,14 +339,14 @@ function draftLineOf(line: AdminOrderLine): DraftLine[] {
   ]
 }
 
-function addedLineOf(variant: AddableVariant): DraftLine {
+function addedLineOf(variant: AddableVariant, unitPriceCents: number): DraftLine {
   return {
     variantId: variant.variantId,
     title: variant.title,
     variantLabel: variant.variantLabel,
     sku: variant.sku,
     quantity: 1,
-    priceLabel: moneyLabel(variant.unitPriceCents),
+    priceLabel: moneyLabel(unitPriceCents),
     isNew: true,
   }
 }

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getAdminOrders } from '@/features/admin/queries/get-admin-desk'
 import { AdminPager, pageFromSearchParams } from '@/features/admin/ui/AdminPager'
 import { TabLink } from '@/features/admin/ui/CatalogTabs'
@@ -63,7 +64,10 @@ export async function OrderTable({ searchParams }: OrderTableProps) {
   if (Object.values(shelves).every((count) => count === 0)) {
     return (
       <div className="max-w-[80ch] rounded-card border border-subtle bg-surface p-6">
-        <h1 className="mb-2 font-display text-[19px] font-bold text-ink">Заказов пока нет</h1>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+          <h1 className="font-display text-[19px] font-bold text-ink">Заказов пока нет</h1>
+          <NewPartnerOrderLink />
+        </div>
         <p className="text-[13px] leading-relaxed text-muted">
           Заказы появятся здесь, как только покупатель оформит первый заказ. Нажмите на номер, чтобы
           открыть карточку заказа.
@@ -74,7 +78,10 @@ export async function OrderTable({ searchParams }: OrderTableProps) {
 
   return (
     <div>
-      <h1 className="mb-3.5 font-display text-[19px] font-bold text-ink">Заказы</h1>
+      <div className="mb-3.5 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-[19px] font-bold text-ink">Заказы</h1>
+        <NewPartnerOrderLink />
+      </div>
       <nav className="mb-5 flex gap-6 border-b border-subtle" aria-label="Разделы заказов">
         {Object.values(OrderShelf).map((entry) => (
           <TabLink
@@ -203,4 +210,17 @@ function emptyListText({ shelf, search, status }: ListFilters): string {
   if (status) return `Заказов${statusPart} в этой вкладке нет.`
 
   return EMPTY_SHELF_TEXT[shelf]
+}
+
+// A partner's order is placed here, at the drop price; a phone order from a
+// retail buyer goes through the site's own checkout.
+function NewPartnerOrderLink() {
+  return (
+    <Link
+      href="/admin/orders/new/"
+      className="inline-flex min-h-10 items-center rounded-control bg-accent px-4 text-[13px] font-bold text-accent-fg hover:bg-accent-hover"
+    >
+      + Новый заказ партнёра
+    </Link>
+  )
 }

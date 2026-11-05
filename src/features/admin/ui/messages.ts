@@ -59,6 +59,14 @@ const MESSAGES: Record<string, string> = {
     'В заказе должен остаться хотя бы один товар. Чтобы отменить заказ, смените статус на «Отменён».',
   OUT_OF_STOCK: 'Столько нет на складе — проверьте остаток в карточке товара.',
   VARIANT_NOT_FOUND: 'Этого варианта уже нет в продаже — выберите другой.',
+  DROP_PRICE_MISSING:
+    'У товара нет цены дропшиппера — впишите её в карточке товара или укажите свою цену строки.',
+  RESELLER_NOT_FOUND: 'Партнёр не найден или отключён — обновите страницу.',
+  PAYMENT_ROUTE_UNAVAILABLE:
+    'Не выбран активный счёт для оплаты — включите его в «Настройки → Реквизиты».',
+  INVOICE_NOT_FOUND: 'Счёт не найден — обновите страницу.',
+  INVOICE_NOT_ISSUABLE:
+    'Счёт для этого заказа выставить нельзя: он не на оплату по счёту, закрыт или счёт уже выставлен. Обновите страницу.',
 }
 
 // The carrier says in its own words what is wrong — a phone it does not
@@ -73,6 +81,21 @@ const FALLBACK = 'Что-то пошло не так. Попробуйте ещ�
 // Validation errors carry the offending field name so the panel can point at
 // it; anything unrecognised falls back to the generic sentence.
 const FIELD_LABELS: Record<string, string> = {
+  dropPrice: 'Цена дропшиппера',
+  resellerId: 'Партнёр',
+  resellerOrderRef: 'Номер заказа у партнёра',
+  agreedPrice: 'Своя цена строки',
+  fullName: 'ПІБ получателя',
+  contactName: 'Контактное лицо',
+  email: 'Email',
+  legalAddress: 'Юридический адрес',
+  payoutIban: 'IBAN для выплат',
+  contractRef: 'Договор',
+  note: 'Заметка',
+  buyerName: 'Покупатель — как в счёте',
+  validUntil: 'Действителен до',
+  pickupPoint: 'Отделение',
+  lines: 'Товары',
   sku: 'Артикул',
   slug: 'Адрес страницы',
   title: 'Название на витрине',
@@ -96,7 +119,6 @@ const FIELD_LABELS: Record<string, string> = {
   name: 'Название',
   position: 'Позиция в хедере',
   trackingUrl: 'Ссылка на отслеживание',
-  invoiceNumber: 'Номер счёта',
   weightGrams: 'Вес посылки (от 0,1 до 30 кг)',
   firstName: 'Имя получателя',
   lastName: 'Фамилия получателя',

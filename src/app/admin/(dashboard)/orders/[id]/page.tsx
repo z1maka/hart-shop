@@ -24,7 +24,9 @@ import {
   parcelStageLabel,
   paymentMethodLabel,
 } from '@/features/admin/ui/order-status'
-import type { AdminParcelView } from '@/features/orders'
+import type { AdminParcelView, AdminPartnerView } from '@/features/orders'
+import { getOrderInvoices, InvoiceBlock } from '@/features/invoices'
+import { InvoicePanel } from '@/features/invoices/ui/InvoicePanel'
 import { cn } from '@/lib/utils'
 
 export const metadata: Metadata = {
@@ -45,6 +47,7 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
   const order = await getAdminOrderView(id)
 
   if (!order) notFound()
+  const invoices = await getOrderInvoices(order.id, new Date())
 
   return (
     <div>
@@ -67,11 +70,13 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
         </span>
         <span className="text-[13px] text-muted">{order.placedAt}</span>
       </div>
+      {order.partner ? <PartnerBanner partner={order.partner} /> : null}
 
       <div className="flex flex-wrap items-start gap-4">
         <div className="grid min-w-[min(100%,340px)] flex-[999_1_460px] grid-cols-1 gap-4">
           {/* First thing the team sees: whether to call at all. */}
-          {order.contact.isSpecial ? (
+          {/* A partner's customer is not called: the banner above says so. */}
+          {order.contact.isSpecial && !order.partner ? (
             <section className="rounded-card border border-accent-edge bg-accent-tint p-5">
               <h2 className="mb-2 text-[14px] font-semibold text-ink">Связь с покупателем</h2>
               <p className="text-[13.5px] leading-relaxed text-ink first-letter:uppercase">
@@ -144,8 +149,10 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
 
             <OrderLinesEditor
               orderId={order.id}
+              channel={order.channel}
               lines={order.lines}
               editBlock={order.editBlock}
+              liveInvoiceNumber={invoices?.live?.number ?? null}
             />
           </section>
 
@@ -157,8 +164,7 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
               {order.address.phone ? (
                 <Row label="Телефон" value={<PhoneLink phone={order.address.phone} />} />
               ) : null}
-              <Row label="Связь" value={order.contact.label} />
-              {order.buyerCompany ? <Row label="Компания" value={order.buyerCompany} /> : null}
+              {order.partner ? null : <Row label="Связь" value={order.contact.label} />}
               <Row
                 label="Адрес"
                 value={
@@ -171,10 +177,12 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
                 label="Оплата"
                 value={paymentMethodLabel(order.paymentRoute, order.paymentProvider)}
               />
-              <Row label="Источник" value={trafficLabel(order.traffic)} />
+              <Row
+                label="Источник"
+                value={order.partner ? 'Партнёр' : trafficLabel(order.traffic)}
+              />
               {order.paidAt ? <Row label="Оплачен" value={order.paidAt} /> : null}
               {order.paymentRef ? <Row label="Платёжная ссылка" value={order.paymentRef} /> : null}
-              {order.invoiceNumber ? <Row label="Счёт" value={order.invoiceNumber} /> : null}
               {order.trackingNumber ? (
                 <Row label="Трек-номер" value={order.trackingNumber} />
               ) : null}
@@ -200,11 +208,15 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
             allowedNextStatuses={order.allowedNextStatuses}
             carrier={order.carrier}
             trackingNumber={order.trackingNumber}
-            invoiceNumber={order.invoiceNumber}
-            transferAccount={order.transferAccount}
             paymentRoute={order.paymentRoute}
             isTrackingFromWaybill={order.waybill.documentRef !== null}
           />
+          {invoices && invoices.block !== InvoiceBlock.NotTransfer ? (
+            <InvoicePanel
+              view={invoices}
+              transferAccountLabel={order.transferAccount?.label ?? null}
+            />
+          ) : null}
           <NotificationsPanel notifications={order.notifications} />
         </aside>
       </div>
@@ -321,6 +333,26 @@ function NotificationsPanel({
           ))}
         </ul>
       )}
+    </section>
+  )
+}
+
+// A partner order: the partner pays by invoice and resells under their own
+// name; the recipient below is their customer and hears nothing from us.
+function PartnerBanner({ partner }: { readonly partner: AdminPartnerView }) {
+  return (
+    <section className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-card border border-accent-edge bg-accent-tint px-5 py-3.5 text-[13.5px]">
+      <span className="rounded-pill bg-accent px-2.5 py-1 text-[11px] font-semibold text-accent-fg">
+        Дропшиппинг
+      </span>
+      <span className="font-semibold text-ink">{partner.name}</span>
+      {partner.orderRef ? (
+        <span className="text-muted">заказ у партнёра {partner.orderRef}</span>
+      ) : null}
+      <span className="basis-full text-[12.5px] text-muted">
+        Письма и SMS получателю не отправляются, в рекламу заказ не уходит. Трек партнёру передаём
+        вручную.
+      </span>
     </section>
   )
 }

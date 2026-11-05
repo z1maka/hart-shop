@@ -1,15 +1,8 @@
-import { and, asc, eq, gt, ilike, inArray, or, sql } from 'drizzle-orm'
-import { PaymentRoute, ProductStatus } from '@/db/enums'
-import {
-  inventoryReservations,
-  orderItems,
-  orders,
-  productImages,
-  productVariants,
-  products,
-} from '@/db/schema'
-import { wholesaleTierOf, type PricedProduct } from '@/features/catalog/model/pricing'
-import { variantLabelOf } from '@/features/catalog/model/product-view'
+import { and, asc, eq, ilike, or, sql } from 'drizzle-orm'
+import { InvoiceStatus, PaymentRoute, ProductStatus, type SalesChannel } from '@/db/enums'
+import { invoices, orderItems, orders, productVariants, products } from '@/db/schema'
+import { wholesaleTierOf } from '@/features/catalog/model/pricing'
+import { linePricingFor, type ChannelPricedProduct } from '@/features/orders/model/channel-pricing'
 import {
   linesSubtotalCents,
   orderEditBlockOf,
@@ -19,6 +12,14 @@ import {
 } from '@/features/orders/model/order-edit'
 import { db } from '@/lib/db'
 import {
+  heldInCarts,
+  insertOrderLine,
+  lockVariants,
+  type LockedVariant,
+  type Transaction,
+} from '@/features/orders/repository/order-lines-tx'
+import {
+  DropPriceMissingError,
   OrderEmptyError,
   OrderNotEditableError,
   OrderNotFoundError,
@@ -28,8 +29,6 @@ import {
   VariantNotFoundError,
 } from '@/lib/errors'
 import { escapeLikePattern } from '@/lib/sql'
-
-type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
 // The admin names variants and quantities; zero takes a line out. A line the
 // request does not name keeps its quantity.
@@ -42,34 +41,24 @@ export type EditedTotals = {
   readonly previousTotalCents: number
   readonly subtotalCents: number
   readonly totalCents: number
+  // The invoice the edit made stale and voided; null when none was live.
+  readonly voidedInvoiceNumber: number | null
 }
 
 // A variant the admin can put in an order: on sale on the site right now.
 export type AddableVariantRow = {
   readonly variantId: string
-  readonly sku: string
-  readonly productTitle: string
-  readonly options: Record<string, string>
-  readonly unitPriceCents: number
-  readonly stockQty: number
-}
-
-type LockedVariant = {
-  readonly id: string
-  readonly productId: string
-  readonly sku: string
-  readonly options: Record<string, string>
-  readonly isOnSale: boolean
-  readonly stockQty: number
-  readonly priceDeltaCents: number
-  readonly priceCents: number
-  readonly salePriceCents: number | null
-  readonly wholesaleMinQty: number | null
-  readonly wholesalePriceCents: number | null
   readonly productSlug: string
+  readonly sku: string
   readonly productTitle: string
+  readonly options: Record<string, string>
+  // The site's price for one unit, sale included, and the partner's; both
+  // with the variant's surcharge. Null drop price: no partner order.
+  readonly unitPriceCents: number
+  readonly dropUnitPriceCents: number | null
+  readonly unitCostCents: number | null
   readonly weightGrams: number
-  readonly costCents: number | null
+  readonly stockQty: number
 }
 
 type StoredLine = {
@@ -101,14 +90,14 @@ export const orderEditRepository = {
         ...requested.map((line) => line.variantId),
       ])
       const before = stored.flatMap((line) => editLineOf(line, variants))
-      const after = repricedLines(before, requestedLines(before, requested, variants), (id) =>
-        pricingOf(id, variants),
-      )
+      const priceOf = channelUnitPrice(order.channel, variants)
+      const after = repricedLines(before, requestedLines(before, requested, variants), priceOf)
       // A line whose variant was deleted cannot be priced again; it stays.
       const frozen = stored.filter((line) => line.variantId === null)
       if (after.length + frozen.length === 0) throw new OrderEmptyError(orderId)
 
-      await applyStockChanges(tx, stockChanges(before, after), variants)
+      const changes = stockChanges(before, after)
+      await applyStockChanges(tx, changes, variants)
       await writeLines(tx, orderId, stored, after, variants)
 
       const subtotalCents = linesSubtotalCents([...after, ...frozen])
@@ -123,7 +112,16 @@ export const orderEditRepository = {
         .set({ subtotalCents, totalCents, updatedAt: new Date() })
         .where(eq(orders.id, orderId))
 
-      return { previousTotalCents: order.totalCents, subtotalCents, totalCents }
+      // Saved unchanged, the invoice still matches and stays live.
+      const isChanged = changes.size > 0 || totalCents !== order.totalCents
+      const voidedInvoiceNumber = isChanged ? await voidLiveInvoice(tx, orderId) : null
+
+      return {
+        previousTotalCents: order.totalCents,
+        subtotalCents,
+        totalCents,
+        voidedInvoiceNumber,
+      }
     })
   },
 
@@ -134,10 +132,16 @@ export const orderEditRepository = {
     return db
       .select({
         variantId: productVariants.id,
+        productSlug: products.slug,
         sku: productVariants.sku,
         productTitle: sql<string>`coalesce(${products.shortTitle}, ${products.title})`,
         options: productVariants.options,
         unitPriceCents: sql<number>`(coalesce(${products.salePriceCents}, ${products.priceCents}) + ${productVariants.priceDeltaCents})::int`,
+        dropUnitPriceCents: sql<
+          number | null
+        >`(${products.dropPriceCents} + ${productVariants.priceDeltaCents})::int`,
+        unitCostCents: products.costCents,
+        weightGrams: products.weightGrams,
         stockQty: productVariants.stockQty,
       })
       .from(productVariants)
@@ -169,6 +173,7 @@ async function lockOrder(tx: Transaction, orderId: string) {
       shippingCents: orders.shippingCents,
       totalCents: orders.totalCents,
       prepaidCents: orders.prepaidCents,
+      channel: orders.channel,
     })
     .from(orders)
     .where(eq(orders.id, orderId))
@@ -181,41 +186,6 @@ async function lockOrder(tx: Transaction, orderId: string) {
   if (block) throw new OrderNotEditableError(orderId, block)
 
   return order
-}
-
-async function lockVariants(
-  tx: Transaction,
-  variantIds: readonly string[],
-): Promise<Map<string, LockedVariant>> {
-  if (variantIds.length === 0) return new Map()
-
-  const rows = await tx
-    .select({
-      id: productVariants.id,
-      productId: products.id,
-      sku: productVariants.sku,
-      options: productVariants.options,
-      isOnSale: sql<boolean>`(${productVariants.isActive} and ${products.status} = ${ProductStatus.Published})`,
-      stockQty: productVariants.stockQty,
-      priceDeltaCents: productVariants.priceDeltaCents,
-      priceCents: products.priceCents,
-      salePriceCents: products.salePriceCents,
-      wholesaleMinQty: products.wholesaleMinQty,
-      wholesalePriceCents: products.wholesalePriceCents,
-      productSlug: products.slug,
-      // The name the cart, the order and the waybill read.
-      productTitle: sql<string>`coalesce(${products.shortTitle}, ${products.title})`,
-      weightGrams: products.weightGrams,
-      costCents: products.costCents,
-    })
-    .from(productVariants)
-    .innerJoin(products, eq(products.id, productVariants.productId))
-    .where(inArray(productVariants.id, [...new Set(variantIds)]))
-    // One locking order for every edit, so two of them never wait on each other.
-    .orderBy(asc(productVariants.id))
-    .for('update', { of: productVariants })
-
-  return new Map(rows.map((row) => [row.id, row]))
 }
 
 function editLineOf(line: StoredLine, variants: Map<string, LockedVariant>): EditLine[] {
@@ -264,7 +234,19 @@ function requestedLines(
   return [...kept, ...added]
 }
 
-function pricingOf(productId: string, variants: Map<string, LockedVariant>): PricedProduct {
+// The order's channel prices the product: the cart's price on a site order,
+// the drop price on a partner's.
+function channelUnitPrice(channel: SalesChannel, variants: Map<string, LockedVariant>) {
+  const pricing = linePricingFor(channel)
+
+  return (productId: string, quantity: number): number => {
+    const price = pricing(pricingOf(productId, variants), quantity)
+    if (price === null) throw new DropPriceMissingError(productId)
+    return price
+  }
+}
+
+function pricingOf(productId: string, variants: Map<string, LockedVariant>): ChannelPricedProduct {
   const variant = [...variants.values()].find((entry) => entry.productId === productId)
   if (!variant) throw new ProductNotFoundError(productId)
 
@@ -272,6 +254,7 @@ function pricingOf(productId: string, variants: Map<string, LockedVariant>): Pri
     priceCents: variant.priceCents,
     salePriceCents: variant.salePriceCents,
     wholesale: wholesaleTierOf(variant.wholesaleMinQty, variant.wholesalePriceCents),
+    dropPriceCents: variant.dropPriceCents,
   }
 }
 
@@ -296,22 +279,6 @@ async function applyStockChanges(
       .set({ stockQty: sql`${productVariants.stockQty} - ${change}`, updatedAt: new Date() })
       .where(eq(productVariants.id, variantId))
   }
-}
-
-async function heldInCarts(tx: Transaction, variantId: string): Promise<number> {
-  const [held] = await tx
-    .select({
-      total: sql<number>`coalesce(sum(${inventoryReservations.quantity}), 0)::int`,
-    })
-    .from(inventoryReservations)
-    .where(
-      and(
-        eq(inventoryReservations.variantId, variantId),
-        gt(inventoryReservations.expiresAt, new Date()),
-      ),
-    )
-
-  return held?.total ?? 0
 }
 
 async function writeLines(
@@ -341,36 +308,19 @@ async function writeLines(
   for (const line of after.filter((entry) => !storedVariants.has(entry.variantId))) {
     const variant = variants.get(line.variantId)
     if (!variant) throw new VariantNotFoundError(line.variantId)
-    await insertLine(tx, orderId, line, variant)
+    await insertOrderLine(tx, orderId, line, variant)
   }
 }
 
-// A new line snapshots its variant as checkout does: the names, the weight,
-// the cover photo and the workshop price of the moment.
-async function insertLine(
-  tx: Transaction,
-  orderId: string,
-  line: EditLine,
-  variant: LockedVariant,
-): Promise<void> {
-  const [cover] = await tx
-    .select({ storageKey: productImages.storageKey })
-    .from(productImages)
-    .where(eq(productImages.productId, variant.productId))
-    .orderBy(productImages.position)
-    .limit(1)
+// An invoice is a snapshot of the lines it was issued for: once they change,
+// it asks for a sum the order no longer has, and the next one takes a new
+// number.
+async function voidLiveInvoice(tx: Transaction, orderId: string): Promise<number | null> {
+  const [voided] = await tx
+    .update(invoices)
+    .set({ status: InvoiceStatus.Void })
+    .where(and(eq(invoices.orderId, orderId), eq(invoices.status, InvoiceStatus.Issued)))
+    .returning({ number: invoices.number })
 
-  await tx.insert(orderItems).values({
-    orderId,
-    variantId: variant.id,
-    sku: variant.sku,
-    productSlug: variant.productSlug,
-    productTitle: variant.productTitle,
-    variantLabel: variantLabelOf(variant.options),
-    quantity: line.quantity,
-    unitPriceCents: line.unitPriceCents,
-    unitCostCents: variant.costCents,
-    weightGrams: variant.weightGrams,
-    imageStorageKey: cover?.storageKey ?? null,
-  })
+  return voided?.number ?? null
 }

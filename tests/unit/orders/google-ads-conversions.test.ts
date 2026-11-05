@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { OrderStatus, PaymentRoute } from '@/db/enums'
+import { OrderStatus, PaymentRoute, SalesChannel } from '@/db/enums'
 import {
   isGoogleAdsSale,
   toGoogleAdsConversionsCsv,
@@ -14,6 +14,7 @@ const SALE: GoogleAdsSaleCandidate = {
   currency: 'UAH',
   status: OrderStatus.Pending,
   paymentRoute: PaymentRoute.CashOnDelivery,
+  channel: SalesChannel.Site,
   paidAt: null,
 }
 
@@ -69,5 +70,11 @@ describe('the upload file', () => {
     expect(toGoogleAdsConversionsCsv([], 'Server purchase').split('\n')[0]).toMatch(
       /^Google Click ID,/,
     )
+  })
+})
+
+describe('partner orders', () => {
+  it('never reports a partner order to Google Ads, click or not', () => {
+    expect(isGoogleAdsSale({ ...SALE, channel: SalesChannel.Dropship })).toBe(false)
   })
 })

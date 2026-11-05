@@ -39,9 +39,9 @@ function AdSpendBody({ adSpend }: { readonly adSpend: AdSpendView }) {
         <StatCell
           label="На один заказ"
           value={adSpend.perOrderCents === null ? '—' : wholeMoney(adSpend.perOrderCents)}
-          hint="Все заказы периода"
+          hint="Заказы с сайта: партнёрские не из рекламы"
         />
-        <StatCell label="Доля от выручки" value={percent(adSpend.shareOfRevenue)} />
+        <StatCell label="Доля от выручки сайта" value={percent(adSpend.shareOfRevenue)} />
       </dl>
       <div className="border-t border-subtle p-4 sm:p-5">
         <h3 className="mb-3 text-[14px] font-semibold text-ink">Расходы по дням, ₴</h3>
