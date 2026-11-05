@@ -3,9 +3,7 @@ import { parseRequisitesSnapshot, type BankAccountDraft } from '@/config/requisi
 import { bankAccountService, requisitesView } from '@/features/billing'
 import {
   invoiceBlockOf,
-  invoiceLineName,
   invoiceOrderReference,
-  invoiceTotalCents,
   paymentPurposeText,
   type InvoiceParty,
   type InvoiceSeller,
@@ -39,34 +37,21 @@ export const invoiceService = {
     const block = invoiceBlockOf(order)
     if (block) throw new InvoiceNotIssuableError(orderId, block)
 
-    const [items, seller] = await Promise.all([orderRepository.findItems(orderId), sellerOf(order)])
-    const lines = items.map((item) => ({
-      sku: item.sku,
-      name: invoiceLineName(item.productTitle, item.variantLabel),
-      quantity: item.quantity,
-      unitPriceCents: item.unitPriceCents,
-    }))
-    const number = await invoiceRepository.nextNumber()
+    const seller = await sellerOf(order)
     const issuedOn = formatDateIsoKyiv(now)
+    const orderReference = invoiceOrderReference(order)
 
-    const invoice = await invoiceRepository.insertIssued({
-      number,
+    const invoice = await invoiceRepository.issue({
       orderId,
       issuedOn,
       validUntil: request.validUntil,
       buyer: request.buyer,
       seller,
-      lines,
-      totalCents: invoiceTotalCents(lines),
-      paymentPurpose: paymentPurposeText({
-        orderReference: invoiceOrderReference(order),
-        number,
-        issuedOn,
-      }),
+      paymentPurposeOf: (number) => paymentPurposeText({ orderReference, number, issuedOn }),
     })
     if (!invoice) throw new InvoiceNotIssuableError(orderId, 'already_issued')
 
-    logger.info('Invoice issued', { orderId, number })
+    logger.info('Invoice issued', { orderId, number: invoice.number })
     return invoice
   },
 

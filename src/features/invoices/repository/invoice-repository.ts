@@ -1,12 +1,18 @@
 import { and, desc, eq, sql } from 'drizzle-orm'
 import { InvoiceStatus } from '@/db/enums'
-import { invoices } from '@/db/schema'
-import type {
-  InvoiceLineSnapshot,
-  InvoiceParty,
-  InvoiceSeller,
+import { invoices, orderItems, orders } from '@/db/schema'
+import {
+  invoiceBlockOf,
+  invoiceLineName,
+  invoiceTotalCents,
+  type InvoiceLineSnapshot,
+  type InvoiceParty,
+  type InvoiceSeller,
 } from '@/features/invoices/model/invoice'
 import { db } from '@/lib/db'
+import { InvoiceNotIssuableError, OrderNotFoundError } from '@/lib/errors'
+
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0]
 
 export type InvoiceRow = {
   readonly id: string
@@ -22,8 +28,6 @@ export type InvoiceRow = {
   readonly paymentPurpose: string
   readonly createdAt: Date
 }
-
-export type InvoiceDraft = Omit<InvoiceRow, 'id' | 'status' | 'createdAt'>
 
 const INVOICE_COLUMNS = {
   id: invoices.id,
@@ -43,28 +47,64 @@ const INVOICE_COLUMNS = {
 // An order gets a few invoices at most, voided ones included.
 const ORDER_INVOICES_MAX_ROWS = 50
 
-export const invoiceRepository = {
-  // Taken before the row is written: the number is printed inside the
-  // payment purpose. A number taken and not used is burnt, never reissued.
-  async nextNumber(): Promise<number> {
-    const [row] = await db.execute<{ value: string }>(
-      sql`select nextval('invoice_number_seq') as value`,
-    )
-    if (!row) throw new Error('Invoice number sequence returned nothing')
-    return Number(row.value)
-  },
+// What the shop puts on a new invoice; the lines and the total are copied
+// from the order when it is issued.
+export type InvoiceIssue = {
+  readonly orderId: string
+  readonly issuedOn: string
+  readonly validUntil: string
+  readonly buyer: InvoiceParty
+  readonly seller: InvoiceSeller
+  // The number is printed inside the purpose, so the purpose waits for it.
+  readonly paymentPurposeOf: (number: number) => string
+}
 
-  // Null when the order already has a live invoice (another tab issued it).
-  async insertIssued(draft: InvoiceDraft): Promise<InvoiceRow | null> {
-    const [row] = await db
-      .insert(invoices)
-      .values({ ...draft, status: InvoiceStatus.Issued })
-      .onConflictDoNothing({
-        target: invoices.orderId,
-        where: sql`${invoices.status} = ${InvoiceStatus.Issued}`,
-      })
-      .returning(INVOICE_COLUMNS)
-    return row ?? null
+export const invoiceRepository = {
+  // Under the order's row lock, the one a line edit takes: an edit waits for
+  // the invoice or the invoice for the edit, so the paper never copies lines
+  // another tab is changing. Null when the order already has a live invoice.
+  async issue(issue: InvoiceIssue): Promise<InvoiceRow | null> {
+    return db.transaction(async (tx) => {
+      await lockIssuableOrder(tx, issue.orderId)
+      const items = await tx
+        .select({
+          sku: orderItems.sku,
+          productTitle: orderItems.productTitle,
+          variantLabel: orderItems.variantLabel,
+          quantity: orderItems.quantity,
+          unitPriceCents: orderItems.unitPriceCents,
+        })
+        .from(orderItems)
+        .where(eq(orderItems.orderId, issue.orderId))
+      const lines = items.map((item) => ({
+        sku: item.sku,
+        name: invoiceLineName(item.productTitle, item.variantLabel),
+        quantity: item.quantity,
+        unitPriceCents: item.unitPriceCents,
+      }))
+      const number = await nextNumber(tx)
+
+      const [row] = await tx
+        .insert(invoices)
+        .values({
+          number,
+          orderId: issue.orderId,
+          status: InvoiceStatus.Issued,
+          issuedOn: issue.issuedOn,
+          validUntil: issue.validUntil,
+          buyer: issue.buyer,
+          seller: issue.seller,
+          lines,
+          totalCents: invoiceTotalCents(lines),
+          paymentPurpose: issue.paymentPurposeOf(number),
+        })
+        .onConflictDoNothing({
+          target: invoices.orderId,
+          where: sql`${invoices.status} = ${InvoiceStatus.Issued}`,
+        })
+        .returning(INVOICE_COLUMNS)
+      return row ?? null
+    })
   },
 
   async voidIssued(invoiceId: string): Promise<InvoiceRow | null> {
@@ -85,4 +125,29 @@ export const invoiceRepository = {
       .orderBy(desc(invoices.createdAt))
       .limit(ORDER_INVOICES_MAX_ROWS)
   },
+}
+
+// A cancelled order, or one turned from transfer to cash on delivery while
+// the admin filled the form, gets no invoice.
+async function lockIssuableOrder(tx: Transaction, orderId: string): Promise<void> {
+  const [order] = await tx
+    .select({ status: orders.status, paymentRoute: orders.paymentRoute })
+    .from(orders)
+    .where(eq(orders.id, orderId))
+    .for('update')
+    .limit(1)
+  if (!order) throw new OrderNotFoundError(orderId)
+
+  const block = invoiceBlockOf(order)
+  if (block) throw new InvoiceNotIssuableError(orderId, block)
+}
+
+// A number taken and not used is burnt, never reissued: the sequence does not
+// roll back with the transaction.
+async function nextNumber(tx: Transaction): Promise<number> {
+  const [row] = await tx.execute<{ value: string }>(
+    sql`select nextval('invoice_number_seq') as value`,
+  )
+  if (!row) throw new Error('Invoice number sequence returned nothing')
+  return Number(row.value)
 }

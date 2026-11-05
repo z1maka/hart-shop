@@ -26,7 +26,7 @@ export type InvoiceDocumentView = {
   readonly number: number
   readonly isVoid: boolean
   readonly issuedOnLong: string
-  readonly orderReference: string
+  readonly orderReference: string | null
   readonly seller: InvoiceSeller & { readonly ibanGrouped: string }
   readonly buyer: {
     readonly name: string

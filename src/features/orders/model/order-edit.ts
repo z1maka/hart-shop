@@ -1,4 +1,4 @@
-import { OrderStatus, PaymentRoute } from '@/db/enums'
+import { OrderStatus, PaymentRoute, SalesChannel } from '@/db/enums'
 
 // A buyer on the phone changes their mind about how many they want (owner,
 // 03.11.2026): the admin edits the lines until the parcel is made up.
@@ -56,10 +56,10 @@ export type EditLine = {
 // units of it: the order's channel decides how (model/channel-pricing.ts).
 export type ProductUnitPrice = (productId: string, quantity: number) => number
 
-// The lines after the edit, zero quantities gone. A product whose total
-// quantity changed is priced again by the order's channel — the wholesale
-// tier is earned by the product across its colours; every other line keeps
-// the price the buyer agreed to.
+// The lines of a site order after the edit, zero quantities gone. A product
+// whose total quantity changed is priced again — the wholesale tier is earned
+// by the product across its colours; every other line keeps the price the
+// buyer agreed to.
 export function repricedLines(
   before: readonly EditLine[],
   after: readonly EditLine[],
@@ -77,6 +77,37 @@ export function repricedLines(
       const unitPriceCents = unitPriceOf(line.productId, productQuantity) + line.priceDeltaCents
       return { ...line, unitPriceCents }
     })
+}
+
+// A partner's price does not hang on the quantity, and a line may carry one
+// agreed apart from the card (owner, 05.11.2026): a variant already in the
+// order keeps its price whatever its quantity; only one new to it is priced.
+export function newLinesPriced(
+  before: readonly EditLine[],
+  after: readonly EditLine[],
+  unitPriceOf: ProductUnitPrice,
+): EditLine[] {
+  const known = new Set(before.map((line) => line.variantId))
+
+  return after
+    .filter((line) => line.quantity > 0)
+    .map((line) => {
+      if (known.has(line.variantId)) return line
+
+      const unitPriceCents = unitPriceOf(line.productId, line.quantity) + line.priceDeltaCents
+      return { ...line, unitPriceCents }
+    })
+}
+
+export type LineRepricing = typeof repricedLines
+
+const LINE_REPRICING: Readonly<Record<SalesChannel, LineRepricing>> = {
+  [SalesChannel.Site]: repricedLines,
+  [SalesChannel.Dropship]: newLinesPriced,
+}
+
+export function lineRepricingFor(channel: SalesChannel): LineRepricing {
+  return LINE_REPRICING[channel]
 }
 
 // What leaves the shelf (positive) or comes back to it (negative) per variant.

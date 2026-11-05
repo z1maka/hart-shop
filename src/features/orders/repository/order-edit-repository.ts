@@ -4,9 +4,9 @@ import { invoices, orderItems, orders, productVariants, products } from '@/db/sc
 import { wholesaleTierOf } from '@/features/catalog/model/pricing'
 import { linePricingFor, type ChannelPricedProduct } from '@/features/orders/model/channel-pricing'
 import {
+  lineRepricingFor,
   linesSubtotalCents,
   orderEditBlockOf,
-  repricedLines,
   stockChanges,
   type EditLine,
 } from '@/features/orders/model/order-edit'
@@ -91,7 +91,8 @@ export const orderEditRepository = {
       ])
       const before = stored.flatMap((line) => editLineOf(line, variants))
       const priceOf = channelUnitPrice(order.channel, variants)
-      const after = repricedLines(before, requestedLines(before, requested, variants), priceOf)
+      const repriced = lineRepricingFor(order.channel)
+      const after = repriced(before, requestedLines(before, requested, variants), priceOf)
       // A line whose variant was deleted cannot be priced again; it stays.
       const frozen = stored.filter((line) => line.variantId === null)
       if (after.length + frozen.length === 0) throw new OrderEmptyError(orderId)
@@ -226,7 +227,7 @@ function requestedLines(
         productId: variant.productId,
         priceDeltaCents: variant.priceDeltaCents,
         quantity: line.quantity,
-        // Priced by repricedLines: the product's quantity changes with it.
+        // Priced by the channel's repricing: the line is new to the order.
         unitPriceCents: 0,
       }
     })

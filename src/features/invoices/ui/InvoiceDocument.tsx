@@ -28,7 +28,11 @@ export function InvoiceDocument({ invoice }: { readonly invoice: InvoiceDocument
       <h1 className="mt-[18px] mb-1 font-display text-[20px] font-semibold tracking-[0.01em] normal-case">
         Рахунок на оплату № {invoice.number} від {invoice.issuedOnLong}
       </h1>
-      <p className="mb-4 text-[#4a5446]">Замовлення {invoice.orderReference}</p>
+      {invoice.orderReference ? (
+        <p className="mb-4 text-[#4a5446]">Замовлення {invoice.orderReference}</p>
+      ) : (
+        <div className="mb-4" />
+      )}
 
       <Party label="Постачальник">
         <b>{invoice.seller.name}</b>

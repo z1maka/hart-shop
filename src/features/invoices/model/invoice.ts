@@ -1,4 +1,4 @@
-import { OrderStatus, PaymentRoute } from '@/db/enums'
+import { OrderStatus, PaymentRoute, SalesChannel } from '@/db/enums'
 
 // An invoice («рахунок на оплату») from the ФОП for an order paid by
 // transfer. Everything on it is copied when it is issued, so a price, an
@@ -39,21 +39,26 @@ export function invoiceTotalCents(lines: readonly InvoiceLineSnapshot[]): number
   return lines.reduce((sum, line) => sum + line.unitPriceCents * line.quantity, 0)
 }
 
-// The reference the buyer knows the order by: the partner's own number when
-// there is one, else the shop's.
+// The reference the buyer knows the order by: the shop's number for a site
+// buyer. A partner's invoice names the partner's own number only, never the
+// shop's (owner, 05.11.2026) — none at all when the partner gave none.
 export function invoiceOrderReference(order: {
+  readonly channel: string
   readonly orderNumber: string
   readonly resellerOrderRef: string | null
-}): string {
-  return order.resellerOrderRef ?? order.orderNumber
+}): string | null {
+  return order.channel === SalesChannel.Dropship ? order.resellerOrderRef : order.orderNumber
 }
 
 export function paymentPurposeText(input: {
-  readonly orderReference: string
+  readonly orderReference: string | null
   readonly number: number
   readonly issuedOn: string
 }): string {
-  return `Оплата за замовлення ${input.orderReference} згідно з рахунком № ${input.number} від ${dottedDate(input.issuedOn)}, без ПДВ`
+  const invoiceRef = `рахунком № ${input.number} від ${dottedDate(input.issuedOn)}`
+  return input.orderReference
+    ? `Оплата за замовлення ${input.orderReference} згідно з ${invoiceRef}, без ПДВ`
+    : `Оплата згідно з ${invoiceRef}, без ПДВ`
 }
 
 // «2026-11-05» as the paper writes it: «05.11.2026».

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { OrderStatus, PaymentRoute } from '@/db/enums'
+import { OrderStatus, PaymentRoute, SalesChannel } from '@/db/enums'
 import {
   addBankingDays,
   DEFAULT_VALIDITY_BANKING_DAYS,
@@ -33,6 +33,7 @@ describe('invoice sums', () => {
 describe('payment purpose', () => {
   it('quotes the partner’s own order number when there is one', () => {
     const reference = invoiceOrderReference({
+      channel: SalesChannel.Dropship,
       orderNumber: 'HART-2026-000046',
       resellerOrderRef: '31805',
     })
@@ -41,10 +42,26 @@ describe('payment purpose', () => {
     ).toBe('Оплата за замовлення 31805 згідно з рахунком № 343 від 05.11.2026, без ПДВ')
   })
 
-  it('falls back to the shop’s number for a site order', () => {
-    expect(invoiceOrderReference({ orderNumber: 'HART-2026-000046', resellerOrderRef: null })).toBe(
-      'HART-2026-000046',
-    )
+  it('never puts the shop’s number on a partner’s invoice, even when the partner gave none', () => {
+    const reference = invoiceOrderReference({
+      channel: SalesChannel.Dropship,
+      orderNumber: 'HART-2026-000046',
+      resellerOrderRef: null,
+    })
+    expect(reference).toBeNull()
+    expect(
+      paymentPurposeText({ orderReference: reference, number: 344, issuedOn: '2026-11-06' }),
+    ).toBe('Оплата згідно з рахунком № 344 від 06.11.2026, без ПДВ')
+  })
+
+  it('quotes the shop’s number for a site order', () => {
+    expect(
+      invoiceOrderReference({
+        channel: SalesChannel.Site,
+        orderNumber: 'HART-2026-000046',
+        resellerOrderRef: null,
+      }),
+    ).toBe('HART-2026-000046')
   })
 
   it('writes the date with dots', () => {

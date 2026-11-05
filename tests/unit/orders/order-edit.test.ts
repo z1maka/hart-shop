@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { OrderStatus, PaymentRoute } from '@/db/enums'
+import { OrderStatus, PaymentRoute, SalesChannel } from '@/db/enums'
 import {
+  lineRepricingFor,
   linesSubtotalCents,
   OrderEditBlock,
   orderEditBlockOf,
@@ -164,23 +165,43 @@ describe('linesSubtotalCents', () => {
   })
 })
 
-describe('repricedLines on a partner order', () => {
+describe('the lines of a partner order', () => {
   // A partner pays the drop price, whatever the quantity: 3 550 ₴.
   const dropPrice = () => 355_000
+  const repriced = lineRepricingFor(SalesChannel.Dropship)
 
-  it('prices a changed product at the drop price, never the retail or wholesale one', () => {
+  it('keeps the drop price on a line whose quantity grew, never the wholesale one', () => {
     const before = [line({ variantId: 'cover-olive', quantity: 2, unitPriceCents: 355_000 })]
     const after = [line({ variantId: 'cover-olive', quantity: 12, unitPriceCents: 355_000 })]
 
-    expect(repricedLines(before, after, dropPrice)[0]?.unitPriceCents).toBe(355_000)
+    expect(repriced(before, after, dropPrice)[0]?.unitPriceCents).toBe(355_000)
   })
 
-  it('keeps an agreed price on a product whose quantity did not change', () => {
+  it('keeps an agreed price when the line’s quantity changes', () => {
+    const before = [line({ variantId: 'cover-olive', quantity: 2, unitPriceCents: 300_000 })]
+    const after = [line({ variantId: 'cover-olive', quantity: 3, unitPriceCents: 300_000 })]
+
+    expect(repriced(before, after, dropPrice)[0]?.unitPriceCents).toBe(300_000)
+  })
+
+  it('prices only a variant new to the order, a new colour of the same product too', () => {
     const agreed = line({ variantId: 'cover-olive', quantity: 2, unitPriceCents: 300_000 })
-    const added = line({ variantId: 'poncho', productId: 'poncho', quantity: 1, unitPriceCents: 0 })
+    const colour = line({ variantId: 'cover-pixel', quantity: 1, unitPriceCents: 0 })
+    const poncho = line({
+      variantId: 'poncho',
+      productId: 'poncho',
+      quantity: 1,
+      unitPriceCents: 0,
+    })
 
     expect(
-      repricedLines([agreed], [agreed, added], dropPrice).map((entry) => entry.unitPriceCents),
-    ).toEqual([300_000, 355_000])
+      repriced([agreed], [agreed, colour, poncho], dropPrice).map((entry) => entry.unitPriceCents),
+    ).toEqual([300_000, 355_000, 355_000])
+  })
+
+  it('drops a line taken down to zero', () => {
+    const cover = line({ variantId: 'cover-olive', quantity: 2, unitPriceCents: 300_000 })
+
+    expect(repriced([cover], [{ ...cover, quantity: 0 }], dropPrice)).toEqual([])
   })
 })
