@@ -1,12 +1,13 @@
 import { and, asc, eq, ilike, or, sql } from 'drizzle-orm'
 import { InvoiceStatus, PaymentRoute, ProductStatus, type SalesChannel } from '@/db/enums'
-import { invoices, orderItems, orders, productVariants, products } from '@/db/schema'
+import { invoices, orderItems, orders, productImages, productVariants, products } from '@/db/schema'
 import { wholesaleTierOf } from '@/features/catalog/model/pricing'
 import { linePricingFor, type ChannelPricedProduct } from '@/features/orders/model/channel-pricing'
 import {
   lineRepricingFor,
   linesSubtotalCents,
   orderEditBlockOf,
+  priceQueryCents,
   stockChanges,
   type EditLine,
 } from '@/features/orders/model/order-edit'
@@ -59,6 +60,8 @@ export type AddableVariantRow = {
   readonly unitCostCents: number | null
   readonly weightGrams: number
   readonly stockQty: number
+  // The variant's own cover, else the product's first photo; square when cut.
+  readonly imageStorageKey: string | null
 }
 
 type StoredLine = {
@@ -126,9 +129,20 @@ export const orderEditRepository = {
     })
   },
 
-  // By the product's title or short title, or a variant's SKU.
+  // By the product's title or short title, a variant's SKU, or — when the
+  // admin typed a number — one unit's retail or drop price. The catalogue is
+  // a few hundred variants, so the scan stays cheap without an index.
   async findAddableVariants(search: string, limit: number): Promise<AddableVariantRow[]> {
     const pattern = `%${escapeLikePattern(search)}%`
+    const priceCents = priceQueryCents(search)
+    const unitPriceCents = sql<number>`(coalesce(${products.salePriceCents}, ${products.priceCents}) + ${productVariants.priceDeltaCents})::int`
+    const dropUnitPriceCents = sql<
+      number | null
+    >`(${products.dropPriceCents} + ${productVariants.priceDeltaCents})::int`
+    const priceMatches =
+      priceCents === null
+        ? []
+        : [sql`${unitPriceCents} = ${priceCents}`, sql`${dropUnitPriceCents} = ${priceCents}`]
 
     return db
       .select({
@@ -137,13 +151,17 @@ export const orderEditRepository = {
         sku: productVariants.sku,
         productTitle: sql<string>`coalesce(${products.shortTitle}, ${products.title})`,
         options: productVariants.options,
-        unitPriceCents: sql<number>`(coalesce(${products.salePriceCents}, ${products.priceCents}) + ${productVariants.priceDeltaCents})::int`,
-        dropUnitPriceCents: sql<
-          number | null
-        >`(${products.dropPriceCents} + ${productVariants.priceDeltaCents})::int`,
+        unitPriceCents,
+        dropUnitPriceCents,
         unitCostCents: products.costCents,
         weightGrams: products.weightGrams,
         stockQty: productVariants.stockQty,
+        imageStorageKey: sql<string | null>`coalesce(
+          (select coalesce(${productImages.squareStorageKey}, ${productImages.storageKey})
+             from ${productImages} where ${productImages.id} = ${productVariants.coverImageId}),
+          (select coalesce(${productImages.squareStorageKey}, ${productImages.storageKey})
+             from ${productImages} where ${productImages.productId} = ${products.id}
+             order by ${productImages.position} limit 1))`,
       })
       .from(productVariants)
       .innerJoin(products, eq(products.id, productVariants.productId))
@@ -155,6 +173,7 @@ export const orderEditRepository = {
             ilike(products.title, pattern),
             ilike(products.shortTitle, pattern),
             ilike(productVariants.sku, pattern),
+            ...priceMatches,
           ),
         ),
       )

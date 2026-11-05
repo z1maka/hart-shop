@@ -1,15 +1,14 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { SalesChannel } from '@/db/enums'
-import { findOrderVariantsAction } from '@/features/admin/actions/order-actions'
 import { createPartnerOrderAction } from '@/features/admin/actions/partner-order-actions'
 import { addResellerAction } from '@/features/admin/actions/reseller-actions'
 import type { ResellerView } from '@/features/admin/queries/get-resellers'
 import { AdminPointPicker, type PointChoice } from '@/features/admin/ui/AdminPointPicker'
 import { errorText } from '@/features/admin/ui/messages'
+import { VariantSearchBox } from '@/features/admin/ui/VariantSearchBox'
 import {
   EMPTY_RESELLER,
   ResellerForm,
@@ -19,7 +18,6 @@ import { earnsNothingOver } from '@/features/catalog/model/pricing'
 import type { AddableVariant } from '@/features/orders'
 import {
   ORDER_LINE_MAX_QUANTITY,
-  VARIANT_SEARCH_MIN_LENGTH,
 } from '@/features/orders/model/order-edit'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -292,7 +290,12 @@ function LinesSection({
           ))}
         </ul>
       ) : null}
-      <VariantSearch onAdd={add} />
+      <VariantSearchBox
+        channel={SalesChannel.Dropship}
+        onPick={(variant) => {
+          if (variant.unitPriceCents !== null) add(variant, variant.unitPriceCents)
+        }}
+      />
     </section>
   )
 }
@@ -436,113 +439,6 @@ function PriceField({
         {isAgreed ? '↺' : '✎'}
       </button>
     </span>
-  )
-}
-
-function VariantSearch({
-  onAdd,
-}: {
-  readonly onAdd: (variant: AddableVariant, dropPriceCents: number) => void
-}) {
-  const [search, setSearch] = useState('')
-  const [found, setFound] = useState<readonly AddableVariant[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
-
-  function find() {
-    setError(null)
-    startTransition(async () => {
-      const result = await findOrderVariantsAction({ search, channel: SalesChannel.Dropship })
-      if (!result.ok) {
-        setError(errorText(result.error))
-        return
-      }
-      setFound(result.data)
-    })
-  }
-
-  return (
-    <div className="grid gap-2">
-      <form
-        className="flex flex-wrap gap-2"
-        onSubmit={(event) => {
-          event.preventDefault()
-          find()
-        }}
-      >
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Добавить товар: название или артикул"
-          aria-label="Поиск товара"
-          className={cn(inputClassName, 'min-w-0 flex-1 basis-56')}
-        />
-        <Button
-          type="submit"
-          variant="secondary"
-          disabled={isPending || search.trim().length < VARIANT_SEARCH_MIN_LENGTH}
-        >
-          {isPending ? 'Ищем…' : 'Найти'}
-        </Button>
-      </form>
-      {error ? <p className="text-[13px] text-alert">{error}</p> : null}
-      {found && found.length === 0 ? (
-        <p className="text-[12.5px] text-muted">Ничего не нашлось.</p>
-      ) : null}
-      {found && found.length > 0 ? (
-        <ul className="grid gap-1 rounded-control border border-subtle p-1.5">
-          {found.map((variant) => (
-            <FoundVariant key={variant.variantId} variant={variant} onAdd={onAdd} />
-          ))}
-        </ul>
-      ) : null}
-    </div>
-  )
-}
-
-function FoundVariant({
-  variant,
-  onAdd,
-}: {
-  readonly variant: AddableVariant
-  readonly onAdd: (variant: AddableVariant, dropPriceCents: number) => void
-}) {
-  const dropPriceCents = variant.unitPriceCents
-
-  return (
-    <li className="flex flex-wrap items-center gap-2 rounded-[6px] px-2.5 py-2 text-[13px] hover:bg-hover">
-      <span className="min-w-0 flex-1 basis-56">
-        {variant.title} · {variant.variantLabel}
-        {dropPriceCents === null ? (
-          <span className="block text-[12px] text-alert">
-            Нет цены дропшиппера — укажите её в карточке товара
-          </span>
-        ) : (
-          <span className="block text-[12px] text-faint">
-            {variant.sku} · дроп {money(dropPriceCents)} · розница{' '}
-            {money(variant.retailUnitPriceCents)} · остаток {variant.stockQty}
-          </span>
-        )}
-      </span>
-      {dropPriceCents === null ? (
-        <Link
-          href={`/admin/catalog/${variant.productSlug}`}
-          target="_blank"
-          className="text-[12.5px] font-semibold text-accent-hover hover:underline"
-        >
-          Открыть карточку →
-        </Link>
-      ) : (
-        <Button
-          variant="quiet"
-          size="sm"
-          disabled={variant.stockQty < 1}
-          onClick={() => onAdd(variant, dropPriceCents)}
-        >
-          {variant.stockQty < 1 ? 'Нет на складе' : 'Добавить'}
-        </Button>
-      )}
-    </li>
   )
 }
 

@@ -4,15 +4,14 @@ import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import {
   editOrderLinesAction,
-  findOrderVariantsAction,
   type OrderLinesEditOutcome,
 } from '@/features/admin/actions/order-actions'
 import { errorText } from '@/features/admin/ui/messages'
+import { VariantSearchBox } from '@/features/admin/ui/VariantSearchBox'
 import type { AddableVariant, AdminOrderLine } from '@/features/orders'
 import {
   ORDER_LINE_MAX_QUANTITY,
   OrderEditBlock,
-  VARIANT_SEARCH_MIN_LENGTH,
 } from '@/features/orders/model/order-edit'
 import { SalesChannel } from '@/db/enums'
 import { Button } from '@/components/ui/Button'
@@ -179,7 +178,7 @@ function LinesForm({
           </li>
         ))}
       </ul>
-      <VariantPicker channel={channel} onPick={add} />
+      <VariantSearchBox channel={channel} onPick={add} />
       <p className="text-[12px] leading-relaxed text-muted">
         {REPRICING_HINTS[channel]} Остаток на складе обновится. Покупателю ничего не отправляется.
       </p>
@@ -233,93 +232,6 @@ function DraftRow({ line, onQuantity }: DraftRowProps) {
         Убрать
       </Button>
     </li>
-  )
-}
-
-function VariantPicker({
-  channel,
-  onPick,
-}: {
-  readonly channel: SalesChannel
-  readonly onPick: (variant: AddableVariant) => void
-}) {
-  const [search, setSearch] = useState('')
-  const [found, setFound] = useState<readonly AddableVariant[] | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [isPending, startTransition] = useTransition()
-
-  function find() {
-    setError(null)
-    startTransition(async () => {
-      const result = await findOrderVariantsAction({ search, channel })
-      if (!result.ok) {
-        setError(errorText(result.error))
-        return
-      }
-      setFound(result.data)
-    })
-  }
-
-  return (
-    <div className="grid gap-2 rounded-control border border-subtle p-3">
-      <form
-        className="flex flex-wrap gap-2"
-        onSubmit={(event) => {
-          event.preventDefault()
-          find()
-        }}
-      >
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Добавить товар: название или артикул"
-          aria-label="Поиск товара"
-          className={cn(inputClassName, 'min-w-0 flex-1 basis-56')}
-        />
-        <Button
-          type="submit"
-          variant="secondary"
-          disabled={isPending || search.trim().length < VARIANT_SEARCH_MIN_LENGTH}
-        >
-          {isPending ? 'Ищем…' : 'Найти'}
-        </Button>
-      </form>
-      {error ? <p className="text-[13px] text-alert">{error}</p> : null}
-      {found && found.length === 0 ? (
-        <p className="text-[12.5px] text-muted">Ничего не нашлось.</p>
-      ) : null}
-      {found && found.length > 0 ? (
-        <ul className="grid gap-1.5">
-          {found.map((variant) => (
-            <li key={variant.variantId} className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="min-w-0 flex-1 basis-56">
-                {variant.title}
-                <span className="block text-[12px] text-faint">
-                  {[
-                    variant.variantLabel,
-                    variant.sku,
-                    variant.unitPriceCents === null
-                      ? 'нет цены дропшиппера'
-                      : moneyLabel(variant.unitPriceCents),
-                    `остаток ${variant.stockQty}`,
-                  ]
-                    .filter(Boolean)
-                    .join(' · ')}
-                </span>
-              </span>
-              <Button
-                variant="quiet"
-                size="sm"
-                disabled={variant.unitPriceCents === null}
-                onClick={() => onPick(variant)}
-              >
-                Добавить
-              </Button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
   )
 }
 

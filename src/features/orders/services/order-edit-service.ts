@@ -1,15 +1,14 @@
 import type { SalesChannel } from '@/db/enums'
 import { listedUnitPriceCents } from '@/features/orders/model/channel-pricing'
 import { variantLabelOf } from '@/features/catalog/model/product-view'
+import { VARIANT_SEARCH_LIMIT } from '@/features/orders/model/order-edit'
 import {
   orderEditRepository,
   type EditedTotals,
   type RequestedLine,
 } from '@/features/orders/repository/order-edit-repository'
 import { logger } from '@/lib/logger'
-
-// A few screens of matches; the admin types more of the name to narrow them.
-const ADDABLE_VARIANTS_LIMIT = 20
+import { publicUrl } from '@/lib/storage'
 
 // A variant the admin can add to an order, as the picker lists it, priced
 // by the order's channel; null when that channel cannot sell it (no drop
@@ -25,6 +24,7 @@ export type AddableVariant = {
   readonly unitCostCents: number | null
   readonly weightGrams: number
   readonly stockQty: number
+  readonly imageUrl: string | null
 }
 
 export const orderEditService = {
@@ -39,7 +39,7 @@ export const orderEditService = {
   },
 
   async findAddableVariants(search: string, channel: SalesChannel): Promise<AddableVariant[]> {
-    const rows = await orderEditRepository.findAddableVariants(search, ADDABLE_VARIANTS_LIMIT)
+    const rows = await orderEditRepository.findAddableVariants(search, VARIANT_SEARCH_LIMIT)
 
     return rows.map((row) => ({
       variantId: row.variantId,
@@ -55,6 +55,7 @@ export const orderEditService = {
       unitCostCents: row.unitCostCents,
       weightGrams: row.weightGrams,
       stockQty: row.stockQty,
+      imageUrl: row.imageStorageKey === null ? null : publicUrl(row.imageStorageKey),
     }))
   },
 }

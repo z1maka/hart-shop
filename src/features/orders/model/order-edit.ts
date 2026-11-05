@@ -5,6 +5,24 @@ import { OrderStatus, PaymentRoute, SalesChannel } from '@/db/enums'
 export const ORDER_LINE_MAX_QUANTITY = 999
 // The picker searches from the second letter: one matches half the catalogue.
 export const VARIANT_SEARCH_MIN_LENGTH = 2
+// A few screens of matches; the admin types more of the name to narrow them.
+export const VARIANT_SEARCH_LIMIT = 20
+
+const PRICE_QUERY = /^(\d[\d\s]*)(?:₴|грн\.?)?$/iu
+const KOPIYKAS_PER_HRYVNIA = 100
+const PRICE_QUERY_MAX_HRYVNIAS = 1_000_000
+
+// «3550», «3 550» or «3550 ₴»: the admin may look a variant up by what one unit
+// costs, in whole hryvnias, retail or drop. Any other text is a name or a SKU.
+export function priceQueryCents(search: string): number | null {
+  const digits = PRICE_QUERY.exec(search.trim())?.[1]?.replace(/\s/g, '')
+  if (!digits) return null
+
+  const hryvnias = Number(digits)
+  return hryvnias > 0 && hryvnias <= PRICE_QUERY_MAX_HRYVNIAS
+    ? hryvnias * KOPIYKAS_PER_HRYVNIA
+    : null
+}
 
 export const OrderEditBlock = {
   // Shipped, delivered, cancelled or refunded: the order is past its contents.

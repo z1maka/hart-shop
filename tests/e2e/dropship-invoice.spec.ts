@@ -56,11 +56,11 @@ test('a partner order is priced at the drop price, invoiced and counted so', asy
 
   await page.getByLabel('Номер у партнёра').fill('31805')
   await page.getByLabel('Поиск товара').fill(DROP_SKU)
-  await page.getByRole('button', { name: 'Найти' }).click()
-  const found = page.getByRole('listitem').filter({ hasText: DROP_SKU }).first()
+  const found = page.getByRole('listbox').getByRole('option').filter({ hasText: DROP_SKU }).first()
   const facts = await found.innerText()
   const dropCents = kopiykas(/дроп ([\d\s ]+₴)/.exec(facts)?.[1] ?? '')
-  await found.getByRole('button', { name: 'Добавить' }).click()
+  await found.click()
+  await expect(page.getByRole('listbox')).toBeHidden()
   await page.getByRole('button', { name: 'Больше' }).click()
 
   const line = page.getByRole('listitem').filter({ hasText: 'цех' }).first()

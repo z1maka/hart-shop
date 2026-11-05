@@ -5,6 +5,7 @@ import {
   linesSubtotalCents,
   OrderEditBlock,
   orderEditBlockOf,
+  priceQueryCents,
   repricedLines,
   stockChanges,
   type EditLine,
@@ -203,5 +204,21 @@ describe('the lines of a partner order', () => {
     const cover = line({ variantId: 'cover-olive', quantity: 2, unitPriceCents: 300_000 })
 
     expect(repriced([cover], [{ ...cover, quantity: 0 }], dropPrice)).toEqual([])
+  })
+})
+
+describe('priceQueryCents', () => {
+  it('reads whole hryvnias typed bare, grouped or with the sign', () => {
+    expect(priceQueryCents('3550')).toBe(355_000)
+    expect(priceQueryCents(' 3 550 ')).toBe(355_000)
+    expect(priceQueryCents('3\u202f550 ₴')).toBe(355_000)
+    expect(priceQueryCents('870 грн')).toBe(87_000)
+  })
+
+  it('leaves names, SKUs and nonsense to the text search', () => {
+    expect(priceQueryCents('пончо')).toBeNull()
+    expect(priceQueryCents('3600-2-MULTICAM')).toBeNull()
+    expect(priceQueryCents('0')).toBeNull()
+    expect(priceQueryCents('99999999')).toBeNull()
   })
 })
