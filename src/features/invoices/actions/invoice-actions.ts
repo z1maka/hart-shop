@@ -23,7 +23,10 @@ const IssueSchema = z.object({
   taxId: z
     .string()
     .trim()
-    .refine((value) => value === '' || isValidTaxId(value))
+    .refine(
+      (value) => value === '' || isValidTaxId(value),
+      'нужен ЄДРПОУ из 8 цифр или РНОКПП из 10 с верной контрольной цифрой',
+    )
     .transform((value) => value || null),
   address: optionalText(300),
   phone: optionalText(32),

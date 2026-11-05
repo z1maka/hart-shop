@@ -14,7 +14,10 @@ const optionalText = (max: number) =>
 // check digit for a ФОП.
 export const ResellerDraftSchema = z.object({
   name: z.string().trim().min(3).max(200),
-  taxId: z.string().trim().refine(isValidTaxId),
+  taxId: z
+    .string()
+    .trim()
+    .refine(isValidTaxId, 'нужен ЄДРПОУ из 8 цифр или РНОКПП из 10 с верной контрольной цифрой'),
   contactName: optionalText(120),
   phone: optionalText(32),
   email: z.union([z.literal(''), z.email()]).transform((value) => value || null),
