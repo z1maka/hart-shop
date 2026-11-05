@@ -11,7 +11,11 @@ import {
   orderShippedNotice,
   type ShippedNoticeOutcome,
 } from '@/features/orders/services/order-shipped-notice'
-import { canTransition, recordsPayment } from '@/features/orders/model/status-flow'
+import {
+  canTransition,
+  recordsPayment,
+  voidsLiveInvoice,
+} from '@/features/orders/model/status-flow'
 import { orderRepository } from '@/features/orders/repository/order-repository'
 import {
   OrderNotFoundError,
@@ -65,7 +69,11 @@ export const orderAdminService = {
     const shouldStampPayment =
       recordsPayment(order.paymentRoute as PaymentRoute, next) && !order.paidAt
     const paidAt = shouldStampPayment ? new Date() : undefined
-    await orderRepository.updateStatus(orderId, next, paidAt)
+    if (voidsLiveInvoice(next, order.paidAt)) {
+      await orderRepository.cancelVoidingInvoice(orderId)
+    } else {
+      await orderRepository.updateStatus(orderId, next, paidAt)
+    }
     logger.info('Order status changed by admin', { orderId, from: order.status, to: next })
 
     if (next !== OrderStatus.Shipped) return { mailSent: null, smsSent: null }

@@ -9,6 +9,7 @@ import {
   invoiceLineName,
   invoiceOrderReference,
   invoiceTotalCents,
+  isCalendarDay,
   paymentPurposeText,
   signatoryOf,
 } from '@/features/invoices/model/invoice'
@@ -66,6 +67,14 @@ describe('payment purpose', () => {
 
   it('writes the date with dots', () => {
     expect(dottedDate('2026-01-09')).toBe('09.01.2026')
+  })
+
+  it('takes only a day the calendar has', () => {
+    expect(isCalendarDay('2026-11-12')).toBe(true)
+    expect(isCalendarDay('2028-02-29')).toBe(true)
+    expect(isCalendarDay('2026-02-29')).toBe(false)
+    expect(isCalendarDay('2026-02-30')).toBe(false)
+    expect(isCalendarDay('2026-13-01')).toBe(false)
   })
 })
 

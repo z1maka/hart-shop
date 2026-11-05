@@ -31,6 +31,13 @@ export function canTransition(from: OrderStatus, to: OrderStatus): boolean {
   return ALLOWED[from].includes(to)
 }
 
+// A cancelled order asks for no money: the invoice it was sent goes void with
+// it. Once the transfer has come in, the invoice is the record of that
+// payment and stays as it is.
+export function voidsLiveInvoice(next: OrderStatus, paidAt: Date | null): boolean {
+  return next === OrderStatus.Cancelled && paidAt === null
+}
+
 // COD money changes hands at the door: reaching Delivered is the payment.
 // Every other route records payment only on an explicit move to Paid.
 export function recordsPayment(route: PaymentRoute, next: OrderStatus): boolean {

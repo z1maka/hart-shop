@@ -20,6 +20,7 @@ import {
   notExists,
 } from 'drizzle-orm'
 import {
+  invoices,
   orderItems,
   orderNotifications,
   orders,
@@ -28,6 +29,7 @@ import {
   resellers,
 } from '@/db/schema'
 import {
+  InvoiceStatus,
   type Locale,
   type NotificationKind,
   OrderStatus,
@@ -473,6 +475,20 @@ export const orderRepository = {
       .update(orders)
       .set({ status, updatedAt: new Date(), ...(paidAt ? { paidAt } : {}) })
       .where(eq(orders.id, orderId))
+  },
+
+  // Together, so a cancelled order never keeps an invoice that reads as live.
+  async cancelVoidingInvoice(orderId: string): Promise<void> {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(orders)
+        .set({ status: OrderStatus.Cancelled, updatedAt: new Date() })
+        .where(eq(orders.id, orderId))
+      await tx
+        .update(invoices)
+        .set({ status: InvoiceStatus.Void })
+        .where(and(eq(invoices.orderId, orderId), eq(invoices.status, InvoiceStatus.Issued)))
+    })
   },
 
   async setTracking(

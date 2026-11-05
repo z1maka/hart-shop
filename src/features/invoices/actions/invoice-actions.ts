@@ -3,8 +3,10 @@
 import { z } from 'zod'
 import { readAdminSession } from '@/features/admin'
 import { validationFailed } from '@/features/admin/model/validation-hints'
+import { isCalendarDay } from '@/features/invoices/model/invoice'
 import { invoiceService } from '@/features/invoices/services/invoice-service'
 import { actionError, actionOk, toActionError, type ActionResult } from '@/lib/action-result'
+import { formatDateIsoKyiv } from '@/lib/datetime'
 import { isValidTaxId } from '@/lib/tax-id'
 
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
@@ -30,7 +32,12 @@ const IssueSchema = z.object({
     .transform((value) => value || null),
   address: optionalText(300),
   phone: optionalText(32),
-  validUntil: z.string().regex(ISO_DATE),
+  // ISO days compare as text; an invoice valid until yesterday is no invoice.
+  validUntil: z
+    .string()
+    .regex(ISO_DATE)
+    .refine(isCalendarDay, 'такой даты нет')
+    .refine((day) => day >= formatDateIsoKyiv(new Date()), 'не раньше сегодняшнего дня'),
 })
 
 const VoidSchema = z.object({ invoiceId: z.uuid() })

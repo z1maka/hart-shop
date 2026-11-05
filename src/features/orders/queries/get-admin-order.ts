@@ -312,9 +312,6 @@ async function waybillViewOf(
   }
 }
 
-// The account the buyer was told to pay to. An order placed before accounts
-// were kept on it shows the active one — the same account the buyer's page
-// falls back to — marked as such.
 async function partnerOf(order: OrderRow): Promise<AdminPartnerView | null> {
   if (!order.resellerId) return null
 
@@ -324,6 +321,9 @@ async function partnerOf(order: OrderRow): Promise<AdminPartnerView | null> {
     : null
 }
 
+// The account the buyer was told to pay to. An order placed before accounts
+// were kept on it shows the active one — the same account the buyer's page
+// falls back to — marked as such.
 async function transferAccountOf(order: OrderRow): Promise<TransferAccountView | null> {
   if (order.paymentRoute !== PaymentRoute.BankTransfer) return null
 

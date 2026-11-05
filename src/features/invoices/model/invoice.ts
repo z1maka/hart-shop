@@ -61,6 +61,15 @@ export function paymentPurposeText(input: {
     : `Оплата згідно з ${invoiceRef}, без ПДВ`
 }
 
+const ISO_DATE_LENGTH = 10
+
+// A day the calendar has: «2026-02-30» is not one, though Date.parse rolls it
+// over into March.
+export function isCalendarDay(isoDay: string): boolean {
+  const time = Date.parse(`${isoDay}T00:00:00Z`)
+  return Number.isFinite(time) && new Date(time).toISOString().slice(0, ISO_DATE_LENGTH) === isoDay
+}
+
 // «2026-11-05» as the paper writes it: «05.11.2026».
 export function dottedDate(isoDay: string): string {
   const [year, month, day] = isoDay.split('-')
@@ -70,7 +79,6 @@ export function dottedDate(isoDay: string): string {
 const SATURDAY = 6
 const SUNDAY = 0
 const MS_PER_DAY = 86_400_000
-const ISO_DATE_LENGTH = 10
 // What the shop gives a buyer to pay by default (owner, 05.11.2026).
 export const DEFAULT_VALIDITY_BANKING_DAYS = 5
 

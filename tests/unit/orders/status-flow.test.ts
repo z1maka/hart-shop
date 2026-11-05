@@ -4,6 +4,7 @@ import {
   allowedNextStatuses,
   canTransition,
   recordsPayment,
+  voidsLiveInvoice,
 } from '@/features/orders/model/status-flow'
 
 describe('order status flow', () => {
@@ -47,5 +48,11 @@ describe('order status flow', () => {
     expect(recordsPayment(PaymentRoute.BankTransfer, OrderStatus.Delivered)).toBe(false)
     expect(recordsPayment(PaymentRoute.CashOnDelivery, OrderStatus.Delivered)).toBe(true)
     expect(recordsPayment(PaymentRoute.CashOnDelivery, OrderStatus.Shipped)).toBe(false)
+  })
+
+  it('voids the invoice of an order cancelled before it was paid', () => {
+    expect(voidsLiveInvoice(OrderStatus.Cancelled, null)).toBe(true)
+    expect(voidsLiveInvoice(OrderStatus.Cancelled, new Date('2026-11-05T10:00:00Z'))).toBe(false)
+    expect(voidsLiveInvoice(OrderStatus.Refunded, null)).toBe(false)
   })
 })

@@ -728,7 +728,9 @@ function pointInput(point: PointChoice | null) {
   }
 }
 
-function wholeHryvnias(typed: string): number | null {
+// A cleared field reads as 0, not as the card's price: the input stays open
+// for the admin to type the new figure.
+function wholeHryvnias(typed: string): number {
   const digits = typed.replace(/\D/g, '')
   return digits === '' ? 0 : Number.parseInt(digits, 10)
 }

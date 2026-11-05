@@ -62,10 +62,14 @@ const PartnerOrderSchema = z
       .array(LineSchema)
       .min(1)
       .max(MAX_LINES)
-      .refine((lines) => new Set(lines.map((line) => line.variantId)).size === lines.length),
+      .refine(
+        (lines) => new Set(lines.map((line) => line.variantId)).size === lines.length,
+        'один товар добавлен дважды',
+      ),
   })
   .refine((value) => (value.pickupPoint === null) !== (value.courier === null), {
     path: ['pickupPoint'],
+    message: 'выберите отделение или укажите адрес курьера',
   })
 
 export async function createPartnerOrderAction(input: unknown): Promise<ActionResult<string>> {

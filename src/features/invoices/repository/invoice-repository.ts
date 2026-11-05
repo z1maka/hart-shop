@@ -62,10 +62,13 @@ export type InvoiceIssue = {
 export const invoiceRepository = {
   // Under the order's row lock, the one a line edit takes: an edit waits for
   // the invoice or the invoice for the edit, so the paper never copies lines
-  // another tab is changing. Null when the order already has a live invoice.
+  // another tab is changing. Null when the order already has a live invoice;
+  // that is known before a number is taken, so a second click burns none.
   async issue(issue: InvoiceIssue): Promise<InvoiceRow | null> {
     return db.transaction(async (tx) => {
       await lockIssuableOrder(tx, issue.orderId)
+      if (await hasLiveInvoice(tx, issue.orderId)) return null
+
       const items = await tx
         .select({
           sku: orderItems.sku,
@@ -140,6 +143,15 @@ async function lockIssuableOrder(tx: Transaction, orderId: string): Promise<void
 
   const block = invoiceBlockOf(order)
   if (block) throw new InvoiceNotIssuableError(orderId, block)
+}
+
+async function hasLiveInvoice(tx: Transaction, orderId: string): Promise<boolean> {
+  const [live] = await tx
+    .select({ id: invoices.id })
+    .from(invoices)
+    .where(and(eq(invoices.orderId, orderId), eq(invoices.status, InvoiceStatus.Issued)))
+    .limit(1)
+  return live !== undefined
 }
 
 // A number taken and not used is burnt, never reissued: the sequence does not

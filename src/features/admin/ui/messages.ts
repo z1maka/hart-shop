@@ -136,7 +136,7 @@ const FIELD_LABELS: Record<string, string> = {
   quantity: 'Количество',
   recipient: 'Получатель',
   iban: 'IBAN — 29 символов, начинается с UA',
-  taxId: 'ИНН / ЕДРПОУ',
+  taxId: 'ИНН / ЕДРПОУ — 8 или 10 цифр',
   bankName: 'Банк',
   bankEdrpou: 'ЕДРПОУ банка — 8 цифр',
 }
