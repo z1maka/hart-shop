@@ -36,14 +36,33 @@ describe('which orders go to Google Ads as sales', () => {
 })
 
 describe('the upload file', () => {
+  const HEADER =
+    'Google Click ID,GBRAID,WBRAID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency,Order ID,Ad User Data,Ad Personalization,Event Source'
+
   it('names the click, the action, the UTC time, the value and the order', () => {
     expect(toGoogleAdsConversionsCsv([SALE], 'Server purchase')).toBe(
       [
-        'Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency,Order ID,Ad User Data,Ad Personalization,Event Source',
-        'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk,Server purchase,2026-10-27 13:11:22+00:00,14500.00,UAH,HART-2026-000023,Granted,Granted,WEB',
+        HEADER,
+        'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk,,,Server purchase,2026-10-27 13:11:22+00:00,14500.00,UAH,HART-2026-000023,Granted,Granted,WEB',
         '',
       ].join('\n'),
     )
+  })
+
+  it('puts an iPhone click in the column of its kind', () => {
+    const gbraid = { ...SALE, googleClickId: 'gbraid:0AAAAADoTCVTqK7xVq3bU2kQ_cUTf2zX1h' }
+    const wbraid = { ...SALE, googleClickId: 'wbraid:CjkKCQiAmfq6BhCaARIoAKaIxBmIpd9-6zDyRNSKcDnX' }
+
+    const [, gbraidRow, wbraidRow] = toGoogleAdsConversionsCsv([gbraid, wbraid], 'Server purchase').split('\n')
+
+    expect(gbraidRow).toMatch(/^,0AAAAADoTCVTqK7xVq3bU2kQ_cUTf2zX1h,,Server purchase,/)
+    expect(wbraidRow).toMatch(/^,,CjkKCQiAmfq6BhCaARIoAKaIxBmIpd9-6zDyRNSKcDnX,Server purchase,/)
+  })
+
+  it('leaves out an order whose stored click is not one', () => {
+    const broken = { ...SALE, googleClickId: 'gclid:not,a,click' }
+
+    expect(toGoogleAdsConversionsCsv([broken], 'Server purchase')).toBe(`${HEADER}\n`)
   })
 
   it('starts with the header, which Data Manager maps the columns by', () => {

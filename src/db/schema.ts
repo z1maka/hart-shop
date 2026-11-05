@@ -367,9 +367,10 @@ export const orders = pgTable(
     // the buyer refused tracking.
     trafficSource: text('traffic_source').$type<TrafficSource>(),
     trafficDetail: text('traffic_detail'),
-    // The Google Ads click (gclid) the buyer arrived on: the shop reports the
-    // sale to Google Ads by it. Null without an ad click or with tracking
-    // refused.
+    // The Google Ads click the buyer arrived on: a bare gclid, or a gbraid or
+    // wbraid with its kind in front («gbraid:…», model/google-click.ts); the
+    // shop reports the sale to Google Ads by it. Null without an ad click or
+    // with tracking refused.
     googleClickId: text('google_click_id'),
     createdAt,
     updatedAt,

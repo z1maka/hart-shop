@@ -1,4 +1,5 @@
 import { TrafficSource } from '@/db/enums'
+import { GoogleClickKind } from '@/features/analytics/model/google-click'
 
 // The channel of one visit and what tells it apart inside the channel: the
 // campaign of an ad, the tag of a link.
@@ -18,7 +19,7 @@ export const TRAFFIC_COOKIE = 'hart_source'
 export const TRAFFIC_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
 
 const MAX_DETAIL_LENGTH = 120
-const GOOGLE_CLICK_PARAMS = ['gclid', 'gbraid', 'wbraid']
+const GOOGLE_CLICK_PARAMS: readonly string[] = Object.values(GoogleClickKind)
 // Google adds gad_source to free Shopping listings too (value 5); only 1 is
 // an ad.
 const GOOGLE_ADS_GAD_SOURCE = '1'

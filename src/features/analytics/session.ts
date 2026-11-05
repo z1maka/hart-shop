@@ -1,7 +1,11 @@
 import { cookies } from 'next/headers'
 import { CONSENT_POLICY } from '@/config/consent'
 import { CONSENT_COOKIE, parseConsent, shouldLoadTags } from '@/features/analytics/model/consent'
-import { GOOGLE_CLICK_COOKIE, parseGoogleClickId } from '@/features/analytics/model/google-click'
+import {
+  GOOGLE_CLICK_COOKIE,
+  parseGoogleClick,
+  serializeGoogleClick,
+} from '@/features/analytics/model/google-click'
 import {
   TRAFFIC_COOKIE,
   parseTouch,
@@ -18,13 +22,14 @@ export async function readTrafficTouch(): Promise<TrafficTouch | null> {
   return parseTouch(store.get(TRAFFIC_COOKIE)?.value)
 }
 
-// The Google Ads click behind the order being placed, under the same consent
-// rule as the channel.
+// The Google Ads click behind the order being placed, as the order keeps it,
+// under the same consent rule as the channel.
 export async function readGoogleClickId(): Promise<string | null> {
   const store = await cookies()
   if (!isTrackingAllowed(store.get(CONSENT_COOKIE)?.value)) return null
 
-  return parseGoogleClickId(store.get(GOOGLE_CLICK_COOKIE)?.value)
+  const click = parseGoogleClick(store.get(GOOGLE_CLICK_COOKIE)?.value)
+  return click ? serializeGoogleClick(click) : null
 }
 
 function isTrackingAllowed(consentCookie: string | undefined): boolean {

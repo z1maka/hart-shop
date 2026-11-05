@@ -1,6 +1,12 @@
 import { OrderStatus, PaymentRoute } from '@/db/enums'
+import {
+  GoogleClickKind,
+  parseGoogleClick,
+  type GoogleClick,
+} from '@/features/analytics/model/google-click'
 
-// One sale as Google Ads imports it: the click it came from, when, how much.
+// One sale as Google Ads imports it: the click it came from (as the order
+// keeps it), when, how much.
 export type GoogleAdsSale = {
   readonly orderNumber: string
   readonly googleClickId: string
@@ -23,8 +29,15 @@ const KOPIYKAS_PER_HRYVNIA = 100
 const CONSENT_GRANTED = 'Granted'
 // Every sale is placed on the site, whichever ad brought the buyer.
 const EVENT_SOURCE_WEB = 'WEB'
+// Each kind of click has its own column, which Data Manager maps to its field;
+// a row fills the one its click is.
+const CLICK_COLUMNS: readonly { readonly kind: GoogleClickKind; readonly header: string }[] = [
+  { kind: GoogleClickKind.Gclid, header: 'Google Click ID' },
+  { kind: GoogleClickKind.Gbraid, header: 'GBRAID' },
+  { kind: GoogleClickKind.Wbraid, header: 'WBRAID' },
+]
 const HEADER = [
-  'Google Click ID',
+  ...CLICK_COLUMNS.map((column) => column.header),
   'Conversion Name',
   'Conversion Time',
   'Conversion Value',
@@ -51,20 +64,26 @@ export function toGoogleAdsConversionsCsv(
   sales: readonly GoogleAdsSale[],
   conversionName: string,
 ): string {
-  const rows = sales.map((sale) =>
-    [
-      sale.googleClickId,
-      conversionName,
-      formatConversionTime(sale.createdAt),
-      (sale.totalCents / KOPIYKAS_PER_HRYVNIA).toFixed(2),
-      sale.currency,
-      sale.orderNumber,
-      CONSENT_GRANTED,
-      CONSENT_GRANTED,
-      EVENT_SOURCE_WEB,
-    ].join(','),
-  )
+  const rows = sales.flatMap((sale) => {
+    const click = parseGoogleClick(sale.googleClickId)
+    return click ? [toCsvRow(sale, click, conversionName)] : []
+  })
   return [HEADER.join(','), ...rows].join('\n') + '\n'
+}
+
+function toCsvRow(sale: GoogleAdsSale, click: GoogleClick, conversionName: string): string {
+  const clickCells = CLICK_COLUMNS.map((column) => (column.kind === click.kind ? click.id : ''))
+  return [
+    ...clickCells,
+    conversionName,
+    formatConversionTime(sale.createdAt),
+    (sale.totalCents / KOPIYKAS_PER_HRYVNIA).toFixed(2),
+    sale.currency,
+    sale.orderNumber,
+    CONSENT_GRANTED,
+    CONSENT_GRANTED,
+    EVENT_SOURCE_WEB,
+  ].join(',')
 }
 
 // «yyyy-MM-dd HH:mm:ss+00:00», one of the formats Google Ads accepts with a zone.

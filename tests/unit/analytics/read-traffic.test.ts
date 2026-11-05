@@ -45,6 +45,12 @@ describe('readGoogleClickId at checkout', () => {
     await expect(readGoogleClickId()).resolves.toBe(GCLID)
   })
 
+  it('hands an iPhone click to the order with its kind', async () => {
+    jar.set('hart_gclid', 'gbraid:0AAAAADoTCVTqK7xVq3bU2kQ_cUTf2zX1h')
+
+    await expect(readGoogleClickId()).resolves.toBe('gbraid:0AAAAADoTCVTqK7xVq3bU2kQ_cUTf2zX1h')
+  })
+
   it('drops it once the shopper has refused tracking', async () => {
     jar.set('hart_gclid', GCLID)
     jar.set('hart_consent', 'denied')

@@ -6,7 +6,8 @@ import { shouldLoadTags } from '@/features/analytics/model/consent'
 import {
   GOOGLE_CLICK_COOKIE,
   GOOGLE_CLICK_MAX_AGE_SECONDS,
-  googleClickIdOf,
+  googleClickOf,
+  serializeGoogleClick,
 } from '@/features/analytics/model/google-click'
 import {
   TRAFFIC_COOKIE,
@@ -51,8 +52,8 @@ function recordVisit(visit: Visit): void {
 // The latest ad click wins and outlives later visits from elsewhere, as
 // Google's own tag keeps it: Google Ads, not the shop, decides the credit.
 function recordGoogleClick(visit: Visit): void {
-  const clickId = googleClickIdOf(visit.url)
-  if (clickId) writeCookie(GOOGLE_CLICK_COOKIE, clickId, GOOGLE_CLICK_MAX_AGE_SECONDS)
+  const click = googleClickOf(visit.url)
+  if (click) writeCookie(GOOGLE_CLICK_COOKIE, serializeGoogleClick(click), GOOGLE_CLICK_MAX_AGE_SECONDS)
 }
 
 function writeCookie(name: string, value: string, maxAgeSeconds: number): void {
