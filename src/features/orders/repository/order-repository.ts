@@ -491,6 +491,8 @@ export const orderRepository = {
     })
   },
 
+  // With the status the number brings, in one statement: no state exists
+  // where the number is saved but the order is not packed.
   async setTracking(
     orderId: string,
     tracking: {
@@ -498,6 +500,7 @@ export const orderRepository = {
       readonly trackingNumber: string | null
       readonly trackingUrl: string | null
     },
+    status: OrderStatus | null,
   ): Promise<void> {
     // Saving the same number again keeps what the tracking saw — including
     // a refusal already reported.
@@ -506,6 +509,7 @@ export const orderRepository = {
       .update(orders)
       .set({
         ...tracking,
+        ...(status ? { status } : {}),
         parcelStage: sql`case when ${isSameNumber} then ${orders.parcelStage} end`,
         parcelStatus: sql`case when ${isSameNumber} then ${orders.parcelStatus} end`,
         parcelUpdatedAt: sql`case when ${isSameNumber} then ${orders.parcelUpdatedAt} end`,
@@ -539,6 +543,9 @@ export const orderRepository = {
         and(
           eq(orders.id, orderId),
           isNull(orders.carrierDocumentRef),
+          // A number typed in meanwhile is the partner's parcel or one from
+          // the cabinet: the new document must not take its place.
+          isNull(orders.trackingNumber),
           inArray(orders.status, [...openStatuses]),
         ),
       )

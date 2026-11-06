@@ -3,6 +3,7 @@ import { OrderStatus, PaymentRoute } from '@/db/enums'
 import {
   allowedNextStatuses,
   canTransition,
+  packsWithTrackingNumber,
   recordsPayment,
   voidsLiveInvoice,
 } from '@/features/orders/model/status-flow'
@@ -54,5 +55,42 @@ describe('order status flow', () => {
     expect(voidsLiveInvoice(OrderStatus.Cancelled, null)).toBe(true)
     expect(voidsLiveInvoice(OrderStatus.Cancelled, new Date('2026-11-05T10:00:00Z'))).toBe(false)
     expect(voidsLiveInvoice(OrderStatus.Refunded, null)).toBe(false)
+  })
+})
+
+describe('packsWithTrackingNumber', () => {
+  const NUMBER = '20451580187212'
+  const paidTransfer = { status: OrderStatus.Paid, paymentRoute: PaymentRoute.BankTransfer }
+
+  it('packs an order due to ship the moment its waybill number is saved', () => {
+    expect(packsWithTrackingNumber(paidTransfer, NUMBER)).toBe(true)
+    expect(
+      packsWithTrackingNumber(
+        { status: OrderStatus.Pending, paymentRoute: PaymentRoute.CashOnDelivery },
+        NUMBER,
+      ),
+    ).toBe(true)
+  })
+
+  it('keeps an unpaid transfer order waiting for its money', () => {
+    expect(packsWithTrackingNumber({ ...paidTransfer, status: OrderStatus.Pending }, NUMBER)).toBe(
+      false,
+    )
+  })
+
+  it('leaves an order already packed, sent or closed where it is', () => {
+    expect(packsWithTrackingNumber({ ...paidTransfer, status: OrderStatus.Packed }, NUMBER)).toBe(
+      false,
+    )
+    expect(packsWithTrackingNumber({ ...paidTransfer, status: OrderStatus.Shipped }, NUMBER)).toBe(
+      false,
+    )
+    expect(
+      packsWithTrackingNumber({ ...paidTransfer, status: OrderStatus.Cancelled }, NUMBER),
+    ).toBe(false)
+  })
+
+  it('does not pack on a number wiped from the order', () => {
+    expect(packsWithTrackingNumber(paidTransfer, null)).toBe(false)
   })
 })

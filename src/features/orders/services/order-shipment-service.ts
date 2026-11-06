@@ -5,6 +5,7 @@ import {
   buildWaybillRequest,
   canIssueWaybill,
   codCents,
+  hasWaybillNumber,
   parcelWeightGrams,
   prepaymentProblem,
   suggestedCargoDescription,
@@ -268,7 +269,7 @@ async function findOrder(orderId: string): Promise<OrderRow> {
 // or the order was sent or cancelled while this click was on its way.
 async function refusalOf(orderId: string): Promise<Error> {
   const current = await findOrder(orderId)
-  if (current.carrierDocumentRef) return new WaybillAlreadyIssuedError(orderId)
+  if (hasWaybillNumber(current)) return new WaybillAlreadyIssuedError(orderId)
   return new WaybillOrderClosedError(orderId, current.status)
 }
 
@@ -316,7 +317,7 @@ type Issue = {
 }
 
 async function issue(order: OrderRow, details: Issue): Promise<IssuedWaybill> {
-  if (order.carrierDocumentRef) throw new WaybillAlreadyIssuedError(order.id)
+  if (hasWaybillNumber(order)) throw new WaybillAlreadyIssuedError(order.id)
 
   const carrier = order.carrier ?? Carrier.NovaPost
   // A cabinet chosen for this order, or the default one; after this the

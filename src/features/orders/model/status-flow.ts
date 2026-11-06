@@ -31,6 +31,18 @@ export function canTransition(from: OrderStatus, to: OrderStatus): boolean {
   return ALLOWED[from].includes(to)
 }
 
+// A waybill number on an order due to ship means the box is closed, as a
+// waybill written here does: the order is packed, and the hourly parcel
+// check takes it on to Shipped and Delivered. An unpaid card or transfer
+// order keeps waiting for its money — packing it would skip the payment.
+export function packsWithTrackingNumber(
+  order: { readonly status: OrderStatus; readonly paymentRoute: string },
+  trackingNumber: string | null,
+): boolean {
+  if (trackingNumber === null || !canTransition(order.status, OrderStatus.Packed)) return false
+  return order.status !== OrderStatus.Pending || order.paymentRoute === PaymentRoute.CashOnDelivery
+}
+
 // A cancelled order asks for no money: the invoice it was sent goes void with
 // it. Once the transfer has come in, the invoice is the record of that
 // payment and stays as it is.

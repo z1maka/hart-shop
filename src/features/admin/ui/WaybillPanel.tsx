@@ -74,6 +74,7 @@ function WaybillBody({ orderId, waybill, trackingNumber, trackingUrl }: WaybillP
       />
     )
   }
+  if (trackingNumber) return <TypedNumber number={trackingNumber} trackingUrl={trackingUrl} />
   if (waybill.blocker) {
     return (
       <div className="grid gap-3">
@@ -93,6 +94,34 @@ function WaybillBody({ orderId, waybill, trackingNumber, trackingUrl }: WaybillP
   }
   if (waybill.isCourier) return <CourierWaybillForm orderId={orderId} waybill={waybill} />
   return <IssueForm orderId={orderId} waybill={waybill} />
+}
+
+// The partner's number or one from the cabinet: a waybill from here would
+// replace it, so the form gives way to the number.
+function TypedNumber({
+  number,
+  trackingUrl,
+}: {
+  readonly number: string
+  readonly trackingUrl: string | null
+}) {
+  return (
+    <div className="grid gap-3">
+      <p className="text-[12.5px] leading-relaxed text-muted">
+        ТТН <strong className="text-ink">{number}</strong> внесена вручную — новая накладная не
+        нужна. Чтобы создать её здесь, сначала сотрите номер в карточке ТТН.
+      </p>
+      {trackingUrl ? (
+        <div>
+          <Button variant="secondary" asChild>
+            <a href={trackingUrl} target="_blank" rel="noreferrer">
+              Отслеживание
+            </a>
+          </Button>
+        </div>
+      ) : null}
+    </div>
+  )
 }
 
 function IssuedWaybill({

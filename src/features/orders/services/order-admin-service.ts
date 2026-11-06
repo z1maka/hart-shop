@@ -13,6 +13,7 @@ import {
 } from '@/features/orders/services/order-shipped-notice'
 import {
   canTransition,
+  packsWithTrackingNumber,
   recordsPayment,
   voidsLiveInvoice,
 } from '@/features/orders/model/status-flow'
@@ -29,6 +30,11 @@ import { logger } from '@/lib/logger'
 
 // Both null when no message applies to the transition.
 export type StatusChangeOutcome = ShippedNoticeOutcome
+
+export type TrackingOutcome = {
+  // The number moved the order to Packed; the parcel check moves it on.
+  readonly isPacked: boolean
+}
 
 // A partner's order as the admin fills it in: who buys, who receives and
 // where, and the lines.
@@ -136,15 +142,18 @@ export const orderAdminService = {
       readonly trackingNumber: string | null
       readonly trackingUrl: string | null
     },
-  ): Promise<void> {
+  ): Promise<TrackingOutcome> {
     const order = await orderRepository.findById(orderId)
     if (!order) throw new OrderNotFoundError(orderId)
     // The number of a waybill issued here is its label and its cancellation
     // key; typing over it would orphan the document in the cabinet.
     if (order.carrierDocumentRef) throw new TrackingFromWaybillError(orderId)
 
-    await orderRepository.setTracking(orderId, withTrackingUrl(withCompactNumber(tracking)))
-    logger.info('Order tracking saved', { orderId, carrier: tracking.carrier })
+    const saved = withTrackingUrl(withCompactNumber(tracking))
+    const isPacked = packsWithTrackingNumber(order, saved.trackingNumber)
+    await orderRepository.setTracking(orderId, saved, isPacked ? OrderStatus.Packed : null)
+    logger.info('Order tracking saved', { orderId, carrier: tracking.carrier, isPacked })
+    return { isPacked }
   },
 }
 

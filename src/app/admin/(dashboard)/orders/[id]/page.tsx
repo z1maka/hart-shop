@@ -15,6 +15,7 @@ import type {
 import { OrderActionsPanel } from '@/features/admin/ui/OrderActionsPanel'
 import { OrderLinesEditor } from '@/features/admin/ui/OrderLinesEditor'
 import { PhoneLink } from '@/features/admin/ui/order-cells'
+import { TrackingNumberPanel } from '@/features/admin/ui/TrackingNumberPanel'
 import { WaybillPanel } from '@/features/admin/ui/WaybillPanel'
 import { trafficLabel } from '@/features/admin/ui/traffic-labels'
 import {
@@ -48,6 +49,15 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
 
   if (!order) notFound()
   const invoices = await getOrderInvoices(order.id, new Date())
+  // A number that came with a waybill issued here is managed by that waybill.
+  const trackingPanel = order.waybill.documentRef ? null : (
+    <TrackingNumberPanel
+      orderId={order.id}
+      carrier={order.carrier}
+      trackingNumber={order.trackingNumber}
+      isPartnerOrder={order.partner !== null}
+    />
+  )
 
   return (
     <div>
@@ -192,6 +202,8 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
         </div>
 
         <aside className="grid min-w-[min(100%,300px)] flex-[1_1_320px] grid-cols-1 gap-4">
+          {/* A partner usually writes the waybill and sends its number. */}
+          {order.partner ? trackingPanel : null}
           <WaybillPanel
             // A new composition brings a new weight and cargo description.
             key={order.lines.map((line) => `${line.id}:${line.quantity}`).join(',')}
@@ -201,16 +213,12 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
             trackingUrl={order.trackingUrl}
           />
           <OrderActionsPanel
-            // Fresh fields after a waybill is issued or removed next to it.
-            key={order.waybill.documentRef ?? 'no-waybill'}
             orderId={order.id}
             status={order.status}
             allowedNextStatuses={order.allowedNextStatuses}
-            carrier={order.carrier}
-            trackingNumber={order.trackingNumber}
             paymentRoute={order.paymentRoute}
-            isTrackingFromWaybill={order.waybill.documentRef !== null}
           />
+          {order.partner ? null : trackingPanel}
           {invoices && invoices.block !== InvoiceBlock.NotTransfer ? (
             <InvoicePanel
               view={invoices}

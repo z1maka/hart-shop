@@ -20,7 +20,10 @@ import {
   type TrafficWeekView,
   type WaybillBatchOutcome,
 } from '@/features/orders'
-import type { StatusChangeOutcome } from '@/features/orders/services/order-admin-service'
+import type {
+  StatusChangeOutcome,
+  TrackingOutcome,
+} from '@/features/orders/services/order-admin-service'
 import {
   pickupDirectoryFor,
   type PickupPointsResult,
@@ -150,7 +153,9 @@ export async function updateOrderStatusAction(
   }
 }
 
-export async function saveOrderTrackingAction(input: unknown): Promise<ActionResult<null>> {
+export async function saveOrderTrackingAction(
+  input: unknown,
+): Promise<ActionResult<TrackingOutcome>> {
   const session = await readAdminSession()
   if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
 
@@ -158,12 +163,12 @@ export async function saveOrderTrackingAction(input: unknown): Promise<ActionRes
   if (!parsed.success) return actionError('VALIDATION_FAILED', 'trackingUrl')
 
   try {
-    await orderAdminService.saveTracking(parsed.data.orderId, {
+    const outcome = await orderAdminService.saveTracking(parsed.data.orderId, {
       carrier: parsed.data.carrier,
       trackingNumber: parsed.data.trackingNumber,
       trackingUrl: parsed.data.trackingUrl,
     })
-    return actionOk(null)
+    return actionOk(outcome)
   } catch (error) {
     return toActionError(error)
   }

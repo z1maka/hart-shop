@@ -7,6 +7,7 @@ import {
   canRemoveWaybill,
   codCents,
   doorAddressLines,
+  hasWaybillNumber,
   prepaymentProblem,
   PrepaymentProblem,
   isSettledByRecipient,
@@ -217,7 +218,11 @@ describe('parcel defaults', () => {
     // «Description is not valid» — the answer to a title carrying the
     // typographic quotes and dashes the WordPress import left behind.
     const fancy = [
-      { productTitle: 'Антидрон пончо Zero – CLASS “А” (UV+EM захист)', quantity: 1, weightGrams: 1 },
+      {
+        productTitle: 'Антидрон пончо Zero – CLASS “А” (UV+EM захист)',
+        quantity: 1,
+        weightGrams: 1,
+      },
     ]
     expect(suggestedCargoDescription(fancy)).toBe('Антидрон пончо Zero - CLASS А (UV+EM захист)')
   })
@@ -258,7 +263,7 @@ describe('settling the recipient after the call', () => {
 })
 
 describe('waybillReadiness', () => {
-  const readyOrder = { ...branchOrder, carrierDocumentRef: null }
+  const readyOrder = { ...branchOrder, carrierDocumentRef: null, trackingNumber: null }
 
   it('takes a branch order with a weighed parcel into the daily round', () => {
     expect(waybillReadiness(readyOrder, 1500)).toBe(WaybillReadiness.Ready)
@@ -274,6 +279,12 @@ describe('waybillReadiness', () => {
     )
     expect(waybillReadiness({ ...readyOrder, status: 'cancelled' }, 1500)).toBe(
       WaybillReadiness.Blocked,
+    )
+  })
+
+  it('counts a number typed by hand as the waybill, so the round cannot replace it', () => {
+    expect(waybillReadiness({ ...readyOrder, trackingNumber: '20451580187212' }, 1500)).toBe(
+      WaybillReadiness.Issued,
     )
   })
 
@@ -346,5 +357,13 @@ describe('prepaymentProblem', () => {
     expect(prepaymentProblem({ ...branchOrder, paymentRoute: 'card' }, 100_000)).toBe(
       PrepaymentProblem.NotCashOnDelivery,
     )
+  })
+})
+
+describe('hasWaybillNumber', () => {
+  it('sees a waybill written here and a number typed in by hand alike', () => {
+    expect(hasWaybillNumber({ carrierDocumentRef: 'ref', trackingNumber: '2045' })).toBe(true)
+    expect(hasWaybillNumber({ carrierDocumentRef: null, trackingNumber: '2045' })).toBe(true)
+    expect(hasWaybillNumber({ carrierDocumentRef: null, trackingNumber: null })).toBe(false)
   })
 })

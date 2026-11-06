@@ -136,11 +136,23 @@ export const WaybillReadiness = {
 
 export type WaybillReadiness = (typeof WaybillReadiness)[keyof typeof WaybillReadiness]
 
+type WaybillNumbers = {
+  readonly carrierDocumentRef: string | null
+  readonly trackingNumber: string | null
+}
+
+// A waybill written here, or a number typed in by hand: the partner's, or
+// one written in the carrier's cabinet. Either way the parcel has its
+// document, and a second one from here would replace that number.
+export function hasWaybillNumber(order: WaybillNumbers): boolean {
+  return Boolean(order.carrierDocumentRef || order.trackingNumber)
+}
+
 export function waybillReadiness(
-  order: ShippableOrder & { readonly carrierDocumentRef: string | null },
+  order: ShippableOrder & WaybillNumbers,
   parcelWeightGrams: number,
 ): WaybillReadiness {
-  if (order.carrierDocumentRef) return WaybillReadiness.Issued
+  if (hasWaybillNumber(order)) return WaybillReadiness.Issued
   if (isCourierOrder(order) || waybillBlocker(order) !== null) return WaybillReadiness.Blocked
   if (parcelWeightGrams <= 0) return WaybillReadiness.NoWeight
   return WaybillReadiness.Ready
