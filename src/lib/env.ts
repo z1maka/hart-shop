@@ -95,8 +95,8 @@ const envSchema = z.object({
   // 15.10.2026). Off, the Ads tag is configured on its own.
   NEXT_PUBLIC_GOOGLE_ADS_IN_GOOGLE_TAG: z.stringbool().default(false),
   NEXT_PUBLIC_CLARITY_PROJECT_ID: optionalString,
-  // The Merchant Center account: Google Customer Reviews' survey offer on the
-  // order page names it. Absent = no offer.
+  // The Merchant Center account: the purchase tag's cart data names it.
+  // Absent = the sale is reported without cart data.
   NEXT_PUBLIC_GOOGLE_MERCHANT_ID: z.coerce.number().int().positive().optional(),
   NEXT_PUBLIC_META_PIXEL_ID: optionalString,
   // The Conversions API copy of the pixel's events (/api/meta/events). Absent

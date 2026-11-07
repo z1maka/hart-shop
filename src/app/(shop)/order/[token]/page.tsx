@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/Skeleton'
 import { getTranslations } from 'next-intl/server'
-import { GoogleReviewsOptIn, TrackEventOnce, type AdsCart } from '@/features/analytics'
+import { TrackEventOnce, type AdsCart } from '@/features/analytics'
 import { ForgetJustPlaced, isJustPlaced } from '@/features/checkout'
 import {
   BankTransferDetails,
@@ -70,12 +70,6 @@ async function OrderDetail({
           />
           <ForgetJustPlaced />
         </>
-      ) : null}
-      {order.reviewSurvey && env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID ? (
-        <GoogleReviewsOptIn
-          merchantId={env.NEXT_PUBLIC_GOOGLE_MERCHANT_ID}
-          {...order.reviewSurvey}
-        />
       ) : null}
 
       {order.isParcelReturning ? (

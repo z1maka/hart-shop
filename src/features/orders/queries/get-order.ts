@@ -1,20 +1,17 @@
 import { CARRIER_NAMES } from '@/config/delivery'
 import { parseRequisitesSnapshot, paymentPurpose } from '@/config/requisites'
-import { REVIEW_SURVEY_AFTER_BUSINESS_DAYS } from '@/config/reviews'
 import { OrderStatus, PaymentRoute } from '@/db/enums'
 import { requisitesView, type BankRequisitesView } from '@/features/billing'
 import type { AdsCartLine } from '@/features/analytics'
 import { getMerchantOfferIdLookup } from '@/features/catalog'
 import { ParcelStage } from '@/features/shipping'
 import { toUkrainianMsisdn } from '@/features/orders/model/phone'
-import { reviewSurveyOf, type ReviewSurvey } from '@/features/orders/model/review-survey'
 import { buildOrderTimeline, type TimelineStep } from '@/features/orders/model/timeline'
 import {
   orderRepository,
   type OrderRow,
   type ShippingAddress,
 } from '@/features/orders/repository/order-repository'
-import { formatDateIsoKyiv } from '@/lib/datetime'
 import { logger } from '@/lib/logger'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
 import { publicUrl } from '@/lib/storage'
@@ -70,8 +67,6 @@ export type OrderView = {
   readonly transferRequisites: BankRequisitesView | null
   readonly timeline: readonly TimelineStep[]
   readonly lines: readonly OrderLineView[]
-  // Google's offer of a survey about the shop; null without an email.
-  readonly reviewSurvey: ReviewSurvey | null
 }
 
 export async function getOrderByToken(accessToken: string): Promise<OrderView | null> {
@@ -147,15 +142,6 @@ async function toOrderView(order: OrderRow): Promise<OrderView> {
       linePriceLabel: formatMoney(createMoney(item.unitPriceCents * item.quantity, Currency.Uah)),
       imageUrl: item.imageStorageKey ? publicUrl(item.imageStorageKey) : null,
     })),
-    reviewSurvey: reviewSurveyOf(
-      {
-        orderNumber: order.orderNumber,
-        email: order.email,
-        country: order.shippingAddress.country,
-        placedDay: formatDateIsoKyiv(order.createdAt),
-      },
-      REVIEW_SURVEY_AFTER_BUSINESS_DAYS,
-    ),
   }
 }
 
