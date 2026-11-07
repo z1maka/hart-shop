@@ -29,7 +29,9 @@ type ConsentCardProps = {
 
 // Owner's decision (27.10.2026): the closed banner is one short line and
 // «Прийняти» — the long text about analytics and ads put buyers off. What
-// the cookies do and the refusal open under «Детальніше».
+// the cookies do and the refusal open under «Детальніше». On a wide screen
+// it is a bar across the bottom (owner, 07.11.2026): a small card in the
+// corner went unnoticed until the order was placed.
 function ConsentCard({ onAccept, onReject }: ConsentCardProps) {
   const t = useTranslations('consent')
   const [isArmed, setIsArmed] = useState(false)
@@ -45,13 +47,13 @@ function ConsentCard({ onAccept, onReject }: ConsentCardProps) {
     <aside
       aria-label={t('title')}
       className={cn(
-        'fixed inset-x-2 bottom-2 z-50 rounded-card border border-on-dark/15 bg-ink p-2.5 text-on-dark shadow-float sm:inset-x-auto sm:right-5 sm:bottom-5 sm:w-[400px] sm:p-4',
+        'fixed inset-x-2 bottom-2 z-50 rounded-card border border-on-dark/15 bg-ink p-2.5 text-on-dark shadow-float sm:inset-x-0 sm:bottom-0 sm:rounded-none sm:border-x-0 sm:border-b-0 sm:px-7 sm:py-3.5',
         'transition-transform duration-300 starting:translate-y-[120%] motion-reduce:transition-none',
         !isArmed && 'pointer-events-none',
       )}
     >
       <div className="flex items-center gap-3">
-        <p className="min-w-0 flex-1 text-[13px] leading-snug">
+        <p className="min-w-0 flex-1 text-[13px] leading-snug sm:text-[14px]">
           {t('short')}{' '}
           <button
             type="button"
@@ -88,7 +90,7 @@ function ConsentDetails({ id, isExpanded, onReject }: ConsentDetailsProps) {
 
   return (
     <div id={id} hidden={!isExpanded} className="mt-3 border-t border-on-dark/15 pt-3">
-      <p className="mb-3 text-[12.5px] leading-relaxed text-on-dark/75">
+      <p className="mb-3 max-w-[80ch] text-[12.5px] leading-relaxed text-on-dark/75">
         {t('body')}{' '}
         <Link href="/privacy-policy/" className="text-on-dark underline underline-offset-4">
           {t('policy')}
@@ -97,7 +99,7 @@ function ConsentDetails({ id, isExpanded, onReject }: ConsentDetailsProps) {
       <button
         type="button"
         onClick={onReject}
-        className="min-h-9 w-full rounded-control border border-on-dark/35 px-3 text-[13px] font-semibold text-on-dark hover:border-on-dark/70"
+        className="min-h-9 w-full rounded-control border border-on-dark/35 px-3 text-[13px] font-semibold text-on-dark hover:border-on-dark/70 sm:w-auto sm:px-6"
       >
         {t('reject')}
       </button>
