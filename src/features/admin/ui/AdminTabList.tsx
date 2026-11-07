@@ -13,6 +13,7 @@ export const ADMIN_TABS = [
   { href: '/admin/reviews', label: 'Отзывы' },
   { href: '/admin/storefront', label: 'Витрина' },
   { href: '/admin/stats', label: 'Статистика' },
+  { href: '/admin/settlements', label: 'Расчёты' },
   { href: '/admin/settings', label: 'Настройки' },
 ] as const
 

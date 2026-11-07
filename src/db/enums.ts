@@ -181,3 +181,22 @@ export const InvoiceStatus = {
 } as const
 
 export type InvoiceStatus = (typeof InvoiceStatus)[keyof typeof InvoiceStatus]
+
+// A settlement with the workshop: made out from the collected parcels, then
+// closed when the workshop has paid the shop its share (owner, 07.11.2026).
+// Only a settlement still waiting for the money can be deleted.
+export const SettlementStatus = {
+  Created: 'created',
+  Paid: 'paid',
+} as const
+
+export type SettlementStatus = (typeof SettlementStatus)[keyof typeof SettlementStatus]
+
+// A collected parcel enters one settlement as a sale; if the buyer returns
+// it afterwards, a later settlement takes the share back as a return.
+export const SettlementLineKind = {
+  Sale: 'sale',
+  Return: 'return',
+} as const
+
+export type SettlementLineKind = (typeof SettlementLineKind)[keyof typeof SettlementLineKind]

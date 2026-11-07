@@ -9,3 +9,4 @@ export {
   type InvoiceDocumentView,
 } from '@/features/invoices/queries/get-invoice-document'
 export { InvoiceBlock } from '@/features/invoices/model/invoice'
+export { dottedDate, isCalendarDay } from '@/features/invoices/model/invoice'

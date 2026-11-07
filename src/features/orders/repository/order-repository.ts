@@ -473,7 +473,12 @@ export const orderRepository = {
   async updateStatus(orderId: string, status: OrderStatus, paidAt?: Date): Promise<void> {
     await db
       .update(orders)
-      .set({ status, updatedAt: new Date(), ...(paidAt ? { paidAt } : {}) })
+      .set({
+        status,
+        updatedAt: new Date(),
+        ...(paidAt ? { paidAt } : {}),
+        ...collectedAtOf(status),
+      })
       .where(eq(orders.id, orderId))
   },
 
@@ -882,6 +887,7 @@ export const orderRepository = {
         ...(record.parcelUpdatedAt ? { parcelUpdatedAt: record.parcelUpdatedAt } : {}),
         ...(record.status ? { status: record.status } : {}),
         ...(record.paidAt ? { paidAt: record.paidAt } : {}),
+        ...collectedAtOf(record.status),
         updatedAt: new Date(),
       })
       .where(
@@ -1053,4 +1059,11 @@ function shelfCondition(shelf: OrderShelf): SQL {
     case OrderShelf.Active:
       return sql`(${isOpen} and not (${isQuick}))`
   }
+}
+
+// The first move to Delivered is the moment the buyer collected the parcel;
+// the settlements with the workshop go by it, so a later write keeps it.
+function collectedAtOf(status: OrderStatus | null | undefined): { deliveredAt?: SQL } {
+  if (status !== OrderStatus.Delivered) return {}
+  return { deliveredAt: sql`coalesce(${orders.deliveredAt}, now())` }
 }

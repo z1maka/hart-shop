@@ -4,6 +4,7 @@ import {
   char,
   check,
   date,
+  foreignKey,
   index,
   integer,
   jsonb,
@@ -34,6 +35,8 @@ import {
   type NotificationStatus,
   SalesChannel,
   type InvoiceStatus,
+  type SettlementLineKind,
+  type SettlementStatus,
   type TrafficSource,
 } from '@/db/enums'
 import type { BankAccountDraft } from '@/config/requisites'
@@ -407,6 +410,9 @@ export const orders = pgTable(
     // archive. Delivered and cancelled orders are archived by their status.
     archivedAt: timestamp('archived_at', { withTimezone: true }),
     paidAt: timestamp('paid_at', { withTimezone: true }),
+    // When the buyer collected the parcel: the order first reached Delivered.
+    // The settlements with the workshop pick orders by this day.
+    deliveredAt: timestamp('delivered_at', { withTimezone: true }),
     // The channel the buyer came from (TrafficSource) and its campaign or
     // tag, for the shop's own count of what each channel sells; null when
     // the buyer refused tracking.
@@ -432,6 +438,9 @@ export const orders = pgTable(
       sql`(${table.channel} = 'dropship') = (${table.resellerId} is not null)`,
     ),
     index('orders_paid_at_idx').on(table.paidAt),
+    index('orders_delivered_at_idx')
+      .on(table.deliveredAt)
+      .where(sql`${table.status} = 'delivered'`),
     // The Google Ads upload reads only the last days' orders with a click.
     index('orders_google_click_created_at_idx')
       .on(table.createdAt)
@@ -765,5 +774,74 @@ export const invoices = pgTable(
       .on(table.orderId)
       .where(sql`${table.status} = 'issued'`),
     index('invoices_order_created_at_idx').on(table.orderId, table.createdAt),
+  ],
+)
+
+// A settlement with the workshop («расчёт с цехом»): the workshop takes every
+// payment, so it owes the shop the difference between the sale and its own
+// price on each collected parcel, less the carrier's cash-on-delivery fee
+// (owner, 07.11.2026). A snapshot: the fee rate and each line's sums are
+// copied when it is made, so a later edit of an order or of the rate leaves
+// it as agreed. Numbers run through all settlements and are never reused.
+export const workshopSettlements = pgTable(
+  'workshop_settlements',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    number: integer('number')
+      .notNull()
+      .default(sql`nextval('workshop_settlement_number_seq')`),
+    status: text('status').$type<SettlementStatus>().notNull(),
+    // The days of collection it was made out for, on the shop's clock.
+    periodFrom: date('period_from').notNull(),
+    periodTo: date('period_to').notNull(),
+    // The cash-on-delivery fee as it stood: hundredths of a percent and a
+    // fixed sum per parcel.
+    codFeeBasisPoints: integer('cod_fee_basis_points').notNull(),
+    codFeeFixedCents: integer('cod_fee_fixed_cents').notNull(),
+    totalCents: integer('total_cents').notNull(),
+    // The day the workshop paid, on the shop's clock; null while waiting.
+    paidOn: date('paid_on'),
+    createdAt,
+    updatedAt,
+  },
+  (table) => [
+    uniqueIndex('workshop_settlements_number_key').on(table.number),
+    index('workshop_settlements_status_idx').on(table.status),
+    index('workshop_settlements_created_at_idx').on(table.createdAt),
+  ],
+)
+
+// One order in a settlement, as it was counted. An order is sold once and
+// returned once at most: the unique pair keeps it out of a second settlement.
+export const workshopSettlementLines = pgTable(
+  'workshop_settlement_lines',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    settlementId: uuid('settlement_id').notNull(),
+    orderId: uuid('order_id')
+      .notNull()
+      .references(() => orders.id, { onDelete: 'restrict' }),
+    kind: text('kind').$type<SettlementLineKind>().notNull(),
+    orderNumber: text('order_number').notNull(),
+    // «2 × Пончо, олива; 1 × Тент» as the order held it.
+    itemsLabel: text('items_label').notNull(),
+    trackingNumber: text('tracking_number'),
+    // A return line carries the sale's sums with the sign turned.
+    saleCents: integer('sale_cents').notNull(),
+    costCents: integer('cost_cents').notNull(),
+    codFeeCents: integer('cod_fee_cents').notNull(),
+    // What the workshop owes the shop for this line.
+    amountCents: integer('amount_cents').notNull(),
+    createdAt,
+  },
+  (table) => [
+    // Named by hand: the generated name runs past Postgres's 63 characters.
+    foreignKey({
+      name: 'workshop_settlement_lines_settlement_fk',
+      columns: [table.settlementId],
+      foreignColumns: [workshopSettlements.id],
+    }).onDelete('cascade'),
+    uniqueIndex('workshop_settlement_lines_order_kind_key').on(table.orderId, table.kind),
+    index('workshop_settlement_lines_settlement_idx').on(table.settlementId),
   ],
 )

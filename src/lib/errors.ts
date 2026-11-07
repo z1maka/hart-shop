@@ -426,3 +426,40 @@ export class InvoiceNotIssuableError extends AppError {
     super(`Order "${orderId}" cannot get an invoice: ${reason}`)
   }
 }
+
+export class SettlementNotFoundError extends AppError {
+  readonly code = 'SETTLEMENT_NOT_FOUND'
+
+  constructor(reference: string) {
+    super(`Settlement "${reference}" was not found`)
+  }
+}
+
+// The orders picked for a settlement no longer fit it: one was settled from
+// another tab, returned, or lost its workshop price meanwhile.
+export class SettlementOrdersChangedError extends AppError {
+  readonly code = 'SETTLEMENT_ORDERS_CHANGED'
+
+  constructor() {
+    super('The orders picked for the settlement changed meanwhile')
+  }
+}
+
+// A cash-on-delivery order cannot be settled before the carrier's fee is set.
+export class SettlementFeeMissingError extends AppError {
+  readonly code = 'SETTLEMENT_FEE_MISSING'
+
+  constructor() {
+    super('The cash-on-delivery fee is not set')
+  }
+}
+
+// Only a settlement still waiting for the workshop's money can be deleted or
+// marked paid.
+export class SettlementClosedError extends AppError {
+  readonly code = 'SETTLEMENT_CLOSED'
+
+  constructor(reference: string) {
+    super(`Settlement "${reference}" is already paid`)
+  }
+}
