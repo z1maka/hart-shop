@@ -103,6 +103,16 @@ export function feedListedImages<T extends { readonly storageKey: string }>(
   return images.filter((image) => !FEED_EXCLUDED_IMAGE_KEYS.includes(image.storageKey))
 }
 
+// The stored photo is fitted into a white square, and Merchant Center and
+// Meta reject padding added to reach a ratio: an ad shows the square copy,
+// which fills the frame. A photo without one goes as it is.
+export function advertisedImageKeyOf(image: {
+  readonly storageKey: string
+  readonly squareStorageKey: string | null
+}): string {
+  return image.squareStorageKey ?? image.storageKey
+}
+
 // The plugin made one offer per simple WordPress product. Where the site now
 // sells that product in several colours, one of them carries the product's
 // id and its history: the untouched `-STD` variant, else the first colour.

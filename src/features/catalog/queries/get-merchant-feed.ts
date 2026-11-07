@@ -6,6 +6,7 @@ import { PARTNER_FEED_CATEGORY_SLUGS } from '@/config/partner-feed'
 import { siteConfig } from '@/config/site'
 import { effectiveGoogleCategory } from '@/features/catalog/model/google-category'
 import {
+  advertisedImageKeyOf,
   feedItemOf,
   feedListedImages,
   feedListedProducts,
@@ -49,6 +50,7 @@ export async function getMerchantFeedXml(): Promise<string> {
     await feedItems(
       products.filter((product) => !MERCHANT_FEED_FOX_PHOTO_SLUGS.includes(product.slug)),
       AS_IS,
+      advertisedImageKeyOf,
     ),
   )
 }
@@ -61,8 +63,10 @@ export async function getMetaCatalogXml(): Promise<string> {
   cacheLife('hours')
 
   return feedXml(
-    await feedItems(await listedProductsIn(META_CATALOG_CATEGORY_SLUGS), (item, variant) =>
-      metaCatalogItemOf(item, variant.sku),
+    await feedItems(
+      await listedProductsIn(META_CATALOG_CATEGORY_SLUGS),
+      (item, variant) => metaCatalogItemOf(item, variant.sku),
+      advertisedImageKeyOf,
     ),
   )
 }
@@ -75,15 +79,18 @@ export async function getPartnerFeedYml(): Promise<string> {
   cacheLife('hours')
 
   const products = await listedProductsIn(PARTNER_FEED_CATEGORY_SLUGS)
-  const offers = await feedItems(products, (item, variant, product) =>
-    partnerOfferOf(item, {
-      sku: variant.sku,
-      categoryId: partnerCategoryIdOf(PARTNER_FEED_CATEGORY_SLUGS, product.categorySlug),
-      minimumPriceCents: singleUnitPriceCents(product) + variant.priceDeltaCents,
-      currency: product.currency,
-      description: product.description,
-      weightGrams: product.weightGrams,
-    }),
+  const offers = await feedItems(
+    products,
+    (item, variant, product) =>
+      partnerOfferOf(item, {
+        sku: variant.sku,
+        categoryId: partnerCategoryIdOf(PARTNER_FEED_CATEGORY_SLUGS, product.categorySlug),
+        minimumPriceCents: singleUnitPriceCents(product) + variant.priceDeltaCents,
+        currency: product.currency,
+        description: product.description,
+        weightGrams: product.weightGrams,
+      }),
+    WHOLE_PHOTO,
   )
 
   return partnerFeedYml({
@@ -122,9 +129,23 @@ type EntryRule<T> = (item: FeedItem, variant: ProductVariantRow, product: FeedPr
 
 const AS_IS: EntryRule<FeedItem> = (item) => item
 
+// Which stored copy of a photo a feed links. The ad platforms get the square
+// one (model/merchant-feed.ts, advertisedImageKeyOf); partners get the whole
+// photo, which their own shops frame as they like.
+type ImageKeyRule = (image: ProductImageRow) => string
+
+const WHOLE_PHOTO: ImageKeyRule = (image) => image.storageKey
+
+type FeedImage = {
+  readonly id: string
+  readonly productId: string
+  readonly url: string
+}
+
 async function feedItems<T>(
   products: readonly FeedProductRow[],
   toEntry: EntryRule<T>,
+  imageKeyOf: ImageKeyRule,
 ): Promise<T[]> {
   const productIds = products.map((product) => product.id)
   const [variants, images] = await Promise.all([
@@ -133,7 +154,13 @@ async function feedItems<T>(
   ])
 
   const variantsByProduct = groupByProduct(feedListedVariants(variants))
-  const imagesByProduct = groupByProduct(feedListedImages(images))
+  const imagesByProduct = groupByProduct(
+    feedListedImages(images).map((image) => ({
+      id: image.id,
+      productId: image.productId,
+      url: publicUrl(imageKeyOf(image)),
+    })),
+  )
   return products.flatMap((product) =>
     itemsOf(
       product,
@@ -158,7 +185,7 @@ function feedXml(items: readonly FeedItem[]): string {
 function itemsOf<T>(
   product: FeedProductRow,
   variants: readonly ProductVariantRow[],
-  images: readonly ProductImageRow[],
+  images: readonly FeedImage[],
   toEntry: EntryRule<T>,
 ): T[] {
   const context = {
@@ -174,9 +201,9 @@ function itemsOf<T>(
       product.categoryGoogleCategory,
     ),
     material: materialOf(product.specs),
-    imageUrls: images.map((image) => publicUrl(image.storageKey)),
+    imageUrls: images.map((image) => image.url),
   }
-  const imageUrlById = new Map(images.map((image) => [image.id, publicUrl(image.storageKey)]))
+  const imageUrlById = new Map(images.map((image) => [image.id, image.url]))
 
   return variants.map((variant) =>
     toEntry(

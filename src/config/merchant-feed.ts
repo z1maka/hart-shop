@@ -44,14 +44,21 @@ export const FEED_EXCLUDED_SLUGS: readonly string[] = [
   'komplekt-walkers-razor-z-kriplenniamy-arc',
 ]
 
-// Gallery shots kept out of the feeds while they stay on the site: Google
-// Shopping and Meta reject product images that show weapons (owner,
-// 3.11.2026). Storage keys.
+// Gallery shots kept out of the feeds while they stay on the site, because
+// Google Shopping and Meta reject them. Storage keys.
 export const FEED_EXCLUDED_IMAGE_KEYS: readonly string[] = [
-  // MOLLE blanket: a soldier lies under it with a rifle.
+  // Weapons in the frame (owner, 3.11.2026). MOLLE blanket: a soldier lies
+  // under it with a rifle.
   'products/antyteploviziyna-kovdra-z-molle/5-a530d2ef.webp',
   // Winter tent: a machine gunner lies under it.
   'products/antyteploviziynyi-tent-250x150-zymovyi/8-80b32f51.webp',
+  // Collages of several shots with captions and badges over them, which
+  // Merchant Center treats as text overlays (owner, 7.11.2026). Starlink
+  // 3-layer covers: multicam, olive, pixel, winter.
+  'products/antyteploviziynyi-chokhol-na-starlink-multykam/5-7076f8e9.webp',
+  'products/antyteploviziynyi-chokhol-na-starlink-olyva/5-683f70d3.webp',
+  'products/chekhol-antiteplovizor-i-antidron-dlya-starlink/14-8878b32f.webp',
+  'products/winter-cover-anti-thermal-vision-and-anti/16-eea02122.webp',
 ]
 
 // Colours on sale with no photos of their own yet: choosing one keeps the

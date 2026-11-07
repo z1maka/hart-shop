@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  advertisedImageKeyOf,
   escapeXml,
   feedItemOf,
   feedListedImages,
@@ -73,6 +74,26 @@ describe('feedListedImages', () => {
     expect(feedListedImages(images)).toEqual([
       { storageKey: 'products/antyteploviziyna-kovdra-z-molle/4-f04eac5f.webp' },
     ])
+  })
+})
+
+describe('advertisedImageKeyOf', () => {
+  it('sends the square copy, which fills the frame without white strips', () => {
+    expect(
+      advertisedImageKeyOf({
+        storageKey: 'products/tent/12-d7adf292.webp',
+        squareStorageKey: 'products/tent/12-d7adf292-square.webp',
+      }),
+    ).toBe('products/tent/12-d7adf292-square.webp')
+  })
+
+  it('sends the stored photo when it has no square copy', () => {
+    expect(
+      advertisedImageKeyOf({
+        storageKey: 'products/tent/12-d7adf292.webp',
+        squareStorageKey: null,
+      }),
+    ).toBe('products/tent/12-d7adf292.webp')
   })
 })
 
