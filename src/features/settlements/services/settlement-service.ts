@@ -7,6 +7,7 @@ import {
   type CodFee,
 } from '@/features/settlements/model/settlement'
 import {
+  SETTLEMENT_LIST_MAX_ROWS,
   settlementRepository,
   type PendingReturn,
   type SettlementLineRow,
@@ -17,6 +18,7 @@ import {
 import {
   SettlementClosedError,
   SettlementFeeMissingError,
+  SettlementHasReturnsError,
   SettlementNotFoundError,
   SettlementOrdersChangedError,
 } from '@/lib/errors'
@@ -131,11 +133,19 @@ export const settlementService = {
       logger.info('Workshop settlement deleted', { number: deleted.number })
       return deleted
     }
+    if (await settlementRepository.hasReturnedSales(settlementId)) {
+      throw new SettlementHasReturnsError(settlementId)
+    }
     throw await missingOrClosed(settlementId)
   },
 
-  async list(): Promise<SettlementListRow[]> {
-    return settlementRepository.list()
+  async list(): Promise<{ rows: SettlementListRow[]; hasOlder: boolean; maxRows: number }> {
+    const rows = await settlementRepository.list()
+    return {
+      rows: rows.slice(0, SETTLEMENT_LIST_MAX_ROWS),
+      hasOlder: rows.length > SETTLEMENT_LIST_MAX_ROWS,
+      maxRows: SETTLEMENT_LIST_MAX_ROWS,
+    }
   },
 
   async document(

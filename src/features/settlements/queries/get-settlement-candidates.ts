@@ -16,6 +16,10 @@ import {
   CANDIDATES_MAX_ROWS,
   settlementService,
 } from '@/features/settlements/services/settlement-service'
+import type {
+  PendingReturn,
+  UnsettledOrder,
+} from '@/features/settlements/repository/settlement-repository'
 
 // One row of the picker: what the act will print, and the sums behind it.
 export type SettlementCandidateView = {
@@ -73,28 +77,34 @@ export async function getSettlementCandidates(
     feeLabel: candidates.fee ? codFeeLabel(candidates.fee) : null,
     isTruncated: candidates.isTruncated,
     maxRows: CANDIDATES_MAX_ROWS,
-    sales: candidates.orders.map((order) => {
-      const line = saleLineOf(order, fee)
-      const base = {
-        orderId: order.id,
-        kind: SettlementLineKind.Sale,
-        orderNumber: order.orderNumber,
-        isPartner: order.channel === SalesChannel.Dropship,
-        trackingNumber: order.trackingNumber,
-        dateLabel: order.deliveredAt ? dayLabel(order.deliveredAt) : UNKNOWN,
-      }
-      return line ? { ...base, ...sums(line), isBlocked: false } : blockedRow(base, order)
-    }),
-    returns: candidates.returns.map((sale) => ({
-      orderId: sale.orderId,
-      kind: SettlementLineKind.Return,
-      orderNumber: sale.orderNumber,
-      isPartner: false,
-      trackingNumber: sale.trackingNumber,
-      dateLabel: dayLabel(sale.returnedAt),
-      ...sums(returnLineOf(sale)),
-      isBlocked: false,
-    })),
+    sales: candidates.orders.map((order) => saleRowOf(order, fee)),
+    returns: candidates.returns.map(returnRowOf),
+  }
+}
+
+function saleRowOf(order: UnsettledOrder, fee: CodFee): SettlementCandidateView {
+  const line = saleLineOf(order, fee)
+  const base = {
+    orderId: order.id,
+    kind: SettlementLineKind.Sale,
+    orderNumber: order.orderNumber,
+    isPartner: order.channel === SalesChannel.Dropship,
+    trackingNumber: order.trackingNumber,
+    dateLabel: order.deliveredAt ? dayLabel(order.deliveredAt) : UNKNOWN,
+  }
+  return line ? { ...base, ...sums(line), isBlocked: false } : blockedRow(base, order)
+}
+
+function returnRowOf(sale: PendingReturn): SettlementCandidateView {
+  return {
+    orderId: sale.orderId,
+    kind: SettlementLineKind.Return,
+    orderNumber: sale.orderNumber,
+    isPartner: false,
+    trackingNumber: sale.trackingNumber,
+    dateLabel: dayLabel(sale.returnedAt),
+    ...sums(returnLineOf(sale)),
+    isBlocked: false,
   }
 }
 

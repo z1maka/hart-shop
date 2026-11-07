@@ -23,6 +23,8 @@ export type SettlementsBoardView = {
   readonly today: string
   readonly monthStart: string
   readonly settlements: readonly SettlementListItemView[]
+  // More acts exist than the page lists: the oldest are left out.
+  readonly olderLeftOut: number | null
 }
 
 const BASIS_POINTS_PER_PERCENT = 100
@@ -31,7 +33,7 @@ const MONTH_PREFIX_LENGTH = 8
 
 export async function getSettlementsBoard(): Promise<SettlementsBoardView> {
   await requireAdminSession()
-  const [fee, rows] = await Promise.all([settlementService.codFee(), settlementService.list()])
+  const [fee, list] = await Promise.all([settlementService.codFee(), settlementService.list()])
   const today = formatDateIsoKyiv(new Date())
 
   return {
@@ -44,7 +46,8 @@ export async function getSettlementsBoard(): Promise<SettlementsBoardView> {
       : null,
     today,
     monthStart: `${today.slice(0, MONTH_PREFIX_LENGTH)}01`,
-    settlements: rows.map((row) => ({
+    olderLeftOut: list.hasOlder ? list.maxRows : null,
+    settlements: list.rows.map((row) => ({
       id: row.id,
       number: row.number,
       periodLabel: periodLabel(row.periodFrom, row.periodTo),

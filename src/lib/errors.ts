@@ -463,3 +463,13 @@ export class SettlementClosedError extends AppError {
     super(`Settlement "${reference}" is already paid`)
   }
 }
+
+// A later settlement took one of this settlement's sales back as a return:
+// deleting it would leave that return subtracting a sale nobody billed.
+export class SettlementHasReturnsError extends AppError {
+  readonly code = 'SETTLEMENT_HAS_RETURNS'
+
+  constructor(reference: string) {
+    super(`Settlement "${reference}" has sales returned in a later settlement`)
+  }
+}

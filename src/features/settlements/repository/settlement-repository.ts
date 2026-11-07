@@ -1,4 +1,5 @@
-import { and, asc, desc, eq, inArray, notExists, sql, type SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, exists, inArray, notExists, sql, type SQL } from 'drizzle-orm'
+import { alias } from 'drizzle-orm/pg-core'
 import { OrderStatus, SettlementLineKind, SettlementStatus, type SalesChannel } from '@/db/enums'
 import { orderItems, orders, workshopSettlementLines, workshopSettlements } from '@/db/schema'
 import type {
@@ -93,8 +94,9 @@ const UNSETTLED_ORDER_COLUMNS = {
   deliveredAt: orders.deliveredAt,
 }
 
-// The settlements page lists the newest ones; older ones stay in the table.
-const SETTLEMENT_LIST_MAX_ROWS = 100
+// The settlements page lists the newest ones; the page says when older
+// ones are left out.
+export const SETTLEMENT_LIST_MAX_ROWS = 100
 
 // A second tab settled one of the picked orders between the read and the
 // insert: the unique pair refused its line, and the whole settlement goes.
@@ -192,6 +194,8 @@ export const settlementRepository = {
   },
 
   // Its lines go with it, and their orders wait for the next settlement.
+  // Not while a later settlement took one of its sales back: that return
+  // would then subtract a difference no settlement billed.
   async deleteCreated(settlementId: string): Promise<SettlementRow | null> {
     const [row] = await db
       .delete(workshopSettlements)
@@ -199,10 +203,20 @@ export const settlementRepository = {
         and(
           eq(workshopSettlements.id, settlementId),
           eq(workshopSettlements.status, SettlementStatus.Created),
+          notExists(returnedSales()),
         ),
       )
       .returning(SETTLEMENT_COLUMNS)
     return row ?? null
+  },
+
+  async hasReturnedSales(settlementId: string): Promise<boolean> {
+    const [row] = await db
+      .select({ one: sql`1` })
+      .from(workshopSettlements)
+      .where(and(eq(workshopSettlements.id, settlementId), exists(returnedSales())))
+      .limit(1)
+    return row !== undefined
   },
 
   async findById(settlementId: string): Promise<SettlementRow | null> {
@@ -223,6 +237,7 @@ export const settlementRepository = {
       .orderBy(desc(workshopSettlementLines.kind), asc(workshopSettlementLines.orderNumber))
   },
 
+  // One row past the page, so the page knows older ones exist.
   async list(): Promise<SettlementListRow[]> {
     return db
       .select({
@@ -236,7 +251,7 @@ export const settlementRepository = {
       )
       .groupBy(workshopSettlements.id)
       .orderBy(desc(workshopSettlements.number))
-      .limit(SETTLEMENT_LIST_MAX_ROWS)
+      .limit(SETTLEMENT_LIST_MAX_ROWS + 1)
   },
 
   // What the settlements add up to by status: paid by the workshop, or made
@@ -281,6 +296,28 @@ function notReturned(): SQL {
         ),
       ),
   )
+}
+
+const returnLines = alias(workshopSettlementLines, 'return_lines')
+
+// The outer settlement's sales that a return line has taken back since.
+function returnedSales() {
+  return db
+    .select({ one: sql`1` })
+    .from(workshopSettlementLines)
+    .innerJoin(
+      returnLines,
+      and(
+        eq(returnLines.orderId, workshopSettlementLines.orderId),
+        eq(returnLines.kind, SettlementLineKind.Return),
+      ),
+    )
+    .where(
+      and(
+        eq(workshopSettlementLines.settlementId, workshopSettlements.id),
+        eq(workshopSettlementLines.kind, SettlementLineKind.Sale),
+      ),
+    )
 }
 
 function collectedWithin(range: { readonly from: string; readonly to: string } | null): SQL[] {

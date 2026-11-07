@@ -17,13 +17,18 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/
 const isoDay = z.string().regex(ISO_DATE).refine(isCalendarDay, 'такой даты нет')
 // One page of parcels at most: the picker lists no more.
 const MAX_ORDERS_PER_SETTLEMENT = 700
+// Each order counts once, however often a replayed request names it.
+const orderIds = z
+  .array(z.uuid())
+  .max(MAX_ORDERS_PER_SETTLEMENT)
+  .transform((ids) => [...new Set(ids)])
 
 const CreateSchema = z
   .object({
     periodFrom: isoDay,
     periodTo: isoDay,
-    saleOrderIds: z.array(z.uuid()).max(MAX_ORDERS_PER_SETTLEMENT),
-    returnOrderIds: z.array(z.uuid()).max(MAX_ORDERS_PER_SETTLEMENT),
+    saleOrderIds: orderIds,
+    returnOrderIds: orderIds,
   })
   .refine((input) => isSettlementPeriod(input.periodFrom, input.periodTo), {
     path: ['periodTo'],
@@ -46,11 +51,11 @@ const FeeSchema = z.object({
   percent: z
     .string()
     .transform(percentToBasisPoints)
-    .refine((value) => value !== null, 'число процентов, например 2 или 1,5'),
+    .pipe(z.number({ error: 'число процентов, например 2 или 1,5' })),
   fixed: z
     .string()
     .transform(hryvniasToCents)
-    .refine((value) => value !== null, 'сумма в гривнах, например 20'),
+    .pipe(z.number({ error: 'сумма в гривнах, например 20' })),
 })
 
 export async function createSettlementAction(input: unknown): Promise<ActionResult<string>> {
@@ -109,7 +114,6 @@ export async function saveCodFeeAction(input: unknown): Promise<ActionResult<nul
   if (!parsed.success) return validationFailed(parsed.error)
 
   const { percent, fixed } = parsed.data
-  if (percent === null || fixed === null) return actionError('VALIDATION_FAILED', 'percent')
   try {
     await settlementService.saveCodFee({ basisPoints: percent, fixedCents: fixed })
     return actionOk(null)

@@ -106,6 +106,11 @@ export function SettlementsBoard({ view }: { readonly view: SettlementsBoardView
             </table>
           </div>
         )}
+        {view.olderLeftOut ? (
+          <p className="text-[12.5px] text-muted">
+            Показаны последние {view.olderLeftOut} актов, более старые есть в базе.
+          </p>
+        ) : null}
       </section>
     </div>
   )
