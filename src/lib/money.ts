@@ -69,7 +69,13 @@ function getFormatter(currency: Currency): Intl.NumberFormat {
   const cached = formatters.get(currency)
   if (cached) return cached
 
-  const formatter = new Intl.NumberFormat(MONEY_LOCALE, { style: 'currency', currency })
+  // The narrow symbol for the same reason as below: a client island adding
+  // sums up must print «₴» like the server page around it, not «грн».
+  const formatter = new Intl.NumberFormat(MONEY_LOCALE, {
+    style: 'currency',
+    currency,
+    currencyDisplay: 'narrowSymbol',
+  })
   formatters.set(currency, formatter)
   return formatter
 }
