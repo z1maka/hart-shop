@@ -484,6 +484,13 @@
       "when": 1794133752915,
       "tag": "0068_workshop_production_cost",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1794135986810,
+      "tag": "0069_settlement_production_cost",
+      "breakpoints": true
     }
   ]
 }

@@ -7,11 +7,17 @@ import {
   itemsLabelOf,
   returnLineOf,
   saleLineOf,
+  workshopEarningsCents,
   type CodFee,
   type SettlementLineDraft,
   type SettlementOrder,
 } from '@/features/settlements/model/settlement'
-import { dayLabel, moneyLabel, periodLabel } from '@/features/settlements/queries/settlement-format'
+import {
+  dayLabel,
+  knownMoneyLabel,
+  moneyLabel,
+  periodLabel,
+} from '@/features/settlements/queries/settlement-format'
 import {
   CANDIDATES_MAX_ROWS,
   settlementService,
@@ -36,6 +42,12 @@ export type SettlementCandidateView = {
   readonly feeLabel: string
   readonly amountCents: number
   readonly amountLabel: string
+  // The workshop's side, beside the debt: its price stays with it, less
+  // what sewing cost it is its earnings. Null cost: not entered.
+  readonly costCents: number
+  readonly productionCostCents: number | null
+  readonly productionCostLabel: string
+  readonly workshopEarningsLabel: string
   // No workshop price on a line: the difference is unknown.
   readonly isBlocked: boolean
 }
@@ -116,6 +128,10 @@ function sums(line: SettlementLineDraft) {
     feeLabel: line.codFeeCents === 0 ? UNKNOWN : moneyLabel(line.codFeeCents),
     amountCents: line.amountCents,
     amountLabel: moneyLabel(line.amountCents),
+    costCents: line.costCents,
+    productionCostCents: line.productionCostCents,
+    productionCostLabel: knownMoneyLabel(line.productionCostCents),
+    workshopEarningsLabel: knownMoneyLabel(workshopEarningsCents(line)),
   }
 }
 
@@ -134,6 +150,10 @@ function blockedRow(
     feeLabel: UNKNOWN,
     amountCents: 0,
     amountLabel: UNKNOWN,
+    costCents: 0,
+    productionCostCents: null,
+    productionCostLabel: UNKNOWN,
+    workshopEarningsLabel: UNKNOWN,
     isBlocked: true,
   }
 }

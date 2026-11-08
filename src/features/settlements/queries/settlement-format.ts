@@ -6,6 +6,11 @@ export function moneyLabel(cents: number): string {
   return formatMoney(createMoney(cents, Currency.Uah))
 }
 
+// A sum that is unknown while a product has no cost entered.
+export function knownMoneyLabel(cents: number | null): string {
+  return cents === null ? '—' : moneyLabel(cents)
+}
+
 // «01.10.2026 — 31.10.2026», a single day once.
 export function periodLabel(from: string, to: string): string {
   return from === to ? dottedDate(from) : `${dottedDate(from)} — ${dottedDate(to)}`

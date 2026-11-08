@@ -12,6 +12,8 @@ import {
   returnLineOf,
   saleLineOf,
   settlementTotalCents,
+  workshopEarningsCents,
+  workshopShareOf,
   type SettlementOrder,
 } from '@/features/settlements/model/settlement'
 
@@ -31,6 +33,7 @@ const COD_ORDER: SettlementOrder = {
       quantity: 2,
       unitPriceCents: 220_000,
       unitCostCents: 170_000,
+      unitProductionCostCents: 105_000,
     },
     {
       productTitle: 'Тент 250 × 150 см',
@@ -38,6 +41,7 @@ const COD_ORDER: SettlementOrder = {
       quantity: 1,
       unitPriceCents: 80_000,
       unitCostCents: 60_000,
+      unitProductionCostCents: 30_000,
     },
   ],
 }
@@ -106,9 +110,24 @@ describe('saleLineOf', () => {
       trackingNumber: '20451234567890',
       saleCents: 520_000,
       costCents: 400_000,
+      productionCostCents: 240_000,
       codFeeCents: 12_400,
       amountCents: 107_600,
     })
+  })
+
+  it("leaves the workshop's cost unknown when an item has none entered", () => {
+    const order: SettlementOrder = {
+      ...COD_ORDER,
+      lines: COD_ORDER.lines.map((line, index) =>
+        index === 1 ? { ...line, unitProductionCostCents: null } : line,
+      ),
+    }
+
+    const line = saleLineOf(order, FEE)
+
+    expect(line?.productionCostCents).toBeNull()
+    expect(line?.amountCents).toBe(107_600)
   })
 
   it('takes no fee from an order paid by transfer', () => {
@@ -141,7 +160,41 @@ describe('returnLineOf', () => {
     expect(back.costCents).toBe(-400_000)
     expect(back.codFeeCents).toBe(0)
     expect(back.amountCents).toBe(-120_000)
+    expect(back.productionCostCents).toBe(-240_000)
     expect(settlementTotalCents([sale, back])).toBe(-12_400)
+  })
+})
+
+describe("the workshop's share", () => {
+  it('earns its price less the sewing cost', () => {
+    expect(workshopEarningsCents({ costCents: 170_000, productionCostCents: 80_000 })).toBe(90_000)
+    expect(workshopEarningsCents({ costCents: 170_000, productionCostCents: null })).toBeNull()
+  })
+
+  it('keeps its price on every line and counts earnings where the cost is known', () => {
+    const share = workshopShareOf([
+      { costCents: 170_000, productionCostCents: 80_000 },
+      { costCents: 140_000, productionCostCents: 50_000 },
+      { costCents: 28_000, productionCostCents: null },
+    ])
+
+    expect(share).toEqual({
+      keptCents: 338_000,
+      productionCostCents: 130_000,
+      earningsCents: 180_000,
+      uncountedLines: 1,
+    })
+  })
+
+  it('takes a returned sale off again', () => {
+    const sale = saleLineOf(COD_ORDER, FEE)
+    if (!sale) throw new Error('expected a sale line')
+
+    expect(workshopShareOf([sale, returnLineOf(sale)])).toMatchObject({
+      keptCents: 0,
+      productionCostCents: 0,
+      earningsCents: 0,
+    })
   })
 })
 

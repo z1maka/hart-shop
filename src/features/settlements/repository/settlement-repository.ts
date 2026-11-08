@@ -77,6 +77,7 @@ const LINE_DRAFT_COLUMNS = {
   trackingNumber: workshopSettlementLines.trackingNumber,
   saleCents: workshopSettlementLines.saleCents,
   costCents: workshopSettlementLines.costCents,
+  productionCostCents: workshopSettlementLines.productionCostCents,
   codFeeCents: workshopSettlementLines.codFeeCents,
   amountCents: workshopSettlementLines.amountCents,
 }
@@ -342,6 +343,7 @@ async function linesOf(
       quantity: orderItems.quantity,
       unitPriceCents: orderItems.unitPriceCents,
       unitCostCents: orderItems.unitCostCents,
+      unitProductionCostCents: orderItems.unitProductionCostCents,
     })
     .from(orderItems)
     .where(inArray(orderItems.orderId, [...orderIds]))

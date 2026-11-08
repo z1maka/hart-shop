@@ -5,6 +5,7 @@ import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { errorText } from '@/features/admin/ui/messages'
 import { createSettlementAction } from '@/features/settlements/actions/settlement-actions'
+import { workshopShareOf } from '@/features/settlements/model/settlement'
 import type { SettlementCandidateView } from '@/features/settlements/queries/get-settlement-candidates'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
 import { cn } from '@/lib/utils'
@@ -40,6 +41,7 @@ export function SettlementPicker({
     0,
   )
   const count = pickedSales.length + pickedReturns.length
+  const workshop = workshopShareOf([...pickedSales, ...pickedReturns])
 
   function toggle(row: SettlementCandidateView) {
     setPicked((current) => {
@@ -91,6 +93,12 @@ export function SettlementPicker({
           Цех должен:{' '}
           <span className="font-display text-[20px] font-bold">{money(totalCents)}</span>
           <span className="ml-2 text-[12.5px] text-muted">· заказов: {count}</span>
+          <span className="mt-1 block text-[12.5px] text-muted">
+            Остаётся у цеха {money(workshop.keptCents)} · себестоимость{' '}
+            {money(workshop.productionCostCents)} · заработок цеха{' '}
+            <span className="font-semibold text-ink">{money(workshop.earningsCents)}</span>
+            {workshop.uncountedLines > 0 ? ` · без себестоимости: ${workshop.uncountedLines}` : ''}
+          </span>
         </p>
         <Button onClick={create} disabled={isPending || count === 0 || !isFeeSet}>
           Создать акт
@@ -119,7 +127,7 @@ function CandidateTable({ title, empty, rows, picked, onToggle }: CandidateTable
         <p className="text-[13px] text-muted">{empty}</p>
       ) : (
         <div className="overflow-x-auto rounded-card border border-subtle bg-surface">
-          <table className="w-full min-w-[880px] text-left text-[12.5px]">
+          <table className="w-full min-w-[1080px] text-left text-[12.5px]">
             <thead className="border-b border-subtle text-[11.5px] text-muted">
               <tr>
                 <th className="w-10 px-3 py-2.5" aria-label="В акт" />
@@ -130,6 +138,8 @@ function CandidateTable({ title, empty, rows, picked, onToggle }: CandidateTable
                 <th className="px-3 py-2.5 text-right font-semibold">Цена цеха</th>
                 <th className="px-3 py-2.5 text-right font-semibold">Комиссия НП</th>
                 <th className="px-3 py-2.5 text-right font-semibold">Цех должен</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Себестоимость</th>
+                <th className="px-3 py-2.5 text-right font-semibold">Заработок цеха</th>
               </tr>
             </thead>
             <tbody>
@@ -174,6 +184,12 @@ function CandidateTable({ title, empty, rows, picked, onToggle }: CandidateTable
                   <td className="px-3 py-2.5 text-right whitespace-nowrap">{row.feeLabel}</td>
                   <td className="px-3 py-2.5 text-right font-semibold whitespace-nowrap">
                     {row.amountLabel}
+                  </td>
+                  <td className="px-3 py-2.5 text-right whitespace-nowrap text-muted">
+                    {row.productionCostLabel}
+                  </td>
+                  <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                    {row.workshopEarningsLabel}
                   </td>
                 </tr>
               ))}

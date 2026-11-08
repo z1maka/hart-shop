@@ -836,6 +836,9 @@ export const workshopSettlementLines = pgTable(
     // A return line carries the sale's sums with the sign turned.
     saleCents: integer('sale_cents').notNull(),
     costCents: integer('cost_cents').notNull(),
+    // What sewing the goods cost the workshop, signed like the sale; null when
+    // an item had none entered.
+    productionCostCents: integer('production_cost_cents'),
     codFeeCents: integer('cod_fee_cents').notNull(),
     // What the workshop owes the shop for this line.
     amountCents: integer('amount_cents').notNull(),

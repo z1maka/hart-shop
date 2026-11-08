@@ -54,6 +54,8 @@ export type SettlementOrderLine = {
   // The workshop's price copied onto the order; null on orders placed before
   // the price was kept, or for a product that never had one.
   readonly unitCostCents: number | null
+  // What sewing the unit cost the workshop, copied the same way.
+  readonly unitProductionCostCents: number | null
 }
 
 export type SettlementOrder = {
@@ -75,6 +77,9 @@ export type SettlementLineDraft = {
   readonly trackingNumber: string | null
   readonly saleCents: number
   readonly costCents: number
+  // What sewing the goods cost the workshop; null when an item has none
+  // entered. Shown beside the debt, never part of it.
+  readonly productionCostCents: number | null
   readonly codFeeCents: number
   readonly amountCents: number
 }
@@ -109,9 +114,15 @@ export function saleLineOf(order: SettlementOrder, fee: CodFee): SettlementLineD
     trackingNumber: order.trackingNumber,
     saleCents,
     costCents,
+    productionCostCents: productionCostOf(order.lines),
     codFeeCents: feeCents,
     amountCents: saleCents - costCents - feeCents,
   }
+}
+
+function productionCostOf(lines: readonly SettlementOrderLine[]): number | null {
+  if (lines.some((line) => line.unitProductionCostCents === null)) return null
+  return sumOf(lines, (line) => (line.unitProductionCostCents ?? 0) * line.quantity)
 }
 
 // The sale as it was settled, turned back: the buyer got the money back and
@@ -124,6 +135,7 @@ export function returnLineOf(sale: SettlementLineDraft): SettlementLineDraft {
     kind: SettlementLineKind.Return,
     saleCents: -sale.saleCents,
     costCents: -sale.costCents,
+    productionCostCents: sale.productionCostCents === null ? null : -sale.productionCostCents,
     codFeeCents: 0,
     amountCents: -differenceCents,
   }
@@ -131,6 +143,34 @@ export function returnLineOf(sale: SettlementLineDraft): SettlementLineDraft {
 
 export function settlementTotalCents(lines: readonly Pick<SettlementLineDraft, 'amountCents'>[]) {
   return sumOf(lines, (line) => line.amountCents)
+}
+
+type WorkshopSums = Pick<SettlementLineDraft, 'costCents' | 'productionCostCents'>
+
+// What the workshop earns on a line: its price less what sewing cost it.
+// Every payment lands on its account and it pays the shop the debt, so its
+// price is what stays with it (owner, 08.11.2026).
+export function workshopEarningsCents(line: WorkshopSums): number | null {
+  return line.productionCostCents === null ? null : line.costCents - line.productionCostCents
+}
+
+export type WorkshopShare = {
+  // What stays with the workshop after it pays the shop: its price.
+  readonly keptCents: number
+  // Sewing cost and earnings over the lines that have the cost entered.
+  readonly productionCostCents: number
+  readonly earningsCents: number
+  readonly uncountedLines: number
+}
+
+export function workshopShareOf(lines: readonly WorkshopSums[]): WorkshopShare {
+  const counted = lines.filter((line) => line.productionCostCents !== null)
+  return {
+    keptCents: sumOf(lines, (line) => line.costCents),
+    productionCostCents: sumOf(counted, (line) => line.productionCostCents ?? 0),
+    earningsCents: sumOf(counted, (line) => workshopEarningsCents(line) ?? 0),
+    uncountedLines: lines.length - counted.length,
+  }
 }
 
 // «2 × Пончо, олива; 1 × Тент 250 × 150 см».

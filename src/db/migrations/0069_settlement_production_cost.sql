@@ -1,0 +1,1 @@
+ALTER TABLE "workshop_settlement_lines" ADD COLUMN "production_cost_cents" integer;
