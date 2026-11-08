@@ -44,6 +44,33 @@ export const FEED_EXCLUDED_SLUGS: readonly string[] = [
   'komplekt-walkers-razor-z-kriplenniamy-arc',
 ]
 
+// Shopping ads have no keywords: Google matches searches against the item's
+// title. These ponchos hide body heat from thermal imagers, as their pages
+// say, but their names say only «антидронове», so the feeds lead with the word
+// people search for (owner, 8.11.2026). Slug → the title the feeds use.
+export const FEED_TITLE_OVERRIDES: ReadonlyMap<string, string> = new Map([
+  [
+    'posylene-antydronove-poncho-z-kysheneiu-olyva',
+    'Антитепловізійне пончо з кишенею, посилене антидронове, олива',
+  ],
+  [
+    'posylene-antydronove-poncho-z-kysheneiu-piksel',
+    'Антитепловізійне пончо з кишенею, посилене антидронове, піксель',
+  ],
+  [
+    'antyteploviziyne-poncho-z-kysheneiu-3-shary',
+    'Антитепловізійне пончо з кишенею, посилене антидронове, мультикам',
+  ],
+  [
+    'antyteploviziyne-poncho-3-shary-zymovyi-multykam',
+    'Антитепловізійне пончо з кишенею, посилене антидронове, зимовий',
+  ],
+  [
+    'maskuvalne-poncho-fx14-3d-lystya-class-d',
+    'Антитепловізійне маскувальне пончо з 3D-листям, антидронове, UV+EM',
+  ],
+])
+
 // Gallery shots kept out of the feeds while they stay on the site, because
 // Google Shopping and Meta reject them. Storage keys.
 export const FEED_EXCLUDED_IMAGE_KEYS: readonly string[] = [

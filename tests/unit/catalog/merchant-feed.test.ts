@@ -225,6 +225,24 @@ describe('feedItemOf', () => {
     })
   })
 
+  it('names a product by the search people make where its page name lacks the word', () => {
+    const pocketPoncho = {
+      ...PRODUCT,
+      slug: 'posylene-antydronove-poncho-z-kysheneiu-olyva',
+      title: 'Посилене антидронове пончо з кишенею, олива',
+    }
+
+    const item = feedItemOf(pocketPoncho, OLIVE, { ...CONTEXT, hasColorChoice: false })
+
+    expect(item.title).toBe('Антитепловізійне пончо з кишенею, посилене антидронове, олива')
+  })
+
+  it("keeps the page name for products the feeds don't rename", () => {
+    const item = feedItemOf(PRODUCT, OLIVE, { ...CONTEXT, hasColorChoice: false })
+
+    expect(item.title).toBe('Антитепловізійне пончо')
+  })
+
   it('turns the page markup into plain sentences for the feed', () => {
     const item = feedItemOf(
       { ...PRODUCT, description: '## Конструкція\n- Три шари\n- Без фольги\n\nТримає дощ.' },

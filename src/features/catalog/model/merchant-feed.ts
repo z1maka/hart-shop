@@ -9,6 +9,7 @@ import {
   FEED_MATERIAL_MAX_LENGTH,
   FEED_MATERIAL_SPEC_LABEL,
   FEED_TITLE_MAX_LENGTH,
+  FEED_TITLE_OVERRIDES,
   LEGACY_OFFER_ID_PREFIX,
   NEW_OFFER_ID_PREFIX,
 } from '@/config/merchant-feed'
@@ -189,7 +190,7 @@ export function feedItemOf(
   return {
     id: offerIdOf(variant.sku, product.sourceId, context.productIdCarrierSku),
     itemGroupId: product.colorGroup ?? product.sku,
-    title: feedTitle(product.title, distinguishing),
+    title: feedTitle(FEED_TITLE_OVERRIDES.get(product.slug) ?? product.title, distinguishing),
     description: feedDescription(product.description, product.title),
     link: productLink(context.siteUrl, product.slug, context.hasColorChoice ? variant.color : null),
     imageLink,
