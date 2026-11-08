@@ -165,15 +165,16 @@ function UncostedNote({ totals }: { readonly totals: EarningsTotals }) {
   )
 }
 
-// Workshop goods without the workshop's own cost: the workshop's earnings
-// leave them out, and the owner can fill the cost in.
+// Goods with the workshop's price but none of its own cost: the workshop's
+// earnings leave them out. A bought-in item has no workshop at all, so the
+// note asks only for the ones the workshop sews.
 function UnproducedNote({ totals }: { readonly totals: EarningsTotals }) {
   if (totals.unproducedUnits === 0) return null
 
   return (
     <p className="mt-2 rounded-control bg-sunken px-3 py-2 text-[12px] font-medium text-muted">
-      {totals.unproducedUnits} шт. без себестоимости цеха — в заработок цеха не вошли. Впишите её в
-      карточке товара.
+      {totals.unproducedUnits} шт. с ценой цеха, но без себестоимости цеха — в заработок цеха не
+      вошли. Если товар шьёт цех, впишите себестоимость в карточке.
     </p>
   )
 }
@@ -223,12 +224,28 @@ function BreakdownTable({
           </tr>
         </thead>
         <tbody>
-          {BREAKDOWN_ROWS.map((row) => (
+          {SHOP_ROWS.map((row) => (
             <BreakdownRow key={row.label} row={row} columns={columns} />
           ))}
           {adSpendCents === null ? null : (
             <AfterAdsRow profitCents={breakdown.all.earningsCents - adSpendCents} />
           )}
+        </tbody>
+        {/* The workshop's side comes after the ads row, so «После рекламы»
+            reads as the shop's own earnings less the ads, as it is. */}
+        <tbody>
+          <tr className="border-t-2 border-strong">
+            <th
+              scope="colgroup"
+              colSpan={columns.length + 1}
+              className="py-2.5 pr-4 pl-4 text-left text-[12px] font-semibold text-muted"
+            >
+              Цех
+            </th>
+          </tr>
+          {WORKSHOP_ROWS.map((row) => (
+            <BreakdownRow key={row.label} row={row} columns={columns} />
+          ))}
         </tbody>
       </table>
     </div>
@@ -239,7 +256,7 @@ function BreakdownRow({
   row,
   columns,
 }: {
-  readonly row: (typeof BREAKDOWN_ROWS)[number]
+  readonly row: BreakdownRowSpec
   readonly columns: readonly EarningsTotals[]
 }) {
   return (
@@ -284,21 +301,26 @@ function AfterAdsRow({ profitCents }: { readonly profitCents: number }) {
   )
 }
 
-const BREAKDOWN_ROWS: readonly {
-  label: string
-  value: (totals: EarningsTotals) => string
-  isStrong?: boolean
-}[] = [
+type BreakdownRowSpec = {
+  readonly label: string
+  readonly value: (totals: EarningsTotals) => string
+  readonly isStrong?: boolean
+}
+
+const SHOP_ROWS: readonly BreakdownRowSpec[] = [
   { label: 'Заказов', value: (totals) => String(totals.orders) },
   { label: 'Позиций, шт.', value: (totals) => String(totals.units) },
   { label: 'Выручка', value: (totals) => wholeMoney(totals.revenueCents) },
   { label: 'Цена цеха', value: (totals) => wholeMoney(totals.costCents) },
   { label: 'Заработок', value: (totals) => wholeMoney(totals.earningsCents), isStrong: true },
   { label: 'Маржа', value: (totals) => percent(totals.marginPercent) },
+]
+
+const WORKSHOP_ROWS: readonly BreakdownRowSpec[] = [
   { label: 'Себестоимость цеха', value: (totals) => wholeMoney(totals.productionCostCents) },
   { label: 'Заработок цеха', value: (totals) => wholeMoney(totals.workshopEarningsCents) },
   {
-    label: 'Общий заработок',
+    label: 'Общий заработок (магазин + цех)',
     value: (totals) => wholeMoney(totals.combinedEarningsCents),
     isStrong: true,
   },

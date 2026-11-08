@@ -40,6 +40,7 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
   const [weight, setWeight] = useState(product.weightInput)
   const [dropPrice, setDropPrice] = useState(product.dropPriceInput)
   const [cost, setCost] = useState(product.costInput)
+  const [productionCost, setProductionCost] = useState(product.productionCostInput)
   const [slug, setSlug] = useState(product.slug)
   const [categoryId, setCategoryId] = useState(product.categoryId)
   const [isDirty, setIsDirty] = useState(false)
@@ -347,7 +348,8 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
               <Field error={fieldError('productionCost')} label="Себестоимость цеха, грн">
                 <input
                   name="productionCost"
-                  defaultValue={typed.productionCost ?? product.productionCostInput}
+                  value={productionCost}
+                  onChange={(event) => setProductionCost(event.target.value)}
                   inputMode="decimal"
                   placeholder="Не указана"
                   className={inputClassName}
@@ -365,6 +367,7 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
               </Field>
             </div>
             <DropPriceNote price={salePrice || price} dropPrice={dropPrice} cost={cost} />
+            <ProductionCostNote cost={cost} productionCost={productionCost} />
 
             <div className="mt-4.5 grid gap-2.5">
               <p className="text-[12.5px] font-semibold text-muted">Варианты: остаток и фото</p>
@@ -620,6 +623,37 @@ function DropPriceNote({
         ? `С партнёра ${formatHryvnias(drop - workshop)} с единицы, в рознице ${formatHryvnias(retail - workshop)}. `
         : ''}
       Цена дропшиппера видна только в админке: ни на сайте, ни в фидах её нет.
+    </p>
+  )
+}
+
+// What the workshop keeps from its own price, and a warning when the typed
+// cost leaves it nothing or cannot be counted for want of that price.
+function ProductionCostNote({
+  cost,
+  productionCost,
+}: {
+  readonly cost: string
+  readonly productionCost: string
+}) {
+  const sewing = parseHryvnias(productionCost)
+  if (sewing === null) return null
+
+  const workshop = parseHryvnias(cost)
+  if (workshop === null || sewing >= workshop) {
+    return (
+      <p className="mt-3 rounded-control bg-alert-soft px-3 py-2 text-[12.5px] font-medium text-alert">
+        {workshop === null
+          ? 'Без цены цеха себестоимость в статистику не попадёт.'
+          : 'Себестоимость цеха не ниже цены цеха — цех ничего не заработает. Проверьте цифру; сохранить можно.'}
+      </p>
+    )
+  }
+
+  return (
+    <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
+      Цех зарабатывает {formatHryvnias(workshop - sewing)} с единицы. Себестоимость видна только в
+      админке.
     </p>
   )
 }
