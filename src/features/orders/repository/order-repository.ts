@@ -19,6 +19,7 @@ import {
   type SQL,
   notExists,
 } from 'drizzle-orm'
+import type { AnyPgColumn } from 'drizzle-orm/pg-core'
 import {
   invoices,
   orderItems,
@@ -57,9 +58,12 @@ import { db } from '@/lib/db'
 import { escapeLikePattern } from '@/lib/sql'
 
 export type OrderRow = InferSelectModel<typeof orders>
-// A line without the shop's cost: lines go to the buyer's page, the mails
-// and the payment provider, and none of them may carry it.
-export type OrderItemRow = Omit<InferSelectModel<typeof orderItems>, 'unitCostCents'>
+// A line without the shop's or the workshop's cost: lines go to the buyer's
+// page, the mails and the payment provider, and none of them may carry it.
+export type OrderItemRow = Omit<
+  InferSelectModel<typeof orderItems>,
+  'unitCostCents' | 'unitProductionCostCents'
+>
 
 const ORDER_ITEM_COLUMNS = {
   id: orderItems.id,
@@ -319,12 +323,9 @@ export const orderRepository = {
           variantLabel: item.variantLabel,
           quantity: item.quantity,
           unitPriceCents: item.unitPriceCents,
-          // The cost stays inside the database: checkout never sees it.
-          unitCostCents: sql<number | null>`(
-            select ${products.costCents} from ${products}
-            inner join ${productVariants} on ${productVariants.productId} = ${products.id}
-            where ${productVariants.id} = ${item.variantId}
-          )`,
+          // The costs stay inside the database: checkout never sees them.
+          unitCostCents: productCostOf(products.costCents, item.variantId),
+          unitProductionCostCents: productCostOf(products.productionCostCents, item.variantId),
           weightGrams: item.weightGrams,
           imageStorageKey: item.imageStorageKey,
         })),
@@ -1066,4 +1067,14 @@ function shelfCondition(shelf: OrderShelf): SQL {
 function collectedAtOf(status: OrderStatus | null | undefined): { deliveredAt?: SQL } {
   if (status !== OrderStatus.Delivered) return {}
   return { deliveredAt: sql`coalesce(${orders.deliveredAt}, now())` }
+}
+
+// One of the product's costs for the variant a line sells, read inside the
+// insert so the value never leaves the database.
+function productCostOf(cost: AnyPgColumn, variantId: string): SQL<number | null> {
+  return sql<number | null>`(
+    select ${cost} from ${products}
+    inner join ${productVariants} on ${productVariants.productId} = ${products.id}
+    where ${productVariants.id} = ${variantId}
+  )`
 }

@@ -81,6 +81,12 @@ export type EarningsDayRow = {
   readonly costedRevenueCents: number
   readonly costCents: number
   readonly uncostedUnits: number
+  // The workshop's side, on the lines whose products have both its price
+  // and its own cost: that price summed, and the cost of sewing them.
+  readonly producedCostCents: number
+  readonly productionCostCents: number
+  // Units with the workshop's price but none of its own cost.
+  readonly unproducedUnits: number
 }
 
 export type EarningsTotals = {
@@ -94,6 +100,13 @@ export type EarningsTotals = {
   readonly marginPercent: number | null
   readonly uncostedUnits: number
   readonly uncostedRevenueCents: number
+  // What sewing the goods cost the workshop, and what it earned on them:
+  // its price less that cost (owner, 08.11.2026).
+  readonly productionCostCents: number
+  readonly workshopEarningsCents: number
+  readonly unproducedUnits: number
+  // The shop's earnings and the workshop's together.
+  readonly combinedEarningsCents: number
 }
 
 export type EarningsDay = {
@@ -123,6 +136,8 @@ export function earningsTotals(
   const revenueCents = sum((row) => row.revenueCents)
   const costedRevenueCents = sum((row) => row.costedRevenueCents)
   const earningsCents = sum(rowEarnings)
+  const productionCostCents = sum((row) => row.productionCostCents)
+  const workshopEarningsCents = sum((row) => row.producedCostCents) - productionCostCents
 
   return {
     orders: sum((row) => row.orders),
@@ -133,6 +148,10 @@ export function earningsTotals(
     marginPercent: sharePercent(earningsCents, costedRevenueCents),
     uncostedUnits: sum((row) => row.uncostedUnits),
     uncostedRevenueCents: revenueCents - costedRevenueCents,
+    productionCostCents,
+    workshopEarningsCents,
+    unproducedUnits: sum((row) => row.unproducedUnits),
+    combinedEarningsCents: earningsCents + workshopEarningsCents,
   }
 }
 

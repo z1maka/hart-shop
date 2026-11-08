@@ -33,6 +33,7 @@ export type LockedVariant = {
   readonly productTitle: string
   readonly weightGrams: number
   readonly costCents: number | null
+  readonly productionCostCents: number | null
   readonly dropPriceCents: number | null
 }
 
@@ -60,6 +61,7 @@ export async function lockVariants(
       productTitle: sql<string>`coalesce(${products.shortTitle}, ${products.title})`,
       weightGrams: products.weightGrams,
       costCents: products.costCents,
+      productionCostCents: products.productionCostCents,
       dropPriceCents: products.dropPriceCents,
     })
     .from(productVariants)
@@ -89,7 +91,7 @@ export async function heldInCarts(tx: Transaction, variantId: string): Promise<n
 }
 
 // A new line snapshots its variant as checkout does: the names, the weight,
-// the cover photo and the workshop price of the moment.
+// the cover photo, the workshop's price and its own cost of the moment.
 export async function insertOrderLine(
   tx: Transaction,
   orderId: string,
@@ -113,6 +115,7 @@ export async function insertOrderLine(
     quantity: line.quantity,
     unitPriceCents: line.unitPriceCents,
     unitCostCents: variant.costCents,
+    unitProductionCostCents: variant.productionCostCents,
     weightGrams: variant.weightGrams,
     imageStorageKey: cover?.storageKey ?? null,
   })

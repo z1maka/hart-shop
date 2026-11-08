@@ -12,7 +12,9 @@ import { SalesChannel } from '@/db/enums'
 import { cn } from '@/lib/utils'
 
 // What the workshop's goods earned: the sale price less the workshop's
-// price, nothing else taken off. The ads have their own panel below.
+// price, nothing else taken off. The workshop's own earnings — its price
+// less what sewing cost it — stand beside them. The ads have their own
+// panel below.
 
 type Breakdown = Pick<AdminEarningsView, 'collected' | 'pending' | 'all'>
 
@@ -50,6 +52,7 @@ function EarningsHero({ breakdown }: { readonly breakdown: Breakdown }) {
         pendingCents={pending.earningsCents}
       />
       <UncostedNote totals={all} />
+      <UnproducedNote totals={all} />
     </div>
   )
 }
@@ -72,6 +75,11 @@ function SummaryFacts({ totals }: { readonly totals: EarningsTotals }) {
         label="Маржа"
         hint={`В среднем ${wholeMoney(averagePerOrder(totals))} с заказа`}
         value={percent(totals.marginPercent)}
+      />
+      <SummaryFact
+        label="Заработок цеха"
+        hint={`Себестоимость ${wholeMoney(totals.productionCostCents)}`}
+        value={wholeMoney(totals.workshopEarningsCents)}
       />
     </dl>
   )
@@ -153,6 +161,19 @@ function UncostedNote({ totals }: { readonly totals: EarningsTotals }) {
     <p className="mt-4 rounded-control bg-alert-soft px-3 py-2 text-[12px] font-medium text-alert">
       {totals.uncostedUnits} шт. на {wholeMoney(totals.uncostedRevenueCents)} без цены цеха — в
       заработок не вошли. Впишите цену в карточке товара.
+    </p>
+  )
+}
+
+// Workshop goods without the workshop's own cost: the workshop's earnings
+// leave them out, and the owner can fill the cost in.
+function UnproducedNote({ totals }: { readonly totals: EarningsTotals }) {
+  if (totals.unproducedUnits === 0) return null
+
+  return (
+    <p className="mt-2 rounded-control bg-sunken px-3 py-2 text-[12px] font-medium text-muted">
+      {totals.unproducedUnits} шт. без себестоимости цеха — в заработок цеха не вошли. Впишите её в
+      карточке товара.
     </p>
   )
 }
@@ -274,6 +295,13 @@ const BREAKDOWN_ROWS: readonly {
   { label: 'Цена цеха', value: (totals) => wholeMoney(totals.costCents) },
   { label: 'Заработок', value: (totals) => wholeMoney(totals.earningsCents), isStrong: true },
   { label: 'Маржа', value: (totals) => percent(totals.marginPercent) },
+  { label: 'Себестоимость цеха', value: (totals) => wholeMoney(totals.productionCostCents) },
+  { label: 'Заработок цеха', value: (totals) => wholeMoney(totals.workshopEarningsCents) },
+  {
+    label: 'Общий заработок',
+    value: (totals) => wholeMoney(totals.combinedEarningsCents),
+    isStrong: true,
+  },
 ]
 
 function chartDay(day: EarningsDay): EarningsChartDay {
@@ -319,7 +347,7 @@ function ChannelTable({ view }: { readonly view: AdminEarningsView }) {
 
   return (
     <div className="overflow-x-auto rounded-card border border-subtle bg-surface">
-      <table className="w-full min-w-[640px] text-[12.5px] tabular-nums sm:text-[13px]">
+      <table className="w-full min-w-[720px] text-[12.5px] tabular-nums sm:text-[13px]">
         <caption className="px-4 pt-3.5 pb-1 text-left text-[14px] font-semibold text-ink">
           По каналам
         </caption>
@@ -332,7 +360,8 @@ function ChannelTable({ view }: { readonly view: AdminEarningsView }) {
             <th className="px-2 py-3 font-medium">Цена цеха</th>
             <th className="px-2 py-3 font-semibold text-ink">Заработок</th>
             <th className="px-2 py-3 font-medium">Маржа</th>
-            <th className="py-3 pr-4 pl-2 font-medium">С единицы</th>
+            <th className="px-2 py-3 font-medium">С единицы</th>
+            <th className="py-3 pr-4 pl-2 font-medium">Заработок цеха</th>
           </tr>
         </thead>
         <tbody>
@@ -369,8 +398,11 @@ function ChannelRow({
         {wholeMoney(totals.earningsCents)}
       </td>
       <td className="px-2 py-2.5">{percent(totals.marginPercent)}</td>
-      <td className="py-2.5 pr-4 pl-2 whitespace-nowrap">
+      <td className="px-2 py-2.5 whitespace-nowrap">
         {perUnit === null ? '—' : wholeMoney(perUnit)}
+      </td>
+      <td className="py-2.5 pr-4 pl-2 whitespace-nowrap">
+        {wholeMoney(totals.workshopEarningsCents)}
       </td>
     </tr>
   )

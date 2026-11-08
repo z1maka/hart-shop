@@ -25,6 +25,9 @@ function row(overrides: Partial<EarningsDayRow>): EarningsDayRow {
     costedRevenueCents: 0,
     costCents: 0,
     uncostedUnits: 0,
+    producedCostCents: 0,
+    productionCostCents: 0,
+    unproducedUnits: 0,
     ...overrides,
   }
 }
@@ -59,6 +62,30 @@ describe('earningsTotals', () => {
       marginPercent: 40,
       uncostedUnits: 0,
       uncostedRevenueCents: 0,
+      productionCostCents: 0,
+      workshopEarningsCents: 0,
+      unproducedUnits: 0,
+      combinedEarningsCents: 400_000,
+    })
+  })
+
+  it("counts the workshop's earnings on the goods whose own cost is known", () => {
+    const sewn = row({
+      units: 3,
+      revenueCents: 660_000,
+      costedRevenueCents: 660_000,
+      costCents: 540_000,
+      producedCostCents: 360_000,
+      productionCostCents: 210_000,
+      unproducedUnits: 1,
+    })
+
+    expect(earningsTotals([sewn], EarningsScope.All)).toMatchObject({
+      earningsCents: 120_000,
+      productionCostCents: 210_000,
+      workshopEarningsCents: 150_000,
+      unproducedUnits: 1,
+      combinedEarningsCents: 270_000,
     })
   })
 

@@ -137,6 +137,10 @@ export const products = pgTable(
     // For the admin's margin and pay figures only — no storefront query,
     // feed or offer selects it.
     costCents: integer('cost_cents'),
+    // What sewing one unit costs the workshop itself, in kopiykas: the
+    // workshop earns its price (costCents) less this. Null for bought-in
+    // goods and until entered. Confidential like the cost.
+    productionCostCents: integer('production_cost_cents'),
     // What a partner pays for one unit when reselling under their own name
     // (dropshipping), in kopiykas; a variant adds its surcharge on top, as in
     // the cart. Null keeps the product out of partner orders. Confidential
@@ -502,6 +506,9 @@ export const orderItems = pgTable(
     // then), so a later workshop price leaves past earnings alone; null when
     // the product had no cost entered. Admin only, like the product's cost.
     unitCostCents: integer('unit_cost_cents'),
+    // What sewing the unit cost the workshop when it was ordered, kept for the
+    // same reason; null when the product had none entered.
+    unitProductionCostCents: integer('unit_production_cost_cents'),
     currency: char('currency', { length: 3 }).notNull().default('UAH'),
     weightGrams: integer('weight_grams').notNull(),
     imageStorageKey: text('image_storage_key'),

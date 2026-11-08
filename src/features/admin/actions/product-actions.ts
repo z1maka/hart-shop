@@ -125,6 +125,7 @@ const SaveProductSchema = z
       ),
     // Absent from a form rendered before the field existed: leave it alone.
     cost: optionalDecimalInput(100_000).optional(),
+    productionCost: optionalDecimalInput(100_000).optional(),
     // The partner's price; absent from an older form, leave it alone.
     dropPrice: optionalDecimalInput(100_000).optional(),
     weight: decimalInput(MAX_PRODUCT_WEIGHT_KG),
@@ -335,6 +336,10 @@ async function saveProduct(formData: FormData): Promise<SaveProductResult> {
       wholesaleMinQty: parsed.data.wholesaleMinQty,
       wholesalePriceCents: nullableKopiykas(parsed.data.wholesalePrice),
       costCents: parsed.data.cost === undefined ? undefined : nullableKopiykas(parsed.data.cost),
+      productionCostCents:
+        parsed.data.productionCost === undefined
+          ? undefined
+          : nullableKopiykas(parsed.data.productionCost),
       dropPriceCents:
         parsed.data.dropPrice === undefined ? undefined : nullableKopiykas(parsed.data.dropPrice),
       weightGrams: Math.round(parsed.data.weight * GRAMS_PER_KILO),

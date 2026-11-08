@@ -334,11 +334,20 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
                   className={inputClassName}
                 />
               </Field>
-              <Field error={fieldError('cost')} label="Себестоимость, грн">
+              <Field error={fieldError('cost')} label="Цена цеха, грн">
                 <input
                   name="cost"
                   value={cost}
                   onChange={(event) => setCost(event.target.value)}
+                  inputMode="decimal"
+                  placeholder="Не указана"
+                  className={inputClassName}
+                />
+              </Field>
+              <Field error={fieldError('productionCost')} label="Себестоимость цеха, грн">
+                <input
+                  name="productionCost"
+                  defaultValue={typed.productionCost ?? product.productionCostInput}
                   inputMode="decimal"
                   placeholder="Не указана"
                   className={inputClassName}
@@ -600,7 +609,7 @@ function DropPriceNote({
   if (workshop !== null && earnsNothingOver(drop, workshop)) {
     return (
       <p className="mt-3 rounded-control bg-alert-soft px-3 py-2 text-[12.5px] font-medium text-alert">
-        Цена дропшиппера не выше себестоимости — с партнёра заработка не будет. Сохранить можно.
+        Цена дропшиппера не выше цены цеха — с партнёра заработка не будет. Сохранить можно.
       </p>
     )
   }
