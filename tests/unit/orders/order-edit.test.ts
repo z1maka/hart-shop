@@ -8,6 +8,7 @@ import {
   priceQueryCents,
   repricedLines,
   stockChanges,
+  withAgreedPrices,
   type EditLine,
 } from '@/features/orders/model/order-edit'
 import { unitPriceCentsFor } from '@/features/catalog/model/pricing'
@@ -204,6 +205,35 @@ describe('the lines of a partner order', () => {
     const cover = line({ variantId: 'cover-olive', quantity: 2, unitPriceCents: 300_000 })
 
     expect(repriced([cover], [{ ...cover, quantity: 0 }], dropPrice)).toEqual([])
+  })
+})
+
+describe('withAgreedPrices', () => {
+  it('sells a line at the price agreed with the buyer', () => {
+    const lines = [line({ variantId: 'mini', quantity: 3 }), line({ variantId: 'poncho' })]
+
+    const priced = withAgreedPrices(lines, new Map([['mini', 273300]]))
+
+    expect(priced.map((entry) => entry.unitPriceCents)).toEqual([273300, 290000])
+    expect(linesSubtotalCents(priced)).toBe(273300 * 3 + 290000)
+  })
+
+  it('wins over the repricing a quantity change brings', () => {
+    const before = [line({ variantId: 'mini', quantity: 3 })]
+    const after = [line({ variantId: 'mini', quantity: 10 })]
+
+    const priced = withAgreedPrices(
+      repricedLines(before, after, unitPriceOf),
+      new Map([['mini', 250000]]),
+    )
+
+    expect(priced[0]?.unitPriceCents).toBe(250000)
+  })
+
+  it('leaves every line alone when nothing was agreed', () => {
+    const lines = [line({ variantId: 'mini' })]
+
+    expect(withAgreedPrices(lines, new Map())).toEqual(lines)
   })
 })
 

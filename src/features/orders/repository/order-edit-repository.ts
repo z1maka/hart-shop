@@ -6,6 +6,7 @@ import { linePricingFor, type ChannelPricedProduct } from '@/features/orders/mod
 import {
   lineRepricingFor,
   linesSubtotalCents,
+  withAgreedPrices,
   orderEditBlockOf,
   priceQueryCents,
   stockChanges,
@@ -32,10 +33,12 @@ import {
 import { escapeLikePattern } from '@/lib/sql'
 
 // The admin names variants and quantities; zero takes a line out. A line the
-// request does not name keeps its quantity.
+// request does not name keeps its quantity. A price agreed with the buyer
+// overrides the channel's pricing for that line.
 export type RequestedLine = {
   readonly variantId: string
   readonly quantity: number
+  readonly agreedUnitPriceCents?: number
 }
 
 export type EditedTotals = {
@@ -95,7 +98,10 @@ export const orderEditRepository = {
       const before = stored.flatMap((line) => editLineOf(line, variants))
       const priceOf = channelUnitPrice(order.channel, variants)
       const repriced = lineRepricingFor(order.channel)
-      const after = repriced(before, requestedLines(before, requested, variants), priceOf)
+      const after = withAgreedPrices(
+        repriced(before, requestedLines(before, requested, variants), priceOf),
+        agreedPricesOf(requested),
+      )
       // A line whose variant was deleted cannot be priced again; it stays.
       const frozen = stored.filter((line) => line.variantId === null)
       if (after.length + frozen.length === 0) throw new OrderEmptyError(orderId)
@@ -180,6 +186,14 @@ export const orderEditRepository = {
       .orderBy(asc(products.title), asc(productVariants.position), asc(productVariants.id))
       .limit(limit)
   },
+}
+
+function agreedPricesOf(requested: readonly RequestedLine[]): Map<string, number> {
+  return new Map(
+    requested.flatMap((line) =>
+      line.agreedUnitPriceCents === undefined ? [] : [[line.variantId, line.agreedUnitPriceCents]],
+    ),
+  )
 }
 
 async function lockOrder(tx: Transaction, orderId: string) {

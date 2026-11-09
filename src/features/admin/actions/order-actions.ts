@@ -421,6 +421,9 @@ export async function findAdminStreetsAction(input: unknown): Promise<ActionResu
 
 // More lines than an order of the shop ever had; the cap only bounds the form.
 const ORDER_EDIT_MAX_LINES = 50
+const KOPIYKAS_PER_HRYVNIA = 100
+// Above any price in the catalogue; the cap only catches a mistyped zero.
+const AGREED_UNIT_PRICE_MAX_HRYVNIAS = 100_000
 const OrderLinesSchema = z.object({
   orderId: z.uuid(),
   lines: z
@@ -428,6 +431,14 @@ const OrderLinesSchema = z.object({
       z.object({
         variantId: z.uuid(),
         quantity: z.number().int().min(0).max(ORDER_LINE_MAX_QUANTITY),
+        // Whole hryvnias, as a deal is made; sent only when the admin set one.
+        agreedUnitPrice: z
+          .number()
+          .int()
+          .min(1)
+          .max(AGREED_UNIT_PRICE_MAX_HRYVNIAS)
+          .transform((hryvnias) => hryvnias * KOPIYKAS_PER_HRYVNIA)
+          .optional(),
       }),
     )
     .min(1)
@@ -457,11 +468,20 @@ export async function editOrderLinesAction(
   if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
 
   const parsed = OrderLinesSchema.safeParse(input)
-  if (!parsed.success) return actionError('VALIDATION_FAILED', 'quantity', 'целое число от 0')
+  if (!parsed.success) {
+    return actionError(
+      'VALIDATION_FAILED',
+      'quantity',
+      'количество — целое от 0, своя цена — целые гривны больше нуля',
+    )
+  }
 
   try {
     const { orderId, lines } = parsed.data
-    const totals = await orderEditService.editLines(orderId, lines, session.email)
+    const requested = lines.map(({ agreedUnitPrice, ...line }) =>
+      agreedUnitPrice === undefined ? line : { ...line, agreedUnitPriceCents: agreedUnitPrice },
+    )
+    const totals = await orderEditService.editLines(orderId, requested, session.email)
     return actionOk({
       previousTotalCents: totals.previousTotalCents,
       totalCents: totals.totalCents,

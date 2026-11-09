@@ -9,10 +9,7 @@ import {
 import { errorText } from '@/features/admin/ui/messages'
 import { VariantSearchBox } from '@/features/admin/ui/VariantSearchBox'
 import type { AddableVariant, AdminOrderLine } from '@/features/orders'
-import {
-  ORDER_LINE_MAX_QUANTITY,
-  OrderEditBlock,
-} from '@/features/orders/model/order-edit'
+import { ORDER_LINE_MAX_QUANTITY, OrderEditBlock } from '@/features/orders/model/order-edit'
 import { SalesChannel } from '@/db/enums'
 import { Button } from '@/components/ui/Button'
 import { inputClassName } from '@/components/ui/Field'
@@ -35,6 +32,8 @@ type DraftLine = {
   readonly sku: string
   readonly quantity: number
   readonly priceLabel: string
+  // Whole hryvnias per unit as typed; blank keeps the channel's pricing.
+  readonly agreedPrice: string
   readonly isNew: boolean
 }
 
@@ -53,6 +52,12 @@ const REPRICING_HINTS: Record<SalesChannel, string> = {
   [SalesChannel.Dropship]:
     'Строки, что уже в заказе, сохраняют свою цену — договорную или из карточки, при любом количестве. Новый товар встанет по цене дропшиппера из карточки.',
 }
+
+// A deal made with the buyer by phone or in a messenger: the line's price per
+// unit, in whole hryvnias, goes into the stats and the workshop's acts as is.
+const AGREED_PRICE_HINT =
+  '«Своя цена» — договорная цена за штуку в целых гривнах, например со скидкой. Пусто — цена по правилам выше. Если потом поменять количество, цену нужно вписать снова.'
+const WHOLE_HRYVNIAS = /^\d{1,6}$/
 
 export function OrderLinesEditor({
   orderId,
@@ -137,6 +142,12 @@ function LinesForm({
     )
   }
 
+  function setAgreedPrice(variantId: string, agreedPrice: string) {
+    setDraft((current) =>
+      current.map((line) => (line.variantId === variantId ? { ...line, agreedPrice } : line)),
+    )
+  }
+
   function add(variant: AddableVariant) {
     const unitPriceCents = variant.unitPriceCents
     if (unitPriceCents === null) return
@@ -151,11 +162,12 @@ function LinesForm({
 
   function save() {
     setError(null)
+    if (draft.some((line) => !isAgreedPriceValid(line.agreedPrice))) {
+      setError('Своя цена — целое число гривен больше нуля, без копеек.')
+      return
+    }
     startTransition(async () => {
-      const result = await editOrderLinesAction({
-        orderId,
-        lines: draft.map((line) => ({ variantId: line.variantId, quantity: line.quantity })),
-      })
+      const result = await editOrderLinesAction({ orderId, lines: draft.map(requestedLineOf) })
       if (!result.ok) {
         setError(errorText(result.error))
         return
@@ -170,7 +182,12 @@ function LinesForm({
     <div className="grid gap-3">
       <ul className="grid gap-2">
         {draft.map((line) => (
-          <DraftRow key={line.variantId} line={line} onQuantity={setQuantity} />
+          <DraftRow
+            key={line.variantId}
+            line={line}
+            onQuantity={setQuantity}
+            onAgreedPrice={setAgreedPrice}
+          />
         ))}
         {frozen.map((line) => (
           <li key={line.id} className="text-[12.5px] text-muted">
@@ -180,7 +197,8 @@ function LinesForm({
       </ul>
       <VariantSearchBox channel={channel} onPick={add} />
       <p className="text-[12px] leading-relaxed text-muted">
-        {REPRICING_HINTS[channel]} Остаток на складе обновится. Покупателю ничего не отправляется.
+        {REPRICING_HINTS[channel]} {AGREED_PRICE_HINT} Остаток на складе обновится. Покупателю
+        ничего не отправляется.
       </p>
       {liveInvoiceNumber ? (
         <p className="rounded-control border border-alert-edge bg-alert-soft px-3 py-2 text-[12.5px] leading-relaxed text-alert">
@@ -204,9 +222,10 @@ function LinesForm({
 type DraftRowProps = {
   readonly line: DraftLine
   readonly onQuantity: (variantId: string, quantity: number) => void
+  readonly onAgreedPrice: (variantId: string, agreedPrice: string) => void
 }
 
-function DraftRow({ line, onQuantity }: DraftRowProps) {
+function DraftRow({ line, onQuantity, onAgreedPrice }: DraftRowProps) {
   const isRemoved = line.quantity === 0
 
   return (
@@ -228,6 +247,18 @@ function DraftRow({ line, onQuantity }: DraftRowProps) {
         onChange={(event) => onQuantity(line.variantId, clampQuantity(event.target.value))}
         className={cn(inputClassName, 'w-24')}
       />
+      <input
+        inputMode="numeric"
+        value={line.agreedPrice}
+        placeholder="Своя цена, ₴"
+        aria-label={`Своя цена за штуку, грн: ${line.title}`}
+        onChange={(event) => onAgreedPrice(line.variantId, event.target.value.trim())}
+        className={cn(
+          inputClassName,
+          'w-36',
+          !isAgreedPriceValid(line.agreedPrice) && 'border-alert-edge',
+        )}
+      />
       <Button variant="quiet" size="sm" onClick={() => onQuantity(line.variantId, 0)}>
         Убрать
       </Button>
@@ -246,6 +277,7 @@ function draftLineOf(line: AdminOrderLine): DraftLine[] {
       sku: line.sku,
       quantity: line.quantity,
       priceLabel: line.unitPriceLabel,
+      agreedPrice: '',
       isNew: false,
     },
   ]
@@ -259,8 +291,20 @@ function addedLineOf(variant: AddableVariant, unitPriceCents: number): DraftLine
     sku: variant.sku,
     quantity: 1,
     priceLabel: moneyLabel(unitPriceCents),
+    agreedPrice: '',
     isNew: true,
   }
+}
+
+function isAgreedPriceValid(typed: string): boolean {
+  return typed === '' || (WHOLE_HRYVNIAS.test(typed) && Number(typed) > 0)
+}
+
+function requestedLineOf(line: DraftLine) {
+  const request = { variantId: line.variantId, quantity: line.quantity }
+  return line.agreedPrice === ''
+    ? request
+    : { ...request, agreedUnitPrice: Number(line.agreedPrice) }
 }
 
 function clampQuantity(typed: string): number {

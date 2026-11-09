@@ -128,6 +128,20 @@ export function lineRepricingFor(channel: SalesChannel): LineRepricing {
   return LINE_REPRICING[channel]
 }
 
+// A price per unit the admin agreed with the buyer, in whole hryvnias — a
+// discount on a phone or messenger deal (owner, 09.11.2026). It replaces what
+// the channel's rules gave the line; the line then keeps it until an edit
+// changes the product's quantity and the rules price it again.
+export function withAgreedPrices(
+  lines: readonly EditLine[],
+  agreedByVariant: ReadonlyMap<string, number>,
+): EditLine[] {
+  return lines.map((line) => {
+    const agreedCents = agreedByVariant.get(line.variantId)
+    return agreedCents === undefined ? line : { ...line, unitPriceCents: agreedCents }
+  })
+}
+
 // What leaves the shelf (positive) or comes back to it (negative) per variant.
 export function stockChanges(
   before: readonly EditLine[],
