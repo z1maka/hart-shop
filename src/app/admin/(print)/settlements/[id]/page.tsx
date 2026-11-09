@@ -53,7 +53,7 @@ async function Sheet({ params }: { params: PageProps<'/admin/settlements/[id]'>[
               today={settlement.today}
             />
           )}
-          <PrintButton />
+          <PrintButton label="Печать / PDF" />
         </div>
       </div>
       <div className="overflow-x-auto px-4 pt-6 sm:px-7 print:overflow-visible print:p-0">

@@ -49,7 +49,7 @@ async function InvoiceSheet({
         <span className="text-[12.5px] text-on-dark/70">
           Счёт № {invoice.number} · {invoice.isVoid ? 'аннулирован' : 'выставлен'}
         </span>
-        <PrintButton />
+        <PrintButton label="Печать / PDF" />
       </div>
       <div className="overflow-x-auto px-4 pt-6 sm:px-7 print:overflow-visible print:p-0">
         <InvoiceDocument invoice={invoice} />

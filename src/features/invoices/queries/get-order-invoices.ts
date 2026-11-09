@@ -12,6 +12,7 @@ import { orderRepository } from '@/features/orders'
 import { resellerService } from '@/features/resellers'
 import { InvoiceStatus } from '@/db/enums'
 import { formatDateIsoKyiv } from '@/lib/datetime'
+import { env } from '@/lib/env'
 import { createMoney, Currency, formatMoney } from '@/lib/money'
 import { taxIdLabel } from '@/lib/tax-id'
 
@@ -38,6 +39,9 @@ export type OrderInvoicesView = {
   readonly prefill: InvoiceParty
   // «2026-11-12»: five banking days from today.
   readonly defaultValidUntil: string
+  // The page the buyer opens without signing in, keyed by the order's
+  // secret token; it shows the live invoice only.
+  readonly buyerLink: string
 }
 
 const BLANK_BUYER: InvoiceParty = { name: '', taxId: null, address: null, phone: null }
@@ -65,6 +69,7 @@ export async function getOrderInvoices(
       .map((invoice) => invoice.view),
     prefill,
     defaultValidUntil: addBankingDays(formatDateIsoKyiv(now), DEFAULT_VALIDITY_BANKING_DAYS),
+    buyerLink: new URL(`/order/${order.accessToken}/invoice/`, env.NEXT_PUBLIC_SITE_URL).href,
   }
 }
 

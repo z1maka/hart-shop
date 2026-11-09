@@ -5,6 +5,7 @@ export {
   type OrderInvoicesView,
 } from '@/features/invoices/queries/get-order-invoices'
 export {
+  getBuyerInvoiceDocument,
   getInvoiceDocument,
   type InvoiceDocumentView,
 } from '@/features/invoices/queries/get-invoice-document'

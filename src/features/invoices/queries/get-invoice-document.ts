@@ -6,8 +6,9 @@ import {
   signatoryOf,
   type InvoiceSeller,
 } from '@/features/invoices/model/invoice'
+import type { InvoiceRow } from '@/features/invoices/repository/invoice-repository'
 import { invoiceService } from '@/features/invoices/services/invoice-service'
-import { orderRepository } from '@/features/orders'
+import { orderRepository, type OrderRow } from '@/features/orders'
 import { amountInWords } from '@/lib/amount-in-words'
 import { groupIban } from '@/lib/iban'
 import { taxIdLabel } from '@/lib/tax-id'
@@ -69,8 +70,25 @@ export async function getInvoiceDocument(orderId: string): Promise<InvoiceDocume
   const invoice = invoices.find((entry) => entry.status === InvoiceStatus.Issued) ?? invoices.at(0)
   if (!order || !invoice) return null
 
+  return documentOf(order, invoice)
+}
+
+// The buyer's copy, reached by the order's secret link without signing in:
+// the live invoice only, so a voided one is never sent on.
+export async function getBuyerInvoiceDocument(
+  accessToken: string,
+): Promise<InvoiceDocumentView | null> {
+  const order = await orderRepository.findByAccessToken(accessToken)
+  if (!order) return null
+
+  const invoices = await invoiceService.listForOrder(order.id)
+  const live = invoices.find((entry) => entry.status === InvoiceStatus.Issued)
+  return live ? documentOf(order, live) : null
+}
+
+function documentOf(order: OrderRow, invoice: InvoiceRow): InvoiceDocumentView {
   return {
-    orderId,
+    orderId: order.id,
     orderNumber: order.orderNumber,
     number: invoice.number,
     isVoid: invoice.status === InvoiceStatus.Void,

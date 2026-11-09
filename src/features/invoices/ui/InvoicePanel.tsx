@@ -84,6 +84,7 @@ export function InvoicePanel({ view, transferAccountLabel }: InvoicePanelProps) 
             <Button asChild size="sm">
               <Link href={`/admin/orders/${view.orderId}/invoice/`}>Открыть счёт</Link>
             </Button>
+            <CopyBuyerLinkButton link={view.buyerLink} />
             <Button
               variant="secondary"
               size="sm"
@@ -94,7 +95,9 @@ export function InvoicePanel({ view, transferAccountLabel }: InvoicePanelProps) 
             </Button>
           </div>
           <p className="mt-2 text-[12px] leading-relaxed text-faint">
-            Счёт — снимок: цены, реквизиты и названия в нём не меняются после выставления.
+            Счёт — снимок: цены, реквизиты и названия в нём не меняются после выставления. Ссылку
+            можно отправить покупателю в мессенджер: счёт откроется без входа, там же его сохраняют
+            в PDF. После аннулирования ссылка перестаёт открываться.
           </p>
         </div>
       ) : null}
@@ -268,5 +271,29 @@ function IssueForm({ prefill, defaultValidUntil, isPending, onCancel, onIssue }:
         </Button>
       </div>
     </form>
+  )
+}
+
+const COPIED_NOTE_MS = 2500
+
+// The buyer's link goes to the clipboard; where the browser refuses that,
+// the link opens in a new tab to be copied from the address bar.
+function CopyBuyerLinkButton({ link }: { readonly link: string }) {
+  const [isCopied, setIsCopied] = useState(false)
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(link)
+      setIsCopied(true)
+      window.setTimeout(() => setIsCopied(false), COPIED_NOTE_MS)
+    } catch {
+      window.open(link, '_blank', 'noopener')
+    }
+  }
+
+  return (
+    <Button variant="secondary" size="sm" onClick={copy}>
+      {isCopied ? 'Ссылка скопирована' : 'Ссылка для покупателя'}
+    </Button>
   )
 }
