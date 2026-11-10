@@ -13,6 +13,7 @@ import type {
   AdminOrderLine,
 } from '@/features/orders/queries/get-admin-order'
 import { OrderActionsPanel } from '@/features/admin/ui/OrderActionsPanel'
+import { PaymentRouteSwitcher } from '@/features/admin/ui/PaymentRouteSwitcher'
 import { OrderLinesEditor } from '@/features/admin/ui/OrderLinesEditor'
 import { PhoneLink } from '@/features/admin/ui/order-cells'
 import { TrackingNumberPanel } from '@/features/admin/ui/TrackingNumberPanel'
@@ -198,6 +199,9 @@ async function OrderDetail({ params }: { params: PageProps<'/admin/orders/[id]'>
               ) : null}
               <ParcelRow parcel={order.parcel} isTracked={order.isParcelTracked} />
             </dl>
+            {order.paymentSwitchTarget ? (
+              <PaymentRouteSwitcher orderId={order.id} target={order.paymentSwitchTarget} />
+            ) : null}
           </section>
         </div>
 

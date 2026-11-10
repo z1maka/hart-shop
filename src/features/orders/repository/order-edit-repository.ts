@@ -1,5 +1,12 @@
 import { and, asc, eq, ilike, or, sql } from 'drizzle-orm'
-import { InvoiceStatus, PaymentRoute, ProductStatus, type SalesChannel } from '@/db/enums'
+import type { BankAccountDraft } from '@/config/requisites'
+import {
+  InvoiceStatus,
+  PaymentRoute,
+  ProductStatus,
+  type OrderStatus,
+  type SalesChannel,
+} from '@/db/enums'
 import { invoices, orderItems, orders, productImages, productVariants, products } from '@/db/schema'
 import { wholesaleTierOf } from '@/features/catalog/model/pricing'
 import { linePricingFor, type ChannelPricedProduct } from '@/features/orders/model/channel-pricing'
@@ -26,11 +33,13 @@ import {
   OrderNotEditableError,
   OrderNotFoundError,
   OutOfStockError,
+  PaymentSwitchNotAllowedError,
   PrepaymentNotAllowedError,
   ProductNotFoundError,
   VariantNotFoundError,
 } from '@/lib/errors'
 import { escapeLikePattern } from '@/lib/sql'
+import { paymentSwitchBlockOf, statusAfterSwitch } from '@/features/orders/model/payment-switch'
 
 // The admin names variants and quantities; zero takes a line out. A line the
 // request does not name keeps its quantity. A price agreed with the buyer
@@ -74,7 +83,64 @@ type StoredLine = {
   readonly unitPriceCents: number
 }
 
+export type PaymentSwitch = {
+  readonly to: PaymentRoute
+  // The account a transfer is paid to, copied as checkout copies it; null
+  // for cash on delivery.
+  readonly bankRequisites: BankAccountDraft | null
+}
+
+export type SwitchedPayment = {
+  readonly from: PaymentRoute
+  readonly to: PaymentRoute
+  readonly status: OrderStatus
+  // The invoice a move away from the transfer voided; null when none was live.
+  readonly voidedInvoiceNumber: number | null
+}
+
 export const orderEditRepository = {
+  // Under the order's row lock, so a waybill or a payment recorded from
+  // another tab meanwhile is seen. A prepayment belongs to cash on delivery
+  // and goes; an invoice belongs to the transfer and is voided when the
+  // order leaves it.
+  async switchPaymentRoute(orderId: string, change: PaymentSwitch): Promise<SwitchedPayment> {
+    return db.transaction(async (tx) => {
+      const [order] = await tx
+        .select({
+          status: orders.status,
+          paymentRoute: orders.paymentRoute,
+          paidAt: orders.paidAt,
+          carrierDocumentRef: orders.carrierDocumentRef,
+          trackingNumber: orders.trackingNumber,
+          channel: orders.channel,
+        })
+        .from(orders)
+        .where(eq(orders.id, orderId))
+        .for('update')
+        .limit(1)
+      if (!order) throw new OrderNotFoundError(orderId)
+
+      const block = paymentSwitchBlockOf(order)
+      if (block) throw new PaymentSwitchNotAllowedError(orderId, block)
+
+      const status = statusAfterSwitch(order.status, change.to)
+      await tx
+        .update(orders)
+        .set({
+          paymentRoute: change.to,
+          bankRequisites: change.bankRequisites,
+          prepaidCents: 0,
+          status,
+          updatedAt: new Date(),
+        })
+        .where(eq(orders.id, orderId))
+
+      const isLeavingTransfer = order.paymentRoute === PaymentRoute.BankTransfer
+      const voidedInvoiceNumber = isLeavingTransfer ? await voidLiveInvoice(tx, orderId) : null
+      return { from: order.paymentRoute, to: change.to, status, voidedInvoiceNumber }
+    })
+  },
+
   // Everything under the order's row lock: a waybill issued from another tab,
   // or a second edit, waits for this one, and the stock read and the stock
   // write are not separated by another sale.

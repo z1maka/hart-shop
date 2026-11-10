@@ -2,7 +2,7 @@
 
 import { z } from 'zod'
 import { WAYBILL_DESCRIPTION_MAX_LENGTH, WAYBILL_PARCEL_GRAMS } from '@/config/delivery'
-import { Carrier, DeliveryKind, OrderStatus, SalesChannel } from '@/db/enums'
+import { Carrier, DeliveryKind, OrderStatus, PaymentRoute, SalesChannel } from '@/db/enums'
 import {
   getMonthReturns,
   getWeekTraffic,
@@ -454,6 +454,33 @@ const VariantSearchSchema = z.object({
     .enum(Object.values(SalesChannel) as [SalesChannel, ...SalesChannel[]])
     .default(SalesChannel.Site),
 })
+
+const PaymentSwitchSchema = z.object({
+  orderId: z.uuid(),
+  paymentRoute: z.enum([PaymentRoute.CashOnDelivery, PaymentRoute.BankTransfer]),
+})
+
+export type PaymentSwitchOutcome = {
+  readonly voidedInvoiceNumber: number | null
+}
+
+export async function switchOrderPaymentAction(
+  input: unknown,
+): Promise<ActionResult<PaymentSwitchOutcome>> {
+  const session = await readAdminSession()
+  if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
+
+  const parsed = PaymentSwitchSchema.safeParse(input)
+  if (!parsed.success) return actionError('VALIDATION_FAILED', 'paymentRoute')
+
+  try {
+    const { orderId, paymentRoute } = parsed.data
+    const switched = await orderEditService.switchPaymentRoute(orderId, paymentRoute, session.email)
+    return actionOk({ voidedInvoiceNumber: switched.voidedInvoiceNumber })
+  } catch (error) {
+    return toActionError(error)
+  }
+}
 
 export type OrderLinesEditOutcome = {
   readonly previousTotalCents: number

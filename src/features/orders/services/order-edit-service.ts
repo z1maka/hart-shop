@@ -1,4 +1,6 @@
-import type { SalesChannel } from '@/db/enums'
+import type { BankAccountDraft } from '@/config/requisites'
+import { PaymentRoute, type SalesChannel } from '@/db/enums'
+import { bankAccountService, requisitesSnapshot } from '@/features/billing'
 import { listedUnitPriceCents } from '@/features/orders/model/channel-pricing'
 import { variantLabelOf } from '@/features/catalog/model/product-view'
 import { VARIANT_SEARCH_LIMIT } from '@/features/orders/model/order-edit'
@@ -6,7 +8,9 @@ import {
   orderEditRepository,
   type EditedTotals,
   type RequestedLine,
+  type SwitchedPayment,
 } from '@/features/orders/repository/order-edit-repository'
+import { PaymentRouteUnavailableError } from '@/lib/errors'
 import { logger } from '@/lib/logger'
 import { publicUrl } from '@/lib/storage'
 
@@ -28,6 +32,19 @@ export type AddableVariant = {
 }
 
 export const orderEditService = {
+  // Cash on delivery to a transfer to the ФОП or back (owner, 10.11.2026).
+  // A transfer takes the active account's requisites, as checkout does.
+  async switchPaymentRoute(
+    orderId: string,
+    to: PaymentRoute,
+    switchedBy: string,
+  ): Promise<SwitchedPayment> {
+    const bankRequisites = to === PaymentRoute.BankTransfer ? await transferRequisites() : null
+    const switched = await orderEditRepository.switchPaymentRoute(orderId, { to, bankRequisites })
+    logger.info('Order payment route switched by admin', { orderId, switchedBy, ...switched })
+    return switched
+  },
+
   async editLines(
     orderId: string,
     lines: readonly RequestedLine[],
@@ -58,4 +75,10 @@ export const orderEditService = {
       imageUrl: row.imageStorageKey === null ? null : publicUrl(row.imageStorageKey),
     }))
   },
+}
+
+async function transferRequisites(): Promise<BankAccountDraft> {
+  const account = await bankAccountService.active()
+  if (!account) throw new PaymentRouteUnavailableError(PaymentRoute.BankTransfer)
+  return requisitesSnapshot(account)
 }

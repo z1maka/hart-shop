@@ -30,6 +30,7 @@ import {
 import { TRACKED_ORDER_STATUSES } from '@/features/orders/model/parcel-progress'
 import { allowedNextStatuses } from '@/features/orders/model/status-flow'
 import { orderEditBlockOf, type OrderEditBlock } from '@/features/orders/model/order-edit'
+import { paymentSwitchBlockOf, paymentSwitchTargetOf } from '@/features/orders/model/payment-switch'
 import {
   orderRepository,
   type OrderItemRow,
@@ -179,6 +180,8 @@ export type AdminOrderView = {
   readonly editBlock: OrderEditBlock | null
   readonly email: string | null
   readonly paymentRoute: PaymentRoute
+  // The route the admin can move the order to; null when it cannot change.
+  readonly paymentSwitchTarget: PaymentRoute | null
   readonly paymentProvider: string | null
   readonly paymentRef: string | null
   readonly paidAt: string | null
@@ -240,6 +243,7 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrderView | n
     editBlock: orderEditBlockOf(order),
     email: order.email,
     paymentRoute,
+    paymentSwitchTarget: paymentSwitchBlockOf(order) ? null : paymentSwitchTargetOf(paymentRoute),
     paymentProvider: order.paymentProvider,
     paymentRef: order.paymentRef,
     paidAt: order.paidAt ? formatDateTime(order.paidAt) : null,

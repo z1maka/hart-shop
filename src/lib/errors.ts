@@ -473,3 +473,14 @@ export class SettlementHasReturnsError extends AppError {
     super(`Settlement "${reference}" has sales returned in a later settlement`)
   }
 }
+
+// The order's way of paying cannot change: money taken, a waybill carrying
+// the sum, a closed order, a card or a partner's invoice.
+export class PaymentSwitchNotAllowedError extends AppError {
+  readonly code: string
+
+  constructor(orderId: string, reason: string) {
+    super(`Order ${orderId} cannot switch its payment route: ${reason}`)
+    this.code = `PAYMENT_SWITCH_${reason.toUpperCase()}`
+  }
+}
