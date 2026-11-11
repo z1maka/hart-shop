@@ -228,12 +228,12 @@ describe('packingItemLines', () => {
   }
 
   it('prints the workshop name and the colour in the owner\u2019s words', () => {
-    expect(packingItemLines(item)).toEqual(['пончо усиленный + сетка', 'колір: зимовий мультикам'])
+    expect(packingItemLines(item)).toEqual(['пончо усиленный + сетка', 'Цвет Зимовий мультикам'])
   })
 
   it('adds the count only when there is more than one', () => {
-    expect(packingItemLines({ ...item, quantity: 3 })).toContain('кількість: 3')
-    expect(packingItemLines(item).join('\n')).not.toContain('кількість')
+    expect(packingItemLines({ ...item, quantity: 14 })).toContain('14 шт')
+    expect(packingItemLines(item).join('\n')).not.toContain('шт')
   })
 
   it('leaves the colour line out for a colourless product', () => {
@@ -243,10 +243,10 @@ describe('packingItemLines', () => {
   it('names the Starlink model a cover is cut to, or the size of anything else', () => {
     expect(packingItemLines({ ...item, color: 'Олива', size: 'Gen 3 / Gen 4' })).toEqual([
       'пончо усиленный + сетка',
-      'колір: олива',
-      'модель: Gen 3 / Gen 4',
+      'Цвет Олива',
+      'Модель Gen 3 / Gen 4',
     ])
-    expect(packingItemLines({ ...item, size: 'XL' })).toContain('розмір: XL')
+    expect(packingItemLines({ ...item, size: 'XL' })).toContain('Размер XL')
   })
 })
 
@@ -264,15 +264,14 @@ describe('waybillIssuedTelegramText', () => {
     items: [cover],
   }
 
-  it('says the waybill, the order and what goes in the box, nothing else', () => {
+  it('says the order, what goes in the box and the waybill last, nothing else', () => {
     expect(waybillIssuedTelegramText(notice)).toBe(
       [
-        '<b>ТТН 20451566991757 — заказ HART-2026-000008</b>',
-        '',
-        'Товары',
+        '<b>Заказ HART-2026-000008</b>',
         'чохол на старлінк з ребрами+ сітка',
-        'колір: мультикам',
-        'модель: Gen 3 / Gen 4',
+        'Цвет Мультикам',
+        'Модель Gen 3 / Gen 4',
+        'ТТН 20451566991757',
       ].join('\n'),
     )
   })
@@ -281,10 +280,19 @@ describe('waybillIssuedTelegramText', () => {
     expect(waybillIssuedTelegramText(notice)).not.toMatch(/https?:|href=/)
   })
 
-  it('parts the lines with a blank line, one block per product', () => {
+  it('joins the products with a plus line, the way the owner writes them', () => {
     const blanket: PackingItem = { name: 'одеяло', color: null, size: null, quantity: 2 }
-    expect(waybillIssuedTelegramText({ ...notice, items: [cover, blanket] })).toContain(
-      'модель: Gen 3 / Gen 4\n\nодеяло\nкількість: 2',
+    expect(waybillIssuedTelegramText({ ...notice, items: [cover, blanket] })).toBe(
+      [
+        '<b>Заказ HART-2026-000008</b>',
+        'чохол на старлінк з ребрами+ сітка',
+        'Цвет Мультикам',
+        'Модель Gen 3 / Gen 4',
+        '+',
+        'одеяло',
+        '2 шт',
+        'ТТН 20451566991757',
+      ].join('\n'),
     )
   })
 

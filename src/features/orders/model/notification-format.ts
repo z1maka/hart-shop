@@ -63,19 +63,21 @@ export function toPackingItem(source: PackingSource): PackingItem {
 }
 
 const PACKING_SIZE_LABEL: Record<SizeAxis, string> = {
-  [SizeAxis.Size]: 'розмір',
-  [SizeAxis.StarlinkModel]: 'модель',
+  [SizeAxis.Size]: 'Размер',
+  [SizeAxis.StarlinkModel]: 'Модель',
 }
 
-// The workshop picks goods by its own names (owner's format, 19.10.2026): the
-// name, the colour and the size or Starlink model it is cut to; the count only
-// when there is more than one.
+const PACKING_ITEM_SEPARATOR = '+'
+
+// The workshop picks goods by its own names, written the way the owner lists
+// them by hand (11.11.2026): the name, «Цвет …», the size or Starlink model it
+// is cut to, and the count only when there is more than one.
 export function packingItemLines(item: PackingItem): string[] {
   return [
     item.name,
-    ...(item.color ? [`колір: ${item.color.toLowerCase()}`] : []),
-    ...(item.size ? [`${PACKING_SIZE_LABEL[sizeAxisOf([item.size])]}: ${item.size}`] : []),
-    ...(item.quantity > 1 ? [`кількість: ${item.quantity}`] : []),
+    ...(item.color ? [`Цвет ${item.color}`] : []),
+    ...(item.size ? [`${PACKING_SIZE_LABEL[sizeAxisOf([item.size])]} ${item.size}`] : []),
+    ...(item.quantity > 1 ? [`${item.quantity} шт`] : []),
   ]
 }
 
@@ -86,18 +88,18 @@ export type WaybillNotice = {
   readonly items: readonly PackingItem[]
 }
 
-// The packing chat's card for a fresh waybill: the number to match the label
-// and what goes in the box, nothing else (owner, 21.10.2026) — the recipient,
-// the branch and the money are on the label and in the admin.
+// The packing chat's card for a fresh waybill, in the owner's hand-written
+// layout (11.11.2026): the order, what goes in the box with «+» between
+// products, and the waybill number last to match the label. The recipient, the
+// branch and the money are on the label and in the admin (owner, 21.10.2026).
 export function waybillIssuedTelegramText(notice: WaybillNotice): string {
   return [
-    `<b>ТТН ${escapeHtml(notice.waybillNumber)} — заказ ${escapeHtml(notice.orderNumber)}</b>`,
-    '',
-    'Товары',
+    `<b>Заказ ${escapeHtml(notice.orderNumber)}</b>`,
     ...notice.items.flatMap((item, index) => [
-      ...(index > 0 ? [''] : []),
+      ...(index > 0 ? [PACKING_ITEM_SEPARATOR] : []),
       ...packingItemLines(item).map(escapeHtml),
     ]),
+    `ТТН ${escapeHtml(notice.waybillNumber)}`,
   ].join('\n')
 }
 
