@@ -26,6 +26,10 @@ export const HEADER_CHANNELS: readonly HeaderChannel[] = [
   { key: 'youtube', href: 'https://www.youtube.com/@gartshop2408' },
 ]
 
+// The shop's profiles that the header does not show; the Organization sameAs
+// lists them next to the YouTube channel, so answer engines tie them together.
+export const BRAND_PROFILE_URLS: readonly string[] = ['https://www.instagram.com/gartshop2408/']
+
 // A channel without a real handle is hidden rather than shown as a promise
 // nobody can use.
 export const CONTACT_CHANNELS: readonly ContactChannel[] = [

@@ -1,5 +1,5 @@
 import { COMPANY } from '@/config/company'
-import { HEADER_CHANNELS } from '@/config/contact'
+import { BRAND_PROFILE_URLS, HEADER_CHANNELS } from '@/config/contact'
 import { DISPATCH_DAYS, shippingRateCentsFor, TRANSIT_DAYS } from '@/config/delivery'
 import { siteConfig } from '@/config/site'
 import { enquiryRecipient, env } from '@/lib/env'
@@ -31,6 +31,7 @@ function organizationId(): string {
 
 export function organizationJsonLd(): JsonLdNode {
   const youtube = HEADER_CHANNELS.find((channel) => channel.key === 'youtube')
+  const profileUrls = [...(youtube ? [youtube.href] : []), ...BRAND_PROFILE_URLS]
 
   return {
     '@context': SCHEMA_CONTEXT,
@@ -56,7 +57,7 @@ export function organizationJsonLd(): JsonLdNode {
         availableLanguage: ['uk'],
       },
     ],
-    ...(youtube ? { sameAs: [youtube.href] } : {}),
+    ...(profileUrls.length > 0 ? { sameAs: profileUrls } : {}),
   }
 }
 

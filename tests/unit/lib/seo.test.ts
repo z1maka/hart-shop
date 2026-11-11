@@ -161,6 +161,13 @@ describe('organizationJsonLd', () => {
       taxID: '3172012013',
     })
   })
+
+  it('links the shop’s YouTube channel and Instagram profile', () => {
+    expect(organizationJsonLd().sameAs).toEqual([
+      'https://www.youtube.com/@gartshop2408',
+      'https://www.instagram.com/gartshop2408/',
+    ])
+  })
 })
 
 describe('websiteJsonLd', () => {
