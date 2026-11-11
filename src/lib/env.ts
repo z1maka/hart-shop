@@ -141,6 +141,18 @@ const envSchema = z.object({
   // /api/google-ads/conversions.csv (config/google-ads-import.ts). Absent = the
   // route refuses every call.
   GOOGLE_ADS_IMPORT_PASSWORD: optionalString,
+
+  // The hourly push of the same sales through Google's Data Manager API
+  // (lib/google-data-manager.ts): the Desktop OAuth client of the Cloud
+  // project, the refresh token an Ads admin granted it, the Ads account
+  // («853-032-5809» or its digits) and the conversion action the sales are
+  // booked on (its ctId in the Ads URL). Absent = the push stays off and the
+  // scheduled CSV upload alone reports sales.
+  GOOGLE_DATA_MANAGER_CLIENT_ID: optionalString,
+  GOOGLE_DATA_MANAGER_CLIENT_SECRET: optionalString,
+  GOOGLE_DATA_MANAGER_REFRESH_TOKEN: optionalString,
+  GOOGLE_ADS_CUSTOMER_ID: optionalString,
+  GOOGLE_ADS_SALE_CONVERSION_ACTION_ID: optionalString,
 })
 
 export type Env = z.infer<typeof envSchema>

@@ -85,6 +85,10 @@ export { isWeekKey, sharePercent } from '@/features/orders/model/traffic-weeks'
 export { getEarnings, type EarningsView } from '@/features/orders/queries/get-earnings'
 export { googleAdsConversionsCsv } from '@/features/orders/queries/get-google-ads-conversions'
 export {
+  googleAdsSalePush,
+  type GoogleAdsPushReport,
+} from '@/features/orders/services/google-ads-sale-push'
+export {
   earningsPeriod,
   EarningsPreset,
   type EarningsPeriod,

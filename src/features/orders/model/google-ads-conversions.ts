@@ -1,3 +1,4 @@
+import { GOOGLE_ADS_PUSH } from '@/config/google-ads-import'
 import { OrderStatus, PaymentRoute, type SalesChannel } from '@/db/enums'
 import { writesToRecipient } from '@/features/orders/model/channel-pricing'
 import {
@@ -5,6 +6,13 @@ import {
   parseGoogleClick,
   type GoogleClick,
 } from '@/features/analytics/model/google-click'
+import { hoursAgo } from '@/lib/datetime'
+import {
+  DataManagerConsent,
+  DataManagerEventSource,
+  type DataManagerConversionEvent,
+} from '@/lib/google-data-manager-events'
+import { isQuietHour } from '@/lib/quiet-hours'
 
 // One sale as Google Ads imports it: the click it came from (as the order
 // keeps it), when, how much.
@@ -53,6 +61,8 @@ const HEADER = [
 // first line as the header, so the legacy «Parameters:TimeZone» line would
 // replace it. UTC keeps the Kyiv clock change from shifting a sale.
 const UTC_OFFSET = '+00:00'
+const MS_PER_MINUTE = 60 * 1000
+const HOURS_PER_DAY = 24
 
 // A card order is a sale once paid; cash on delivery and a transfer are sales
 // when placed, until cancelled. A partner's order came from no ad click: it
@@ -93,4 +103,51 @@ function toCsvRow(sale: GoogleAdsSale, click: GoogleClick, conversionName: strin
 // «yyyy-MM-dd HH:mm:ss+00:00», one of the formats Google Ads accepts with a zone.
 function formatConversionTime(date: Date): string {
   return `${date.toISOString().slice(0, 19).replace('T', ' ')}${UTC_OFFSET}`
+}
+
+// The same sale as the Data Manager API takes it: the same time, value and
+// order number as the CSV row, so Google matches the two and counts it once.
+// Null for a click the shop cannot read, which the CSV leaves out as well.
+export function toDataManagerSaleEvent(sale: GoogleAdsSale): DataManagerConversionEvent | null {
+  const click = parseGoogleClick(sale.googleClickId)
+  if (!click) return null
+
+  return {
+    adIdentifiers: { [click.kind]: click.id },
+    eventTimestamp: sale.createdAt.toISOString(),
+    transactionId: sale.orderNumber,
+    conversionValue: sale.totalCents / KOPIYKAS_PER_HRYVNIA,
+    currency: sale.currency,
+    eventSource: DataManagerEventSource.Web,
+    // The same consent the CSV rows carry, in Data Manager's spelling.
+    consent: {
+      adUserData: DataManagerConsent.Granted,
+      adPersonalization: DataManagerConsent.Granted,
+    },
+  }
+}
+
+export type PushWindow = {
+  readonly from: Date
+  readonly to: Date
+}
+
+// The orders one hourly push reports: old enough for Google to accept their
+// click, and placed since the window the previous run covered. The cron is
+// hourly but sleeps through the quiet hours, so the first morning run
+// reaches back to the last evening one.
+export function googleAdsPushWindow(now: Date): PushWindow {
+  const previousRun = lastRunBefore(now)
+  const overlapMs = GOOGLE_ADS_PUSH.overlapMinutes * MS_PER_MINUTE
+  return {
+    from: new Date(hoursAgo(previousRun, GOOGLE_ADS_PUSH.delayHours).getTime() - overlapMs),
+    to: hoursAgo(now, GOOGLE_ADS_PUSH.delayHours),
+  }
+}
+
+function lastRunBefore(now: Date): Date {
+  const hoursBack = Array.from({ length: HOURS_PER_DAY }, (_, index) => index + 1).find(
+    (hours) => !isQuietHour(hoursAgo(now, hours)),
+  )
+  return hoursAgo(now, hoursBack ?? HOURS_PER_DAY)
 }

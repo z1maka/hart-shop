@@ -958,9 +958,10 @@ export const orderRepository = {
       .groupBy(orders.trafficSource)
   },
 
-  // Orders with a Google Ads click placed since `from`, oldest first, for the
-  // sale upload; whether each one counts as a sale is the model's call.
-  async listGoogleAdsSaleCandidates(from: Date): Promise<GoogleAdsSaleCandidate[]> {
+  // Orders with a Google Ads click placed from `from` up to `to`, oldest
+  // first, for the sale upload and push; whether each one counts as a sale is
+  // the model's call.
+  async listGoogleAdsSaleCandidates(from: Date, to: Date): Promise<GoogleAdsSaleCandidate[]> {
     const rows = await db
       .select({
         orderNumber: orders.orderNumber,
@@ -974,7 +975,9 @@ export const orderRepository = {
         channel: orders.channel,
       })
       .from(orders)
-      .where(and(isNotNull(orders.googleClickId), gte(orders.createdAt, from)))
+      .where(
+        and(isNotNull(orders.googleClickId), gte(orders.createdAt, from), lt(orders.createdAt, to)),
+      )
       .orderBy(asc(orders.createdAt))
       .limit(GOOGLE_ADS_UPLOAD_MAX_ROWS)
 
