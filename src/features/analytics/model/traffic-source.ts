@@ -23,8 +23,18 @@ const GOOGLE_CLICK_PARAMS: readonly string[] = Object.values(GoogleClickKind)
 // Google adds gad_source to free Shopping listings too (value 5); only 1 is
 // an ad.
 const GOOGLE_ADS_GAD_SOURCE = '1'
-// Meta's own {{site_source_name}} values and the names people type by hand.
-const META_UTM_SOURCES = new Set(['facebook', 'fb', 'ig', 'instagram', 'meta', 'msg', 'an'])
+// Meta's own {{site_source_name}} values and the names people type by hand,
+// with the platform each names for the admin; «meta» names none.
+const META_PLATFORMS: ReadonlyMap<string, string | null> = new Map([
+  ['facebook', 'Facebook'],
+  ['fb', 'Facebook'],
+  ['ig', 'Instagram'],
+  ['instagram', 'Instagram'],
+  ['msg', 'Messenger'],
+  ['an', 'Audience Network'],
+  ['meta', null],
+])
+const DETAIL_SEPARATOR = ' · '
 const PAID_UTM_MEDIA = new Set([
   'paid',
   'paid_social',
@@ -104,9 +114,9 @@ function taggedTouch(params: URLSearchParams): TrafficTouch | null {
   if (utmSource === 'google' && PAID_UTM_MEDIA.has(utmMedium)) {
     return { source: TrafficSource.GoogleAds, detail: campaign }
   }
-  if (META_UTM_SOURCES.has(utmSource)) {
+  if (META_PLATFORMS.has(utmSource)) {
     const source = PAID_UTM_MEDIA.has(utmMedium) ? TrafficSource.Meta : TrafficSource.Social
-    return { source, detail: campaign }
+    return { source, detail: metaDetail(utmSource, campaign) }
   }
   if (utmSource) return taggedByMedium(utmSource, utmMedium, campaign)
   // Facebook and Instagram add fbclid to every link they open, a post's as
@@ -129,8 +139,15 @@ function taggedByMedium(
   }
   return {
     source: TrafficSource.Tagged,
-    detail: detailOf([utmSource, campaign].filter(Boolean).join(' · ')),
+    detail: detailOf([utmSource, campaign].filter(Boolean).join(DETAIL_SEPARATOR)),
   }
+}
+
+// The platform first, so an Instagram sale reads as one whatever the
+// campaign is called.
+function metaDetail(utmSource: string, campaign: string | null): string | null {
+  const platform = META_PLATFORMS.get(utmSource) ?? null
+  return detailOf([platform, campaign].filter(Boolean).join(DETAIL_SEPARATOR))
 }
 
 function channelOfReferrer(referrer: URL): TrafficSource {

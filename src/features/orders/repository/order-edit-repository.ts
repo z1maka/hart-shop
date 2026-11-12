@@ -28,6 +28,7 @@ import {
   type Transaction,
 } from '@/features/orders/repository/order-lines-tx'
 import {
+  ChatSaleNotAllowedError,
   DropPriceMissingError,
   OrderEmptyError,
   OrderNotEditableError,
@@ -40,6 +41,8 @@ import {
 } from '@/lib/errors'
 import { escapeLikePattern } from '@/lib/sql'
 import { paymentSwitchBlockOf, statusAfterSwitch } from '@/features/orders/model/payment-switch'
+import { chatSaleBlockOf } from '@/features/orders/model/chat-sale'
+import type { TrafficTouch } from '@/features/analytics/model/traffic-source'
 
 // The admin names variants and quantities; zero takes a line out. A line the
 // request does not name keeps its quantity. A price agreed with the buyer
@@ -99,6 +102,28 @@ export type SwitchedPayment = {
 }
 
 export const orderEditRepository = {
+  // Under the order's row lock, as the click and the channel are read and
+  // written in one step.
+  async setChatSaleTraffic(orderId: string, touch: TrafficTouch): Promise<void> {
+    await db.transaction(async (tx) => {
+      const [order] = await tx
+        .select({ channel: orders.channel, googleClickId: orders.googleClickId })
+        .from(orders)
+        .where(eq(orders.id, orderId))
+        .for('update')
+        .limit(1)
+      if (!order) throw new OrderNotFoundError(orderId)
+
+      const block = chatSaleBlockOf(order)
+      if (block) throw new ChatSaleNotAllowedError(orderId, block)
+
+      await tx
+        .update(orders)
+        .set({ trafficSource: touch.source, trafficDetail: touch.detail, updatedAt: new Date() })
+        .where(eq(orders.id, orderId))
+    })
+  },
+
   // Under the order's row lock, so a waybill or a payment recorded from
   // another tab meanwhile is seen. A prepayment belongs to cash on delivery
   // and goes; an invoice belongs to the transfer and is voided when the

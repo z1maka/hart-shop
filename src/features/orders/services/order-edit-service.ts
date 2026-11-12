@@ -4,6 +4,7 @@ import { bankAccountService, requisitesSnapshot } from '@/features/billing'
 import { listedUnitPriceCents } from '@/features/orders/model/channel-pricing'
 import { variantLabelOf } from '@/features/catalog/model/product-view'
 import { VARIANT_SEARCH_LIMIT } from '@/features/orders/model/order-edit'
+import { chatSaleTouch, type ChatSaleChannel } from '@/features/orders/model/chat-sale'
 import {
   orderEditRepository,
   type EditedTotals,
@@ -32,6 +33,12 @@ export type AddableVariant = {
 }
 
 export const orderEditService = {
+  async markChatSale(orderId: string, channel: ChatSaleChannel, markedBy: string): Promise<void> {
+    const touch = chatSaleTouch(channel)
+    await orderEditRepository.setChatSaleTraffic(orderId, touch)
+    logger.info('Order marked as a chat sale by admin', { orderId, markedBy, channel })
+  },
+
   // Cash on delivery to a transfer to the ФОП or back (owner, 10.11.2026).
   // A transfer takes the active account's requisites, as checkout does.
   async switchPaymentRoute(

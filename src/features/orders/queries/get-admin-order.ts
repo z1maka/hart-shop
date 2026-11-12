@@ -31,6 +31,7 @@ import { TRACKED_ORDER_STATUSES } from '@/features/orders/model/parcel-progress'
 import { allowedNextStatuses } from '@/features/orders/model/status-flow'
 import { orderEditBlockOf, type OrderEditBlock } from '@/features/orders/model/order-edit'
 import { paymentSwitchBlockOf, paymentSwitchTargetOf } from '@/features/orders/model/payment-switch'
+import { chatSaleBlockOf } from '@/features/orders/model/chat-sale'
 import {
   orderRepository,
   type OrderItemRow,
@@ -182,6 +183,8 @@ export type AdminOrderView = {
   readonly paymentRoute: PaymentRoute
   // The route the admin can move the order to; null when it cannot change.
   readonly paymentSwitchTarget: PaymentRoute | null
+  // Whether the admin may name the order a sale from Instagram Direct.
+  readonly canMarkChatSale: boolean
   readonly paymentProvider: string | null
   readonly paymentRef: string | null
   readonly paidAt: string | null
@@ -244,6 +247,7 @@ export async function getAdminOrder(orderId: string): Promise<AdminOrderView | n
     email: order.email,
     paymentRoute,
     paymentSwitchTarget: paymentSwitchBlockOf(order) ? null : paymentSwitchTargetOf(paymentRoute),
+    canMarkChatSale: chatSaleBlockOf(order) === null,
     paymentProvider: order.paymentProvider,
     paymentRef: order.paymentRef,
     paidAt: order.paidAt ? formatDateTime(order.paidAt) : null,

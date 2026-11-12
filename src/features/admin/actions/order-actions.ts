@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { WAYBILL_DESCRIPTION_MAX_LENGTH, WAYBILL_PARCEL_GRAMS } from '@/config/delivery'
 import { Carrier, DeliveryKind, OrderStatus, PaymentRoute, SalesChannel } from '@/db/enums'
 import {
+  ChatSaleChannel,
   getMonthReturns,
   getWeekTraffic,
   isMonthKey,
@@ -477,6 +478,26 @@ export async function switchOrderPaymentAction(
     const { orderId, paymentRoute } = parsed.data
     const switched = await orderEditService.switchPaymentRoute(orderId, paymentRoute, session.email)
     return actionOk({ voidedInvoiceNumber: switched.voidedInvoiceNumber })
+  } catch (error) {
+    return toActionError(error)
+  }
+}
+
+const ChatSaleSchema = z.object({
+  orderId: z.uuid(),
+  channel: z.enum([ChatSaleChannel.InstagramDirectAd, ChatSaleChannel.InstagramDirect]),
+})
+
+export async function markChatSaleAction(input: unknown): Promise<ActionResult<null>> {
+  const session = await readAdminSession()
+  if (!session) return actionError('UNAUTHORIZED', 'Sign in again.')
+
+  const parsed = ChatSaleSchema.safeParse(input)
+  if (!parsed.success) return actionError('VALIDATION_FAILED', 'channel')
+
+  try {
+    await orderEditService.markChatSale(parsed.data.orderId, parsed.data.channel, session.email)
+    return actionOk(null)
   } catch (error) {
     return toActionError(error)
   }

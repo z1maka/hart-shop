@@ -35,6 +35,7 @@ export {
   orderEditService,
   type AddableVariant,
 } from '@/features/orders/services/order-edit-service'
+export { ChatSaleChannel } from '@/features/orders/model/chat-sale'
 export {
   ORDER_LINE_MAX_QUANTITY,
   OrderEditBlock,

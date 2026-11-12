@@ -474,6 +474,17 @@ export class SettlementHasReturnsError extends AppError {
   }
 }
 
+// The order's channel cannot be named by hand: a partner's sale, or one
+// already reported to Google Ads by its ad click.
+export class ChatSaleNotAllowedError extends AppError {
+  readonly code: string
+
+  constructor(orderId: string, reason: string) {
+    super(`Order ${orderId} cannot take a chat sale channel: ${reason}`)
+    this.code = `CHAT_SALE_${reason.toUpperCase()}`
+  }
+}
+
 // The order's way of paying cannot change: money taken, a waybill carrying
 // the sum, a closed order, a card or a partner's invoice.
 export class PaymentSwitchNotAllowedError extends AppError {

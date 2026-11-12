@@ -31,8 +31,15 @@ describe('classifyVisit', () => {
   it('reads a Meta ad by its utm tags, Instagram included', () => {
     expect(
       visit('/?utm_source=ig&utm_medium=paid_social&utm_campaign=Пончо жовтень&fbclid=abc'),
-    ).toEqual({ source: 'meta', detail: 'Пончо жовтень' })
-    expect(visit('/?utm_source=facebook&utm_medium=cpc')).toEqual({ source: 'meta', detail: null })
+    ).toEqual({ source: 'meta', detail: 'Instagram · Пончо жовтень' })
+    expect(visit('/?utm_source=facebook&utm_medium=cpc')).toEqual({
+      source: 'meta',
+      detail: 'Facebook',
+    })
+    expect(visit('/?utm_source=meta&utm_medium=paid&utm_campaign=Starlink')).toEqual({
+      source: 'meta',
+      detail: 'Starlink',
+    })
   })
 
   it('counts a Facebook or Instagram link without ad tags as social', () => {
@@ -42,7 +49,7 @@ describe('classifyVisit', () => {
     })
     expect(visit('/?utm_source=instagram&utm_medium=bio')).toEqual({
       source: 'social',
-      detail: null,
+      detail: 'Instagram',
     })
   })
 
