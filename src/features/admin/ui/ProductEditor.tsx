@@ -5,6 +5,7 @@ import { useActionState, useEffect, useRef, useState } from 'react'
 import { saveProductAction, type SaveProductResult } from '@/features/admin/actions/product-actions'
 import { ProductPublishToggle } from '@/features/admin/ui/ProductPublishToggle'
 import { ProductPhotos } from '@/features/admin/ui/ProductPhotos'
+import { ProductVideos } from '@/features/admin/ui/ProductVideos'
 import { ProductFaqEditor } from '@/features/admin/ui/ProductFaqEditor'
 import { ProductSpecsEditor } from '@/features/admin/ui/ProductSpecsEditor'
 import { VariantCoverPicker } from '@/features/admin/ui/VariantCoverPicker'
@@ -452,6 +453,16 @@ export function ProductEditor({ product, siteHost, formVersion }: ProductEditorP
               Первое фото — главное: оно идёт в каталог, поиск и разметку для поисковых систем.
               Каждый файл превращается в два WebP: кадр целиком для страницы товара и квадратный
               кроп для сетки. Большие фото уменьшаются в браузере перед отправкой.
+            </EditorNote>
+          </EditorCard>
+
+          <EditorCard title="Видео">
+            <ProductVideos slug={product.slug} videos={product.videos} />
+
+            <EditorNote>
+              Видео идут в галерею товара и в разметку для Google, порядок — как здесь. Одно и то
+              же видео часто стоит у нескольких товаров: «Убрать» снимает его только с этого товара,
+              файл и другие товары не трогает. Новые видео добавляет разработчик.
             </EditorNote>
           </EditorCard>
 

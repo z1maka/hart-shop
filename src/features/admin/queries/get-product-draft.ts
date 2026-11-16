@@ -1,6 +1,11 @@
 import { adminProductRepository } from '@/features/admin/repository/admin-catalog-repository'
 import { requireAdminSession } from '@/features/admin/session-cookie'
 import { productAdminService } from '@/features/admin/services/product-admin'
+import {
+  clockDuration,
+  videoViewOf,
+  type VideoKind,
+} from '@/features/catalog/model/product-video'
 import { publicUrl } from '@/lib/storage'
 
 export type ProductEditorImage = {
@@ -9,6 +14,17 @@ export type ProductEditorImage = {
   readonly url: string
   readonly fullUrl: string
   readonly alt: string
+}
+
+export type ProductEditorVideo = {
+  readonly id: string
+  readonly caption: string
+  readonly kind: VideoKind
+  // «1:36», as the product page prints it.
+  readonly duration: string
+  readonly thumbnailUrl: string
+  // Opens the clip in a new tab, so the owner sees which one it is.
+  readonly playerUrl: string
 }
 
 export type ProductEditorVariant = {
@@ -65,6 +81,7 @@ export type ProductEditorView = {
   readonly specs: readonly { label: string; value: string }[]
   readonly variants: readonly ProductEditorVariant[]
   readonly images: readonly ProductEditorImage[]
+  readonly videos: readonly ProductEditorVideo[]
   readonly categories: readonly ProductEditorCategory[]
 }
 
@@ -127,6 +144,17 @@ export async function getProductEditorView(slug: string): Promise<ProductEditorV
       fullUrl: publicUrl(image.storageKey),
       alt: image.alt,
     })),
+    videos: draft.videos.map((video) => {
+      const view = videoViewOf(video, publicUrl)
+      return {
+        id: view.id,
+        caption: view.caption,
+        kind: view.kind,
+        duration: clockDuration(view.durationSeconds),
+        thumbnailUrl: view.thumbnailUrl,
+        playerUrl: view.playerUrl,
+      }
+    }),
     categories: categories.map((category) => ({
       id: category.id,
       name: category.name,

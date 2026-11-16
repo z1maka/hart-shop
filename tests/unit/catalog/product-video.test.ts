@@ -5,7 +5,10 @@ import {
   isoDuration,
   VideoKind,
   VideoSource,
+  videoIdOf,
   videoViewOf,
+  withoutVideo,
+  type HostedVideo,
   type YouTubeVideo,
 } from '@/features/catalog/model/product-video'
 
@@ -92,5 +95,34 @@ describe('video view', () => {
       markupUrl: { contentUrl: 'https://media.hart-shop.com/videos/starlink-test-1a2b3c4d.mp4' },
       durationSeconds: 28,
     })
+  })
+})
+
+describe('taking a video off a product', () => {
+  const hosted: HostedVideo = {
+    source: VideoSource.Hosted,
+    fileKey: 'videos/poncho-test-20s-b692c6ae.mp4',
+    posterKey: 'videos/poncho-test-20s-b692c6ae.webp',
+    caption: 'Тест пончо',
+    kind: VideoKind.Test,
+    durationSeconds: 20,
+    uploadDate: '2026-11-02T12:00:00+02:00',
+  }
+
+  it('knows a hosted video by its file and a YouTube one by its id', () => {
+    expect(videoIdOf(hosted)).toBe('videos/poncho-test-20s-b692c6ae.mp4')
+    expect(videoIdOf(video('oj3HwvDkAyc', VideoKind.Test))).toBe('oj3HwvDkAyc')
+  })
+
+  it('drops only the chosen video and keeps the order of the rest', () => {
+    const videos = [video('kit', VideoKind.Overview), hosted, video('drone', VideoKind.Test)]
+
+    expect(withoutVideo(videos, hosted.fileKey).map(videoIdOf)).toEqual(['kit', 'drone'])
+  })
+
+  it('leaves the list whole when the video is not on the product', () => {
+    const videos = [video('kit', VideoKind.Overview), hosted]
+
+    expect(withoutVideo(videos, 'videos/gone.mp4')).toHaveLength(2)
   })
 })

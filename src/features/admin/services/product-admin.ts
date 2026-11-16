@@ -1,5 +1,6 @@
 import { ProductStatus } from '@/db/enums'
 import type { FaqEntry } from '@/features/catalog/model/category-content'
+import type { ProductVideo } from '@/features/catalog/model/product-video'
 import {
   adminProductRepository,
   type ProductImageRow,
@@ -38,6 +39,7 @@ export type ProductDraft = {
   readonly careNotes: readonly string[]
   readonly variants: readonly ProductVariantRow[]
   readonly images: readonly ProductImageRow[]
+  readonly videos: readonly ProductVideo[]
   readonly updatedAt: Date
 }
 
@@ -138,6 +140,7 @@ export const productAdminService = {
       specs: found.product.specs,
       variants: found.variants,
       images: found.images,
+      videos: found.product.videos,
     }
   },
 

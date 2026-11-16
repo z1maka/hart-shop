@@ -1,4 +1,5 @@
 import type { FaqEntry } from '@/features/catalog/model/category-content'
+import { withoutVideo, type ProductVideo } from '@/features/catalog/model/product-video'
 import {
   and,
   asc,
@@ -56,6 +57,7 @@ export type ProductDraftRow = {
   readonly specs: readonly ProductSpec[]
   readonly included: readonly string[]
   readonly careNotes: readonly string[]
+  readonly videos: readonly ProductVideo[]
   readonly updatedAt: Date
 }
 
@@ -369,6 +371,7 @@ export const adminProductRepository = {
         specs: products.specs,
         included: products.included,
         careNotes: products.careNotes,
+        videos: products.videos,
         updatedAt: products.updatedAt,
       })
       .from(products)
@@ -523,6 +526,30 @@ export const adminProductRepository = {
       keys[target] = current
       keys[index] = other
       await renumber(tx, productId, keys)
+      return true
+    })
+  },
+
+  // Read under a row lock: two removals at once must not put back the video
+  // the other one took off.
+  async removeVideo(productId: string, videoId: string): Promise<boolean> {
+    return db.transaction(async (tx) => {
+      const [row] = await tx
+        .select({ videos: products.videos })
+        .from(products)
+        .where(eq(products.id, productId))
+        .for('update')
+        .limit(1)
+
+      if (!row) return false
+
+      const remaining = withoutVideo(row.videos, videoId)
+      if (remaining.length === row.videos.length) return false
+
+      await tx
+        .update(products)
+        .set({ videos: remaining, updatedAt: new Date() })
+        .where(eq(products.id, productId))
       return true
     })
   },

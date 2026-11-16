@@ -55,6 +55,20 @@ export type VideoView = VideoFacts & {
   readonly markupUrl: { readonly embedUrl: string } | { readonly contentUrl: string }
 }
 
+// What tells a product's videos apart: the file that plays, or the YouTube id.
+export function videoIdOf(video: ProductVideo): string {
+  return video.source === VideoSource.Hosted ? video.fileKey : video.youtubeId
+}
+
+// One video taken off a product. The file stays in the bucket: the same
+// clip plays on other products.
+export function withoutVideo(
+  videos: readonly ProductVideo[],
+  videoId: string,
+): readonly ProductVideo[] {
+  return videos.filter((video) => videoIdOf(video) !== videoId)
+}
+
 export function videoViewOf(video: ProductVideo, mediaUrl: (key: string) => string): VideoView {
   const facts = {
     caption: video.caption,
@@ -67,7 +81,7 @@ export function videoViewOf(video: ProductVideo, mediaUrl: (key: string) => stri
     const fileUrl = mediaUrl(video.fileKey)
     return {
       ...facts,
-      id: video.fileKey,
+      id: videoIdOf(video),
       source: VideoSource.Hosted,
       thumbnailUrl: mediaUrl(video.posterKey),
       playerUrl: fileUrl,
@@ -77,7 +91,7 @@ export function videoViewOf(video: ProductVideo, mediaUrl: (key: string) => stri
 
   return {
     ...facts,
-    id: video.youtubeId,
+    id: videoIdOf(video),
     source: VideoSource.YouTube,
     thumbnailUrl: youtubeThumbnailUrl(video.youtubeId),
     playerUrl: youtubePlayerUrl(video.youtubeId),

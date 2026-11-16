@@ -177,6 +177,14 @@ export class ProductImageNotFoundError extends AppError {
   }
 }
 
+export class ProductVideoNotFoundError extends AppError {
+  readonly code = 'VIDEO_NOT_FOUND'
+
+  constructor(videoId: string) {
+    super(`Product video ${videoId} not found`)
+  }
+}
+
 // The carrier's own words go to the admin as they are; with none given the
 // message stays empty and the panel says so in Russian.
 export class CarrierRejectedError extends AppError {
