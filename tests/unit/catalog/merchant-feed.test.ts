@@ -18,7 +18,7 @@ import {
 
 const PRODUCT: FeedProduct = {
   sourceId: 35635,
-  slug: 'anty-teploviziyna-nakydka-poncho-a6286',
+  slug: 'antyteploviziyne-poncho',
   sku: 'FOX-UA-35635',
   colorGroup: null,
   title: 'Антитепловізійне пончо',
@@ -101,11 +101,11 @@ describe('feedListedProducts', () => {
   it('keeps the products the owner does not advertise out of the feeds', () => {
     const products = [
       { slug: 'kriplennya-povorotni-na-reytsi-arc-na-sholom' },
-      { slug: 'anty-teploviziyna-nakydka-poncho-a6286' },
+      { slug: 'antyteploviziyne-poncho' },
     ]
 
     expect(feedListedProducts(products)).toEqual([
-      { slug: 'anty-teploviziyna-nakydka-poncho-a6286' },
+      { slug: 'antyteploviziyne-poncho' },
     ])
   })
 })
@@ -215,7 +215,7 @@ describe('feedItemOf', () => {
       itemGroupId: 'FOX-UA-35635',
       title: 'Антитепловізійне пончо — Олива',
       description: 'Пончо з двома шарами тканини',
-      link: 'https://fox-armor.com.ua/product/anty-teploviziyna-nakydka-poncho-a6286/?color=%D0%9E%D0%BB%D0%B8%D0%B2%D0%B0',
+      link: 'https://fox-armor.com.ua/product/antyteploviziyne-poncho/?color=%D0%9E%D0%BB%D0%B8%D0%B2%D0%B0',
       imageLink: 'https://media.fox-armor.com.ua/a.webp',
       additionalImageLinks: ['https://media.fox-armor.com.ua/b.webp'],
       availability: 'in_stock',
@@ -234,7 +234,7 @@ describe('feedItemOf', () => {
 
     const item = feedItemOf(pocketPoncho, OLIVE, { ...CONTEXT, hasColorChoice: false })
 
-    expect(item.title).toBe('Антитепловізійне пончо з кишенею, посилене антидронове, олива')
+    expect(item.title).toBe('Антидроновий антитепловізійний плащ-пончо з кишенею, посилений, олива')
   })
 
   it("keeps the page name for products the feeds don't rename", () => {
@@ -281,7 +281,7 @@ describe('feedItemOf', () => {
 
     expect(item.title).toBe('Антитепловізійне пончо')
     expect(item.link).toBe(
-      'https://fox-armor.com.ua/product/anty-teploviziyna-nakydka-poncho-a6286/',
+      'https://fox-armor.com.ua/product/antyteploviziyne-poncho/',
     )
     expect(item.color).toBe('Олива')
   })

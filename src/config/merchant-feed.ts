@@ -45,29 +45,84 @@ export const FEED_EXCLUDED_SLUGS: readonly string[] = [
 ]
 
 // Shopping ads have no keywords: Google matches searches against the item's
-// title. These ponchos hide body heat from thermal imagers, as their pages
-// say, but their names say only «антидронове», so the feeds lead with the word
-// people search for (owner, 8.11.2026). Slug → the title the feeds use.
+// title. The page names leave out words the selling searches use, so the
+// feeds lead with them (owner, 19.11.2026, from the search terms that brought
+// sales to Гарт, FOX Armor and Fox Shoes): «антидроновий плащ» outsells
+// «пончо», covers sell on «антитепловізійний» and «маскувальний», tents and
+// blankets on «антидроновий». The best-selling Starlink Mini cover with 3D
+// leaves keeps its name. Slug → the title the feeds use.
 export const FEED_TITLE_OVERRIDES: ReadonlyMap<string, string> = new Map([
   [
     'posylene-antydronove-poncho-z-kysheneiu-olyva',
-    'Антитепловізійне пончо з кишенею, посилене антидронове, олива',
+    'Антидроновий антитепловізійний плащ-пончо з кишенею, посилений, олива',
   ],
   [
     'posylene-antydronove-poncho-z-kysheneiu-piksel',
-    'Антитепловізійне пончо з кишенею, посилене антидронове, піксель',
+    'Антидроновий антитепловізійний плащ-пончо з кишенею, посилений, піксель',
   ],
   [
     'antyteploviziyne-poncho-z-kysheneiu-3-shary',
-    'Антитепловізійне пончо з кишенею, посилене антидронове, мультикам',
+    'Антидроновий антитепловізійний плащ-пончо з кишенею, посилений, мультикам',
   ],
   [
     'antyteploviziyne-poncho-3-shary-zymovyi-multykam',
-    'Антитепловізійне пончо з кишенею, посилене антидронове, зимовий',
+    'Антидроновий антитепловізійний плащ-пончо з кишенею, посилений, зимовий',
+  ],
+  [
+    'anty-teploviziyna-nakydka-poncho-a6286',
+    'Антидроновий антитепловізійний плащ-пончо, 3 шари, олива',
+  ],
+  [
+    'anty-teploviziyna-nakydka-poncho-multi-a-6286',
+    'Антидроновий антитепловізійний плащ-пончо, 3 шари, мультикам',
+  ],
+  [
+    'anty-teplovizornyy-zakhyst-nakydka-zakhyst-vid-teplovizoriv-multi-a6286',
+    'Антидроновий антитепловізійний плащ-пончо, 3 шари, піксель',
   ],
   [
     'maskuvalne-poncho-fx14-3d-lystya-class-d',
-    'Антитепловізійне маскувальне пончо з 3D-листям, антидронове, UV+EM',
+    'Антидроновий маскувальний плащ-пончо з 3D-листям, антитепловізійний, UV+EM',
+  ],
+  [
+    'antydronova-nakydka-uv-em-z-rukavamy',
+    'Антидронова антитепловізійна накидка-плащ UV+EM з рукавами',
+  ],
+  [
+    'samookholodzhuvalnyi-chokhol-na-starlink-z-3d-sitkoiu-osinnii',
+    'Антитепловізійний маскувальний чохол на Starlink з 3D-сіткою, самоохолоджувальний, осінній',
+  ],
+  [
+    'samookholodzhuvalnyi-chokhol-na-starlink-z-3d-sitkoiu-osinnii-piksel',
+    'Антитепловізійний маскувальний чохол на Starlink з 3D-сіткою, самоохолоджувальний, осінній, піксель',
+  ],
+  [
+    'zymovyi-chokhol-na-starlink-z-3d-sitkoiu',
+    'Антитепловізійний маскувальний зимовий чохол на Starlink з 3D-сіткою і вентиляцією',
+  ],
+  [
+    'samookholodzhuvalnyi-chokhol-na-starlink-mini-z-3d-sitkoiu',
+    'Антитепловізійний маскувальний чохол на Starlink Mini з 3D-сіткою, самоохолоджувальний',
+  ],
+  [
+    'samookholodzhuvalnyi-chokhol-na-starlink-mini-z-3d-sitkoiu-piksel',
+    'Антитепловізійний маскувальний чохол на Starlink Mini з 3D-сіткою, самоохолоджувальний, піксель',
+  ],
+  [
+    'antyteploviziynyi-tent-250x150-multykam',
+    'Антитепловізійний антидроновий тент 250 × 150 см, мультикам',
+  ],
+  [
+    'antyteploviziynyi-tent-250x150-olyva',
+    'Антитепловізійний антидроновий тент 250 × 150 см, олива',
+  ],
+  [
+    'antyteploviziynyi-tent-250x150-zymovyi',
+    'Антитепловізійний антидроновий тент 250 × 150 см, зимовий',
+  ],
+  [
+    'antyteploviziyna-kovdra-z-molle',
+    'Антитепловізійна антидронова ковдра з MOLLE',
   ],
 ])
 
