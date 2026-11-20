@@ -85,6 +85,10 @@ export const FEED_TITLE_OVERRIDES: ReadonlyMap<string, string> = new Map([
     'Антидроновий маскувальний плащ-пончо з 3D-листям, антитепловізійний, UV+EM',
   ],
   [
+    'zymove-maskuvalne-poncho-z-3d-lystiam',
+    'Антидроновий маскувальний плащ-пончо з 3D-листям, антитепловізійний, зимовий білий, UV+EM',
+  ],
+  [
     'antydronova-nakydka-uv-em-z-rukavamy',
     'Антидронова антитепловізійна накидка-плащ UV+EM з рукавами',
   ],
@@ -149,8 +153,6 @@ export const FEED_EXCLUDED_IMAGE_KEYS: readonly string[] = [
 export const FEED_NO_PHOTO_VARIANT_SKUS: readonly string[] = [
   '3600-2-PIXEL',
   '3600-2-OLIVE',
-  // FX14 winter multicam: the gallery is multicam only (3.11.2026).
-  '3600-2-WINTER',
   // MOLLE blanket khaki: multicam, winter blot and pixel have photos (3.11.2026).
   'HART-37564-KHAKI',
   // Starlink Mini: reshot in multicam only (25.10.2026).
