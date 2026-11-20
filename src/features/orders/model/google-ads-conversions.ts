@@ -1,4 +1,4 @@
-import { GOOGLE_ADS_PUSH } from '@/config/google-ads-import'
+import { GOOGLE_ADS_PUSH, GOOGLE_ADS_SALE_VALUE_CAP_CENTS } from '@/config/google-ads-import'
 import { OrderStatus, PaymentRoute, type SalesChannel } from '@/db/enums'
 import { writesToRecipient } from '@/features/orders/model/channel-pricing'
 import {
@@ -91,13 +91,18 @@ function toCsvRow(sale: GoogleAdsSale, click: GoogleClick, conversionName: strin
     ...clickCells,
     conversionName,
     formatConversionTime(sale.createdAt),
-    (sale.totalCents / KOPIYKAS_PER_HRYVNIA).toFixed(2),
+    saleValue(sale).toFixed(2),
     sale.currency,
     sale.orderNumber,
     CONSENT_GRANTED,
     CONSENT_GRANTED,
     EVENT_SOURCE_WEB,
   ].join(',')
+}
+
+// The order's total in hryvnias, up to the cap smart bidding learns from.
+function saleValue(sale: GoogleAdsSale): number {
+  return Math.min(sale.totalCents, GOOGLE_ADS_SALE_VALUE_CAP_CENTS) / KOPIYKAS_PER_HRYVNIA
 }
 
 // «yyyy-MM-dd HH:mm:ss+00:00», one of the formats Google Ads accepts with a zone.
@@ -116,7 +121,7 @@ export function toDataManagerSaleEvent(sale: GoogleAdsSale): DataManagerConversi
     adIdentifiers: { [click.kind]: click.id },
     eventTimestamp: sale.createdAt.toISOString(),
     transactionId: sale.orderNumber,
-    conversionValue: sale.totalCents / KOPIYKAS_PER_HRYVNIA,
+    conversionValue: saleValue(sale),
     currency: sale.currency,
     eventSource: DataManagerEventSource.Web,
     // The same consent the CSV rows carry, in Data Manager's spelling.

@@ -12,7 +12,7 @@ const SALE: GoogleAdsSaleCandidate = {
   orderNumber: 'HART-2026-000023',
   googleClickId: 'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk',
   createdAt: new Date('2026-10-27T13:11:22.901Z'),
-  totalCents: 1_450_000,
+  totalCents: 290_000,
   currency: 'UAH',
   status: OrderStatus.Pending,
   paymentRoute: PaymentRoute.CashOnDelivery,
@@ -46,10 +46,18 @@ describe('the upload file', () => {
     expect(toGoogleAdsConversionsCsv([SALE], 'Server purchase')).toBe(
       [
         HEADER,
-        'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk,,,Server purchase,2026-10-27 13:11:22+00:00,14500.00,UAH,HART-2026-000023,Granted,Granted,WEB',
+        'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk,,,Server purchase,2026-10-27 13:11:22+00:00,2900.00,UAH,HART-2026-000023,Granted,Granted,WEB',
         '',
       ].join('\n'),
     )
+  })
+
+  it('values a bulk order at two covers', () => {
+    const fourCovers = { ...SALE, totalCents: 1_160_000 }
+
+    const [, row] = toGoogleAdsConversionsCsv([fourCovers], 'Server purchase').split('\n')
+
+    expect(row).toContain(',5800.00,UAH,')
   })
 
   it('puts an iPhone click in the column of its kind', () => {
@@ -87,7 +95,7 @@ describe('the Data Manager event', () => {
       adIdentifiers: { gclid: 'CjwKCAjwl4HXBhAjEiwAHlpWhNjyMOWk' },
       eventTimestamp: '2026-10-27T13:11:22.901Z',
       transactionId: 'HART-2026-000023',
-      conversionValue: 14_500,
+      conversionValue: 2_900,
       currency: 'UAH',
       eventSource: 'WEB',
       consent: { adUserData: 'CONSENT_GRANTED', adPersonalization: 'CONSENT_GRANTED' },
@@ -108,6 +116,14 @@ describe('the Data Manager event', () => {
 
   it('keeps kopiykas of an odd total', () => {
     expect(toDataManagerSaleEvent({ ...SALE, totalCents: 289_950 })?.conversionValue).toBe(2_899.5)
+  })
+
+  it('values a bulk order at two covers, as the CSV row does', () => {
+    expect(toDataManagerSaleEvent({ ...SALE, totalCents: 1_160_000 })?.conversionValue).toBe(5_800)
+  })
+
+  it('reports two covers in full', () => {
+    expect(toDataManagerSaleEvent({ ...SALE, totalCents: 580_000 })?.conversionValue).toBe(5_800)
   })
 
   it('leaves out an order whose stored click is not one', () => {

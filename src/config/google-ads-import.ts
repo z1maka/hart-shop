@@ -14,6 +14,13 @@ export const GOOGLE_ADS_IMPORT = {
   lookbackDays: 3,
 } as const
 
+// The most one order is worth to Google Ads, two covers (owner, 20.11.2026).
+// Target ROAS learns from a handful of sales a day, so a bulk order of four
+// or twenty covers read to it as that many sales and raised every click for
+// days after. The order still counts as one sale; only its value stops here,
+// and the shop's own reports keep the full total. In kopiykas.
+export const GOOGLE_ADS_SALE_VALUE_CAP_CENTS = 580_000
+
 // The same sales pushed hourly through the Data Manager API
 // (lib/google-data-manager.ts, cron /api/cron/google-ads-sales/), so smart
 // bidding learns of a sale hours sooner than from the daily fetch above,
