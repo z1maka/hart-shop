@@ -38,4 +38,15 @@ describe('cn', () => {
   it('drops falsy values', () => {
     expect(cn('bg-surface', false && 'hidden', undefined)).toBe('bg-surface')
   })
+
+  it('keeps a theme font size next to a text colour', () => {
+    expect(cn('font-display text-h2 text-ink', 'mb-2.5')).toBe(
+      'font-display text-h2 text-ink mb-2.5',
+    )
+    expect(cn('text-meta text-muted')).toBe('text-meta text-muted')
+  })
+
+  it('lets a later theme font size replace an earlier one', () => {
+    expect(cn('text-meta', 'text-small')).toBe('text-small')
+  })
 })
