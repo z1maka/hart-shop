@@ -14,9 +14,9 @@ type RatingStarsProps = {
 }
 
 const SIZE_CLASSES = {
-  sm: 'text-[12px] tracking-[0.02em]',
-  md: 'text-[14px] tracking-[0.04em]',
-  lg: 'text-[18px] tracking-[0.06em]',
+  sm: 'text-caption tracking-[0.02em]',
+  md: 'text-small tracking-[0.04em]',
+  lg: 'text-lead tracking-[0.06em]',
 } as const
 
 const TONE_CLASSES: Record<RatingStarsTone, { filled: string; empty: string }> = {
@@ -41,10 +41,15 @@ export function RatingStars({
     <span
       role="img"
       aria-label={label}
-      className={cn('inline-flex leading-none', SIZE_CLASSES[size], className)}
+      // The size first: tailwind-merge drops a leading-* that a font size follows.
+      className={cn(SIZE_CLASSES[size], 'inline-flex leading-none', className)}
     >
       {STAR_POSITIONS.map((position) => (
-        <span key={position} aria-hidden className={position <= rating ? toneClasses.filled : toneClasses.empty}>
+        <span
+          key={position}
+          aria-hidden
+          className={position <= rating ? toneClasses.filled : toneClasses.empty}
+        >
           ★
         </span>
       ))}

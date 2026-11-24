@@ -59,7 +59,7 @@ export function CopyButton({ value, labels, subject, className }: CopyButtonProp
       onClick={copy}
       aria-label={`${labels.copy}: ${subject}`}
       className={cn(
-        'inline-flex min-h-8 shrink-0 items-center rounded-chip border border-strong bg-raised px-3 text-[12px] font-semibold text-ink transition-colors hover:border-faint',
+        'inline-flex min-h-8 shrink-0 items-center rounded-chip border border-strong bg-raised px-3 text-caption font-medium text-ink transition-colors hover:border-faint',
         state === CopyState.Copied && 'border-accent text-accent',
         className,
       )}

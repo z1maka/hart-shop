@@ -17,10 +17,7 @@ export function CatalogPagination({ page, pageCount, hrefForPage }: CatalogPagin
   if (pageCount < 2) return null
 
   return (
-    <nav
-      className="mt-7 flex items-center justify-center gap-1.5 sm:gap-2"
-      aria-label={t('label')}
-    >
+    <nav className="mt-7 flex items-center justify-center gap-1.5 sm:gap-2" aria-label={t('label')}>
       <ArrowLink
         href={hrefForPage(page - 1)}
         isDisabled={page === 1}
@@ -33,7 +30,7 @@ export function CatalogPagination({ page, pageCount, hrefForPage }: CatalogPagin
           <span
             key={`gap-${index}`}
             aria-hidden
-            className="flex min-h-10 min-w-6 items-center justify-center text-[13px] text-faint"
+            className="flex min-h-10 min-w-6 items-center justify-center text-meta text-faint"
           >
             …
           </span>
@@ -43,9 +40,9 @@ export function CatalogPagination({ page, pageCount, hrefForPage }: CatalogPagin
             href={hrefForPage(entry)}
             aria-current={entry === page ? 'page' : undefined}
             className={cn(
-              'flex min-h-10 min-w-9 items-center justify-center rounded-control border px-1 text-[13px] font-semibold transition-colors sm:min-w-10',
+              'flex min-h-10 min-w-9 items-center justify-center rounded-control border px-1 text-meta font-medium transition-colors sm:min-w-10',
               entry === page
-                ? 'border-accent bg-accent font-bold text-accent-fg'
+                ? 'border-accent bg-accent font-semibold text-accent-fg'
                 : 'border-strong bg-raised text-ink hover:border-ink',
             )}
           >
@@ -103,7 +100,7 @@ function ArrowLink({
   )
 
   const baseClass =
-    'flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-control border px-2 text-[13px] font-semibold sm:px-3.5'
+    'flex min-h-10 min-w-10 items-center justify-center gap-1.5 rounded-control border px-2 text-meta font-medium sm:px-3.5'
 
   if (isDisabled) {
     return (

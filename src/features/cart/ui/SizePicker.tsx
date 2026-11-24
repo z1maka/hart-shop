@@ -42,7 +42,7 @@ export function SizePicker({ options, activeSize, onSelect }: SizePickerProps) {
   return (
     <div>
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[13px] font-bold text-ink">{t(sizeAxisOf(sizes))}</p>
+        <p className="text-meta font-semibold text-ink">{t(sizeAxisOf(sizes))}</p>
         {guideRows.length > 0 ? <SizeGuideDialog rows={guideRows} /> : null}
       </div>
       <OptionList options={options} activeSize={activeSize} onSelect={onSelect} />
@@ -51,9 +51,7 @@ export function SizePicker({ options, activeSize, onSelect }: SizePickerProps) {
 }
 
 function MeasuredOptions({ options, activeSize, onSelect }: OptionListProps) {
-  const widestMm = Math.max(
-    ...options.map((option) => sizeDimensionsOf(option.size)?.widthMm ?? 0),
-  )
+  const widestMm = Math.max(...options.map((option) => sizeDimensionsOf(option.size)?.widthMm ?? 0))
 
   return (
     <div className="grid max-w-110 grid-cols-[repeat(auto-fit,minmax(170px,1fr))] gap-2">
@@ -86,13 +84,13 @@ function MeasuredOptions({ options, activeSize, onSelect }: OptionListProps) {
             <span className="flex min-w-0 flex-col gap-0.5">
               <span
                 className={cn(
-                  'text-[14px] leading-tight font-bold whitespace-nowrap text-ink',
+                  'text-small leading-tight font-semibold whitespace-nowrap text-ink',
                   !isAvailable && 'line-through',
                 )}
               >
                 {size}
               </span>
-              <span className="text-[12px] leading-tight font-medium text-muted tabular-nums">
+              <span className="text-caption leading-tight font-medium text-muted tabular-nums">
                 {sizeNoteOf(size)}
               </span>
             </span>
@@ -118,11 +116,12 @@ function PlainOptions({ options, activeSize, onSelect }: OptionListProps) {
             onClick={() => onSelect(size)}
             aria-pressed={isActive}
             className={cn(
-              'min-h-11.5 rounded-option border-[1.5px] px-5 text-[13.5px] font-bold transition-colors',
+              'min-h-11.5 rounded-option border-[1.5px] px-5 text-small font-semibold transition-colors',
               isActive
                 ? 'border-ink bg-ink text-on-dark'
                 : 'border-strong bg-raised text-ink hover:border-ink',
-              !isAvailable && 'cursor-not-allowed border-subtle bg-surface text-strong line-through',
+              !isAvailable &&
+                'cursor-not-allowed border-subtle bg-surface text-strong line-through',
             )}
           >
             {size}

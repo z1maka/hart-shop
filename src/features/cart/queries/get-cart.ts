@@ -6,7 +6,7 @@ import {
 } from '@/features/cart/model/wholesale-line'
 import { lineModelOptionsOf, type LineModelOption } from '@/features/cart/model/line-models'
 import { readCartId } from '@/features/cart/session'
-import { createMoney, Currency, formatMoney, type Money } from '@/lib/money'
+import { createMoney, Currency, formatPrice, type Money } from '@/lib/money'
 import { publicUrl } from '@/lib/storage'
 
 export type CartLineView = {
@@ -53,7 +53,10 @@ export async function getCart(): Promise<CartView | null> {
   // decides the hint is the product's, not the line's.
   const quantityByProduct = new Map<string, number>()
   for (const item of summary.items) {
-    quantityByProduct.set(item.productId, (quantityByProduct.get(item.productId) ?? 0) + item.quantity)
+    quantityByProduct.set(
+      item.productId,
+      (quantityByProduct.get(item.productId) ?? 0) + item.quantity,
+    )
   }
 
   return {
@@ -71,16 +74,19 @@ export async function getCart(): Promise<CartView | null> {
       quantity: item.quantity,
       unitPrice: createMoney(item.unitPriceCents, Currency.Uah),
       linePrice: createMoney(item.unitPriceCents * item.quantity, Currency.Uah),
-      unitPriceLabel: formatMoney(createMoney(item.unitPriceCents, Currency.Uah)),
-      linePriceLabel: formatMoney(createMoney(item.unitPriceCents * item.quantity, Currency.Uah)),
+      unitPriceLabel: formatPrice(createMoney(item.unitPriceCents, Currency.Uah)),
+      linePriceLabel: formatPrice(createMoney(item.unitPriceCents * item.quantity, Currency.Uah)),
       imageUrl: item.imageStorageKey ? publicUrl(item.imageStorageKey) : null,
-      isWholesalePrice: isWholesaleLine(item, quantityByProduct.get(item.productId) ?? item.quantity),
+      isWholesalePrice: isWholesaleLine(
+        item,
+        quantityByProduct.get(item.productId) ?? item.quantity,
+      ),
       wholesaleHint: wholesaleHintOf(item, quantityByProduct.get(item.productId) ?? item.quantity),
     })),
     itemCount: summary.totals.itemCount,
     subtotal: summary.totals.subtotal,
     weightGrams: summary.totals.weightGrams,
-    subtotalLabel: formatMoney(summary.totals.subtotal),
+    subtotalLabel: formatPrice(summary.totals.subtotal),
   }
 }
 
@@ -98,7 +104,7 @@ function wholesaleHintOf(
 
   return {
     minQuantity: ahead.minQuantity,
-    unitPriceLabel: formatMoney(createMoney(ahead.unitPriceCents, Currency.Uah)),
+    unitPriceLabel: formatPrice(createMoney(ahead.unitPriceCents, Currency.Uah)),
     missing: ahead.missing,
   }
 }

@@ -34,7 +34,7 @@ import { OWN_PRODUCTION_CATEGORY_SLUGS } from '@/config/catalog'
 import { CUSTOM_ORDER_HREF, type CustomOrderItemId } from '@/config/custom-order'
 import { CustomOrderNote } from '@/features/enquiries/ui/CustomOrderCta'
 import { TrackEventOnce, type AnalyticsItem } from '@/features/analytics'
-import { formatMoney } from '@/lib/money'
+import { formatPrice } from '@/lib/money'
 import { getProductReviewsOrNone, ProductRatingLine, ReviewsSection } from '@/features/reviews'
 import { breadcrumbJsonLd, faqJsonLd, productJsonLd, videoJsonLd } from '@/lib/seo'
 import { siteConfig } from '@/config/site'
@@ -106,10 +106,9 @@ async function ProductDetail({
   product: ProductDetailView
   searchParams: PageProps<'/product/[slug]'>['searchParams']
 }) {
-  const [t, navT, layersT, { collectedHere }] = await Promise.all([
+  const [t, navT, { collectedHere }] = await Promise.all([
     getTranslations('pdp'),
     getTranslations('nav'),
-    getTranslations('fabricLayers'),
     getProductReviewsOrNone(product.slug),
   ])
   const featuredVideo = featuredVideoOf(product.videos)
@@ -195,12 +194,32 @@ async function ProductDetail({
               </div>
 
               {product.specs.length > 0 ? (
-                <section className="order-4 min-w-0 rounded-card border border-subtle bg-surface p-6 lg:order-none lg:mt-9">
-                  <h2 className="mb-3 font-display text-[22px] font-bold tracking-[0.04em] text-ink">
-                    {t('specification')}
-                  </h2>
+                <section className={cn(SIDE_CARD, 'order-4 lg:mt-9')}>
+                  <h2 className={cn(SIDE_CARD_TITLE, 'mb-3')}>{t('specification')}</h2>
                   <SpecTable rows={product.specs} />
                 </section>
+              ) : null}
+
+              {/* Under the specs, beside the long description, where the
+                  column used to end in an empty band (owner, 24.11.2026). */}
+              {product.layers > 1 ? (
+                <FabricLayersCard layers={product.layers} className="order-5 lg:mt-6" />
+              ) : null}
+              {product.included.length > 0 ? (
+                <NotesCard
+                  title={t('inTheBox')}
+                  notes={product.included}
+                  markerClass="bg-khaki-mark"
+                  className="order-6 lg:mt-6"
+                />
+              ) : null}
+              {product.careNotes.length > 0 ? (
+                <NotesCard
+                  title={t('careAndLimits')}
+                  notes={product.careNotes}
+                  markerClass="bg-strong"
+                  className="order-7 lg:mt-6"
+                />
               ) : null}
             </div>
 
@@ -216,7 +235,7 @@ async function ProductDetail({
               {product.description ? (
                 <section id="description" className="order-3 min-w-0 lg:order-none lg:mt-9">
                   <div className="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-                    <h2 className="font-display text-[22px] font-bold tracking-[0.04em] text-ink">
+                    <h2 className="font-display text-price font-semibold tracking-[0.04em] text-ink">
                       {t('description')}
                     </h2>
                     {featuredVideo ? <WatchVideoButton video={featuredVideo} /> : null}
@@ -231,74 +250,10 @@ async function ProductDetail({
         </GalleryVideoControlProvider>
       </SelectedColorProvider>
 
-      <div className="flex flex-wrap gap-6 px-7 pb-11">
-        {product.layers > 1 ? (
-          <section className="min-w-[min(100%,320px)] flex-[1_1_380px] rounded-card border border-subtle bg-surface p-6">
-            <h2 className="mb-4 font-display text-[22px] font-bold tracking-[0.04em] text-ink">
-              {t('fabricLayers')}
-            </h2>
-            <div className="grid gap-3">
-              {FABRIC_LAYERS.slice(0, product.layers).map((layer) => (
-                <div key={layer.number} className="grid grid-cols-[56px_1fr] items-center gap-3.5">
-                  <div className={cn('h-8.5 rounded-chip', layer.swatchClass)} aria-hidden />
-                  <div>
-                    <p className="text-[13.5px] font-bold text-ink">
-                      <span className="font-display text-khaki-ink">{layer.number}</span>{' '}
-                      {layersT(`${layer.number}.title`)}
-                    </p>
-                    <p className="text-[12px] leading-relaxed text-muted">
-                      {layersT(`${layer.number}.body`)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
-      </div>
-
-      {product.included.length > 0 || product.careNotes.length > 0 ? (
-        <div className="flex flex-wrap gap-6 px-7 pb-11">
-          {product.included.length > 0 ? (
-            <section className="min-w-[min(100%,320px)] flex-[1_1_380px] rounded-card border border-subtle bg-surface p-6">
-              <h2 className="mb-3 font-display text-[22px] font-bold tracking-[0.04em] text-ink">
-                {t('inTheBox')}
-              </h2>
-              <ul className="grid gap-2 text-[13.5px] text-muted">
-                {product.included.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5">
-                    <span className="mt-1.5 size-2 shrink-0 bg-khaki-mark" aria-hidden />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-
-          {product.careNotes.length > 0 ? (
-            <section className="min-w-[min(100%,320px)] flex-[1_1_380px] rounded-card border border-subtle bg-surface p-6">
-              <h2 className="mb-3 font-display text-[22px] font-bold tracking-[0.04em] text-ink">
-                {t('careAndLimits')}
-              </h2>
-              <ul className="grid gap-2 text-[13.5px] text-muted">
-                {product.careNotes.map((note) => (
-                  <li key={note} className="flex items-start gap-2.5">
-                    <span className="mt-1.5 size-2 shrink-0 bg-strong" aria-hidden />
-                    {note}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ) : null}
-        </div>
-      ) : null}
-
       {product.faq.length > 0 ? (
         <section className="px-7 pb-11">
-          <h2 className="mb-4 font-display text-h2 font-bold text-ink">{t('faqTitle')}</h2>
-          <div className="max-w-[880px]">
-            <FaqList entries={product.faq} />
-          </div>
+          <h2 className="mb-4 font-display text-h2 font-semibold text-ink">{t('faqTitle')}</h2>
+          <FaqList entries={product.faq} />
         </section>
       ) : null}
 
@@ -313,12 +268,74 @@ async function ProductDetail({
       </div>
 
       <section className="px-7">
-        <h2 className="mb-4.5 font-display text-h2 font-bold text-ink">{t('companions')}</h2>
+        <h2 className="mb-4.5 font-display text-h2 font-semibold text-ink">{t('companions')}</h2>
         <Suspense fallback={<Skeleton className="h-80 w-full rounded-card" />}>
           <RelatedProducts categorySlug={product.categorySlug} slug={product.slug} />
         </Suspense>
       </section>
     </article>
+  )
+}
+
+const SIDE_CARD = 'min-w-0 rounded-card border border-subtle bg-surface p-6 lg:order-none'
+const SIDE_CARD_TITLE = 'font-display text-price font-semibold tracking-[0.04em] text-ink'
+
+async function FabricLayersCard({
+  layers,
+  className,
+}: {
+  readonly layers: number
+  readonly className: string
+}) {
+  const t = await getTranslations('pdp')
+  const layersT = await getTranslations('fabricLayers')
+
+  return (
+    <section className={cn(SIDE_CARD, className)}>
+      <h2 className={cn(SIDE_CARD_TITLE, 'mb-4')}>{t('fabricLayers')}</h2>
+      <div className="grid gap-3">
+        {FABRIC_LAYERS.slice(0, layers).map((layer) => (
+          <div key={layer.number} className="grid grid-cols-[56px_1fr] items-center gap-3.5">
+            <div className={cn('h-8.5 rounded-chip', layer.swatchClass)} aria-hidden />
+            <div>
+              <p className="text-small font-semibold text-ink">
+                <span className="font-display text-khaki-ink">{layer.number}</span>{' '}
+                {layersT(`${layer.number}.title`)}
+              </p>
+              <p className="text-caption leading-relaxed text-muted">
+                {layersT(`${layer.number}.body`)}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function NotesCard({
+  title,
+  notes,
+  markerClass,
+  className,
+}: {
+  readonly title: string
+  readonly notes: readonly string[]
+  readonly markerClass: string
+  readonly className: string
+}) {
+  return (
+    <section className={cn(SIDE_CARD, className)}>
+      <h2 className={cn(SIDE_CARD_TITLE, 'mb-3')}>{title}</h2>
+      <ul className="grid gap-2 text-small text-muted">
+        {notes.map((note) => (
+          <li key={note} className="flex items-start gap-2.5">
+            <span className={cn('mt-1.5 size-2 shrink-0', markerClass)} aria-hidden />
+            {note}
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
 
@@ -337,10 +354,8 @@ async function BuyPanel({
 
   return (
     <div>
-      <p className="mb-2.5 font-display text-[12.5px] font-semibold tracking-[0.14em] text-khaki-ink">
-        {product.kicker}
-      </p>
-      <h1 className="mb-2.5 font-display text-[clamp(1.75rem,3.2vw,2.375rem)] leading-[1.08] font-bold tracking-[0.01em] text-balance text-ink">
+      <p className="mb-2.5 text-meta font-medium text-khaki-ink">{product.kicker}</p>
+      <h1 className="mb-2.5 font-display text-[clamp(1.75rem,3.2vw,2.375rem)] leading-[1.08] font-semibold tracking-[0.01em] text-balance text-ink">
         {product.title}
       </h1>
       <Suspense fallback={null}>
@@ -354,17 +369,17 @@ async function BuyPanel({
         <Badge tone="accent">{t('codBadge')}</Badge>
       </div>
       {product.wholesale ? <WholesaleLine wholesale={product.wholesale} /> : null}
-      <p className="mb-1 text-[12px] leading-relaxed text-faint">{t('priceNote')}</p>
+      <p className="mb-1 text-caption leading-relaxed text-faint">{t('priceNote')}</p>
       {OWN_PRODUCTION_CATEGORY_SLUGS.includes(product.categorySlug) ? (
-        <p className="mb-1 text-[12px] leading-relaxed text-faint">{t('makerNote')}</p>
+        <p className="mb-1 text-caption leading-relaxed text-faint">{t('makerNote')}</p>
       ) : null}
-      <p className="mb-5 flex items-center gap-2 text-[12.5px] font-medium text-muted">
+      <p className="mb-5 flex items-center gap-2 text-meta font-medium text-muted">
         <NovaPoshtaMark size={22} />
         {t('deliveryLine')}
       </p>
 
       {product.summary ? (
-        <p className="mb-5 max-w-[54ch] text-[14.5px] leading-relaxed text-pretty whitespace-pre-line text-ink">
+        <p className="mb-5 max-w-[54ch] text-body leading-relaxed text-pretty whitespace-pre-line text-ink">
           {product.summary}
         </p>
       ) : null}
@@ -382,10 +397,10 @@ async function BuyPanel({
           made to one pattern, and offering to change it would be a promise
           nobody keeps. */}
       {customItem ? (
-        <p className="mb-5 text-[12.5px] leading-relaxed text-muted">
+        <p className="mb-5 text-meta leading-relaxed text-muted">
           <Link
             href={`${CUSTOM_ORDER_HREF}?item=${customItem}&from=${encodeURIComponent(product.title)}`}
-            className="font-semibold text-accent underline-offset-4 hover:underline"
+            className="font-medium text-accent underline-offset-4 hover:underline"
           >
             {t('customLine')}
           </Link>
@@ -404,12 +419,12 @@ async function WholesaleLine({ wholesale }: { readonly wholesale: WholesaleView 
   const t = await getTranslations('pdp.wholesale')
 
   return (
-    <p className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px] text-muted">
+    <p className="mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-meta text-muted">
       <span>{t('line', { min: wholesale.minQuantity })}</span>
-      <span className="font-semibold text-ink tabular-nums">{formatMoney(wholesale.price)}</span>
+      <span className="font-medium text-ink tabular-nums">{formatPrice(wholesale.price)}</span>
       <span>{t('perUnit')}</span>
       {wholesale.discountPercent > 0 ? (
-        <span className="rounded-chip bg-accent-soft px-2 py-0.5 text-[11px] font-bold text-accent">
+        <span className="text-caption font-medium text-khaki-ink">
           −{wholesale.discountPercent}%
         </span>
       ) : null}
@@ -434,13 +449,13 @@ async function VariantPicker({
   return (
     <AddToCartForm
       variants={product.variants}
-      priceLabel={formatMoney(product.price)}
+      priceLabel={formatPrice(product.price)}
       inCartQuantity={inCartQuantity}
       wholesale={
         product.wholesale
           ? {
               minQuantity: product.wholesale.minQuantity,
-              priceLabel: formatMoney(product.wholesale.price),
+              priceLabel: formatPrice(product.wholesale.price),
             }
           : null
       }
@@ -456,7 +471,7 @@ async function RelatedProducts({ categorySlug, slug }: { categorySlug: string; s
 
   if (related.length === 0) return null
 
-  return <ProductGrid products={related} />
+  return <ProductGrid products={related} track="row" />
 }
 
 // Which chip the form should open on — and whether to offer custom work on

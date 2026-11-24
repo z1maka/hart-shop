@@ -11,7 +11,7 @@ import { CompareToggle } from '@/features/catalog/ui/CompareToggle'
 import { cardImageFor, type ProductCardView } from '@/features/catalog/model/product-view'
 import { COLOR_PARAM } from '@/features/catalog/model/requested-color'
 import { formatAverage, RatingStars } from '@/features/reviews'
-import { formatMoney } from '@/lib/money'
+import { formatPrice } from '@/lib/money'
 
 export type ProductCardLayout = 'grid' | 'compact'
 
@@ -65,28 +65,30 @@ export async function ProductCard({
             className="object-cover"
           />
         ) : null}
-        {product.badge ? <Badge className="absolute top-2.5 left-2.5">{product.badge}</Badge> : null}
+        {product.badge ? (
+          <Badge className="absolute top-2.5 left-2.5">{product.badge}</Badge>
+        ) : null}
       </Link>
 
       <div className="flex flex-1 flex-col gap-1.5 p-3.5">
         {product.metaLine ? (
-          <p className="text-[11.5px] font-semibold text-faint">{product.metaLine}</p>
+          <p className="text-caption font-medium text-faint">{product.metaLine}</p>
         ) : null}
 
-        <h3 className="text-[14px] leading-[1.35] font-bold text-ink">
+        <h3 className="text-small leading-[1.35] font-semibold text-ink">
           <Link href={productHref(product.slug, matchedColors)} className="hover:text-accent">
             {product.title}
           </Link>
         </h3>
 
         {product.rating ? (
-          <p className="flex items-center gap-1.5 text-[12px] text-muted">
+          <p className="flex items-center gap-1.5 text-caption text-muted">
             <RatingStars
               rating={Math.round(product.rating.average)}
               label={reviewsT('ratingAria', { rating: formatAverage(product.rating.average) })}
               size="sm"
             />
-            <span className="font-semibold text-ink">{formatAverage(product.rating.average)}</span>
+            <span className="font-medium text-ink">{formatAverage(product.rating.average)}</span>
             <span>· {reviewsT('count', { count: product.rating.count })}</span>
           </p>
         ) : null}
@@ -101,7 +103,7 @@ export async function ProductCard({
             ) : null}
             {product.sizeChoice ? <CardSizeLabels choice={product.sizeChoice} /> : null}
             {matchedColors.length > 0 ? (
-              <span className="ml-1 text-[12px] font-semibold text-accent">
+              <span className="ml-1 text-caption font-medium text-accent">
                 {t('inThisModel', {
                   colors: matchedColors
                     .map((color) => (colorsT.has(color) ? colorsT(color) : color))
@@ -115,12 +117,16 @@ export async function ProductCard({
         {layout === 'compact' ? (
           <div className="mt-auto flex items-center justify-between gap-2.5 pt-2">
             <div>
-              <Price money={product.price} compareAt={product.regularPrice} note={t('vatIncluded')} />
+              <Price
+                money={product.price}
+                compareAt={product.regularPrice}
+                note={t('vatIncluded')}
+              />
               {product.wholesale ? (
-                <p className="mt-1 text-[12px] font-semibold text-khaki-ink">
+                <p className="mt-1 text-caption font-medium text-khaki-ink">
                   {t('wholesaleLine', {
                     min: product.wholesale.minQuantity,
-                    price: formatMoney(product.wholesale.price),
+                    price: formatPrice(product.wholesale.price),
                   })}
                 </p>
               ) : null}
@@ -130,10 +136,10 @@ export async function ProductCard({
                 product={product}
                 variantId={product.quickAddVariantId}
                 preferredColor={matchedColors[0] ?? null}
-                label={t('add')}
+                label={t('addToCart')}
               />
             ) : (
-              <span className="flex min-h-10 items-center rounded-control border border-subtle bg-surface px-3.5 text-[13px] font-bold text-faint">
+              <span className="flex min-h-10 items-center rounded-control border border-subtle bg-surface px-3.5 text-meta font-semibold text-faint">
                 {t('soldOut')}
               </span>
             )}
@@ -141,15 +147,19 @@ export async function ProductCard({
         ) : (
           <div className="mt-auto pt-2">
             <div className="mb-2.5">
-              <Price money={product.price} compareAt={product.regularPrice} note={t('vatIncluded')} />
-            {product.wholesale ? (
-              <p className="mt-1 text-[12px] font-semibold text-khaki-ink">
-                {t('wholesaleLine', {
-                  min: product.wholesale.minQuantity,
-                  price: formatMoney(product.wholesale.price),
-                })}
-              </p>
-            ) : null}
+              <Price
+                money={product.price}
+                compareAt={product.regularPrice}
+                note={t('vatIncluded')}
+              />
+              {product.wholesale ? (
+                <p className="mt-1 text-caption font-medium text-khaki-ink">
+                  {t('wholesaleLine', {
+                    min: product.wholesale.minQuantity,
+                    price: formatPrice(product.wholesale.price),
+                  })}
+                </p>
+              ) : null}
             </div>
 
             {product.quickAddVariantId ? (
@@ -161,7 +171,7 @@ export async function ProductCard({
                 className="w-full"
               />
             ) : (
-              <span className="flex min-h-10 w-full items-center justify-center rounded-control border border-subtle bg-surface text-[13px] font-bold text-faint">
+              <span className="flex min-h-10 w-full items-center justify-center rounded-control border border-subtle bg-surface text-meta font-semibold text-faint">
                 {t('outOfStock')}
               </span>
             )}
@@ -206,7 +216,7 @@ function CardAddButton({
       productTitle={product.title}
       productHref={productHref(product.slug, preferredColor ? [preferredColor] : [])}
       image={product.image ? { url: product.image.url, alt: product.image.alt } : null}
-      priceLabel={formatMoney(product.price)}
+      priceLabel={formatPrice(product.price)}
       variants={product.variants}
       preferredColor={preferredColor}
       analyticsItem={analyticsItem(product)}

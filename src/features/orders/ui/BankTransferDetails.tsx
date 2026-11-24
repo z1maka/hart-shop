@@ -43,12 +43,12 @@ export async function BankTransferDetails({
 
   return (
     <section className="mb-6 rounded-card border border-accent bg-surface p-6">
-      <h2 className="mb-2 font-display text-h3 font-bold text-ink">{t('title')}</h2>
-      <p className="mb-5 max-w-[70ch] text-[13.5px] leading-relaxed text-muted">
+      <h2 className="mb-2 font-display text-h3 font-semibold text-ink">{t('title')}</h2>
+      <p className="mb-5 max-w-[70ch] text-small leading-relaxed text-muted">
         {t('lead', { amount: payment.amountLabel })}
       </p>
 
-      <dl className="grid gap-x-6 gap-y-4 text-[14px] sm:grid-cols-[max-content_1fr] sm:gap-y-3">
+      <dl className="grid gap-x-6 gap-y-4 text-small sm:grid-cols-[max-content_1fr] sm:gap-y-3">
         {details.map((detail) => (
           <DetailLine key={detail.key} detail={detail} labels={labels} />
         ))}
@@ -58,7 +58,7 @@ export async function BankTransferDetails({
         value={transferSummary(details)}
         labels={{ ...labels, copy: t('copyAll') }}
         subject={t('title')}
-        className="mt-5 min-h-10 px-4 text-[13px]"
+        className="mt-5 min-h-10 px-4 text-meta"
       />
     </section>
   )
@@ -67,8 +67,8 @@ export async function BankTransferDetails({
 function RequisitesPending({ title, note }: { title: string; note: string }) {
   return (
     <section className="mb-6 rounded-card border border-accent bg-surface p-6">
-      <h2 className="mb-2 font-display text-h3 font-bold text-ink">{title}</h2>
-      <p className="max-w-[70ch] text-[13.5px] leading-relaxed text-muted">{note}</p>
+      <h2 className="mb-2 font-display text-h3 font-semibold text-ink">{title}</h2>
+      <p className="max-w-[70ch] text-small leading-relaxed text-muted">{note}</p>
     </section>
   )
 }
@@ -111,7 +111,7 @@ function DetailLine({ detail, labels }: { detail: TransferDetail; labels: CopyLa
       <dd className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
         <span
           className={cn(
-            'font-semibold break-words text-ink select-all',
+            'font-medium break-words text-ink select-all',
             detail.isMonospace && 'font-mono tracking-[0.02em] break-all',
           )}
         >

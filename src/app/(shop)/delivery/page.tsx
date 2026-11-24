@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations } from 'next-intl/server'
 import { NovaPoshtaMark } from '@/components/ui/NovaPoshtaMark'
 import { SHIPPING_RATE_TIERS } from '@/config/delivery'
-import { createMoney, Currency, formatMoney } from '@/lib/money'
+import { createMoney, Currency, formatPrice } from '@/lib/money'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('meta')
@@ -27,7 +27,7 @@ const GRAMS_PER_KILO = 1000
 const SHIPPING_ESTIMATE = Object.fromEntries(
   SHIPPING_RATE_TIERS.flatMap((tier, index) => [
     [`kilos${index + 1}`, tier.maxGrams / GRAMS_PER_KILO],
-    [`rate${index + 1}`, formatMoney(createMoney(tier.rateCents, Currency.Uah))],
+    [`rate${index + 1}`, formatPrice(createMoney(tier.rateCents, Currency.Uah))],
   ]),
 )
 
@@ -36,22 +36,22 @@ export default async function DeliveryPage() {
 
   return (
     <div className="mx-auto max-w-[960px] px-7 pt-11 pb-16">
-      <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <p className="mb-9 max-w-[68ch] text-[15px] leading-relaxed text-muted">{t('lead')}</p>
+      <h1 className="mb-3 font-display text-h1 font-semibold text-ink">{t('title')}</h1>
+      <p className="mb-9 max-w-[68ch] text-body leading-relaxed text-muted">{t('lead')}</p>
 
       <Section title={t('shippingTitle')}>
         <div className="grid gap-3.5 sm:grid-cols-3">
           {SHIPPING_KEYS.map((key) => (
             <article key={key} className="rounded-card border border-subtle bg-raised p-5">
               <NovaPoshtaMark size={28} className="mb-3" />
-              <h3 className="mb-1.5 text-[14.5px] leading-snug font-extrabold text-ink">
+              <h3 className="mb-1.5 text-body leading-snug font-extrabold text-ink">
                 {t(`shipping.${key}.heading`)}
               </h3>
-              <p className="text-[13px] leading-relaxed text-muted">{t(`shipping.${key}.body`)}</p>
+              <p className="text-meta leading-relaxed text-muted">{t(`shipping.${key}.body`)}</p>
             </article>
           ))}
         </div>
-        <p className="mt-3.5 text-[13px] leading-relaxed text-faint">
+        <p className="mt-3.5 text-meta leading-relaxed text-faint">
           {t('shippingNote')} {t('shippingEstimate', SHIPPING_ESTIMATE)}
         </p>
       </Section>
@@ -60,10 +60,10 @@ export default async function DeliveryPage() {
         <div className="grid gap-3">
           {PAYMENT_KEYS.map((key) => (
             <article key={key} className="rounded-card border border-subtle bg-raised p-5">
-              <h3 className="mb-1.5 text-[14.5px] leading-snug font-extrabold text-ink">
+              <h3 className="mb-1.5 text-body leading-snug font-extrabold text-ink">
                 {t(`payment.${key}.heading`)}
               </h3>
-              <p className="max-w-[76ch] text-[13.5px] leading-relaxed text-muted">
+              <p className="max-w-[76ch] text-small leading-relaxed text-muted">
                 {t(`payment.${key}.body`)}
               </p>
             </article>
@@ -75,10 +75,10 @@ export default async function DeliveryPage() {
         <div className="grid gap-5 rounded-card border border-subtle bg-raised p-6">
           {WARRANTY_KEYS.map((key) => (
             <section key={key}>
-              <h3 className="mb-1.5 text-[14.5px] leading-snug font-extrabold text-ink">
+              <h3 className="mb-1.5 text-body leading-snug font-extrabold text-ink">
                 {t(`warranty.${key}.heading`)}
               </h3>
-              <p className="max-w-[76ch] text-[13.5px] leading-relaxed text-pretty text-muted">
+              <p className="max-w-[76ch] text-small leading-relaxed text-pretty text-muted">
                 {t(`warranty.${key}.body`)}
               </p>
             </section>
@@ -92,7 +92,7 @@ export default async function DeliveryPage() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-10">
-      <h2 className="mb-4 flex items-center gap-3 font-display text-[24px] font-bold tracking-[0.04em] text-ink">
+      <h2 className="mb-4 flex items-center gap-3 font-display text-[24px] font-semibold tracking-[0.04em] text-ink">
         <span className="h-6 w-1.5 shrink-0 bg-khaki-mark" aria-hidden />
         {title}
       </h2>

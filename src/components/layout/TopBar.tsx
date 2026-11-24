@@ -20,14 +20,14 @@ export async function TopBar() {
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 bg-footer px-4 py-2 sm:px-7">
-      <span className="hidden text-[12px] font-semibold tracking-[0.02em] text-khaki lg:inline">
+      <span className="hidden text-caption font-medium tracking-[0.02em] text-khaki lg:inline">
         {announcementT('line')}
       </span>
 
-      <span className="flex flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 text-[12px] text-on-dark-muted sm:justify-end lg:flex-none">
+      <span className="flex flex-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 text-caption text-on-dark-muted sm:justify-end lg:flex-none">
         <Link
           href={CUSTOM_ORDER_HREF}
-          className="flex min-h-7 items-center font-semibold whitespace-nowrap text-khaki transition-colors hover:text-on-dark md:hidden"
+          className="flex min-h-7 items-center font-medium whitespace-nowrap text-khaki transition-colors hover:text-on-dark md:hidden"
         >
           {navT('customOrder')}
         </Link>
@@ -60,14 +60,14 @@ function ChannelLabel({
   readonly channel: HeaderChannel['key']
   readonly label: string
 }) {
-  if (channel === 'phone') return <span className="font-bold">{label}</span>
+  if (channel === 'phone') return <span className="font-semibold">{label}</span>
 
   return (
     <>
       <span className="sm:hidden">
         <ChannelIcon channel={channel} />
       </span>
-      <span className="hidden font-semibold sm:inline">{label}</span>
+      <span className="hidden font-medium sm:inline">{label}</span>
     </>
   )
 }

@@ -8,7 +8,7 @@ export async function TrustRow() {
   return (
     <ul className="flex flex-wrap gap-x-7 gap-y-2.5">
       {TRUST_KEYS.map((key) => (
-        <li key={key} className="flex items-center gap-2 text-[13px] font-bold text-ink">
+        <li key={key} className="flex items-center gap-2 text-meta font-semibold text-ink">
           <span className="size-2 bg-khaki-mark" aria-hidden />
           {t(key)}
         </li>

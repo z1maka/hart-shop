@@ -19,7 +19,7 @@ export function Breadcrumbs({
 
   return (
     <nav aria-label={t('breadcrumbs')} className={className}>
-      <ol className="flex flex-wrap items-center gap-x-1.5 text-[12.5px] text-faint">
+      <ol className="flex flex-wrap items-center gap-x-1.5 text-meta text-faint">
         {items.map((item, index) => (
           <Fragment key={`${item.label}-${index}`}>
             {index > 0 ? (

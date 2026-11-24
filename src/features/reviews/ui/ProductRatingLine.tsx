@@ -15,11 +15,15 @@ export async function ProductRatingLine({ slug }: { readonly slug: string }) {
   return (
     <a
       href="#reviews"
-      className="mb-3 inline-flex items-center gap-2 text-[13px] font-bold text-accent hover:text-ink"
+      className="mb-3 inline-flex items-center gap-2 text-meta font-semibold text-accent hover:text-ink"
     >
-      <RatingStars rating={Math.round(summary.average)} label={t('ratingAria', { rating: formatAverage(summary.average) })} size="sm" />
+      <RatingStars
+        rating={Math.round(summary.average)}
+        label={t('ratingAria', { rating: formatAverage(summary.average) })}
+        size="sm"
+      />
       <span>
-        <span className="font-semibold text-ink">{formatAverage(summary.average)}</span>
+        <span className="font-medium text-ink">{formatAverage(summary.average)}</span>
         {' · '}
         {t('count', { count: summary.count })}
       </span>

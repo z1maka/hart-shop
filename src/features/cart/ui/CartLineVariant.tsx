@@ -14,8 +14,8 @@ type CartLineVariantProps = {
 }
 
 export const CART_LINE_TEXT_CLASSES: Record<CartLineDensity, string> = {
-  regular: 'text-[12.5px] text-muted',
-  compact: 'text-[12px] text-faint',
+  regular: 'text-meta text-muted',
+  compact: 'text-caption text-faint',
 }
 
 export const CART_LINE_GAP_CLASSES: Record<CartLineDensity, string> = {
@@ -39,7 +39,9 @@ export function CartLineVariant({
   if (size === null || axis === null || !isSizeAxisProminent(axis)) {
     const text = [variantLabel, extra].filter(Boolean).join(' · ')
     return text ? (
-      <span className={cn('block', CART_LINE_GAP_CLASSES[density], CART_LINE_TEXT_CLASSES[density])}>
+      <span
+        className={cn('block', CART_LINE_GAP_CLASSES[density], CART_LINE_TEXT_CLASSES[density])}
+      >
         {text}
       </span>
     ) : null
@@ -48,8 +50,10 @@ export function CartLineVariant({
   const rest = [color, extra].filter(Boolean).join(' · ')
 
   return (
-    <span className={cn('flex flex-wrap items-center gap-x-2 gap-y-1', CART_LINE_GAP_CLASSES[density])}>
-      <span className="inline-flex h-5.5 items-center rounded-control border border-accent-mid bg-accent-tint px-1.5 text-[11.5px] font-bold whitespace-nowrap text-accent">
+    <span
+      className={cn('flex flex-wrap items-center gap-x-2 gap-y-1', CART_LINE_GAP_CLASSES[density])}
+    >
+      <span className="inline-flex h-5.5 items-center rounded-control border border-accent-mid bg-accent-tint px-1.5 text-caption font-semibold whitespace-nowrap text-accent">
         <span className="sr-only">{axisLabel(axis)}: </span>
         {size}
       </span>

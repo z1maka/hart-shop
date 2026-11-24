@@ -20,15 +20,15 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   khaki: 'bg-khaki text-ink hover:bg-khaki-hover',
   outlineOnDark: 'border-[1.5px] border-dark-edge text-on-dark hover:border-khaki hover:text-khaki',
   quiet: 'border border-subtle bg-transparent text-muted hover:border-strong hover:text-ink',
-  link: 'font-bold text-accent underline-offset-4 hover:underline',
+  link: 'font-semibold text-accent underline-offset-4 hover:underline',
 }
 
 // The large size is the brand's call to action: Oswald in capitals. The
 // smaller ones stay in Manrope, the way the cards and forms set them.
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  sm: 'min-h-9 px-3 text-[13px] font-bold',
-  md: 'min-h-11 px-4 text-[13.5px] font-bold',
-  lg: 'min-h-[52px] px-6 font-display text-[15px] font-semibold tracking-[0.08em]',
+  sm: 'min-h-9 px-3 text-meta font-semibold',
+  md: 'min-h-11 px-4 text-small font-semibold',
+  lg: 'min-h-[52px] px-6 font-display text-body font-semibold tracking-[0.08em]',
 }
 
 export function Button({

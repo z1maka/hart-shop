@@ -49,7 +49,7 @@ const DRAWER_ONLY_LINKS = [
 ] as const
 
 const BAR_LINK_CLASS =
-  'inline-flex min-h-10 items-center rounded-control px-3 font-display text-[14px] font-medium tracking-[0.06em] whitespace-nowrap text-on-dark transition-colors hover:bg-dark-hover hover:text-khaki'
+  'inline-flex min-h-10 items-center rounded-control px-3 font-display text-small font-medium tracking-[0.06em] whitespace-nowrap text-on-dark transition-colors hover:bg-dark-hover hover:text-khaki'
 
 // The one call to action beside the cart: most shoppers never scroll down to
 // the custom-order band on the home page (owner, 14.10.2026). Outlined, so the
@@ -65,7 +65,7 @@ const CUSTOM_ORDER_CTA = {
   menu: 'min-[1210px]:hidden',
 } as const
 const CUSTOM_ORDER_CTA_CLASS = cn(
-  'min-h-[42px] items-center rounded-control border border-khaki px-3.5 font-display text-[13px] font-semibold tracking-[0.06em] whitespace-nowrap text-khaki uppercase transition-colors hover:bg-khaki hover:text-ink',
+  'min-h-[42px] items-center rounded-control border border-khaki px-3.5 font-display text-meta font-semibold tracking-[0.06em] whitespace-nowrap text-khaki uppercase transition-colors hover:bg-khaki hover:text-ink',
   CUSTOM_ORDER_CTA.bar,
 )
 
@@ -163,7 +163,7 @@ export async function Header({ categories, cartCount, search }: HeaderProps) {
           <Link
             href="/cart/"
             aria-label={t('cart')}
-            className="inline-flex min-h-[42px] items-center gap-2 rounded-control bg-khaki px-3 text-[13px] font-extrabold whitespace-nowrap text-ink transition-colors hover:bg-khaki-hover sm:px-4"
+            className="inline-flex min-h-[42px] items-center gap-2 rounded-control bg-khaki px-3 text-meta font-extrabold whitespace-nowrap text-ink transition-colors hover:bg-khaki-hover sm:px-4"
           >
             <CartIcon />
             <span className="hidden sm:inline">{t('cart')}</span>
@@ -180,7 +180,7 @@ export function CartCountBadge({ count }: { readonly count: number }) {
   if (count === 0) return null
 
   return (
-    <span className="inline-block min-w-5 rounded-pill bg-ink px-1.5 py-0.5 text-center text-[11px] leading-[1.45] font-extrabold text-khaki">
+    <span className="inline-block min-w-5 rounded-pill bg-ink px-1.5 py-0.5 text-center text-caption leading-[1.45] font-extrabold text-khaki">
       {count}
     </span>
   )

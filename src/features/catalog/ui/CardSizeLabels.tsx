@@ -12,7 +12,7 @@ export async function CardSizeLabels({ choice }: { readonly choice: CardSizeChoi
       {choice.sizes.map((size) => (
         <li
           key={size}
-          className="inline-flex h-5 items-center rounded-control border border-accent-mid bg-accent-tint px-1.5 text-[11px] leading-none font-semibold whitespace-nowrap text-accent tabular-nums"
+          className="inline-flex h-5 items-center rounded-control border border-accent-mid bg-accent-tint px-1.5 text-caption leading-none font-medium whitespace-nowrap text-accent tabular-nums"
         >
           {size}
         </li>

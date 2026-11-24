@@ -61,11 +61,9 @@ export function CustomOrderForm({ items, initialItem, fromProduct }: CustomOrder
   if (isSent) {
     return (
       <div className="rounded-card border border-accent-mid bg-accent-tint p-8">
-        <p className="mb-2 text-[12.5px] font-semibold tracking-[0.05em] text-accent uppercase">
-          {t('sentKicker')}
-        </p>
-        <h2 className="mb-3 font-display text-h3 font-bold text-ink">{t('sentTitle')}</h2>
-        <p className="mb-6 max-w-[56ch] text-[14px] leading-relaxed text-muted">{t('sentBody')}</p>
+        <p className="mb-2 text-meta font-medium text-accent">{t('sentKicker')}</p>
+        <h2 className="mb-3 font-display text-h3 font-semibold text-ink">{t('sentTitle')}</h2>
+        <p className="mb-6 max-w-[56ch] text-small leading-relaxed text-muted">{t('sentBody')}</p>
         <Button asChild>
           <Link href="/shop/">{t('sentCta')}</Link>
         </Button>
@@ -78,7 +76,10 @@ export function CustomOrderForm({ items, initialItem, fromProduct }: CustomOrder
       action={handleSubmit}
       className="relative rounded-card border border-subtle bg-surface p-6"
     >
-      <div aria-hidden="true" className="absolute top-auto -left-[9999px] h-px w-px overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="absolute top-auto -left-[9999px] h-px w-px overflow-hidden"
+      >
         <label>
           Website
           <input type="text" name="website" tabIndex={-1} autoComplete="off" defaultValue="" />
@@ -86,13 +87,13 @@ export function CustomOrderForm({ items, initialItem, fromProduct }: CustomOrder
       </div>
 
       <fieldset className="mb-5">
-        <legend className="mb-3 text-[12.5px] font-semibold text-muted">{t('whatToSew')}</legend>
+        <legend className="mb-3 text-meta font-medium text-muted">{t('whatToSew')}</legend>
         <div className="flex flex-wrap gap-2">
           {items.map((entry) => (
             <label
               key={entry.id}
               className={cn(
-                'inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-control border-[1.5px] px-3.5 text-[13px] font-semibold text-ink transition-colors',
+                'inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-control border-[1.5px] px-3.5 text-meta font-medium text-ink transition-colors',
                 entry.id === item
                   ? 'border-accent bg-accent-tint'
                   : 'border-subtle bg-raised hover:border-accent',
@@ -113,7 +114,7 @@ export function CustomOrderForm({ items, initialItem, fromProduct }: CustomOrder
       </fieldset>
 
       {fromProduct ? (
-        <p className="mb-5 rounded-card border border-subtle bg-sunken px-4 py-3 text-[12.5px] text-muted">
+        <p className="mb-5 rounded-card border border-subtle bg-sunken px-4 py-3 text-meta text-muted">
           {t('fromProduct', { product: fromProduct })}
         </p>
       ) : null}
@@ -168,12 +169,12 @@ export function CustomOrderForm({ items, initialItem, fromProduct }: CustomOrder
         </Field>
       </div>
 
-      {error ? <p className="mt-4 text-[13px] font-medium text-alert">{error}</p> : null}
+      {error ? <p className="mt-4 text-meta font-medium text-alert">{error}</p> : null}
 
       <Button type="submit" size="lg" className="mt-5" disabled={isPending}>
         {isPending ? t('sending') : t('send')}
       </Button>
-      <p className="mt-3 text-[12.5px] leading-relaxed text-faint">{t('promise')}</p>
+      <p className="mt-3 text-meta leading-relaxed text-faint">{t('promise')}</p>
     </form>
   )
 }

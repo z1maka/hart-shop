@@ -12,13 +12,13 @@ export async function GuideLinks({ categorySlug }: { readonly categorySlug: stri
 
   return (
     <section className="mt-12">
-      <h2 className="mb-3 font-display text-h3 font-bold text-ink">{t('categoryTitle')}</h2>
+      <h2 className="mb-3 font-display text-h3 font-semibold text-ink">{t('categoryTitle')}</h2>
       <ul className="grid gap-2">
         {guides.map((guide) => (
           <li key={guide.slug}>
             <Link
               href={`/guides/${guide.slug}/`}
-              className="text-[15px] font-semibold text-accent underline-offset-4 hover:underline"
+              className="text-body font-medium text-accent underline-offset-4 hover:underline"
             >
               {guide.title}
             </Link>

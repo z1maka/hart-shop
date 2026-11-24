@@ -15,11 +15,7 @@ export function isUaPhoneComplete(value: string): boolean {
 // Grouped the way the design writes it: +380 XX XXX XX XX. The prefix is
 // implied by the flag, so pasted 380/0 prefixes are folded away.
 export function maskUaPhone(value: string): string {
-  const digits = value
-    .replace(/\D/g, '')
-    .replace(/^380/, '')
-    .replace(/^0/, '')
-    .slice(0, 9)
+  const digits = value.replace(/\D/g, '').replace(/^380/, '').replace(/^0/, '').slice(0, 9)
   const parts = [digits.slice(0, 2), digits.slice(2, 5), digits.slice(5, 7), digits.slice(7, 9)]
   return digits ? `${UA_COUNTRY_CODE} ${parts.filter(Boolean).join(' ')}` : ''
 }
@@ -79,7 +75,7 @@ export function UaPhoneInput({
         borderToneOf(hasError, isEmphasised),
       )}
     >
-      <span aria-hidden="true" className="w-6 shrink-0 text-center text-[16px] leading-none">
+      <span aria-hidden="true" className="w-6 shrink-0 text-center text-reading leading-none">
         🇺🇦
       </span>
       {/* Every number here starts the same way, so the country code is shown,
@@ -88,7 +84,7 @@ export function UaPhoneInput({
         aria-hidden="true"
         className={cn(
           'ml-2 shrink-0 font-medium text-ink tabular-nums',
-          isLarge ? 'text-[16px]' : 'text-[14.5px]',
+          isLarge ? 'text-reading' : 'text-body',
         )}
       >
         {UA_COUNTRY_CODE}
@@ -104,7 +100,7 @@ export function UaPhoneInput({
         onChange={(event) => handleChange(event.target.value)}
         className={cn(
           'min-w-0 flex-1 border-0 bg-transparent pr-3.5 pl-1.5 font-medium text-ink tabular-nums outline-none placeholder:text-faint',
-          isLarge ? 'h-12 text-[16px]' : 'h-11 text-[14.5px]',
+          isLarge ? 'h-12 text-reading' : 'h-11 text-body',
         )}
       />
       {/* The form receives the whole number, country code included, exactly
@@ -128,9 +124,15 @@ type UaPhoneFieldProps = {
   readonly onChange: (value: string) => void
 }
 
-export function UaPhoneField({ name, label, value, hasError = false, onChange }: UaPhoneFieldProps) {
+export function UaPhoneField({
+  name,
+  label,
+  value,
+  hasError = false,
+  onChange,
+}: UaPhoneFieldProps) {
   return (
-    <label className="flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
+    <label className="flex flex-col gap-1.5 text-meta font-medium text-muted">
       {label}
       <UaPhoneInput name={name} value={value} hasError={hasError} onChange={onChange} />
     </label>

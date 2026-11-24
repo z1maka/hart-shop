@@ -22,7 +22,7 @@ const RESET_DELAY_MS = 2200
 
 // Shared with the card's choice dialog trigger, so both read as one button.
 export const QUICK_ADD_BASE_CLASS =
-  'min-h-10 rounded-control border px-3.5 text-[13px] font-bold transition-colors'
+  'min-h-10 rounded-control border px-3.5 text-meta font-semibold transition-colors'
 export const QUICK_ADD_IDLE_CLASS =
   'border-accent bg-accent text-accent-fg hover:border-accent-hover hover:bg-accent-hover'
 

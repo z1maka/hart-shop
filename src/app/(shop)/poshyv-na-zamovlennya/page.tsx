@@ -45,13 +45,11 @@ export default async function CustomOrderPage({
     <div className="pb-14">
       <section className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-center gap-9 px-7 py-12">
         <div>
-          <p className="mb-5 inline-block border-l-[3px] border-khaki-mark bg-sunken px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-accent">
-            {t('kicker')}
-          </p>
-          <h1 className="mb-4 max-w-[18ch] font-display text-display font-bold text-balance text-ink">
+          <p className="mb-4 text-small font-medium text-khaki-ink">{t('kicker')}</p>
+          <h1 className="mb-4 max-w-[18ch] font-display text-display font-semibold text-balance text-ink">
             {t('title')}
           </h1>
-          <p className="mb-6 max-w-[52ch] text-[16.5px] leading-relaxed text-pretty text-muted">
+          <p className="mb-6 max-w-[52ch] text-reading leading-relaxed text-pretty text-muted">
             {t('lead')}
           </p>
 
@@ -59,7 +57,7 @@ export default async function CustomOrderPage({
             {FACT_KEYS.map((key) => (
               <li
                 key={key}
-                className="rounded-chip border border-strong bg-raised px-3 py-1.5 text-[12.5px] font-semibold text-ink"
+                className="rounded-chip border border-strong bg-raised px-3 py-1.5 text-meta font-medium text-ink"
               >
                 {t(`facts.${key}`)}
               </li>
@@ -80,36 +78,37 @@ export default async function CustomOrderPage({
       </section>
 
       <section className="border-t border-subtle bg-surface px-7 py-12">
-        <h2 className="mb-2.5 font-display text-h2 font-bold text-ink">{t('whatTitle')}</h2>
-        <p className="mb-7 max-w-[62ch] text-[14.5px] leading-relaxed text-muted">{t('whatLead')}</p>
+        <h2 className="mb-2.5 font-display text-h2 font-semibold text-ink">{t('whatTitle')}</h2>
+        <p className="mb-7 max-w-[62ch] text-body leading-relaxed text-muted">{t('whatLead')}</p>
         <Suspense fallback={<CardsSkeleton />}>
           <ItemCards />
         </Suspense>
       </section>
 
       <section className="px-7 py-12">
-        <h2 className="mb-2.5 font-display text-h2 font-bold text-ink">{t('howTitle')}</h2>
-        <p className="mb-7 max-w-[62ch] text-[14.5px] leading-relaxed text-muted">{t('howLead')}</p>
+        <h2 className="mb-2.5 font-display text-h2 font-semibold text-ink">{t('howTitle')}</h2>
+        <p className="mb-7 max-w-[62ch] text-body leading-relaxed text-muted">{t('howLead')}</p>
         <ol className="grid grid-cols-[repeat(auto-fit,minmax(min(240px,100%),1fr))] gap-5">
           {CUSTOM_ORDER_STEP_KEYS.map((key, index) => (
             <li key={key} className="rounded-card border border-subtle bg-surface p-5">
-              <span className="mb-3 inline-flex size-8 items-center justify-center rounded-chip bg-ink font-display text-[14px] font-bold text-on-dark">
+              <span className="mb-3 inline-flex size-8 items-center justify-center rounded-chip bg-ink font-display text-small font-semibold text-on-dark">
                 {index + 1}
               </span>
-              <h3 className="mb-1.5 text-[13.5px] font-semibold text-ink">
-                {t(`steps.${key}.title`)}
-              </h3>
-              <p className="text-[12.5px] leading-relaxed text-muted">{t(`steps.${key}.body`)}</p>
+              <h3 className="mb-1.5 text-small font-medium text-ink">{t(`steps.${key}.title`)}</h3>
+              <p className="text-meta leading-relaxed text-muted">{t(`steps.${key}.body`)}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <section id={FORM_ANCHOR} className="scroll-mt-24 border-t border-subtle bg-surface px-7 py-12">
+      <section
+        id={FORM_ANCHOR}
+        className="scroll-mt-24 border-t border-subtle bg-surface px-7 py-12"
+      >
         <div className="flex flex-wrap items-start gap-8">
           <div className="min-w-[min(100%,320px)] flex-[999_1_460px]">
-            <h2 className="mb-2.5 font-display text-h2 font-bold text-ink">{t('formTitle')}</h2>
-            <p className="mb-6 max-w-[56ch] text-[14.5px] leading-relaxed text-muted">
+            <h2 className="mb-2.5 font-display text-h2 font-semibold text-ink">{t('formTitle')}</h2>
+            <p className="mb-6 max-w-[56ch] text-body leading-relaxed text-muted">
               {t('formLead')}
             </p>
             <Suspense fallback={<Skeleton className="h-[560px] w-full rounded-card" />}>
@@ -119,12 +118,12 @@ export default async function CustomOrderPage({
 
           <aside className="min-w-[min(100%,280px)] flex-[1_1_300px]">
             <div className="rounded-card border border-subtle bg-raised p-5">
-              <h3 className="mb-3 text-[14px] font-semibold text-ink">{t('channelsTitle')}</h3>
-              <p className="mb-4 text-[12.5px] leading-relaxed text-muted">{t('channelsLead')}</p>
+              <h3 className="mb-3 text-small font-medium text-ink">{t('channelsTitle')}</h3>
+              <p className="mb-4 text-meta leading-relaxed text-muted">{t('channelsLead')}</p>
               <div className="grid gap-2">
                 <a
                   href={COMPANY.phoneHref}
-                  className="text-[13.5px] font-semibold text-accent hover:underline"
+                  className="text-small font-medium text-accent hover:underline"
                 >
                   {COMPANY.phone}
                 </a>
@@ -134,7 +133,7 @@ export default async function CustomOrderPage({
                     href={channel.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[13.5px] font-semibold text-accent hover:underline"
+                    className="text-small font-medium text-accent hover:underline"
                   >
                     Telegram
                   </a>
@@ -146,14 +145,14 @@ export default async function CustomOrderPage({
       </section>
 
       <section className="px-7 py-12">
-        <h2 className="mb-6 font-display text-h2 font-bold text-ink">{t('faqTitle')}</h2>
+        <h2 className="mb-6 font-display text-h2 font-semibold text-ink">{t('faqTitle')}</h2>
         <div className="grid gap-3">
           {CUSTOM_ORDER_FAQ_KEYS.map((key) => (
             <details key={key} className="rounded-card border border-subtle bg-surface px-5 py-4">
-              <summary className="cursor-pointer list-none text-[14px] font-semibold text-ink">
+              <summary className="cursor-pointer list-none text-small font-medium text-ink">
                 {t(`faq.${key}.question`)}
               </summary>
-              <p className="mt-2.5 max-w-[68ch] text-[13.5px] leading-relaxed text-muted">
+              <p className="mt-2.5 max-w-[68ch] text-small leading-relaxed text-muted">
                 {t(`faq.${key}.answer`)}
               </p>
             </details>
@@ -197,7 +196,7 @@ async function ItemCards() {
           <Link
             key={id}
             href={`/poshyv-na-zamovlennya/?item=${id}#${FORM_ANCHOR}`}
-            className="group overflow-hidden rounded-card border border-subtle bg-raised transition-colors hover:border-accent"
+            className="overflow-hidden rounded-card border border-subtle bg-raised transition-colors hover:border-accent"
           >
             <div className="relative aspect-4/3 bg-sunken">
               {cover ? (
@@ -206,14 +205,14 @@ async function ItemCards() {
                   alt=""
                   fill
                   sizes="(min-width: 1024px) 280px, 50vw"
-                  className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                  className="object-cover"
                 />
               ) : null}
             </div>
             <div className="p-5">
-              <h3 className="mb-1.5 text-[14px] font-semibold text-ink">{t(`${id}.title`)}</h3>
-              <p className="text-[12.5px] leading-relaxed text-muted">{t(`${id}.body`)}</p>
-              <p className="mt-3 text-[12.5px] font-semibold text-accent">{t('cta')} →</p>
+              <h3 className="mb-1.5 text-small font-medium text-ink">{t(`${id}.title`)}</h3>
+              <p className="text-meta leading-relaxed text-muted">{t(`${id}.body`)}</p>
+              <p className="mt-3 text-meta font-medium text-accent">{t('cta')} →</p>
             </div>
           </Link>
         )

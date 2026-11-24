@@ -31,7 +31,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Dialog isOpen={isOpen} onOpenChange={onOpenChange} title={title} className="max-w-[440px]">
-      <div className="text-[13.5px] leading-relaxed text-muted">{children}</div>
+      <div className="text-small leading-relaxed text-muted">{children}</div>
       <div className="flex flex-wrap justify-end gap-2.5 pt-1">
         <DialogClose asChild>
           <Button variant="secondary" size="sm" disabled={isPending}>

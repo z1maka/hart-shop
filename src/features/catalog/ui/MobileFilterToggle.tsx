@@ -31,7 +31,7 @@ export function MobileFilterToggle({
           type="button"
           onClick={() => setIsOpen((current) => !current)}
           aria-expanded={isOpen}
-          className="flex min-h-11 min-w-0 flex-1 items-center justify-between rounded-control border-[1.5px] border-strong bg-raised px-4 text-[13.5px] font-bold text-ink"
+          className="flex min-h-11 min-w-0 flex-1 items-center justify-between rounded-control border-[1.5px] border-strong bg-raised px-4 text-small font-semibold text-ink"
         >
           <span>
             {isOpen ? hideLabel : showLabel}

@@ -26,8 +26,8 @@ export default async function GuidesPage() {
           { name: t('title'), path: '/guides/' },
         ])}
       />
-      <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <p className="mb-9 max-w-[60ch] text-[15.5px] leading-relaxed text-muted">{t('lead')}</p>
+      <h1 className="mb-3 font-display text-h1 font-semibold text-ink">{t('title')}</h1>
+      <p className="mb-9 max-w-[60ch] text-reading leading-relaxed text-muted">{t('lead')}</p>
 
       <ul className="grid gap-4">
         {GUIDES.map((guide) => (
@@ -36,8 +36,10 @@ export default async function GuidesPage() {
               href={`/guides/${guide.slug}/`}
               className="block rounded-card border border-subtle bg-surface p-5 hover:border-faint hover:shadow-card"
             >
-              <h2 className="mb-1.5 font-display text-[19px] font-bold text-ink">{guide.title}</h2>
-              <p className="text-[14px] leading-relaxed text-muted">{guide.description}</p>
+              <h2 className="mb-1.5 font-display text-title font-semibold text-ink">
+                {guide.title}
+              </h2>
+              <p className="text-small leading-relaxed text-muted">{guide.description}</p>
             </Link>
           </li>
         ))}

@@ -84,6 +84,18 @@
   --font-sans: var(--font-manrope), system-ui, sans-serif;
   --font-display: var(--font-oswald), system-ui, sans-serif;
 
+  /* The storefront's text sizes: eight steps instead of the twenty hand-typed
+     ones (12, 12.5, 13, 13.5…) the pages had grown (owner, 24.11.2026). No
+     line height of their own: the text keeps the leading it inherits or sets. */
+  --text-caption: 0.75rem;
+  --text-meta: 0.8125rem;
+  --text-small: 0.875rem;
+  --text-body: 0.9375rem;
+  --text-reading: 1rem;
+  --text-lead: 1.125rem;
+  --text-title: 1.25rem;
+  --text-price: 1.375rem;
+
   --text-display: clamp(2.25rem, 4.8vw, 3.5rem);
   --text-display--line-height: 1.02;
   --text-display--letter-spacing: 0.005em;

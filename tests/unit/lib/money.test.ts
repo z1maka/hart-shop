@@ -5,6 +5,7 @@ import {
   Currency,
   decimalAmount,
   formatMoney,
+  formatPrice,
   formatWholeMoney,
   multiplyMoney,
   subtractMoney,
@@ -75,6 +76,16 @@ describe('formatMoney', () => {
 
   it('always shows two decimals', () => {
     expect(formatMoney(createMoney(10_000, Currency.Uah))).toBe('100,00\u00a0₴')
+  })
+})
+
+describe('formatPrice', () => {
+  it('drops zero kopiykas from a whole price', () => {
+    expect(formatPrice(createMoney(290_000, Currency.Uah))).toBe('2\u00a0900\u00a0₴')
+  })
+
+  it('keeps kopiykas when there are any', () => {
+    expect(formatPrice(createMoney(9690, Currency.Uah))).toBe('96,90\u00a0₴')
   })
 })
 

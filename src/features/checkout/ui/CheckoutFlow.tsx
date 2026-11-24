@@ -51,7 +51,7 @@ const inputClass = cn(inputClassName, 'min-h-12 font-normal')
 
 // «← Назад» is set in Manrope beside the Oswald call to action, as the design
 // does, at the same height.
-const BACK_BUTTON_CLASS = 'min-h-[52px] px-5.5 text-[14px]'
+const BACK_BUTTON_CLASS = 'min-h-[52px] px-5.5 text-small'
 
 function readHandedPhone(): string {
   if (typeof window === 'undefined') return ''
@@ -239,7 +239,9 @@ export function CheckoutFlow({
       setError(t('errors.paymentUnavailable'))
       return
     }
-    setError(t.has(`errors.byCode.${code}`) ? t(`errors.byCode.${code}`) : t('errors.byCode.UNEXPECTED'))
+    setError(
+      t.has(`errors.byCode.${code}`) ? t(`errors.byCode.${code}`) : t('errors.byCode.UNEXPECTED'),
+    )
   }
 
   function placeOrder() {
@@ -286,7 +288,7 @@ export function CheckoutFlow({
               onClick={() => setStep(entry.id)}
               aria-current={step === entry.id ? 'step' : undefined}
               className={cn(
-                'flex min-h-11 w-full items-center justify-center gap-2 border-b-[3px] font-display text-[13px] font-semibold tracking-[0.08em] sm:text-[14px]',
+                'flex min-h-11 w-full items-center justify-center gap-2 border-b-[3px] font-display text-meta font-semibold tracking-[0.08em] sm:text-small',
                 step === entry.id && 'border-accent text-ink',
                 entry.id < step && 'border-accent-edge text-muted',
                 entry.id > step && 'cursor-not-allowed border-subtle text-muted',
@@ -294,7 +296,7 @@ export function CheckoutFlow({
             >
               <span
                 className={cn(
-                  'flex size-5.5 shrink-0 items-center justify-center rounded-chip text-[12px]',
+                  'flex size-5.5 shrink-0 items-center justify-center rounded-chip text-caption',
                   entry.id <= step ? 'bg-accent text-accent-fg' : 'bg-sunken text-muted',
                 )}
               >
@@ -314,7 +316,9 @@ export function CheckoutFlow({
             goToDelivery()
           }}
         >
-          <h2 className="font-display text-[22px] font-bold tracking-[0.04em] text-ink">{t('whoReceives')}</h2>
+          <h2 className="font-display text-price font-semibold tracking-[0.04em] text-ink">
+            {t('whoReceives')}
+          </h2>
 
           {/* The phone first: it is how every order here is settled, and the
               address is the optional extra. */}
@@ -327,7 +331,7 @@ export function CheckoutFlow({
           />
 
           <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
-            <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
+            <label className="flex flex-col gap-1.5 text-meta font-semibold text-muted">
               {t('firstName')}
               <input
                 type="text"
@@ -341,7 +345,7 @@ export function CheckoutFlow({
               />
             </label>
 
-            <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
+            <label className="flex flex-col gap-1.5 text-meta font-semibold text-muted">
               {t('lastName')}
               <input
                 type="text"
@@ -356,7 +360,7 @@ export function CheckoutFlow({
             </label>
           </div>
 
-          <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
+          <label className="flex flex-col gap-1.5 text-meta font-semibold text-muted">
             {t('emailLabel')}
             <input
               type="email"
@@ -377,17 +381,19 @@ export function CheckoutFlow({
 
       {step === 2 ? (
         <section className="flex flex-col gap-5">
-          <h2 className="font-display text-[22px] font-bold tracking-[0.04em] text-ink">{t('whereItGoes')}</h2>
+          <h2 className="font-display text-price font-semibold tracking-[0.04em] text-ink">
+            {t('whereItGoes')}
+          </h2>
 
           <div className="border-l-[3px] border-khaki-mark bg-accent-tint px-4 py-3.5">
-            <p className="flex items-start gap-3 text-[13px] leading-relaxed text-muted">
+            <p className="flex items-start gap-3 text-meta leading-relaxed text-muted">
               <NovaPoshtaMark size={28} />
               {t('carrierNote')}
             </p>
           </div>
 
           <div>
-            <p className="mb-2.5 text-[12.5px] font-bold text-muted">{t('howToReceive')}</p>
+            <p className="mb-2.5 text-meta font-semibold text-muted">{t('howToReceive')}</p>
             <div className="flex flex-wrap gap-2">
               {kinds.map((kind) => (
                 <button
@@ -398,10 +404,10 @@ export function CheckoutFlow({
                     setPickupPoint(null)
                   }}
                   className={cn(
-                    'min-h-10 rounded-chip px-4 text-[13px] text-ink',
+                    'min-h-10 rounded-chip px-4 text-meta text-ink',
                     kind === deliveryKind
-                      ? 'border-[1.5px] border-accent bg-accent-soft font-bold'
-                      : 'border border-strong bg-raised font-semibold hover:border-ink',
+                      ? 'border-[1.5px] border-accent bg-accent-soft font-semibold'
+                      : 'border border-strong bg-raised font-medium hover:border-ink',
                   )}
                 >
                   {t(`kinds.${kind}`)}
@@ -412,7 +418,7 @@ export function CheckoutFlow({
 
           {destinationFields(
             <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3.5">
-              <label className="col-span-full flex flex-col gap-1.5 text-[12.5px] font-semibold text-muted">
+              <label className="col-span-full flex flex-col gap-1.5 text-meta font-medium text-muted">
                 {t('addressFields.line1')}
                 <input
                   type="text"
@@ -423,7 +429,7 @@ export function CheckoutFlow({
                   className={cn(inputClass, invalidFields.includes('line1') && 'border-alert')}
                 />
               </label>
-              <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
+              <label className="flex flex-col gap-1.5 text-meta font-semibold text-muted">
                 {t('addressFields.city')}
                 <input
                   type="text"
@@ -449,7 +455,7 @@ export function CheckoutFlow({
             />,
             <label
               key="manual"
-              className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted"
+              className="flex flex-col gap-1.5 text-meta font-semibold text-muted"
             >
               {t('manualPointLabel')}
               <input
@@ -476,7 +482,9 @@ export function CheckoutFlow({
 
       {step === 3 ? (
         <section className="flex flex-col gap-5">
-          <h2 className="font-display text-[22px] font-bold tracking-[0.04em] text-ink">{t('payment')}</h2>
+          <h2 className="font-display text-price font-semibold tracking-[0.04em] text-ink">
+            {t('payment')}
+          </h2>
 
           <div className="grid gap-2.5">
             {paymentChoices.map((entry) => {
@@ -509,10 +517,10 @@ export function CheckoutFlow({
                     ) : null}
                   </span>
                   <span className="flex flex-col gap-0.5">
-                    <span className="text-[14px] font-extrabold text-ink">
+                    <span className="text-small font-extrabold text-ink">
                       {t(`${copyKey}.title`)}
                     </span>
-                    <span className="text-[12.5px] leading-relaxed text-muted">
+                    <span className="text-meta leading-relaxed text-muted">
                       {t(`${copyKey}.body`)}
                     </span>
                   </span>
@@ -529,7 +537,7 @@ export function CheckoutFlow({
             onChange={setContactPreference}
           />
 
-          <label className="flex flex-col gap-1.5 text-[12.5px] font-bold text-muted">
+          <label className="flex flex-col gap-1.5 text-meta font-semibold text-muted">
             {t('noteLabel')}
             <textarea
               name="order-note"
@@ -553,7 +561,7 @@ export function CheckoutFlow({
         </section>
       ) : null}
 
-      {error ? <p className="text-[13px] font-medium text-alert">{error}</p> : null}
+      {error ? <p className="text-meta font-medium text-alert">{error}</p> : null}
     </div>
   )
 }

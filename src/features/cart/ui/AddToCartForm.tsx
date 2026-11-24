@@ -51,7 +51,8 @@ type ColorTile = {
   readonly href: string | null
 }
 
-const TILE_CLASS = 'flex size-11 items-center justify-center rounded-control p-[3px] transition-colors'
+const TILE_CLASS =
+  'flex size-11 items-center justify-center rounded-control p-[3px] transition-colors'
 const IDLE_TILE_CLASS = 'border border-strong hover:border-ink'
 
 const DEFAULT_VARIANT_LABEL = 'Standard'
@@ -148,7 +149,7 @@ export function AddToCartForm({
     <div className="flex flex-col gap-5">
       {hasPatternChoice ? (
         <div>
-          <p className="mb-2.5 text-[13px] font-bold text-ink">
+          <p className="mb-2.5 text-meta font-semibold text-ink">
             {t('pattern', { color: colorsT.has(color) ? colorsT(color) : color })}
           </p>
           {/* Colour tiles, as the Гарт design draws them; the name is read
@@ -156,7 +157,9 @@ export function AddToCartForm({
           <div className="flex flex-wrap gap-2">
             {colorTiles.map((tile) => {
               const name = colorsT.has(tile.color) ? colorsT(tile.color) : tile.color
-              const swatch = <ColorSwatch name={tile.color} className="size-full rounded-[2px] border-0" />
+              const swatch = (
+                <ColorSwatch name={tile.color} className="size-full rounded-[2px] border-0" />
+              )
 
               return tile.href ? (
                 <Link
@@ -176,7 +179,10 @@ export function AddToCartForm({
                   aria-pressed={tile.color === color}
                   aria-label={name}
                   title={name}
-                  className={cn(TILE_CLASS, tile.color === color ? 'border-2 border-ink' : IDLE_TILE_CLASS)}
+                  className={cn(
+                    TILE_CLASS,
+                    tile.color === color ? 'border-2 border-ink' : IDLE_TILE_CLASS,
+                  )}
                 >
                   {swatch}
                 </button>
@@ -207,11 +213,11 @@ export function AddToCartForm({
             onClick={() => setQuantity(Math.max(1, orderedQuantity - 1))}
             disabled={orderedQuantity <= 1}
             aria-label={t('decrease')}
-            className="min-h-[52px] min-w-12 px-4 text-[17px] font-bold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:text-faint"
+            className="min-h-[52px] min-w-12 px-4 text-lead font-semibold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:text-faint"
           >
             −
           </button>
-          <span className="flex min-w-11 items-center justify-center px-2 text-center text-[15px] font-bold text-ink">
+          <span className="flex min-w-11 items-center justify-center px-2 text-center text-body font-semibold text-ink">
             {orderedQuantity}
           </span>
           <button
@@ -219,7 +225,7 @@ export function AddToCartForm({
             onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
             disabled={orderedQuantity >= maxQuantity}
             aria-label={t('increase')}
-            className="min-h-[52px] min-w-12 px-4 text-[17px] font-bold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:text-faint"
+            className="min-h-[52px] min-w-12 px-4 text-lead font-semibold text-ink hover:bg-hover disabled:cursor-not-allowed disabled:text-faint"
           >
             +
           </button>
@@ -227,7 +233,7 @@ export function AddToCartForm({
 
         <Button
           size="lg"
-          className="min-h-[54px] min-w-55 flex-[1_1_220px] text-[16px]"
+          className="min-h-[54px] min-w-55 flex-[1_1_220px] text-reading"
           onClick={handleAdd}
           disabled={!isAddable}
         >
@@ -240,8 +246,8 @@ export function AddToCartForm({
       {wholesale ? (
         <p
           className={cn(
-            'text-[13px] leading-relaxed font-medium',
-            isWholesaleReached ? 'font-semibold text-khaki-ink' : 'text-muted',
+            'text-meta leading-relaxed font-medium',
+            isWholesaleReached ? 'font-medium text-khaki-ink' : 'text-muted',
           )}
         >
           {isWholesaleReached
@@ -250,12 +256,12 @@ export function AddToCartForm({
         </p>
       ) : null}
 
-      {error ? <p className="text-[13px] font-medium text-alert">{error}</p> : null}
+      {error ? <p className="text-meta font-medium text-alert">{error}</p> : null}
 
       {/* Everything is made to order, so the page never counts units or warns
           that a colour is running out (owner's decision, 25.09.2026). */}
       {selected?.isAvailable ? (
-        <p className="text-[13px] leading-relaxed font-medium text-muted">{pdpT('inStock')}</p>
+        <p className="text-meta leading-relaxed font-medium text-muted">{pdpT('inStock')}</p>
       ) : null}
     </div>
   )

@@ -41,10 +41,10 @@ export default async function PrivacyPolicyPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-7 py-10">
-      <p className="mb-3 text-[12.5px] font-semibold text-accent">{t('kicker')}</p>
-      <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <p className="mb-2 max-w-[68ch] text-[14.5px] leading-relaxed text-muted">{t('lead')}</p>
-      <p className="mb-10 text-[12.5px] text-faint">{t('updated')}</p>
+      <p className="mb-3 text-meta font-medium text-accent">{t('kicker')}</p>
+      <h1 className="mb-3 font-display text-h1 font-semibold text-ink">{t('title')}</h1>
+      <p className="mb-2 max-w-[68ch] text-body leading-relaxed text-muted">{t('lead')}</p>
+      <p className="mb-10 text-meta text-faint">{t('updated')}</p>
 
       <Section title={t('controller.title')}>
         <Paragraph>
@@ -109,7 +109,7 @@ function CookieTable({ t }: { readonly t: PageTranslator }) {
 
   return (
     <div className="overflow-hidden rounded-card border border-subtle bg-surface">
-      <div className="hidden grid-cols-[1.1fr_2.4fr_0.8fr_1fr] gap-4 border-b border-subtle bg-sunken px-5 py-3 text-[11.5px] font-semibold tracking-[0.03em] text-faint uppercase sm:grid">
+      <div className="hidden grid-cols-[1.1fr_2.4fr_0.8fr_1fr] gap-4 border-b border-subtle bg-sunken px-5 py-3 text-caption font-medium text-faint sm:grid">
         {headings.map((heading) => (
           <span key={heading}>{t(`cookies.${heading}`)}</span>
         ))}
@@ -118,9 +118,9 @@ function CookieTable({ t }: { readonly t: PageTranslator }) {
         {COOKIE_KEYS.map((key) => (
           <li
             key={key}
-            className="grid gap-1.5 border-subtle px-5 py-4 text-[13.5px] not-first:border-t sm:grid-cols-[1.1fr_2.4fr_0.8fr_1fr] sm:gap-4"
+            className="grid gap-1.5 border-subtle px-5 py-4 text-small not-first:border-t sm:grid-cols-[1.1fr_2.4fr_0.8fr_1fr] sm:gap-4"
           >
-            <span className="font-mono text-[12.5px] font-semibold break-words text-ink">
+            <span className="font-mono text-meta font-medium break-words text-ink">
               {t(`cookies.rows.${key}.name`)}
             </span>
             <span className="leading-relaxed text-muted">{t(`cookies.rows.${key}.purpose`)}</span>
@@ -144,21 +144,21 @@ function Section({
 }) {
   return (
     <section id={id} className="mb-9 grid scroll-mt-24 gap-4">
-      <h2 className="font-display text-h3 font-bold text-ink">{title}</h2>
+      <h2 className="font-display text-h3 font-semibold text-ink">{title}</h2>
       {children}
     </section>
   )
 }
 
 function Paragraph({ children }: { readonly children: ReactNode }) {
-  return <p className="max-w-[72ch] text-[14.5px] leading-relaxed text-muted">{children}</p>
+  return <p className="max-w-[72ch] text-body leading-relaxed text-muted">{children}</p>
 }
 
 function Items({ items }: { readonly items: readonly string[] }) {
   return (
     <ul className="grid max-w-[72ch] gap-2.5">
       {items.map((item) => (
-        <li key={item} className="flex gap-3 text-[14.5px] leading-relaxed text-muted">
+        <li key={item} className="flex gap-3 text-body leading-relaxed text-muted">
           <span aria-hidden className="mt-[9px] size-1.5 shrink-0 rounded-full bg-accent" />
           <span>{item}</span>
         </li>
@@ -173,7 +173,7 @@ function ExternalLink({ href, children }: { readonly href: string; readonly chil
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="font-semibold text-accent underline underline-offset-4"
+      className="font-medium text-accent underline underline-offset-4"
     >
       {children}
     </a>

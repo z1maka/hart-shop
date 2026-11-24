@@ -190,7 +190,7 @@ export function ProductGallery({
               ref={coverRef}
               onLoad={settleCover}
               onError={settleCover}
-              className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              className="object-cover"
             />
             <span
               aria-hidden
@@ -211,7 +211,7 @@ export function ProductGallery({
             </GalleryArrow>
             {/* Over a playing video the corner belongs to the player's own controls. */}
             {isVideoPlaying ? null : (
-              <span className="absolute right-3 bottom-3 rounded-chip bg-ink/85 px-2.5 py-1 text-[12px] font-semibold text-on-dark">
+              <span className="absolute right-3 bottom-3 rounded-chip bg-ink/85 px-2.5 py-1 text-caption font-medium text-on-dark">
                 {t('counter', { current: activeIndex + 1, total: slideCount })}
               </span>
             )}
@@ -271,7 +271,7 @@ export function ProductGallery({
                 >
                   <PlayIcon size={18} />
                 </span>
-                <span className="absolute right-0.5 bottom-0.5 rounded-[4px] bg-ink/80 px-1 text-[9.5px] leading-[14px] font-semibold text-on-dark">
+                <span className="absolute right-0.5 bottom-0.5 rounded-[4px] bg-ink/80 px-1 text-[9.5px] leading-[14px] font-medium text-on-dark">
                   {clockDuration(video.durationSeconds)}
                 </span>
               </button>
@@ -293,7 +293,7 @@ export function ProductGallery({
             <DialogPrimitive.Title className="sr-only">{title}</DialogPrimitive.Title>
 
             <div className="flex items-center justify-between p-4 sm:px-6">
-              <span className="text-[13px] font-semibold text-on-dark/80">
+              <span className="text-meta font-medium text-on-dark/80">
                 {images.length > 1
                   ? t('counter', { current: activeIndex + 1, total: images.length })
                   : title}
@@ -561,7 +561,7 @@ function GalleryVideo({
       >
         <PlayIcon size={26} />
       </span>
-      <span className="absolute inset-x-3.5 top-3.5 text-left text-[13px] leading-snug font-semibold text-on-dark [text-shadow:0_1px_3px_rgb(0_0_0/0.7)]">
+      <span className="absolute inset-x-3.5 top-3.5 text-left text-meta leading-snug font-medium text-on-dark [text-shadow:0_1px_3px_rgb(0_0_0/0.7)]">
         {video.caption} · {clockDuration(video.durationSeconds)}
       </span>
     </button>
@@ -586,7 +586,7 @@ function GalleryArrow({
       onClick={onClick}
       className={cn(
         'absolute top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full',
-        'border border-subtle bg-surface/90 text-[15px] text-ink shadow-card hover:border-accent hover:text-ink',
+        'border border-subtle bg-surface/90 text-body text-ink shadow-card hover:border-accent hover:text-ink',
         side === 'left' ? 'left-3' : 'right-3',
       )}
     >
@@ -613,7 +613,7 @@ function LightboxArrow({
       onClick={onClick}
       className={cn(
         'absolute top-1/2 z-10 flex size-12 -translate-y-1/2 items-center justify-center rounded-full',
-        'border border-on-dark/30 bg-ink/45 text-[17px] text-on-dark hover:border-on-dark/70',
+        'border border-on-dark/30 bg-ink/45 text-lead text-on-dark hover:border-on-dark/70',
         side === 'left' ? 'left-3 sm:left-5' : 'right-3 sm:right-5',
       )}
     >

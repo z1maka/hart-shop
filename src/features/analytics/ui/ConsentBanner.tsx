@@ -48,12 +48,12 @@ function ConsentCard({ onAccept, onReject }: ConsentCardProps) {
       aria-label={t('title')}
       className={cn(
         'fixed inset-x-2 bottom-2 z-50 rounded-card border border-on-dark/15 bg-ink p-2.5 text-on-dark shadow-float sm:inset-x-0 sm:bottom-0 sm:rounded-none sm:border-x-0 sm:border-b-0 sm:px-7 sm:py-3.5',
-        'transition-transform duration-300 starting:translate-y-[120%] motion-reduce:transition-none',
+        'transition-transform duration-300 motion-reduce:transition-none starting:translate-y-[120%]',
         !isArmed && 'pointer-events-none',
       )}
     >
       <div className="flex items-center gap-3">
-        <p className="min-w-0 flex-1 text-[13px] leading-snug sm:text-[14px]">
+        <p className="min-w-0 flex-1 text-meta leading-snug sm:text-small">
           {t('short')}{' '}
           <button
             type="button"
@@ -68,7 +68,7 @@ function ConsentCard({ onAccept, onReject }: ConsentCardProps) {
         <button
           type="button"
           onClick={onAccept}
-          className="min-h-9 shrink-0 rounded-control bg-accent px-6 text-[13px] font-semibold text-accent-fg hover:bg-accent-hover sm:min-h-10"
+          className="min-h-9 shrink-0 rounded-control bg-accent px-6 text-meta font-medium text-accent-fg hover:bg-accent-hover sm:min-h-10"
         >
           {t('accept')}
         </button>
@@ -90,7 +90,7 @@ function ConsentDetails({ id, isExpanded, onReject }: ConsentDetailsProps) {
 
   return (
     <div id={id} hidden={!isExpanded} className="mt-3 border-t border-on-dark/15 pt-3">
-      <p className="mb-3 max-w-[80ch] text-[12.5px] leading-relaxed text-on-dark/75">
+      <p className="mb-3 max-w-[80ch] text-meta leading-relaxed text-on-dark/75">
         {t('body')}{' '}
         <Link href="/privacy-policy/" className="text-on-dark underline underline-offset-4">
           {t('policy')}
@@ -99,7 +99,7 @@ function ConsentDetails({ id, isExpanded, onReject }: ConsentDetailsProps) {
       <button
         type="button"
         onClick={onReject}
-        className="min-h-9 w-full rounded-control border border-on-dark/35 px-3 text-[13px] font-semibold text-on-dark hover:border-on-dark/70 sm:w-auto sm:px-6"
+        className="min-h-9 w-full rounded-control border border-on-dark/35 px-3 text-meta font-medium text-on-dark hover:border-on-dark/70 sm:w-auto sm:px-6"
       >
         {t('reject')}
       </button>

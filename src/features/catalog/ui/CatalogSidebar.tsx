@@ -25,8 +25,7 @@ type CatalogSidebarProps = {
   readonly activeFilterCount: number
 }
 
-
-const HEADING_CLASS = 'mb-2.5 font-display text-[13px] font-semibold tracking-[0.12em] text-ink'
+const HEADING_CLASS = 'mb-2.5 text-small font-semibold text-ink'
 
 export async function CatalogSidebar({
   categories,
@@ -48,17 +47,17 @@ export async function CatalogSidebar({
               href={category.href}
               aria-current={category.isActive ? 'page' : undefined}
               className={cn(
-                'flex min-h-[38px] items-center justify-between gap-3 border-l-[3px] px-3 py-1.5 text-[13.5px] leading-snug text-ink transition-colors',
+                'flex min-h-[38px] items-center justify-between gap-3 border-l-[3px] px-3 py-1.5 text-small leading-snug text-ink transition-colors',
                 category.isActive
-                  ? 'border-accent bg-accent-soft font-bold'
+                  ? 'border-accent bg-accent-soft font-semibold'
                   : 'border-transparent font-medium hover:bg-hover',
               )}
             >
               <span className="min-w-0">{category.label}</span>
               <span
                 className={cn(
-                  'shrink-0 text-[12px] tabular-nums',
-                  category.isActive ? 'font-semibold text-muted' : 'text-faint',
+                  'shrink-0 text-caption tabular-nums',
+                  category.isActive ? 'font-medium text-muted' : 'text-faint',
                 )}
               >
                 {category.count}
@@ -80,10 +79,10 @@ export async function CatalogSidebar({
               rel="nofollow"
               aria-current={color.isActive ? 'true' : undefined}
               className={cn(
-                'inline-flex min-h-9 items-center gap-2 rounded-chip px-3 text-[12.5px] text-ink transition-colors',
+                'inline-flex min-h-9 items-center gap-2 rounded-chip px-3 text-meta text-ink transition-colors',
                 color.isActive
-                  ? 'border-[1.5px] border-accent bg-accent-soft font-bold'
-                  : 'border border-strong bg-raised font-semibold hover:border-ink',
+                  ? 'border-[1.5px] border-accent bg-accent-soft font-semibold'
+                  : 'border border-strong bg-raised font-medium hover:border-ink',
               )}
             >
               <ColorSwatch name={color.name} className="size-3 rounded-[2px]" />
@@ -103,8 +102,8 @@ export async function CatalogSidebar({
                 href={band.href}
                 rel="nofollow"
                 className={cn(
-                  'flex min-h-[34px] flex-1 items-center justify-center rounded-chip px-1.5 text-center text-[12.5px]',
-                  band.isActive ? 'bg-raised font-bold text-ink' : 'font-semibold text-muted',
+                  'flex min-h-[34px] flex-1 items-center justify-center rounded-chip px-1.5 text-center text-meta',
+                  band.isActive ? 'bg-raised font-semibold text-ink' : 'font-medium text-muted',
                 )}
               >
                 {band.label}
@@ -115,7 +114,7 @@ export async function CatalogSidebar({
       ) : null}
 
       {activeFilterCount > 0 ? (
-        <Link href={clearHref} className="self-start text-[13px] font-bold text-accent underline">
+        <Link href={clearHref} className="self-start text-meta font-semibold text-accent underline">
           {t('clear')}
         </Link>
       ) : null}

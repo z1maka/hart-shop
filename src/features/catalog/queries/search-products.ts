@@ -4,7 +4,7 @@ import {
   catalogReadRepository,
   type CatalogProductRow,
 } from '@/features/catalog/repository/product-repository'
-import { formatMoney } from '@/lib/money'
+import { formatPrice } from '@/lib/money'
 import { publicUrl } from '@/lib/storage'
 import { getTranslations } from 'next-intl/server'
 
@@ -62,7 +62,7 @@ async function toResultViews(rows: readonly CatalogProductRow[]): Promise<Search
         row.layers > 1 ? productT('layersMeta', { count: row.layers }) : null,
         productT('kgUnit'),
       ),
-      priceLabel: formatMoney(effectivePrice(row.priceCents, row.salePriceCents)),
+      priceLabel: formatPrice(effectivePrice(row.priceCents, row.salePriceCents)),
       imageUrl: cover ? publicUrl(cover.squareStorageKey ?? cover.storageKey) : null,
     }
   })

@@ -30,7 +30,7 @@ export function CatalogLoadMore({
 
   return (
     <div className="mt-7 flex flex-col items-center gap-3 lg:hidden">
-      <p aria-live="polite" className="text-[13px] text-muted">
+      <p aria-live="polite" className="text-meta text-muted">
         {progressText(t, { shownFrom, shownTo, total, isEnd: nextHref === null })}
       </p>
       <div aria-hidden className="h-1 w-40 overflow-hidden rounded-full bg-sunken">

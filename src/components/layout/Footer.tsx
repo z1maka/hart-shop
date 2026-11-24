@@ -38,7 +38,7 @@ export async function Footer({ categories }: FooterProps) {
             height={FULL_LOGO.height}
             className="mb-4.5 block h-auto w-[220px]"
           />
-          <p className="max-w-[44ch] text-[13px] leading-relaxed text-on-dark-muted">
+          <p className="max-w-[44ch] text-meta leading-relaxed text-on-dark-muted">
             {t('description')}
           </p>
         </div>
@@ -62,7 +62,7 @@ export async function Footer({ categories }: FooterProps) {
 
       {/* The seller is named on every page: consumer law and the acquirer's
           moderation both expect it, and buyers check it before paying. */}
-      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-2.5 border-t border-dark-line px-7 py-4 text-[12px] leading-relaxed text-on-dark-muted">
+      <div className="flex flex-wrap items-start justify-between gap-x-6 gap-y-2.5 border-t border-dark-line px-7 py-4 text-caption leading-relaxed text-on-dark-muted">
         <div className="flex flex-col gap-0.5">
           <span>{t('madeBy')}</span>
           <span>
@@ -98,9 +98,7 @@ export async function Footer({ categories }: FooterProps) {
 function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-3.5 font-display text-[13px] font-semibold tracking-[0.12em] text-footer-label">
-        {title}
-      </div>
+      <div className="mb-3.5 text-small font-semibold text-footer-label">{title}</div>
       <div className="grid justify-items-start gap-2.5">{children}</div>
     </div>
   )
@@ -108,7 +106,7 @@ function FooterColumn({ title, children }: { title: string; children: React.Reac
 
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className="text-[13.5px] text-on-dark-link transition-colors hover:text-khaki">
+    <Link href={href} className="text-small text-on-dark-link transition-colors hover:text-khaki">
       {children}
     </Link>
   )

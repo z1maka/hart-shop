@@ -9,12 +9,12 @@ type BadgeProps = {
   readonly children: ReactNode
 }
 
-// The dark product badge is the brand's Oswald label; the light notes beside
-// a price read as text, in Manrope.
+// Small labels in Manrope, in the case they are typed: capitals belong to the
+// big headings, buttons and the menu (owner, 24.11.2026).
 const TONE_CLASSES: Record<BadgeTone, string> = {
-  ink: 'bg-ink font-display text-[11px] font-semibold tracking-[0.1em] text-khaki',
-  accent: 'bg-accent-soft text-[12px] font-bold text-accent',
-  alert: 'bg-alert text-[12px] font-bold text-white',
+  ink: 'bg-ink text-caption font-semibold text-khaki',
+  accent: 'bg-accent-soft text-caption font-semibold text-accent',
+  alert: 'bg-alert text-caption font-semibold text-white',
 }
 
 export function Badge({ tone = 'ink', className, children }: BadgeProps) {

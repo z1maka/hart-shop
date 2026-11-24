@@ -2,7 +2,7 @@ import { MAX_COMPARED_PRODUCTS } from '@/config/catalog'
 import { getTranslations } from 'next-intl/server'
 import { effectivePrice, formatWeight } from '@/features/catalog/model/product-view'
 import { catalogReadRepository } from '@/features/catalog/repository/product-repository'
-import { formatMoney } from '@/lib/money'
+import { formatPrice } from '@/lib/money'
 import { publicUrl } from '@/lib/storage'
 
 export type ComparisonColumn = {
@@ -65,7 +65,9 @@ export async function getComparison(slugs: readonly string[]): Promise<Compariso
   const rowsOut: ComparisonRow[] = [
     buildRow(
       'price',
-      products.map((product) => formatMoney(effectivePrice(product.priceCents, product.salePriceCents))),
+      products.map((product) =>
+        formatPrice(effectivePrice(product.priceCents, product.salePriceCents)),
+      ),
     ),
     buildRow(
       'weight',

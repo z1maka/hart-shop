@@ -46,23 +46,23 @@ export default async function RefundPolicyPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-7 py-10">
-      <p className="mb-3 text-[12.5px] font-semibold text-accent">{t('kicker')}</p>
-      <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <p className="mb-8 max-w-[68ch] text-[14.5px] leading-relaxed text-muted">{t('lead')}</p>
+      <p className="mb-3 text-meta font-medium text-accent">{t('kicker')}</p>
+      <h1 className="mb-3 font-display text-h1 font-semibold text-ink">{t('title')}</h1>
+      <p className="mb-8 max-w-[68ch] text-body leading-relaxed text-muted">{t('lead')}</p>
 
       <ul className="mb-11 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {FACT_KEYS.map((key) => (
           <li key={key} className="rounded-card border border-subtle bg-surface p-5">
-            <p className="mb-1 font-display text-[22px] leading-tight font-bold text-ink">
+            <p className="mb-1 font-display text-price leading-tight font-semibold text-ink">
               {t(`facts.${key}.value`)}
             </p>
-            <p className="text-[12.5px] leading-relaxed text-muted">{t(`facts.${key}.caption`)}</p>
+            <p className="text-meta leading-relaxed text-muted">{t(`facts.${key}.caption`)}</p>
           </li>
         ))}
       </ul>
 
       <Section title={t('termsTitle')}>
-        <p className="max-w-[76ch] text-[14px] leading-relaxed text-pretty text-muted">
+        <p className="max-w-[76ch] text-small leading-relaxed text-pretty text-muted">
           {t('termsBody')}
         </p>
       </Section>
@@ -77,7 +77,7 @@ export default async function RefundPolicyPage() {
           >
             <ul className="mb-5 grid gap-2">
               {CONDITION_KEYS.map((key) => (
-                <li key={key} className="flex gap-2.5 text-[13px] leading-relaxed text-muted">
+                <li key={key} className="flex gap-2.5 text-meta leading-relaxed text-muted">
                   <CheckMark />
                   {t(`fit.conditions.${key}`)}
                 </li>
@@ -95,7 +95,7 @@ export default async function RefundPolicyPage() {
             title={t('defect.title')}
             lead={t('defect.lead')}
           >
-            <p className="mb-5 text-[13px] leading-relaxed text-muted">{t('defect.rights')}</p>
+            <p className="mb-5 text-meta leading-relaxed text-muted">{t('defect.rights')}</p>
             <Steps
               title={t('stepsTitle')}
               steps={DEFECT_STEP_KEYS.map((key) => t(`defect.steps.${key}`))}
@@ -114,8 +114,8 @@ export default async function RefundPolicyPage() {
                 index > 0 && 'border-t border-subtle',
               )}
             >
-              <p className="text-[13.5px] font-semibold text-ink">{t(`shipping.${key}.case`)}</p>
-              <p className="text-[13.5px] text-muted">{t(`shipping.${key}.who`)}</p>
+              <p className="text-small font-medium text-ink">{t(`shipping.${key}.case`)}</p>
+              <p className="text-small text-muted">{t(`shipping.${key}.who`)}</p>
             </div>
           ))}
         </div>
@@ -126,16 +126,12 @@ export default async function RefundPolicyPage() {
           <dl className="grid gap-3 sm:grid-cols-2">
             {ADDRESS_ROWS.map((row) => (
               <div key={row.key}>
-                <dt className="text-[12px] font-semibold tracking-[0.04em] text-faint uppercase">
-                  {t(`address.${row.key}`)}
-                </dt>
-                <dd className="mt-0.5 text-[14px] leading-snug font-semibold text-ink">
-                  {row.value}
-                </dd>
+                <dt className="text-caption font-medium text-faint">{t(`address.${row.key}`)}</dt>
+                <dd className="mt-0.5 text-small leading-snug font-medium text-ink">{row.value}</dd>
               </div>
             ))}
           </dl>
-          <p className="mt-5 border-t border-subtle pt-4 text-[13px] leading-relaxed text-muted">
+          <p className="mt-5 border-t border-subtle pt-4 text-meta leading-relaxed text-muted">
             {t('addressNote')}
           </p>
         </div>
@@ -145,16 +141,16 @@ export default async function RefundPolicyPage() {
         <div className="grid gap-4 sm:grid-cols-3">
           {MONEY_KEYS.map((key) => (
             <article key={key} className="rounded-card border border-subtle bg-surface p-5">
-              <h3 className="mb-1.5 text-[14px] leading-snug font-semibold text-ink">
+              <h3 className="mb-1.5 text-small leading-snug font-medium text-ink">
                 {t(`money.${key}.heading`)}
               </h3>
-              <p className="text-[13px] leading-relaxed text-muted">{t(`money.${key}.body`)}</p>
+              <p className="text-meta leading-relaxed text-muted">{t(`money.${key}.body`)}</p>
             </article>
           ))}
         </div>
         {/* Refund requests are a favourite cover for card fraud; saying out
             loud what the shop never asks for is the cheapest protection. */}
-        <p className="mt-4 rounded-card border border-alert-edge bg-alert-soft px-5 py-3.5 text-[13px] leading-relaxed text-alert">
+        <p className="mt-4 rounded-card border border-alert-edge bg-alert-soft px-5 py-3.5 text-meta leading-relaxed text-alert">
           {t('moneyWarning')}
         </p>
       </Section>
@@ -163,16 +159,16 @@ export default async function RefundPolicyPage() {
         <div className="grid gap-5 rounded-card border border-subtle bg-surface p-7">
           {EXCLUSION_KEYS.map((key) => (
             <section key={key}>
-              <h3 className="mb-1.5 text-[14px] leading-snug font-semibold text-ink">
+              <h3 className="mb-1.5 text-small leading-snug font-medium text-ink">
                 {t(`exclusions.${key}.heading`)}
               </h3>
-              <p className="max-w-[76ch] text-[13.5px] leading-relaxed text-pretty text-muted">
+              <p className="max-w-[76ch] text-small leading-relaxed text-pretty text-muted">
                 {t(`exclusions.${key}.body`)}
               </p>
               {key === 'custom' ? (
                 <Link
                   href={CUSTOM_ORDER_HREF}
-                  className="mt-1.5 inline-block text-[13px] font-semibold text-accent hover:underline"
+                  className="mt-1.5 inline-block text-meta font-medium text-accent hover:underline"
                 >
                   {t('exclusions.custom.link')} →
                 </Link>
@@ -183,8 +179,8 @@ export default async function RefundPolicyPage() {
       </Section>
 
       <section className="rounded-card border border-accent-mid bg-accent-tint p-7">
-        <h2 className="mb-2 font-display text-h3 font-bold text-ink">{t('cta.title')}</h2>
-        <p className="mb-5 max-w-[60ch] text-[13.5px] leading-relaxed text-muted">{t('cta.body')}</p>
+        <h2 className="mb-2 font-display text-h3 font-semibold text-ink">{t('cta.title')}</h2>
+        <p className="mb-5 max-w-[60ch] text-small leading-relaxed text-muted">{t('cta.body')}</p>
         <div className="flex flex-wrap gap-3">
           <Button asChild>
             <a href={COMPANY.phoneHref}>
@@ -207,7 +203,7 @@ export default async function RefundPolicyPage() {
 function Section({ title, children }: { readonly title: string; readonly children: ReactNode }) {
   return (
     <section className="mb-11">
-      <h2 className="mb-4 font-display text-[21px] font-bold tracking-[-0.01em] text-ink">
+      <h2 className="mb-4 font-display text-title font-semibold tracking-[-0.01em] text-ink">
         {title}
       </h2>
       {children}
@@ -228,14 +224,14 @@ function CaseCard({ badge, badgeClass, title, lead, children }: CaseCardProps) {
     <article className="flex flex-col rounded-card border border-subtle bg-surface p-6">
       <span
         className={cn(
-          'mb-3 inline-block w-fit rounded-chip px-2.5 py-1.5 text-[11px] font-bold',
+          'mb-3 inline-block w-fit rounded-chip px-2.5 py-1.5 text-caption font-semibold',
           badgeClass,
         )}
       >
         {badge}
       </span>
-      <h3 className="mb-2 font-display text-[18px] leading-snug font-bold text-ink">{title}</h3>
-      <p className="mb-4 text-[13.5px] leading-relaxed text-muted">{lead}</p>
+      <h3 className="mb-2 font-display text-lead leading-snug font-semibold text-ink">{title}</h3>
+      <p className="mb-4 text-small leading-relaxed text-muted">{lead}</p>
       {children}
     </article>
   )
@@ -244,13 +240,11 @@ function CaseCard({ badge, badgeClass, title, lead, children }: CaseCardProps) {
 function Steps({ title, steps }: { readonly title: string; readonly steps: readonly string[] }) {
   return (
     <div className="mt-auto border-t border-subtle pt-4">
-      <p className="mb-3 text-[12px] font-semibold tracking-[0.04em] text-faint uppercase">
-        {title}
-      </p>
+      <p className="mb-3 text-caption font-medium text-faint">{title}</p>
       <ol className="grid gap-3">
         {steps.map((step, index) => (
-          <li key={step} className="flex gap-3 text-[13px] leading-relaxed text-ink">
-            <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-chip bg-ink font-display text-[12px] font-bold text-on-dark">
+          <li key={step} className="flex gap-3 text-meta leading-relaxed text-ink">
+            <span className="inline-flex size-6 shrink-0 items-center justify-center rounded-chip bg-ink font-display text-caption font-semibold text-on-dark">
               {index + 1}
             </span>
             <span className="pt-0.5">{step}</span>

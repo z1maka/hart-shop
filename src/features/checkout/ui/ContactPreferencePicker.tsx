@@ -43,7 +43,7 @@ export function ContactPreferencePicker({ value, phone, onChange }: ContactPrefe
 
   return (
     <div role="group" aria-labelledby="contact-preference-title">
-      <p id="contact-preference-title" className="mb-2.5 text-[14px] font-extrabold text-ink">
+      <p id="contact-preference-title" className="mb-2.5 text-small font-extrabold text-ink">
         {t('title')}
       </p>
       <div className="grid grid-cols-4 gap-1.5">
@@ -58,7 +58,7 @@ export function ContactPreferencePicker({ value, phone, onChange }: ContactPrefe
           />
         ))}
       </div>
-      <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-[13px] font-semibold text-ink">
+      <label className="mt-3 flex cursor-pointer items-start gap-2.5 text-meta font-medium text-ink">
         <input
           type="checkbox"
           checked={isSure}
@@ -67,7 +67,7 @@ export function ContactPreferencePicker({ value, phone, onChange }: ContactPrefe
         />
         {t('sure')}
       </label>
-      <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
+      <p className="mt-2 text-meta leading-relaxed text-muted">
         {t.rich(`hints.${value}`, {
           phone,
           number: (chunks) => <span className="whitespace-nowrap">{chunks}</span>,
@@ -104,7 +104,7 @@ function ChannelTileButton({
       <span className={tile.iconClass}>
         <ChannelIcon channel={tile.mark} size={ICON_SIZE} />
       </span>
-      <span className={cn('text-[11px] text-ink', isActive ? 'font-extrabold' : 'font-semibold')}>
+      <span className={cn('text-caption text-ink', isActive ? 'font-extrabold' : 'font-medium')}>
         {label}
       </span>
     </button>

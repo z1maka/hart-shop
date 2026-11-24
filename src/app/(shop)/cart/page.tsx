@@ -33,8 +33,8 @@ export default async function CartPage() {
           as the Гарт design sets it: there for whoever wants to add one more
           thing, without competing with the order panel below. */}
       <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
-        <h1 className="font-display text-h1 font-bold text-ink">{t('title')}</h1>
-        <Link href="/shop/" className="text-[13.5px] font-bold text-accent hover:text-ink">
+        <h1 className="font-display text-h1 font-semibold text-ink">{t('title')}</h1>
+        <Link href="/shop/" className="text-small font-semibold text-accent hover:text-ink">
           {t('continueShopping')}
         </Link>
       </div>
@@ -83,18 +83,18 @@ async function CartContents() {
             <div className="min-w-40 flex-1">
               <Link
                 href={`/product/${line.productSlug}/`}
-                className="text-[15px] font-extrabold text-ink hover:text-accent"
+                className="text-body font-extrabold text-ink hover:text-accent"
               >
                 {line.title}
               </Link>
               <CartLineOptions line={line} />
               {line.isWholesalePrice ? (
-                <span className="mt-1.5 inline-block rounded-chip bg-accent-soft px-2 py-0.5 text-[11px] font-bold text-accent">
+                <span className="mt-1.5 inline-block rounded-chip bg-accent-soft px-2 py-0.5 text-caption font-semibold text-accent">
                   {t('wholesaleTag')}
                 </span>
               ) : null}
               {line.wholesaleHint ? (
-                <p className="mt-1.5 text-[12px] leading-relaxed font-semibold text-khaki-ink">
+                <p className="mt-1.5 text-caption leading-relaxed font-medium text-khaki-ink">
                   {t('wholesaleHint', {
                     min: line.wholesaleHint.minQuantity,
                     price: line.wholesaleHint.unitPriceLabel,
@@ -104,7 +104,7 @@ async function CartContents() {
               ) : null}
               {/* For a single piece the unit price repeats the line total. */}
               {line.quantity > 1 ? (
-                <p className="mt-0.5 text-[12px] text-faint">
+                <p className="mt-0.5 text-caption text-faint">
                   {t('eachPlain', { price: line.unitPriceLabel })}
                 </p>
               ) : null}
@@ -112,7 +112,7 @@ async function CartContents() {
 
             <CartLineControls itemId={line.id} quantity={line.quantity} />
 
-            <div className="w-24 text-right font-display text-[18px] font-semibold text-ink">
+            <div className="w-24 text-right font-display text-lead font-semibold text-ink">
               {line.linePriceLabel}
             </div>
           </article>
@@ -135,7 +135,7 @@ async function CartCompanions({ productSlugs }: { readonly productSlugs: readonl
 
   return (
     <section className="lg:col-start-1">
-      <h2 className="mb-4 font-display text-h3 font-bold text-ink">{t('companions')}</h2>
+      <h2 className="mb-4 font-display text-h3 font-semibold text-ink">{t('companions')}</h2>
       <ProductGrid products={companions} layout="compact" />
     </section>
   )
@@ -147,8 +147,8 @@ async function EmptyCart() {
   return (
     <div className="flex flex-col gap-9">
       <div className="rounded-card border border-subtle bg-surface p-12 text-center">
-        <h2 className="mb-2.5 font-display text-h2 font-bold text-ink">{t('emptyTitle')}</h2>
-        <p className="mb-5 text-[14.5px] text-muted">{t('emptyLead')}</p>
+        <h2 className="mb-2.5 font-display text-h2 font-semibold text-ink">{t('emptyTitle')}</h2>
+        <p className="mb-5 text-body text-muted">{t('emptyLead')}</p>
         <Button asChild>
           <Link href="/shop/">{t('browse')}</Link>
         </Button>
@@ -156,8 +156,8 @@ async function EmptyCart() {
 
       <section>
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2.5">
-          <h3 className="font-display text-h3 font-bold text-ink">{t('startWith')}</h3>
-          <Link href="/shop/" className="text-[13.5px] font-bold text-accent hover:text-ink">
+          <h3 className="font-display text-h3 font-semibold text-ink">{t('startWith')}</h3>
+          <Link href="/shop/" className="text-small font-semibold text-accent hover:text-ink">
             {t('allProducts')}
           </Link>
         </div>
@@ -173,10 +173,10 @@ async function CartSummaryPanel({ cart }: { cart: CartView }) {
 
   return (
     <aside className="flex flex-col gap-3.5 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-      <dl className="grid gap-2 rounded-card border border-subtle bg-raised p-5 text-[14px]">
+      <dl className="grid gap-2 rounded-card border border-subtle bg-raised p-5 text-small">
         <div className="flex justify-between gap-3">
           <dt className="text-muted">{t('totalItems', { count: cart.itemCount })}</dt>
-          <dd className="font-bold text-ink">{cart.subtotalLabel}</dd>
+          <dd className="font-semibold text-ink">{cart.subtotalLabel}</dd>
         </div>
         <div className="flex justify-between gap-3">
           <dt className="text-muted">{t('deliveryRow')}</dt>
@@ -184,7 +184,7 @@ async function CartSummaryPanel({ cart }: { cart: CartView }) {
         </div>
         <div className="flex items-baseline justify-between gap-3 border-t border-subtle pt-2.5">
           <dt className="font-extrabold text-ink">{t('toPay')}</dt>
-          <dd className="font-display text-[22px] font-bold text-ink">{cart.subtotalLabel}</dd>
+          <dd className="font-display text-price font-semibold text-ink">{cart.subtotalLabel}</dd>
         </div>
       </dl>
 
@@ -204,7 +204,7 @@ async function CartSummaryPanel({ cart }: { cart: CartView }) {
           isCardPaymentAvailable={isCardPaymentAvailable}
         />
       </div>
-      <p className="text-[12px] leading-relaxed text-faint">{t('deliveryNote')}</p>
+      <p className="text-caption leading-relaxed text-faint">{t('deliveryNote')}</p>
     </aside>
   )
 }

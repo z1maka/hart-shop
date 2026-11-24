@@ -39,7 +39,8 @@ type QuickChoiceDialogProps = {
   readonly triggerClassName?: string
 }
 
-const TILE_CLASS = 'flex size-11 items-center justify-center rounded-control p-[3px] transition-colors'
+const TILE_CLASS =
+  'flex size-11 items-center justify-center rounded-control p-[3px] transition-colors'
 
 // The card's «До кошика» for a product sold in several variants: the buyer
 // picks colour and model here, in the page's own pickers, instead of the
@@ -114,7 +115,10 @@ export function QuickChoiceDialog({
           aria-describedby={undefined}
           className="fixed inset-x-0 bottom-0 z-50 flex max-h-[90dvh] flex-col overflow-hidden rounded-t-card bg-surface shadow-[0_-12px_40px_rgb(35_36_29_/_0.25)] motion-safe:data-[state=closed]:animate-sheet-out motion-safe:data-[state=open]:animate-sheet-in sm:inset-x-auto sm:top-1/2 sm:bottom-auto sm:left-1/2 sm:w-[min(520px,92vw)] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-card sm:shadow-[0_24px_60px_rgb(35_36_29_/_0.28)] sm:motion-safe:data-[state=closed]:animate-fade-out sm:motion-safe:data-[state=open]:animate-fade-in"
         >
-          <span aria-hidden className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-pill bg-strong sm:hidden" />
+          <span
+            aria-hidden
+            className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-pill bg-strong sm:hidden"
+          />
 
           <ChoiceHeader
             productTitle={productTitle}
@@ -136,7 +140,9 @@ export function QuickChoiceDialog({
               <SizePicker
                 options={sizes.map((size) => ({
                   size,
-                  isAvailable: Boolean(variantOf(variants, { color: pick.color, size })?.isAvailable),
+                  isAvailable: Boolean(
+                    variantOf(variants, { color: pick.color, size })?.isAvailable,
+                  ),
                 }))}
                 activeSize={pick.size}
                 onSelect={(size) => setPick({ color: pick.color, size })}
@@ -154,13 +160,13 @@ export function QuickChoiceDialog({
               {buttonLabel()}
             </Button>
             {error ? (
-              <p role="alert" className="text-[13px] font-medium text-alert">
+              <p role="alert" className="text-meta font-medium text-alert">
                 {error}
               </p>
             ) : null}
             <Link
               href={productHref}
-              className="self-center text-[12.5px] font-semibold text-accent underline-offset-4 hover:underline"
+              className="self-center text-meta font-medium text-accent underline-offset-4 hover:underline"
             >
               {t('productPage')}
             </Link>
@@ -196,13 +202,13 @@ function ChoiceHeader({
           />
         ) : null}
         <div className="min-w-0">
-          <DialogPrimitive.Title className="font-display text-[17px] leading-tight font-bold text-ink">
+          <DialogPrimitive.Title className="font-display text-lead leading-tight font-semibold text-ink">
             {productTitle}
           </DialogPrimitive.Title>
-          <p className="mt-1 text-[13px] font-semibold text-muted">{priceLabel}</p>
+          <p className="mt-1 text-meta font-medium text-muted">{priceLabel}</p>
         </div>
       </div>
-      <DialogPrimitive.Close className="min-h-10 shrink-0 rounded-control border border-subtle px-3 text-[12.5px] font-semibold text-ink hover:border-faint">
+      <DialogPrimitive.Close className="min-h-10 shrink-0 rounded-control border border-subtle px-3 text-meta font-medium text-ink hover:border-faint">
         {closeLabel}
       </DialogPrimitive.Close>
     </div>
@@ -224,7 +230,7 @@ function ColorChoice({
 
   return (
     <div>
-      <p className="mb-2.5 text-[13px] font-bold text-ink">
+      <p className="mb-2.5 text-meta font-semibold text-ink">
         {t('pattern', { color: activeColor ? colorName(activeColor) : '' })}
       </p>
       <div className="flex flex-wrap gap-2">
@@ -238,7 +244,9 @@ function ColorChoice({
             title={colorName(color)}
             className={cn(
               TILE_CLASS,
-              color === activeColor ? 'border-2 border-ink' : 'border border-strong hover:border-ink',
+              color === activeColor
+                ? 'border-2 border-ink'
+                : 'border border-strong hover:border-ink',
             )}
           >
             <ColorSwatch name={color} className="size-full rounded-[2px] border-0" />

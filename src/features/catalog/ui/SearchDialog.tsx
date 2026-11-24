@@ -43,7 +43,7 @@ export function SearchDialog({ suggestions, initialResults }: SearchDialogProps)
     <DialogPrimitive.Root open={isOpen} onOpenChange={setIsOpen}>
       <DialogPrimitive.Trigger
         aria-label={t('button')}
-        className="inline-flex min-h-[42px] items-center gap-2 rounded-control border border-dark-edge px-3.5 text-[13px] font-semibold text-on-dark-muted transition-colors hover:border-khaki hover:text-khaki"
+        className="inline-flex min-h-[42px] items-center gap-2 rounded-control border border-dark-edge px-3.5 text-meta font-medium text-on-dark-muted transition-colors hover:border-khaki hover:text-khaki"
       >
         <SearchIcon />
         <span className="hidden sm:inline">{t('button')}</span>
@@ -64,15 +64,15 @@ export function SearchDialog({ suggestions, initialResults }: SearchDialogProps)
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={t('placeholder')}
-              className="flex-1 bg-transparent py-2.5 text-[15.5px] text-ink outline-none placeholder:text-faint"
+              className="flex-1 bg-transparent py-2.5 text-reading text-ink outline-none placeholder:text-faint"
             />
-            <DialogPrimitive.Close className="min-h-10 rounded-control border border-subtle px-3 text-[12.5px] font-semibold text-muted hover:border-faint hover:text-ink">
+            <DialogPrimitive.Close className="min-h-10 rounded-control border border-subtle px-3 text-meta font-medium text-muted hover:border-faint hover:text-ink">
               Esc
             </DialogPrimitive.Close>
           </div>
 
           <div className="flex flex-wrap items-center gap-2 px-4 pt-3.5 pb-2">
-            <span className="text-[12px] font-semibold text-faint">
+            <span className="text-caption font-medium text-faint">
               {hasQuery ? t('results') : t('popular')}
             </span>
             {suggestions.map((suggestion) => (
@@ -80,7 +80,7 @@ export function SearchDialog({ suggestions, initialResults }: SearchDialogProps)
                 key={suggestion}
                 type="button"
                 onClick={() => setQuery(suggestion)}
-                className="min-h-8.5 rounded-chip border border-strong bg-raised px-3 text-[12px] font-medium text-muted hover:border-accent hover:text-ink"
+                className="min-h-8.5 rounded-chip border border-strong bg-raised px-3 text-caption font-medium text-muted hover:border-accent hover:text-ink"
               >
                 {suggestion}
               </button>
@@ -108,12 +108,12 @@ export function SearchDialog({ suggestions, initialResults }: SearchDialogProps)
                     ) : null}
                   </span>
                   <span className="flex-1">
-                    <span className="block text-[14px] leading-snug font-semibold text-ink">
+                    <span className="block text-small leading-snug font-medium text-ink">
                       {result.title}
                     </span>
-                    <span className="mt-0.5 block text-[12px] text-faint">{result.meta}</span>
+                    <span className="mt-0.5 block text-caption text-faint">{result.meta}</span>
                   </span>
-                  <span className="font-display text-[15px] font-bold text-ink">
+                  <span className="font-display text-body font-semibold text-ink">
                     {result.priceLabel}
                   </span>
                 </Link>
@@ -121,7 +121,7 @@ export function SearchDialog({ suggestions, initialResults }: SearchDialogProps)
             ))}
 
             {isEmpty ? (
-              <p className="px-2.5 py-6 text-[14px] leading-relaxed text-muted">{t('empty')}</p>
+              <p className="px-2.5 py-6 text-small leading-relaxed text-muted">{t('empty')}</p>
             ) : null}
           </div>
         </DialogPrimitive.Content>

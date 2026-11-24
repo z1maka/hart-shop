@@ -34,12 +34,12 @@ export default async function ShopIndexPage({ searchParams }: PageProps<'/shop'>
         items={[{ label: navT('home'), href: '/' }, { label: navT('allProducts') }]}
       />
       <header className="mb-4 lg:mb-7">
-        <h1 className="mb-2.5 font-display text-h1 font-bold text-ink">{pageT('title')}</h1>
+        <h1 className="mb-2.5 font-display text-h1 font-semibold text-ink">{pageT('title')}</h1>
         <ExpandableText
           text={pageT('lead')}
           moreLabel={filtersT('introMore')}
           lessLabel={filtersT('introLess')}
-          className="max-w-[64ch] text-[14.5px] leading-relaxed text-muted"
+          className="max-w-[64ch] text-body leading-relaxed text-muted"
         />
       </header>
 

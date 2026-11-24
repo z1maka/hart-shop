@@ -40,7 +40,7 @@ export function Dialog({
             className,
           )}
         >
-          <DialogPrimitive.Title className="font-display text-[17px] font-bold">
+          <DialogPrimitive.Title className="font-display text-lead font-semibold">
             {title}
           </DialogPrimitive.Title>
           {children}

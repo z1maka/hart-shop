@@ -52,6 +52,14 @@ export function formatMoney(money: Money): string {
   return getFormatter(money.currency).format(money.amountCents / CENTS_PER_UNIT)
 }
 
+// A shop price: every catalogue price is whole hryvnias, so «2 900,00 ₴» only
+// made the figure longer (owner, 24.11.2026). Kopiykas show when there are
+// any. Invoices and the admin keep formatMoney.
+export function formatPrice(money: Money): string {
+  if (money.amountCents % CENTS_PER_UNIT !== 0) return formatMoney(money)
+  return getWholeFormatter(money.currency).format(money.amountCents / CENTS_PER_UNIT)
+}
+
 // Whole hryvnias for dashboards, where kopiykas are noise: «28 650 ₴».
 export function formatWholeMoney(money: Money): string {
   // `|| 0` turns the -0 a small loss rounds to into 0: «0 ₴», never «-0 ₴».

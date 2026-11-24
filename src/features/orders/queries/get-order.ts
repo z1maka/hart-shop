@@ -13,7 +13,7 @@ import {
   type ShippingAddress,
 } from '@/features/orders/repository/order-repository'
 import { logger } from '@/lib/logger'
-import { createMoney, Currency, formatMoney } from '@/lib/money'
+import { createMoney, Currency, formatPrice } from '@/lib/money'
 import { publicUrl } from '@/lib/storage'
 
 export type OrderLineView = {
@@ -113,12 +113,12 @@ async function toOrderView(order: OrderRow): Promise<OrderView> {
     },
     trackingNumber: order.trackingNumber,
     trackingUrl: order.trackingUrl,
-    subtotalLabel: formatMoney(createMoney(order.subtotalCents, Currency.Uah)),
+    subtotalLabel: formatPrice(createMoney(order.subtotalCents, Currency.Uah)),
     shippingLabel:
       order.shippingCents === 0
         ? 'за тарифами перевізника'
-        : formatMoney(createMoney(order.shippingCents, Currency.Uah)),
-    totalLabel: formatMoney(createMoney(order.totalCents, Currency.Uah)),
+        : formatPrice(createMoney(order.shippingCents, Currency.Uah)),
+    totalLabel: formatPrice(createMoney(order.totalCents, Currency.Uah)),
     totalCents: order.totalCents,
     shippingCents: order.shippingCents,
     isParcelReturning: order.parcelStage === ParcelStage.Refused,
@@ -139,7 +139,7 @@ async function toOrderView(order: OrderRow): Promise<OrderView> {
       title: item.productTitle,
       variantLabel: item.variantLabel,
       quantity: item.quantity,
-      linePriceLabel: formatMoney(createMoney(item.unitPriceCents * item.quantity, Currency.Uah)),
+      linePriceLabel: formatPrice(createMoney(item.unitPriceCents * item.quantity, Currency.Uah)),
       imageUrl: item.imageStorageKey ? publicUrl(item.imageStorageKey) : null,
     })),
   }

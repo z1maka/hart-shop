@@ -6,11 +6,14 @@ export function FaqList({ entries }: { readonly entries: readonly FaqEntry[] }) 
   return (
     <div className="grid gap-2.5">
       {entries.map((entry, index) => (
-        <details key={index} className="group rounded-card border border-subtle bg-surface px-5 py-4">
-          <summary className="cursor-pointer list-none text-[15px] font-semibold text-ink marker:hidden">
+        <details
+          key={index}
+          className="group rounded-card border border-subtle bg-surface px-5 py-4"
+        >
+          <summary className="cursor-pointer list-none text-body font-medium text-ink marker:hidden">
             {entry.question}
           </summary>
-          <p className="mt-2.5 text-[14.5px] leading-relaxed whitespace-pre-line text-muted">
+          <p className="mt-2.5 max-w-[80ch] text-body leading-relaxed whitespace-pre-line text-muted">
             {entry.answer}
           </p>
         </details>

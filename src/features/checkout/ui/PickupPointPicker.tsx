@@ -216,9 +216,9 @@ export function PickupPointPicker({
                       onClick={() => chooseSettlement(entry)}
                       className="flex w-full flex-col items-start gap-0.5 border-b border-subtle px-4 py-3 text-left last:border-b-0 hover:bg-hover"
                     >
-                      <span className="text-[14px] text-ink">{entry.name}</span>
+                      <span className="text-small text-ink">{entry.name}</span>
                       {entry.region ? (
-                        <span className="text-[12px] text-faint">{entry.region}</span>
+                        <span className="text-caption text-faint">{entry.region}</span>
                       ) : null}
                     </button>
                   </li>
@@ -233,15 +233,13 @@ export function PickupPointPicker({
         {pointStepContent()}
       </Step>
 
-      {notice && !isPending ? (
-        <p className="px-4.5 pb-3.5 text-[12.5px] text-muted">{notice}</p>
-      ) : null}
+      {notice && !isPending ? <p className="px-4.5 pb-3.5 text-meta text-muted">{notice}</p> : null}
     </div>
   )
 
   function pointStepContent() {
     if (!settlement) {
-      return <p className="text-[12.5px] leading-relaxed text-faint">{t(`cityFirst.${kindKey}`)}</p>
+      return <p className="text-meta leading-relaxed text-faint">{t(`cityFirst.${kindKey}`)}</p>
     }
 
     if (selected) {
@@ -278,14 +276,14 @@ export function PickupPointPicker({
         ) : null}
 
         {isLoadingPoints && points.length === 0 ? (
-          <p className="flex items-center gap-2.5 py-2 text-[12.5px] text-faint">
+          <p className="flex items-center gap-2.5 py-2 text-meta text-faint">
             <Spinner />
             {t(`loadingPoints.${kindKey}`)}
           </p>
         ) : null}
 
         {hiddenByWeight > 0 ? (
-          <p className="text-[12.5px] leading-relaxed text-muted">
+          <p className="text-meta leading-relaxed text-muted">
             {t(`hiddenByWeight.${kindKey}`, {
               count: hiddenByWeight,
               kg: formatKilos(parcelWeightGrams, 'uk-UA'),
@@ -303,8 +301,8 @@ export function PickupPointPicker({
                   className="flex w-full items-start justify-between gap-3 border-b border-subtle px-4 py-3 text-left last:border-b-0 hover:bg-hover"
                 >
                   <span className="flex flex-col gap-0.5">
-                    <span className="text-[14px] font-bold text-ink">{point.name}</span>
-                    <span className="text-[12.5px] text-muted">{point.address}</span>
+                    <span className="text-small font-semibold text-ink">{point.name}</span>
+                    <span className="text-meta text-muted">{point.address}</span>
                   </span>
                 </button>
               </li>
@@ -377,7 +375,7 @@ function Step({ number, state, title, isLast, children }: StepProps) {
       <div className="flex flex-col items-center">
         <span
           className={cn(
-            'flex size-6.5 items-center justify-center rounded-chip border-[1.5px] text-[12px] font-extrabold',
+            'flex size-6.5 items-center justify-center rounded-chip border-[1.5px] text-caption font-extrabold',
             state === 'done' && 'border-accent bg-accent text-accent-fg',
             state === 'active' && 'border-ink bg-raised text-ink',
             state === 'upcoming' && 'border-subtle bg-raised text-faint',
@@ -391,7 +389,7 @@ function Step({ number, state, title, isLast, children }: StepProps) {
       <div className="pb-2.5">
         <p
           className={cn(
-            'mb-1.5 pt-1 text-[12.5px] font-bold',
+            'mb-1.5 pt-1 text-meta font-semibold',
             state === 'upcoming' ? 'text-faint' : 'text-muted',
           )}
         >
@@ -414,12 +412,12 @@ function ChosenChip({
 }) {
   return (
     <span className="flex flex-wrap items-center gap-2.5">
-      <span className="text-[14px] font-extrabold text-ink">{label}</span>
+      <span className="text-small font-extrabold text-ink">{label}</span>
       {changeLabel && onChange ? (
         <button
           type="button"
           onClick={onChange}
-          className="text-[12.5px] font-bold text-accent underline underline-offset-2 hover:text-ink"
+          className="text-meta font-semibold text-accent underline underline-offset-2 hover:text-ink"
         >
           {changeLabel}
         </button>

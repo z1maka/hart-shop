@@ -60,7 +60,9 @@ export function CartLineModelSwitch({
   }
 
   return (
-    <span className={cn('flex flex-wrap items-center gap-x-2 gap-y-1', CART_LINE_GAP_CLASSES[density])}>
+    <span
+      className={cn('flex flex-wrap items-center gap-x-2 gap-y-1', CART_LINE_GAP_CLASSES[density])}
+    >
       <span
         role="group"
         aria-label={label}
@@ -77,7 +79,7 @@ export function CartLineModelSwitch({
               disabled={!option.isAvailable}
               onClick={() => choose(option.variantId)}
               className={cn(
-                'relative inline-flex h-5.5 items-center rounded-control border px-1.5 text-[11.5px] font-bold whitespace-nowrap transition-colors after:absolute after:inset-x-0 after:-inset-y-2.5 after:content-[""]',
+                'relative inline-flex h-5.5 items-center rounded-control border px-1.5 text-caption font-semibold whitespace-nowrap transition-colors after:absolute after:inset-x-0 after:-inset-y-2.5 after:content-[""]',
                 isActive
                   ? 'border-ink bg-ink text-on-dark'
                   : 'border-strong bg-raised text-muted hover:border-ink hover:text-ink',
@@ -91,7 +93,7 @@ export function CartLineModelSwitch({
       </span>
       {color ? <span className={CART_LINE_TEXT_CLASSES[density]}>{color}</span> : null}
       {error ? (
-        <span role="alert" className="basis-full text-[12px] font-medium text-alert">
+        <span role="alert" className="basis-full text-caption font-medium text-alert">
           {error}
         </span>
       ) : null}

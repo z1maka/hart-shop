@@ -56,8 +56,8 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
           }),
         ]}
       />
-      <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <p className="mb-8 max-w-[64ch] text-[15px] leading-relaxed text-muted">{t('lead')}</p>
+      <h1 className="mb-3 font-display text-h1 font-semibold text-ink">{t('title')}</h1>
+      <p className="mb-8 max-w-[64ch] text-body leading-relaxed text-muted">{t('lead')}</p>
 
       <div className="mb-9 grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-3.5">
         {liveContactChannels().map((channel) => (
@@ -76,7 +76,7 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
           >
             <h2
               className={cn(
-                'font-display text-[18px] font-semibold tracking-[0.06em]',
+                'font-display text-lead font-semibold tracking-[0.06em]',
                 channel.key === HIGHLIGHTED_CHANNEL ? 'text-khaki' : 'text-ink',
               )}
             >
@@ -84,7 +84,7 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
             </h2>
             <p
               className={cn(
-                'text-[15px] font-bold break-words',
+                'text-body font-semibold break-words',
                 channel.key === HIGHLIGHTED_CHANNEL ? 'text-on-dark' : 'text-ink',
               )}
             >
@@ -92,7 +92,7 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
             </p>
             <p
               className={cn(
-                'flex-1 text-[13px] leading-relaxed',
+                'flex-1 text-meta leading-relaxed',
                 channel.key === HIGHLIGHTED_CHANNEL ? 'text-on-dark-muted' : 'text-muted',
               )}
             >
@@ -100,7 +100,7 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
             </p>
             <p
               className={cn(
-                'pt-1 text-[13px] font-bold',
+                'pt-1 text-meta font-semibold',
                 channel.key === HIGHLIGHTED_CHANNEL ? 'text-on-dark' : 'text-accent',
               )}
             >
@@ -115,14 +115,14 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
           {/* Before the form, not after it: most questions are answered on
               these pages faster than by a reply. */}
           <section className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-l-[3px] border-khaki-mark bg-accent-tint px-5 py-3.5">
-            <p className="text-[13px] leading-relaxed text-muted">
-              <span className="font-bold text-ink">{t('beforeTitle')}.</span> {t('beforeLead')}
+            <p className="text-meta leading-relaxed text-muted">
+              <span className="font-semibold text-ink">{t('beforeTitle')}.</span> {t('beforeLead')}
             </p>
             {BEFORE_YOU_WRITE.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-[13px] font-bold text-accent hover:text-ink"
+                className="text-meta font-semibold text-accent hover:text-ink"
               >
                 {t(`beforeLinks.${link.key}`)} →
               </Link>
@@ -137,19 +137,18 @@ export default async function ContactPage({ searchParams }: PageProps<'/contact'
 
         <aside className="grid min-w-[min(100%,280px)] flex-[1_1_300px] gap-4">
           <section className="rounded-card border border-subtle bg-surface p-5">
-            <h2 className="mb-3 font-display text-[16px] font-semibold tracking-[0.08em] text-ink">
+            <h2 className="mb-3 font-display text-reading font-semibold tracking-[0.08em] text-ink">
               {t('customTitle')}
             </h2>
             <ul className="grid gap-2.5">
               {CUSTOM_ORDER_EXAMPLE_KEYS.map((key) => (
-                <li key={key} className="flex gap-2.5 text-[13px] leading-relaxed text-muted">
+                <li key={key} className="flex gap-2.5 text-meta leading-relaxed text-muted">
                   <span className="mt-1.5 size-1.5 shrink-0 bg-khaki-mark" aria-hidden />
                   {t(`customExamples.${key}`)}
                 </li>
               ))}
             </ul>
           </section>
-
         </aside>
       </div>
     </div>

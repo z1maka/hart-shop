@@ -23,7 +23,7 @@ export function ExpandableText({ text, moreLabel, lessLabel, className }: Expand
         type="button"
         onClick={() => setIsExpanded((current) => !current)}
         aria-expanded={isExpanded}
-        className="mt-1 text-[13px] font-semibold text-accent underline underline-offset-4 hover:text-ink lg:hidden"
+        className="mt-1 text-meta font-medium text-accent underline underline-offset-4 hover:text-ink lg:hidden"
       >
         {isExpanded ? lessLabel : moreLabel}
       </button>

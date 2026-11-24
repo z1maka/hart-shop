@@ -23,8 +23,8 @@ type SelectProps = {
 }
 
 const TRIGGER_SIZE_CLASSES: Record<SelectSize, string> = {
-  sm: 'min-h-10 px-3 text-[12.5px]',
-  md: 'min-h-11 px-3.5 text-[13.5px]',
+  sm: 'min-h-10 px-3 text-meta',
+  md: 'min-h-11 px-3.5 text-small',
 }
 
 export function Select({
@@ -44,7 +44,7 @@ export function Select({
       <SelectPrimitive.Trigger
         aria-label={label}
         className={cn(
-          'inline-flex items-center justify-between gap-3 rounded-control border border-strong bg-raised font-semibold text-ink transition-colors',
+          'inline-flex items-center justify-between gap-3 rounded-control border border-strong bg-raised font-medium text-ink transition-colors',
           'hover:border-ink focus-visible:border-accent data-[state=open]:border-accent',
           TRIGGER_SIZE_CLASSES[size],
           isDisabled && 'cursor-not-allowed opacity-60',
@@ -79,8 +79,8 @@ export function Select({
                 key={option.value}
                 value={option.value}
                 className={cn(
-                  'flex cursor-pointer items-center justify-between gap-3 rounded-chip px-3 py-2.5 text-[13.5px] text-ink outline-none select-none',
-                  'data-[highlighted]:bg-hover data-[state=checked]:font-semibold',
+                  'flex cursor-pointer items-center justify-between gap-3 rounded-chip px-3 py-2.5 text-small text-ink outline-none select-none',
+                  'data-[highlighted]:bg-hover data-[state=checked]:font-medium',
                 )}
               >
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>

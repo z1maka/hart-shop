@@ -19,7 +19,7 @@ export async function CategoryStory({ story, faq }: CategoryStoryProps) {
 
       {faq.length > 0 ? (
         <div className="mt-10">
-          <h2 className="mb-4 font-display text-h3 font-bold text-ink">{t('faqTitle')}</h2>
+          <h2 className="mb-4 font-display text-h3 font-semibold text-ink">{t('faqTitle')}</h2>
           <FaqList entries={faq} />
         </div>
       ) : null}

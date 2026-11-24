@@ -17,7 +17,7 @@ type StateLook = {
 
 const LOOKS: Record<ReturnScreen, StateLook> = {
   [ReturnScreen.Paid]: {
-    badge: 'bg-accent text-white shadow-[0_18px_40px_rgb(90_97_71_/_0.35)]',
+    badge: 'bg-accent text-white',
     glyph: CheckGlyph,
     ring: 'bg-accent-mid',
   },

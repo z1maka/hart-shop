@@ -9,7 +9,7 @@ import { processPaymentEvent } from '@/features/checkout/services/payment-events
 import { paymentProviderById } from '@/features/checkout/services/payment-provider'
 import { orderRepository, type OrderRow } from '@/features/orders'
 import { logger } from '@/lib/logger'
-import { createMoney, Currency, formatMoney } from '@/lib/money'
+import { createMoney, Currency, formatPrice } from '@/lib/money'
 
 export type PaymentReturnView = {
   readonly outcome: ReturnOutcome
@@ -43,7 +43,7 @@ export const paymentReturnService = {
       outcome,
       order: {
         number: order.orderNumber,
-        totalLabel: formatMoney(createMoney(order.totalCents, Currency.Uah)),
+        totalLabel: formatPrice(createMoney(order.totalCents, Currency.Uah)),
         providerId: order.paymentProvider,
       },
     }

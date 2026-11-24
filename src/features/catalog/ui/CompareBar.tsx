@@ -37,7 +37,7 @@ export function CompareBar() {
   return (
     <>
       <div className="sticky bottom-3.5 z-30 flex flex-wrap items-center justify-between gap-3.5 rounded-card bg-ink p-4 shadow-card">
-        <span className="text-[13.5px] font-medium text-on-dark">
+        <span className="text-small font-medium text-on-dark">
           {slugs.length === 1 ? t('pickOneMore') : t('selected', { count: slugs.length })}
         </span>
 
@@ -45,7 +45,7 @@ export function CompareBar() {
           <button
             type="button"
             onClick={clear}
-            className="min-h-10.5 rounded-control border border-on-dark/35 px-3.5 text-[12.5px] font-semibold text-on-dark hover:border-on-dark"
+            className="min-h-10.5 rounded-control border border-on-dark/35 px-3.5 text-meta font-medium text-on-dark hover:border-on-dark"
           >
             {t('clear')}
           </button>
@@ -54,7 +54,7 @@ export function CompareBar() {
               type="button"
               onClick={open}
               disabled={isPending}
-              className="min-h-10.5 rounded-control bg-canvas px-4 text-[12.5px] font-semibold text-ink hover:bg-raised"
+              className="min-h-10.5 rounded-control bg-canvas px-4 text-meta font-medium text-ink hover:bg-raised"
             >
               {t('compareCount', { count: slugs.length })}
             </button>
@@ -67,10 +67,10 @@ export function CompareBar() {
           <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-ink/45" />
           <DialogPrimitive.Content className="fixed top-1/2 left-1/2 z-50 flex max-h-[86vh] w-[min(960px,94vw)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-card bg-surface shadow-[0_24px_60px_rgb(35_36_29_/_0.28)]">
             <div className="flex items-center justify-between border-b border-subtle px-5 py-4">
-              <DialogPrimitive.Title className="font-display text-[17px] font-bold text-ink">
+              <DialogPrimitive.Title className="font-display text-lead font-semibold text-ink">
                 {t('dialogTitle', { count: comparison?.columns.length ?? 0 })}
               </DialogPrimitive.Title>
-              <DialogPrimitive.Close className="min-h-10 rounded-control border border-subtle px-3 text-[12.5px] font-semibold text-ink hover:border-faint">
+              <DialogPrimitive.Close className="min-h-10 rounded-control border border-subtle px-3 text-meta font-medium text-ink hover:border-faint">
                 {t('close')}
               </DialogPrimitive.Close>
             </div>
@@ -94,10 +94,10 @@ function ComparisonTable({
 }) {
   const t = useTranslations('compareUi')
   return (
-    <table className="w-full border-collapse text-[13.5px]">
+    <table className="w-full border-collapse text-small">
       <thead>
         <tr>
-          <th className="w-32 p-2 text-left align-bottom text-[12px] font-semibold text-faint">
+          <th className="w-32 p-2 text-left align-bottom text-caption font-medium text-faint">
             Specification
           </th>
           {comparison.columns.map((column) => (
@@ -114,15 +114,13 @@ function ComparisonTable({
                     />
                   ) : null}
                 </span>
-                <span className="mt-2 block text-[13.5px] font-semibold text-ink">
-                  {column.title}
-                </span>
-                <span className="mt-0.5 block text-[11.5px] text-faint">{column.sku}</span>
+                <span className="mt-2 block text-small font-medium text-ink">{column.title}</span>
+                <span className="mt-0.5 block text-caption text-faint">{column.sku}</span>
               </Link>
               <button
                 type="button"
                 onClick={() => onDrop(column.slug)}
-                className="mt-1.5 text-[12px] font-semibold text-muted hover:text-alert"
+                className="mt-1.5 text-caption font-medium text-muted hover:text-alert"
               >
                 Remove
               </button>
@@ -141,7 +139,7 @@ function ComparisonTable({
           >
             <th
               className={cn(
-                'p-2.5 text-left text-[12.5px] font-semibold',
+                'p-2.5 text-left text-meta font-medium',
                 row.isKeyFigure ? 'text-accent' : 'text-faint',
               )}
             >
@@ -154,7 +152,7 @@ function ComparisonTable({
                 key={`${row.label}-${comparison.columns[index]?.slug ?? index}`}
                 className={cn(
                   'p-2.5 align-top text-ink',
-                  row.isKeyFigure && row.differs ? 'font-bold' : 'font-medium',
+                  row.isKeyFigure && row.differs ? 'font-semibold' : 'font-medium',
                 )}
               >
                 {value}

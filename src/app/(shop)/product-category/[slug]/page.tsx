@@ -91,12 +91,12 @@ async function CategoryHeader({ category: activeCategory }: { category: Category
           { name: activeCategory.name, path: `/product-category/${activeCategory.slug}/` },
         ])}
       />
-      <h1 className="mb-2.5 font-display text-h1 font-bold text-ink">{activeCategory.name}</h1>
+      <h1 className="mb-2.5 font-display text-h1 font-semibold text-ink">{activeCategory.name}</h1>
       <ExpandableText
         text={activeCategory.description}
         moreLabel={filtersT('introMore')}
         lessLabel={filtersT('introLess')}
-        className="max-w-[64ch] text-[14.5px] leading-relaxed text-muted"
+        className="max-w-[64ch] text-body leading-relaxed text-muted"
       />
     </header>
   )

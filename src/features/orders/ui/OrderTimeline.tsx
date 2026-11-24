@@ -39,10 +39,10 @@ export function OrderTimeline({ steps }: { steps: readonly TimelineStep[] }) {
             ) : null}
           </span>
           <span>
-            <span className={cn('block text-[14px] font-semibold', TEXT_CLASSES[step.state])}>
+            <span className={cn('block text-small font-medium', TEXT_CLASSES[step.state])}>
               {t(`${step.key}.label`)}
             </span>
-            <span className="mt-0.5 block text-[12.5px] leading-relaxed text-muted">
+            <span className="mt-0.5 block text-meta leading-relaxed text-muted">
               {t(`${step.key}.body`)}
             </span>
           </span>

@@ -5,8 +5,8 @@ type HeadingLevel = 'h2' | 'h3'
 // A heading opens a section of its own on a category page; on a product page
 // it sits under the section's h2 «Опис», one step down and quieter.
 const HEADING_CLASSES: Record<HeadingLevel, string> = {
-  h2: 'mt-8 mb-3 font-display text-h3 font-bold text-ink',
-  h3: 'mt-6 mb-2 font-display text-[17px] font-semibold tracking-[0.06em] text-ink first:mt-0',
+  h2: 'mt-8 mb-3 font-display text-h3 font-semibold text-ink',
+  h3: 'mt-6 mb-2 text-reading font-semibold text-ink first:mt-0',
 }
 
 type ReadingBlocksProps = {
@@ -35,7 +35,7 @@ function ReadingBlock({
   }
   if (block.type === 'list') {
     return (
-      <ul className="mb-4 grid gap-1.5 pl-5 text-[15px] leading-relaxed text-muted">
+      <ul className="mb-4 grid gap-1.5 pl-5 text-body leading-relaxed text-muted">
         {block.items.map((item, index) => (
           <li key={index} className="list-disc">
             {item}
@@ -44,5 +44,9 @@ function ReadingBlock({
       </ul>
     )
   }
-  return <p className="mb-4 text-[15px] leading-relaxed text-pretty break-words text-muted">{block.text}</p>
+  return (
+    <p className="mb-4 text-body leading-relaxed text-pretty break-words text-muted">
+      {block.text}
+    </p>
+  )
 }

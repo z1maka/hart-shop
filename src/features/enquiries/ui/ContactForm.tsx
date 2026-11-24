@@ -49,11 +49,9 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
   if (isSent) {
     return (
       <div className="rounded-card border border-subtle bg-surface p-8">
-        <p className="mb-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-khaki-ink">
-          {t('sentKicker')}
-        </p>
-        <h2 className="mb-3 font-display text-h3 font-bold text-ink">{t('sentTitle')}</h2>
-        <p className="mb-6 max-w-[60ch] text-[14px] leading-relaxed text-muted">{t('sentBody')}</p>
+        <p className="mb-2 text-meta font-medium text-khaki-ink">{t('sentKicker')}</p>
+        <h2 className="mb-3 font-display text-h3 font-semibold text-ink">{t('sentTitle')}</h2>
+        <p className="mb-6 max-w-[60ch] text-small leading-relaxed text-muted">{t('sentBody')}</p>
         <div className="flex flex-wrap gap-3">
           <Button asChild>
             <Link href="/shop/">{t('backToShop')}</Link>
@@ -82,7 +80,7 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
       </div>
 
       <fieldset className="mb-5">
-        <legend className="mb-3 font-display text-[16px] font-semibold tracking-[0.08em] text-ink">
+        <legend className="mb-3 font-display text-reading font-semibold tracking-[0.08em] text-ink">
           {t('whatAbout')}
         </legend>
         {/* Compact choices; the explanation shows for the chosen topic only,
@@ -92,10 +90,10 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
             <label
               key={entry.id}
               className={cn(
-                'inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-control border-[1.5px] px-3.5 text-[13px] text-ink transition-colors',
+                'inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-control border-[1.5px] px-3.5 text-meta text-ink transition-colors',
                 entry.id === topic
                   ? 'border-accent bg-accent-tint font-extrabold'
-                  : 'border-subtle bg-raised font-semibold hover:border-strong',
+                  : 'border-subtle bg-raised font-medium hover:border-strong',
               )}
             >
               <input
@@ -111,7 +109,7 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
           ))}
         </div>
         {selectedTopic ? (
-          <p className="mt-2 text-[12.5px] leading-relaxed text-muted">{selectedTopic.detail}</p>
+          <p className="mt-2 text-meta leading-relaxed text-muted">{selectedTopic.detail}</p>
         ) : null}
       </fieldset>
 
@@ -145,7 +143,7 @@ export function ContactForm({ topics, initialTopic }: ContactFormProps) {
         </Field>
       </div>
 
-      {error ? <p className="mt-4 text-[13px] font-medium text-alert">{error}</p> : null}
+      {error ? <p className="mt-4 text-meta font-medium text-alert">{error}</p> : null}
 
       <Button type="submit" size="lg" className="mt-5" disabled={isPending}>
         {t('send')}

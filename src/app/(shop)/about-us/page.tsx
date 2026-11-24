@@ -51,13 +51,11 @@ export default async function AboutPage() {
       />
       <section className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-center gap-9 px-7 py-12">
         <div>
-          <p className="mb-5 inline-block border-l-[3px] border-khaki-mark bg-sunken px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-accent">
-            {t('badge')}
-          </p>
-          <h1 className="mb-4 max-w-[19ch] font-display text-[clamp(2rem,4.2vw,3rem)] leading-[1.04] font-bold text-balance text-ink">
+          <p className="mb-4 text-small font-medium text-khaki-ink">{t('badge')}</p>
+          <h1 className="mb-4 max-w-[19ch] font-display text-[clamp(2rem,4.2vw,3rem)] leading-[1.04] font-semibold text-balance text-ink">
             {t('title')}
           </h1>
-          <p className="max-w-[56ch] text-[15px] leading-relaxed text-pretty text-muted">
+          <p className="max-w-[56ch] text-body leading-relaxed text-pretty text-muted">
             {t('lead')}
           </p>
 
@@ -66,12 +64,12 @@ export default async function AboutPage() {
           <dl className="mt-7 grid grid-cols-1 gap-px overflow-hidden rounded-card bg-dark-line min-[420px]:grid-cols-2">
             {FACT_KEYS.map((key) => (
               <div key={key} className="bg-header p-4">
-                <dt className="text-[12px] text-on-dark-muted">{t(`facts.${key}.label`)}</dt>
+                <dt className="text-caption text-on-dark-muted">{t(`facts.${key}.label`)}</dt>
                 <dd
                   className={
                     SHORT_FACT_KEYS.has(key)
-                      ? 'mt-1 font-display text-[22px] font-semibold text-khaki'
-                      : 'mt-1 text-[14px] font-bold text-on-dark'
+                      ? 'mt-1 font-display text-price font-semibold text-khaki'
+                      : 'mt-1 text-small font-semibold text-on-dark'
                   }
                 >
                   {t(`facts.${key}.value`)}
@@ -97,12 +95,9 @@ export default async function AboutPage() {
                   // the page's LCP: none of them may wait for a scroll.
                   loading="eager"
                   fetchPriority="high"
-                  className={cn(
-                    'object-cover transition-transform duration-300 group-hover:scale-[1.03]',
-                    tile.focus,
-                  )}
+                  className={cn('object-cover', tile.focus)}
                 />
-                <span className="absolute bottom-2.5 left-2.5 rounded-control border-l-[3px] border-khaki bg-header px-3 py-1.5 text-[12.5px] font-bold text-on-dark">
+                <span className="absolute bottom-2.5 left-2.5 rounded-control border-l-[3px] border-khaki bg-header px-3 py-1.5 text-meta font-semibold text-on-dark transition-colors group-hover:bg-dark-hover">
                   {t(`collage.${tile.key}`)}
                 </span>
               </Link>
@@ -114,31 +109,31 @@ export default async function AboutPage() {
       <section className="grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-5 px-7 pb-12">
         {BLOCK_KEYS.map((key) => (
           <article key={key} className="rounded-card border border-subtle bg-surface p-6">
-            <h2 className="mb-2.5 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
+            <h2 className="mb-2.5 font-display text-title font-semibold tracking-[0.04em] text-ink">
               {t(`blocks.${key}.heading`)}
             </h2>
-            <p className="text-[13.5px] leading-relaxed text-muted">{t(`blocks.${key}.body`)}</p>
+            <p className="text-small leading-relaxed text-muted">{t(`blocks.${key}.body`)}</p>
           </article>
         ))}
       </section>
 
       <section className="px-7 pb-14">
         <div className="rounded-card border border-subtle bg-surface p-6">
-          <h2 className="mb-2.5 font-display text-[18px] font-bold tracking-[-0.01em] text-ink">
+          <h2 className="mb-2.5 font-display text-lead font-semibold tracking-[-0.01em] text-ink">
             {t('docsTitle')}
           </h2>
-          <p className="max-w-[72ch] text-[13.5px] leading-relaxed text-muted">{t('docsBody')}</p>
+          <p className="max-w-[72ch] text-small leading-relaxed text-muted">{t('docsBody')}</p>
         </div>
       </section>
 
       <section id="seller" className="scroll-mt-28 px-7 pb-14">
         <div className="rounded-card border border-subtle bg-surface p-6">
-          <h2 className="mb-3.5 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
+          <h2 className="mb-3.5 font-display text-title font-semibold tracking-[0.04em] text-ink">
             {t('sellerTitle')}
           </h2>
-          <dl className="grid gap-2 text-[13.5px] sm:grid-cols-[max-content_1fr] sm:gap-x-6">
+          <dl className="grid gap-2 text-small sm:grid-cols-[max-content_1fr] sm:gap-x-6">
             <dt className="text-muted">{t('sellerName')}</dt>
-            <dd className="font-semibold text-ink">{COMPANY.legalName}</dd>
+            <dd className="font-medium text-ink">{COMPANY.legalName}</dd>
             <dt className="text-muted">{t('sellerTaxId')}</dt>
             <dd className="text-ink">{COMPANY.taxId}</dd>
             <Suspense fallback={null}>

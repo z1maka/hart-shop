@@ -58,12 +58,12 @@ export default async function PublicOfferPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-7 py-10">
-      <p className="mb-3 text-[12.5px] font-semibold text-accent">{t('kicker')}</p>
-      <h1 className="mb-3 font-display text-h1 font-bold text-ink">{t('title')}</h1>
-      <p className="mb-2 max-w-[68ch] text-[14.5px] leading-relaxed text-muted">
+      <p className="mb-3 text-meta font-medium text-accent">{t('kicker')}</p>
+      <h1 className="mb-3 font-display text-h1 font-semibold text-ink">{t('title')}</h1>
+      <p className="mb-2 max-w-[68ch] text-body leading-relaxed text-muted">
         {t('lead', { brand: COMPANY.tradingName, site: COMPANY.site })}
       </p>
-      <p className="mb-8 text-[12.5px] text-faint">{t('updated')}</p>
+      <p className="mb-8 text-meta text-faint">{t('updated')}</p>
 
       <SellerCard t={t} />
 
@@ -87,14 +87,14 @@ export default async function PublicOfferPage() {
 function SellerCard({ t }: { readonly t: PageTranslator }) {
   return (
     <section className="mb-10 rounded-card border border-subtle bg-surface p-6">
-      <h2 className="mb-3.5 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
+      <h2 className="mb-3.5 font-display text-title font-semibold tracking-[0.04em] text-ink">
         {t('seller.title')}
       </h2>
-      <dl className="grid gap-3 text-[13.5px] sm:grid-cols-[max-content_1fr] sm:gap-x-6 sm:gap-y-2">
+      <dl className="grid gap-3 text-small sm:grid-cols-[max-content_1fr] sm:gap-x-6 sm:gap-y-2">
         {SELLER_ROWS.map((row) => (
           <div key={row.key} className="grid gap-0.5 sm:contents">
             <dt className="text-muted">{t(`seller.${row.key}`)}</dt>
-            <dd className="font-semibold break-words text-ink">
+            <dd className="font-medium break-words text-ink">
               {row.href ? (
                 <a href={row.href} className="text-accent hover:underline">
                   {row.value}
@@ -123,13 +123,13 @@ function ContractSection({
 }) {
   return (
     <section className="mb-9 grid gap-4">
-      <h2 className="font-display text-h3 font-bold text-ink">
+      <h2 className="font-display text-h3 font-semibold text-ink">
         {number}. {title}
       </h2>
       <ol className="grid max-w-[72ch] gap-3">
         {clauses.map((clause, index) => (
-          <li key={clause.key} className="flex gap-3 text-[14.5px] leading-relaxed text-muted">
-            <span className="min-w-[2.25em] shrink-0 font-semibold text-ink tabular-nums">
+          <li key={clause.key} className="flex gap-3 text-body leading-relaxed text-muted">
+            <span className="min-w-[2.25em] shrink-0 font-medium text-ink tabular-nums">
               {number}.{index + 1}
             </span>
             <span>{clause.text}</span>
@@ -142,7 +142,7 @@ function ContractSection({
 
 function InlineLink({ href, children }: { readonly href: string; readonly children: ReactNode }) {
   return (
-    <Link href={href} className="font-semibold text-accent underline underline-offset-4">
+    <Link href={href} className="font-medium text-accent underline underline-offset-4">
       {children}
     </Link>
   )

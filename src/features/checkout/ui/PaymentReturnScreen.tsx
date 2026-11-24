@@ -46,17 +46,6 @@ type PaymentReturnScreenProps = {
   readonly attempt: number
 }
 
-// The page tints itself after the outcome: a warm olive glow for money that
-// arrived, the alert tone for a refusal, a quiet grey when nothing is known.
-const GLOW: Record<ReturnScreen, string> = {
-  [ReturnScreen.Paid]: 'color-mix(in oklab, var(--color-accent-mid) 70%, transparent)',
-  [ReturnScreen.Processing]: 'var(--color-accent-soft)',
-  [ReturnScreen.Slow]: 'var(--color-accent-soft)',
-  [ReturnScreen.Unpaid]: 'color-mix(in oklab, var(--color-alert-edge) 32%, transparent)',
-  [ReturnScreen.Expired]: 'var(--color-hover)',
-  [ReturnScreen.Unknown]: 'var(--color-hover)',
-}
-
 const STATUS_PILL: Record<ReturnScreen, string> = {
   [ReturnScreen.Paid]: 'bg-accent text-white',
   [ReturnScreen.Processing]: 'bg-accent-soft text-accent',
@@ -76,26 +65,18 @@ export async function PaymentReturnScreen({
   const [primary, secondary] = actionsFor(screen, token, attempt)
 
   return (
-    <section className="relative isolate overflow-hidden px-5 pt-14 pb-16 sm:px-7 sm:pt-20 sm:pb-24">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px]"
-        style={{
-          background: `radial-gradient(ellipse 70% 62% at 50% 0%, ${GLOW[screen]}, transparent)`,
-        }}
-      />
-
+    <section className="px-5 pt-14 pb-16 sm:px-7 sm:pt-20 sm:pb-24">
       <div className="mx-auto flex max-w-[640px] flex-col items-center text-center">
         <PaymentStateIcon screen={screen} />
         {order ? (
-          <p className="mt-7 rounded-chip border border-subtle bg-surface/80 px-3.5 py-1.5 text-[12.5px] font-semibold text-muted backdrop-blur-sm">
+          <p className="mt-7 rounded-chip border border-subtle bg-surface px-3.5 py-1.5 text-meta font-medium text-muted">
             {t('orderKicker', { number: order.number })}
           </p>
         ) : null}
-        <h1 className="mt-4 animate-rise-in font-display text-h1 font-bold text-ink">
+        <h1 className="mt-4 animate-rise-in font-display text-h1 font-semibold text-ink">
           {t(`screens.${screen}.title`)}
         </h1>
-        <p className="mt-3 max-w-[52ch] animate-rise-in text-[15px] leading-relaxed text-muted [animation-delay:80ms]">
+        <p className="mt-3 max-w-[52ch] animate-rise-in text-body leading-relaxed text-muted [animation-delay:80ms]">
           {t(`screens.${screen}.body`)}
         </p>
 
@@ -198,7 +179,7 @@ function CheckingBar({
       <div className="h-1.5 overflow-hidden rounded-pill bg-accent-soft">
         <div className="h-full w-2/5 animate-indeterminate rounded-pill bg-accent" />
       </div>
-      <p className="mt-2.5 text-[12.5px] font-medium text-faint">{label}</p>
+      <p className="mt-2.5 text-meta font-medium text-faint">{label}</p>
       <PaymentStatusPoller token={token} attempt={attempt} />
     </div>
   )
@@ -216,19 +197,19 @@ function Summary({
   const provider = order.providerId === 'mono' ? order.providerId : 'other'
 
   return (
-    <dl className="grid overflow-hidden rounded-card border border-subtle bg-surface/90 shadow-card backdrop-blur-sm sm:grid-cols-3">
+    <dl className="grid overflow-hidden rounded-card border border-subtle bg-surface sm:grid-cols-3">
       <SummaryCell label={t('summary.amount')}>
-        <span className="font-display text-[22px] font-bold tracking-[-0.01em] text-ink">
+        <span className="font-display text-price font-semibold tracking-[-0.01em] text-ink">
           {order.totalLabel}
         </span>
       </SummaryCell>
       <SummaryCell label={t('summary.method')}>
-        <span className="text-[14.5px] font-semibold text-ink">{t(`providers.${provider}`)}</span>
+        <span className="text-body font-medium text-ink">{t(`providers.${provider}`)}</span>
       </SummaryCell>
       <SummaryCell label={t('summary.status')}>
         <span
           className={cn(
-            'inline-flex rounded-chip px-3 py-1 text-[12.5px] font-bold',
+            'inline-flex rounded-chip px-3 py-1 text-meta font-semibold',
             STATUS_PILL[screen],
           )}
         >
@@ -248,9 +229,7 @@ function SummaryCell({
 }) {
   return (
     <div className="flex flex-col gap-1.5 border-subtle px-6 py-5 not-first:border-t sm:not-first:border-t-0 sm:not-first:border-l">
-      <dt className="text-[11.5px] font-semibold tracking-[0.04em] text-faint uppercase">
-        {label}
-      </dt>
+      <dt className="text-caption font-medium text-faint">{label}</dt>
       <dd>{children}</dd>
     </div>
   )
@@ -261,8 +240,8 @@ function DontPayTwice({ t }: { readonly t: Translator }) {
     <div className="flex items-start gap-4 rounded-card border border-accent-soft bg-accent-tint px-6 py-5">
       <IconBubble glyph={ShieldGlyph} />
       <div>
-        <p className="text-[14.5px] font-semibold text-ink">{t('dontPayTwice.title')}</p>
-        <p className="mt-1 text-[13.5px] leading-relaxed text-muted">{t('dontPayTwice.body')}</p>
+        <p className="text-body font-medium text-ink">{t('dontPayTwice.title')}</p>
+        <p className="mt-1 text-small leading-relaxed text-muted">{t('dontPayTwice.body')}</p>
       </div>
     </div>
   )
@@ -276,8 +255,8 @@ const NEXT_STEPS = [
 
 function NextSteps({ t }: { readonly t: Translator }) {
   return (
-    <div className="rounded-card border border-subtle bg-surface/90 px-6 py-6 backdrop-blur-sm">
-      <h2 className="mb-5 font-display text-h3 font-bold text-ink">{t('nextTitle')}</h2>
+    <div className="rounded-card border border-subtle bg-surface px-6 py-6">
+      <h2 className="mb-5 font-display text-h3 font-semibold text-ink">{t('nextTitle')}</h2>
       <ol className="grid gap-5 sm:grid-cols-3 sm:gap-6">
         {NEXT_STEPS.map((step, index) => (
           <li
@@ -287,8 +266,8 @@ function NextSteps({ t }: { readonly t: Translator }) {
           >
             <IconBubble glyph={step.glyph} number={index + 1} />
             <div>
-              <p className="text-[14px] font-semibold text-ink">{t(`next.${step.key}.title`)}</p>
-              <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              <p className="text-small font-medium text-ink">{t(`next.${step.key}.title`)}</p>
+              <p className="mt-1 text-meta leading-relaxed text-muted">
                 {t(`next.${step.key}.body`)}
               </p>
             </div>
@@ -310,7 +289,7 @@ function IconBubble({
     <span className="relative grid size-11 shrink-0 place-items-center rounded-full bg-accent-soft text-accent">
       <Glyph className="size-5.5" />
       {number ? (
-        <span className="absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-ink text-[10.5px] font-bold text-on-dark">
+        <span className="absolute -top-1 -right-1 grid size-5 place-items-center rounded-full bg-ink text-[10.5px] font-semibold text-on-dark">
           {number}
         </span>
       ) : null}
@@ -320,12 +299,12 @@ function IconBubble({
 
 function HelpLine({ label }: { readonly label: string }) {
   return (
-    <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 pt-2 text-[13.5px] text-muted">
+    <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 pt-2 text-small text-muted">
       <PhoneGlyph className="size-4 text-faint" />
       {label}
       <a
         href={COMPANY.phoneHref}
-        className="font-semibold text-ink underline-offset-4 hover:underline"
+        className="font-medium text-ink underline-offset-4 hover:underline"
       >
         {COMPANY.phone}
       </a>

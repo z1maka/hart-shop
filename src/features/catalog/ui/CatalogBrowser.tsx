@@ -36,12 +36,7 @@ import { JsonLd } from '@/components/JsonLd'
 import { itemListJsonLd } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
-const SORT_VALUES: readonly CatalogSort[] = [
-  'recommended',
-  'price-asc',
-  'price-desc',
-  'weight-asc',
-]
+const SORT_VALUES: readonly CatalogSort[] = ['recommended', 'price-asc', 'price-desc', 'weight-asc']
 const DEFAULT_SORT: CatalogSort = 'recommended'
 const WEIGHT_BANDS: readonly CatalogWeightBand[] = ['light', 'heavy']
 
@@ -162,7 +157,7 @@ export async function CatalogBrowser({
             )}
           >
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[13px] text-muted max-lg:hidden">
+              <span className="text-meta text-muted max-lg:hidden">
                 {t('showingOf', { shown: catalog.items.length, total: catalog.total })}
               </span>
               {activeColorOptions.map((option) => (
@@ -181,12 +176,12 @@ export async function CatalogBrowser({
             <ProductGrid products={catalog.items} priorityCount={3} highlightColors={colors} />
           ) : (
             <div className="rounded-card border border-subtle bg-surface p-10 text-center">
-              <p className="text-[14.5px] text-muted">{t('empty')}</p>
+              <p className="text-body text-muted">{t('empty')}</p>
               {/* The strongest moment on the whole site: someone has just
                   looked for a thing the catalogue does not have. */}
               <Link
                 href={CUSTOM_ORDER_HREF}
-                className="mt-3 inline-block text-[13.5px] font-bold text-accent hover:text-ink"
+                className="mt-3 inline-block text-small font-semibold text-accent hover:text-ink"
               >
                 {t('emptyCustom')}
               </Link>
@@ -209,8 +204,8 @@ export async function CatalogBrowser({
           />
 
           {catalog.items.length > 0 ? (
-            <p className="pt-6 text-[13.5px]">
-              <Link href={CUSTOM_ORDER_HREF} className="font-bold text-accent hover:text-ink">
+            <p className="pt-6 text-small">
+              <Link href={CUSTOM_ORDER_HREF} className="font-semibold text-accent hover:text-ink">
                 {t('notFoundCustom')}
               </Link>
             </p>
@@ -309,7 +304,7 @@ function ActiveFilterChip({
       href={href}
       rel="nofollow"
       aria-label={`${removeLabel}: ${label}`}
-      className="inline-flex min-h-[30px] items-center gap-1.5 rounded-chip bg-ink px-2.5 text-[12px] font-bold text-on-dark transition-colors hover:bg-ink-hover"
+      className="inline-flex min-h-[30px] items-center gap-1.5 rounded-chip bg-ink px-2.5 text-caption font-semibold text-on-dark transition-colors hover:bg-ink-hover"
     >
       {label}
       <span aria-hidden>×</span>

@@ -18,8 +18,8 @@ export function ConsentSettings() {
 
   return (
     <div className="rounded-card border border-subtle bg-surface p-5">
-      <p className="mb-1 text-[14px] font-semibold text-ink">{t('title')}</p>
-      <p className="mb-4 text-[13.5px] leading-relaxed text-muted" aria-live="polite">
+      <p className="mb-1 text-small font-medium text-ink">{t('title')}</p>
+      <p className="mb-4 text-small leading-relaxed text-muted" aria-live="polite">
         {t(STATE_KEY[state])}
       </p>
       <div className="flex flex-col gap-2.5 sm:flex-row">
@@ -41,7 +41,7 @@ export function ConsentSettings() {
           {t('reject')}
         </Button>
       </div>
-      <p className="mt-3 text-[12px] leading-relaxed text-faint">{t('hint')}</p>
+      <p className="mt-3 text-caption leading-relaxed text-faint">{t('hint')}</p>
     </div>
   )
 }

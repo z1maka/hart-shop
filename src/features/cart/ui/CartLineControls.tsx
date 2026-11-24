@@ -62,11 +62,11 @@ export function CartLineControls({ itemId, quantity }: CartLineControlsProps) {
           type="button"
           onClick={() => step(-1)}
           aria-label={t('decrease')}
-          className="min-h-10 min-w-10 text-[15px] font-bold text-ink hover:bg-hover"
+          className="min-h-10 min-w-10 text-body font-semibold text-ink hover:bg-hover"
         >
           −
         </button>
-        <span className="flex min-w-9 items-center justify-center px-1 text-center text-[13.5px] font-bold text-ink">
+        <span className="flex min-w-9 items-center justify-center px-1 text-center text-small font-semibold text-ink">
           {shown}
         </span>
         <button
@@ -74,7 +74,7 @@ export function CartLineControls({ itemId, quantity }: CartLineControlsProps) {
           onClick={() => step(1)}
           disabled={shown >= MAX_QUANTITY}
           aria-label={t('increase')}
-          className="min-h-10 min-w-10 text-[15px] font-bold text-ink hover:bg-hover disabled:opacity-40"
+          className="min-h-10 min-w-10 text-body font-semibold text-ink hover:bg-hover disabled:opacity-40"
         >
           +
         </button>
@@ -83,7 +83,7 @@ export function CartLineControls({ itemId, quantity }: CartLineControlsProps) {
       <button
         type="button"
         onClick={() => apply(0)}
-        className="text-[12.5px] font-bold text-muted hover:text-alert"
+        className="text-meta font-semibold text-muted hover:text-alert"
       >
         {removeT('remove')}
       </button>

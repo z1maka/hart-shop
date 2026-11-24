@@ -46,15 +46,15 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-// The hero fills one of two columns from 772px up (340px minimum per column
-// plus the gap) inside the 1440px shell with 28px page padding. A fixed
-// 620px here made retina screens fetch the 1600px original for a 540px box.
+// The hero fills one of two columns from 768px up inside the 1440px shell
+// with 28px page padding. A fixed 620px here made retina screens fetch the
+// 1600px original for a 540px box.
 const HERO_IMAGE_SIZES =
-  '(min-width: 1440px) 674px, (min-width: 772px) calc(50vw - 46px), calc(100vw - 56px)'
+  '(min-width: 1440px) 674px, (min-width: 768px) calc(50vw - 46px), calc(100vw - 56px)'
 
-const SECTION_TITLE = 'font-display text-h2 font-bold text-ink'
-const SECTION_LEAD = 'max-w-[62ch] text-[14.5px] leading-relaxed text-muted'
-const TEXT_LINK = 'text-[13.5px] font-bold text-accent hover:text-ink'
+const SECTION_TITLE = 'font-display text-h2 font-semibold text-ink'
+const SECTION_LEAD = 'max-w-[62ch] text-body leading-relaxed text-muted'
+const TEXT_LINK = 'text-small font-semibold text-accent hover:text-ink'
 
 export default async function HomePage() {
   const t = await getTranslations('home')
@@ -114,15 +114,15 @@ async function Hero() {
   const t = await getTranslations('home')
 
   return (
-    <section className="grid grid-cols-[repeat(auto-fit,minmax(min(340px,100%),1fr))] items-center gap-9 px-7 py-13">
+    // On a phone the photo comes first, so the first screen shows the
+    // product, not a column of text (owner, 24.11.2026).
+    <section className="grid items-center gap-6 px-7 pt-5 pb-10 md:grid-cols-2 md:gap-9 md:py-13">
       <div>
-        <p className="mb-5 inline-block border-l-[3px] border-khaki-mark bg-sunken px-3.5 py-2 font-display text-[12.5px] font-semibold tracking-[0.12em] text-accent">
-          {t('badge')}
-        </p>
-        <h1 className="mb-4.5 max-w-[16ch] font-display text-display font-bold text-balance text-ink">
+        <p className="mb-3 text-small font-medium text-khaki-ink md:mb-4">{t('badge')}</p>
+        <h1 className="mb-4.5 max-w-[16ch] font-display text-display font-semibold text-balance text-ink">
           {t('title')}
         </h1>
-        <p className="mb-7 max-w-[50ch] text-[16.5px] leading-relaxed text-pretty text-muted">
+        <p className="mb-6 max-w-[50ch] text-body leading-relaxed text-pretty text-muted md:mb-7 md:text-reading">
           {t('lead')}
         </p>
         <div className="flex flex-wrap gap-3">
@@ -140,8 +140,8 @@ async function Hero() {
         </div>
         {/* On the first screen, where someone who needs their own size is
             still deciding whether this shop can help at all. */}
-        <p className="mt-4 text-[13.5px] text-muted">
-          <Link href={CUSTOM_ORDER_HREF} className="font-bold text-accent hover:text-ink">
+        <p className="mt-4 text-small text-muted">
+          <Link href={CUSTOM_ORDER_HREF} className="font-semibold text-accent hover:text-ink">
             {t('customCta')}
           </Link>
         </p>
@@ -154,7 +154,7 @@ async function Hero() {
 
 function HeroImage() {
   return (
-    <div className="relative aspect-5/4 overflow-hidden rounded-card bg-sunken shadow-hero">
+    <div className="relative order-first aspect-4/3 overflow-hidden rounded-card bg-sunken shadow-hero md:order-none md:aspect-5/4">
       <Image
         src={HERO_PHOTO.url}
         alt={HERO_PHOTO.alt}
@@ -203,11 +203,11 @@ async function HideTiles() {
               <Suspense fallback={null}>
                 <TileImage source={tile.image} sizes={TILE_SIZES[index] ?? '100vw'} />
               </Suspense>
-              <div className="absolute right-4 bottom-4 left-4 max-w-[40ch] rounded-control border-l-[3px] border-khaki bg-header px-4 py-3 shadow-float">
-                <p className="font-display text-[18px] font-bold tracking-[0.04em] text-on-dark">
+              <div className="absolute right-4 bottom-4 left-4 max-w-[40ch] rounded-control border-l-[3px] border-khaki bg-header px-4 py-3 shadow-float transition-colors group-hover:bg-dark-hover">
+                <p className="font-display text-lead font-semibold tracking-[0.04em] text-on-dark">
                   {t(`tiles.${tile.key}.title`)} →
                 </p>
-                <p className="mt-0.5 text-[12.5px] leading-snug text-on-dark-muted">
+                <p className="mt-0.5 text-meta leading-snug text-on-dark-muted">
                   {t(`tiles.${tile.key}.body`)}
                 </p>
               </div>
@@ -219,19 +219,17 @@ async function HideTiles() {
   )
 }
 
-async function TileImage({ source, sizes }: { readonly source: HomeTileImage; readonly sizes: string }) {
+async function TileImage({
+  source,
+  sizes,
+}: {
+  readonly source: HomeTileImage
+  readonly sizes: string
+}) {
   const image = await tileImageOf(source)
   if (!image) return null
 
-  return (
-    <Image
-      src={image.url}
-      alt={image.alt}
-      fill
-      sizes={sizes}
-      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-    />
-  )
+  return <Image src={image.url} alt={image.alt} fill sizes={sizes} className="object-cover" />
 }
 
 async function tileImageOf(source: HomeTileImage): Promise<{ url: string; alt: string } | null> {
@@ -273,7 +271,7 @@ async function FactStrip() {
     <section aria-label={t('factsLabel')} className="border-y border-subtle bg-surface px-7 py-4">
       <ul className="flex flex-wrap gap-x-7 gap-y-2.5">
         {HOME_FACT_KEYS.map((key) => (
-          <li key={key} className="flex items-center gap-2 text-[13px] font-bold text-ink">
+          <li key={key} className="flex items-center gap-2 text-meta font-semibold text-ink">
             <span className="size-2 bg-khaki-mark" aria-hidden />
             {t(`facts.${key}`)}
           </li>
@@ -285,9 +283,14 @@ async function FactStrip() {
 
 // A configured product that is no longer published leaves its block quietly
 // for the buyer, loudly for the owner.
-function reportMissing(block: string, expected: readonly string[], found: ReadonlySet<string>): void {
+function reportMissing(
+  block: string,
+  expected: readonly string[],
+  found: ReadonlySet<string>,
+): void {
   const missing = expected.filter((slug) => !found.has(slug))
-  if (missing.length > 0) logger.error('Home block points at unpublished products', { block, missing })
+  if (missing.length > 0)
+    logger.error('Home block points at unpublished products', { block, missing })
 }
 
 async function StarlinkChooser() {
@@ -303,8 +306,10 @@ async function StarlinkChooser() {
     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-5">
       {HOME_STARLINK_CHOOSER.map((column) => (
         <div key={column.key} className="rounded-card border border-subtle bg-raised p-5">
-          <h3 className="text-[15px] font-bold text-ink">{t(`starlink.columns.${column.key}.title`)}</h3>
-          <p className="mt-1 text-[12.5px] text-muted">{t(`starlink.columns.${column.key}.note`)}</p>
+          <h3 className="text-body font-semibold text-ink">
+            {t(`starlink.columns.${column.key}.title`)}
+          </h3>
+          <p className="mt-1 text-meta text-muted">{t(`starlink.columns.${column.key}.note`)}</p>
           <ul className="mt-4 flex flex-wrap gap-2">
             {column.options
               .filter((option) => published.has(option.slug))
@@ -312,7 +317,7 @@ async function StarlinkChooser() {
                 <li key={option.key}>
                   <Link
                     href={`/product/${option.slug}/`}
-                    className="inline-block rounded-chip border border-strong px-3 py-1.5 text-[13px] font-semibold text-ink transition-colors hover:border-ink hover:bg-sunken"
+                    className="inline-block rounded-chip border border-strong px-3 py-1.5 text-meta font-medium text-ink transition-colors hover:border-ink hover:bg-sunken"
                   >
                     {t(`starlink.options.${option.key}`)}
                   </Link>
@@ -336,18 +341,21 @@ async function ProofSection() {
         <p className={SECTION_LEAD}>{t('proof.body')}</p>
       </div>
       <div>
-        <h3 className="text-[15px] font-bold text-ink">{t('proof.fabricTitle')}</h3>
-        <p className="mt-1 mb-4 text-[12.5px] text-muted">{t('proof.fabricLead')}</p>
+        <h3 className="text-body font-semibold text-ink">{t('proof.fabricTitle')}</h3>
+        <p className="mt-1 mb-4 text-meta text-muted">{t('proof.fabricLead')}</p>
         <ol className="overflow-hidden rounded-card border border-subtle">
           {FABRIC_LAYERS.map((layer) => (
-            <li key={layer.number} className="flex items-stretch border-b border-subtle last:border-b-0">
+            <li
+              key={layer.number}
+              className="flex items-stretch border-b border-subtle last:border-b-0"
+            >
               <span className={cn('w-3 shrink-0', layer.swatchClass)} aria-hidden />
               <div className="px-4 py-3">
-                <p className="text-[13.5px] font-bold text-ink">
+                <p className="text-small font-semibold text-ink">
                   <span className="font-display text-khaki-ink">{layer.number}</span> ·{' '}
                   {layersT(`${layer.number}.title`)}
                 </p>
-                <p className="mt-0.5 text-[12px] text-faint">{layersT(`${layer.number}.spec`)}</p>
+                <p className="mt-0.5 text-caption text-faint">{layersT(`${layer.number}.spec`)}</p>
               </div>
             </li>
           ))}
@@ -387,11 +395,15 @@ async function UnitsBand() {
     <section className="px-7 py-12">
       <div className="flex flex-wrap items-center gap-x-9 gap-y-6 rounded-card bg-header px-7 py-8">
         <div className="min-w-[min(100%,300px)] flex-[999_1_420px]">
-          <h2 className="mb-2.5 font-display text-h2 font-bold text-on-dark">{t('units.title')}</h2>
-          <p className="max-w-[62ch] text-[14.5px] leading-relaxed text-on-dark-muted">{t('units.lead')}</p>
+          <h2 className="mb-2.5 font-display text-h2 font-semibold text-on-dark">
+            {t('units.title')}
+          </h2>
+          <p className="max-w-[62ch] text-body leading-relaxed text-on-dark-muted">
+            {t('units.lead')}
+          </p>
           <ul className="mt-4 grid gap-2">
             {UNIT_POINT_KEYS.map((key) => (
-              <li key={key} className="flex gap-2.5 text-[13.5px] leading-relaxed text-on-dark">
+              <li key={key} className="flex gap-2.5 text-small leading-relaxed text-on-dark">
                 <span className="mt-2 size-1.5 shrink-0 bg-khaki" aria-hidden />
                 {t(`units.points.${key}`)}
               </li>
@@ -425,15 +437,19 @@ async function GuidesSection() {
           {t('guidesAll')}
         </Link>
       </div>
-      <ul className="grid grid-cols-[repeat(auto-fit,minmax(min(260px,100%),1fr))] gap-4">
+      {/* A list of titles, not a wall of equal text cards: each guide's
+          summary waits on the guides page (owner, 24.11.2026). */}
+      <ul className="grid gap-x-9 border-t border-subtle md:grid-cols-2 xl:grid-cols-3">
         {GUIDES.map((guide) => (
-          <li key={guide.slug}>
+          <li key={guide.slug} className="border-b border-subtle">
             <Link
               href={`/guides/${guide.slug}/`}
-              className="block h-full rounded-card border border-subtle bg-surface p-5 transition-colors hover:border-strong"
+              className="flex min-h-14 items-center justify-between gap-4 py-3 text-body leading-snug font-medium text-ink transition-colors hover:text-accent"
             >
-              <h3 className="text-[14.5px] leading-snug font-bold text-ink">{guide.title}</h3>
-              <p className="mt-2 text-[13px] leading-relaxed text-muted">{guide.description}</p>
+              {guide.title}
+              <span aria-hidden className="text-faint">
+                →
+              </span>
             </Link>
           </li>
         ))}

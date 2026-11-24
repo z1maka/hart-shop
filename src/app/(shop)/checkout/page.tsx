@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/Skeleton'
 import { getCart, type CartView } from '@/features/cart'
 import { CartLineVariant } from '@/features/cart/ui/CartLineVariant'
 import { CheckoutFlow, getCheckoutAvailability } from '@/features/checkout'
-import { formatMoney } from '@/lib/money'
+import { formatPrice } from '@/lib/money'
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations('meta')
@@ -26,7 +26,7 @@ export default async function CheckoutPage() {
 
   return (
     <div className="px-7 py-10">
-      <h1 className="mb-6 font-display text-h1 font-bold text-ink">{t('title')}</h1>
+      <h1 className="mb-6 font-display text-h1 font-semibold text-ink">{t('title')}</h1>
       <StreamedPageBody>
         <Suspense fallback={<Skeleton className="h-96 w-full rounded-card" />}>
           <CheckoutContents />
@@ -49,7 +49,7 @@ async function CheckoutContents() {
     <div className="flex flex-wrap items-start gap-6">
       <div className="min-w-[min(100%,320px)] flex-[999_1_560px] rounded-card border border-subtle bg-raised p-6">
         <CheckoutFlow
-          totalLabel={formatMoney(cart.subtotal)}
+          totalLabel={formatPrice(cart.subtotal)}
           totalCents={cart.subtotal.amountCents}
           analyticsItems={cart.lines.map((line) => ({
             sku: line.sku,
@@ -78,7 +78,7 @@ async function OrderSummary({ cart }: { cart: CartView }) {
 
   return (
     <aside className="min-w-[min(100%,300px)] flex-[1_1_320px] rounded-card border border-subtle bg-surface p-5.5">
-      <h2 className="mb-4 font-display text-[16px] font-semibold tracking-[0.08em] text-ink">
+      <h2 className="mb-4 font-display text-reading font-semibold tracking-[0.08em] text-ink">
         {t('summary.yourOrder')}
       </h2>
 
@@ -91,7 +91,7 @@ async function OrderSummary({ cart }: { cart: CartView }) {
               ) : null}
             </span>
             <span className="flex-1">
-              <span className="block text-[13.5px] font-bold text-ink">{line.title}</span>
+              <span className="block text-small font-semibold text-ink">{line.title}</span>
               <CartLineVariant
                 variantLabel={line.variantLabel}
                 color={line.color}
@@ -101,17 +101,15 @@ async function OrderSummary({ cart }: { cart: CartView }) {
                 density="compact"
               />
             </span>
-            <span className="text-[13.5px] font-semibold text-ink">
-              {formatMoney(line.linePrice)}
-            </span>
+            <span className="text-small font-medium text-ink">{formatPrice(line.linePrice)}</span>
           </div>
         ))}
       </div>
 
-      <dl className="grid gap-2 py-4 text-[13.5px]">
+      <dl className="grid gap-2 py-4 text-small">
         <div className="flex justify-between">
           <dt className="text-muted">{t('summary.subtotal')}</dt>
-          <dd className="font-bold text-ink">{formatMoney(cart.subtotal)}</dd>
+          <dd className="font-semibold text-ink">{formatPrice(cart.subtotal)}</dd>
         </div>
         <div className="flex justify-between">
           <dt className="text-muted">{t('summary.shipping')}</dt>

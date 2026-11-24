@@ -48,7 +48,9 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
       })
 
       if (!result.ok) {
-        setError(result.error.code === 'RATE_LIMITED' ? t('errors.rateLimited') : t('errors.failed'))
+        setError(
+          result.error.code === 'RATE_LIMITED' ? t('errors.rateLimited') : t('errors.failed'),
+        )
         return
       }
       setIsSent(true)
@@ -58,23 +60,23 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
   if (isSent) {
     return (
       <div className="rounded-card border border-subtle bg-surface p-5.5">
-        <h3 className="mb-2 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
+        <h3 className="mb-2 font-display text-title font-semibold tracking-[0.04em] text-ink">
           {t('sentTitle')}
         </h3>
-        <p className="text-[13.5px] leading-relaxed text-muted">{t('sentBody')}</p>
+        <p className="text-small leading-relaxed text-muted">{t('sentBody')}</p>
       </div>
     )
   }
 
   return (
     <form action={handleSubmit} className="rounded-card border border-subtle bg-surface p-5.5">
-      <h3 className="mb-1.5 font-display text-[20px] font-bold tracking-[0.04em] text-ink">
+      <h3 className="mb-1.5 font-display text-title font-semibold tracking-[0.04em] text-ink">
         {t('title')}
       </h3>
-      <p className="mb-5 text-[13px] leading-relaxed text-muted">{t('lead')}</p>
+      <p className="mb-5 text-meta leading-relaxed text-muted">{t('lead')}</p>
 
       <div className="mb-4">
-        <span id={ratingId} className="mb-1.5 block text-[12.5px] font-semibold text-muted">
+        <span id={ratingId} className="mb-1.5 block text-meta font-medium text-muted">
           {t('rating')}
         </span>
         <div role="radiogroup" aria-labelledby={ratingId} className="flex items-center gap-1">
@@ -89,7 +91,7 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
               onMouseEnter={() => setHovered(position)}
               onMouseLeave={() => setHovered(0)}
               className={cn(
-                'size-10 rounded-control border text-[20px] leading-none transition-colors',
+                'size-10 rounded-control border text-title leading-none transition-colors',
                 position <= (hovered || rating)
                   ? 'border-khaki-mark bg-khaki/15 text-khaki-ink'
                   : 'border-subtle bg-raised text-strong hover:border-khaki-mark',
@@ -98,7 +100,9 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
               ★
             </button>
           ))}
-          <span className="ml-2 text-[12px] text-faint">{rating === 0 ? t('ratingHint') : null}</span>
+          <span className="ml-2 text-caption text-faint">
+            {rating === 0 ? t('ratingHint') : null}
+          </span>
         </div>
       </div>
 
@@ -113,7 +117,7 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
           placeholder={t('bodyPlaceholder')}
           className={textareaClassName}
         />
-        <span className="text-[11.5px] text-faint">
+        <span className="text-caption text-faint">
           {missingChars > 0 ? t('bodyHint', { count: missingChars }) : t('bodyReady')}
         </span>
       </Field>
@@ -135,7 +139,7 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
       <Field label={`${t('phone')} (${t('phoneOptional')})`} className="mb-1.5">
         <UaPhoneInput name="phone" />
       </Field>
-      <p className="mb-5 text-[11.5px] leading-relaxed text-faint">{t('phoneNote')}</p>
+      <p className="mb-5 text-caption leading-relaxed text-faint">{t('phoneNote')}</p>
 
       {/* The honeypot: hidden from people, filled by bots. */}
       <input
@@ -147,12 +151,12 @@ export function ReviewForm({ productSlug }: ReviewFormProps) {
         className="absolute -left-[9999px] h-0 w-0 opacity-0"
       />
 
-      {error ? <p className="mb-3 text-[13px] font-semibold text-alert">{error}</p> : null}
+      {error ? <p className="mb-3 text-meta font-medium text-alert">{error}</p> : null}
 
       <Button type="submit" size="lg" disabled={isPending} className="w-full">
         {isPending ? t('submitting') : t('submit')}
       </Button>
-      <p className="mt-3 text-[11.5px] leading-relaxed text-faint">{t('footnote')}</p>
+      <p className="mt-3 text-caption leading-relaxed text-faint">{t('footnote')}</p>
     </form>
   )
 }

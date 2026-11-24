@@ -115,7 +115,7 @@ function RailArrow({
       className={cn(
         'absolute z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-control',
         top === null && 'top-1/3',
-        'border border-strong bg-raised text-[15px] text-ink shadow-card transition-colors',
+        'border border-strong bg-raised text-body text-ink shadow-card transition-colors',
         'hover:border-ink hover:bg-ink hover:text-on-dark',
         side === 'left' ? '-left-3' : '-right-3',
       )}
